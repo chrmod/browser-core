@@ -7,6 +7,10 @@ module.exports = function(defaults) {
     // Add options here
     minifyJS: {
       enabled: false
+    },
+    babel: {
+      optional: ['es6.spec.symbols'],
+      includePolyfill: true
     }
   });
 

@@ -411,6 +411,9 @@ var CLIQZEnvironment = {
                 onSearchResult: function(ctx, result) {
                     var res = [];
                     for (var i = 0; result && i < result.matchCount; i++) {
+                        if (result.getValueAt(i).indexOf('https://cliqz.com/search/?q=') === 0) {
+                          continue;
+                        }
                         if(result.getStyleAt(i).indexOf('heuristic') != -1){
                           // filter out "heuristic" results
                           continue;

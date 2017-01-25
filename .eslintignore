@@ -142,13 +142,6 @@ modules/geolocation/background.es
 modules/geolocation/window.es
 modules/history-ui-desktop/background.es
 modules/history-ui-desktop/window.es
-modules/history/background.es
-modules/history/history-dto.es
-modules/history/meta-database.es
-modules/history/mixer-proxy.es
-modules/history/query-database.es
-modules/history/rich-header-proxy.es
-modules/history/window.es
 modules/hm/background.es
 modules/hm/convert-index.es
 modules/hm/gather-data.es

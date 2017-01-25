@@ -1,10 +1,9 @@
 import CliqzUtils from "core/utils";
 import CliqzABTests from "core/ab-tests";
-const { classes: Cc, Constructor: CC, interfaces: Ci, utils: Cu, manager: Cm } =
+import Factory from '../platform/component-registration';
+import AboutCliqz from './about-cliqz-protocol-handler';
+const { classes: Cc, Constructor: CC, interfaces: Ci, utils: Cu } =
     Components;
-
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import("resource://gre/modules/Services.jsm");
 
 var CLIQZ_NEW_TAB = CliqzUtils.CLIQZ_NEW_TAB,
     CLIQZ_NEW_TAB_RESOURCE_URL = CliqzUtils.CLIQZ_NEW_TAB_RESOURCE_URL,
@@ -45,82 +44,6 @@ try{
   }
 } catch(e){}
 
-// https://developer.mozilla.org/en-US/docs/Custom_about:_URLs
-class Factory {
-  constructor(component) {
-    this.component = component;
-  }
-
-  createInstance(outer, iid) {
-    if (outer) {
-      throw Cr.NS_ERROR_NO_AGGREGATION;
-    }
-    return new this.component();
-  }
-
-  register() {
-    Cm.registerFactory(
-      this.component.prototype.classID,
-      this.component.prototype.classDescription,
-      this.component.prototype.contractID,
-      this);
-  }
-
-  unregister() {
-    Cm.unregisterFactory(this.component.prototype.classID, this);
-  }
-}
-
-class AboutCliqz {
-  get classDescription() {
-    return 'CLIQZ New Tab Page';
-  }
-
-  get contractID() {
-    return '@mozilla.org/network/protocol/about;1?what=cliqz';
-  }
-
-  get classID() {
-    return Components.ID('{D5889F72-0F01-4aee-9B88-FEACC5038C34}');
-  }
-
-  get QueryInterface() {
-    return XPCOMUtils.generateQI([Ci.nsIAboutModule]);
-  }
-
-  newChannel(aURI, aLoadInfo, aResult) {
-    /* all this is plain bad, please fix me */
-    /* the point is to have 'about:cliqz' that redirects to resource:// url */
-    const fakePage = `data:text/html,
-      <script>
-        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-          .getService(Components.interfaces.nsIWindowMediator);
-        var w = wm.getMostRecentWindow('navigator:browser');
-        var url = '${CLIQZ_NEW_TAB_RESOURCE_URL}';
-        w.gBrowser.addTab(url);
-        window.close();
-      </script>
-    `;
-;
-    let channel;
-
-    if (Services.vc.compare(Services.appinfo.version, '47.*') > 0) {
-      const uri = Services.io.newURI(fakePage, null, null);
-      channel = Services.io.newChannelFromURIWithLoadInfo(uri, aLoadInfo);
-    } else {
-      channel = Services.io.newChannel(fakePage, null, null);
-    }
-
-    channel.owner = Services.scriptSecurityManager.getSystemPrincipal();
-    //channel.cancel(Cr.NS_BINDING_ABORTED);
-
-    return channel;
-  }
-
-  getURIFlags() {
-    return Ci.nsIAboutModule.ALLOW_SCRIPT;
-  }
-}
 
 var FreshTab = {
     signalType: "home",

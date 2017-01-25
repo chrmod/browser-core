@@ -20,11 +20,17 @@ export default Ember.Route.extend({
 
   deactivate() {
     this.get('notifications').stop();
-    Ember.$('body').removeClass('freshTabContainer');
   },
 
   model() {
+    const previousModel = this.modelFor("freshtab.index");
+    if (previousModel) {
+      return previousModel;
+    }
+    const config = this.modelFor("freshtab");
+
     const model = Ember.Object.create({
+      config,
       speedDials: Ember.Object.create({
         history: Ember.ArrayProxy.create({ content: []}),
         custom: Ember.ArrayProxy.create({ content: []}),

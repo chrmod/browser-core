@@ -8,7 +8,6 @@ import { AdultDomain } from 'core/adult-domain';
 import background from 'core/base/background';
 import { forEachWindow } from 'core/browser';
 
-
 const DIALUPS = 'extensions.cliqzLocal.freshtab.speedDials';
 const DISMISSED_ALERTS = 'dismissedAlerts';
 const ONE_DAY = 24 * 60 * 60 * 1000;

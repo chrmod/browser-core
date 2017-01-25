@@ -7,9 +7,10 @@ const Router = Ember.Router.extend({
 
 Router.map(function() {
   this.route('freshtab', { path: '/' }, function () {
+    this.route('history', function () {
+    });
   });
   this.route('preferences', function () {
-
   });
   this.route('history-sidebar', function () {
     this.route('queries', function () {

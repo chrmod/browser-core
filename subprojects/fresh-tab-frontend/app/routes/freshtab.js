@@ -7,6 +7,11 @@ export default Ember.Route.extend({
 
   activate() {
     document.title = this.get('i18n').t('title');
+    Ember.$('body').addClass('freshTabContainer');
+  },
+
+  deactivate() {
+    Ember.$('body').removeClass('freshTabContainer');
   },
 
   beforeModel() {
