@@ -326,7 +326,6 @@ export default Ember.Service.extend({
       this.callbacks.notifications.getNotifications = this.callbacks.notifications.getNotifications || {};
       this.callbacks.notifications.getNotifications[requestId] = resolve;
     });
-
     window.postMessage(JSON.stringify({
       requestId,
       target: "cliqz",
@@ -447,7 +446,7 @@ export default Ember.Service.extend({
 
   openFeedbackPage() {
     let promise = new Promise( resolve => {
-      this.callbacks.getFeedbackPage = resolve;
+      this.callbacks.openFeedbackPage = resolve;
     });
 
     window.postMessage(JSON.stringify({

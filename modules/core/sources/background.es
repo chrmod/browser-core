@@ -94,7 +94,7 @@ export default background({
       this.mm.broadcast(`window-${windowId}`, {
         response,
         action,
-        moduleName,
+        module: moduleName,
         requestId,
       });
     }).catch(console.error.bind(null, "Process Script", `${moduleName}/${action}`));
