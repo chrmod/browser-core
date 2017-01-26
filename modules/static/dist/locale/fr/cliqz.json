@@ -1326,10 +1326,10 @@
       "message": "En savoir plus"
     },
     "control-center-adblock-title": {
-      "message": "Bloqueur de publicité [BETA]"
+      "message": "Bloqueur de pubs [BETA]"
     },
     "control-center-adblock-description": {
-      "message": "Des publicités ont été bloquées sur cette page"
+      "message": "Publicités bloquées sur cette page"
     },
     "control-center-adblock-description-off-website": {
       "message": "Désactivé sur cette page"
