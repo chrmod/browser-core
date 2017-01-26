@@ -101,7 +101,7 @@ export default Ember.Component.extend({
 
     resetAll() {
       this.get('cliqz').resetAllHistory().then(results => {
-        this.set('model', results.history.map( dial => Ember.Object.create(dial) ))
+        this.set('model.content', results.history.map( dial => Ember.Object.create(dial) ))
         this.actions.closeUndo.call(this, 'history', true);
       });
 
