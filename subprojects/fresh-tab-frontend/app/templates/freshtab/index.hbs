@@ -1,3 +1,4 @@
+<div id="flexContainer">
 {{#if model.config.messageCenter.hasMessages}}
   <div id="notificationsBox">
     {{#each model.config.messageCenter.messages as |message|}}
@@ -6,16 +7,15 @@
   </div>
 {{/if}}
 
-<nav>
-  {{#link-to 'freshtab.index' class='freshtab-button'}}
-    <img src="./assets/images/Home.svg">
-  {{/link-to}}
-  {{#link-to 'freshtab.history.index' (query-params query='') class="history-button"}}
-    <img src="./assets/images/History.svg">
-  {{/link-to}}
-</nav>
-
 <div id="freshTabPage">
+  <nav>
+    {{#link-to 'freshtab.index' class='freshtab-button'}}
+      <img src="./assets/images/Home.svg">
+    {{/link-to}}
+    {{#link-to 'freshtab.history.index' (query-params query='') class="history-button"}}
+      <img src="./assets/images/History.svg">
+    {{/link-to}}
+  </nav>
   <div id="center" tabindex="0">
     <div id="container">
       <div id="topVisited" class="center">
@@ -56,4 +56,6 @@
       {{/if}}
     </div>
   {{/if}}
+</div>
+
 </div>

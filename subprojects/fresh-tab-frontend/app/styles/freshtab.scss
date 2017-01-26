@@ -2,6 +2,23 @@
 @import './freshtab/speed-dial';
 @import 'history';
 
+#flexContainer {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+
+  #notificationsBox {
+    flex: 0 0 auto;
+  }
+
+  #freshTabPage {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    position: relative;
+  }
+}
+
+
 .freshTabContainer {
   margin: 0;
   padding: 0;
@@ -10,7 +27,7 @@
   font-size: 14px;
 
   nav {
-    position: fixed;
+    position: absolute;
     left: 0px;
     top: 0px;
     width: 74px;
@@ -108,7 +125,6 @@ body.freshTabContainer {
   width: 100%;
   padding: 20px;
   letter-spacing: 1px;
-  position: relative;
 
   .notificationsCon {
     width: 100%;
@@ -178,7 +194,7 @@ body.freshTabContainer {
 }
 
 #freshTabPage {
-  height: 100%;
+  display: flex;
 
   .undoOptions {
     height: 50px;
@@ -191,14 +207,17 @@ body.freshTabContainer {
 
   /* containers */
   #center {
-    min-height: 100%;
     width: 100%;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-items: center;
+    overflow-y: auto;
+    flex: 0 0 auto;
+    flex-direction: row;
   }
 
   #container {
+    flex: 0 0 auto;
     max-width: 1024px;
     min-width: 940px;
     padding: 0 20px;
@@ -1012,6 +1031,7 @@ body.freshTabContainer {
 
   #freshTabPage #topVisited {
     margin-bottom: 15%;
+    margin-top: 10%;
   }
 
   #freshTabPage #searchContainer {
