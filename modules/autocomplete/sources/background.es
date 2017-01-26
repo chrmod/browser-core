@@ -73,7 +73,7 @@ export default background({
       this.autocomplete.CliqzResultProviders.setCurrentSearchEngine(engine);
     },
     'control-center:setDefault-indexCountry': function setDefaultIndexCountry(country) {
-      utils.setDefaultIndexCountry(country);
+      utils.setDefaultIndexCountry(country, true);
     },
     'core:urlbar_focus': function onUrlBarFocus() {
       if (isFirefox) {

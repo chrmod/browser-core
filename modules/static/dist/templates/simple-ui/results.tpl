@@ -1,4 +1,3 @@
-{{log this}}
 {{#each results}}
 	{{#unless invalid}}
 		<div class='cqz-result-box cqz-result-box-simple'

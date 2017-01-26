@@ -54,6 +54,10 @@
     overflow: hidden !important;
 }
 
+.forceRerender {
+   overflow: hidden !important;
+}
+
 panelmultiview[mainViewId="cliqz-cc-btn-panel"] > .panel-viewcontainer > .panel-viewstack > .panel-mainview:not([panelid="PanelUI-popup"]),
 panel[viewId="cliqz-cc-btn-panel"] .panel-mainview {
     max-width: 50em !important;

@@ -137,6 +137,10 @@ beforeEach(function () {
     /* Turn off telemetry during tests */
     telemetry = CliqzUtils.telemetry;
     CliqzUtils.telemetry = function () {};
+    // we only need the tests for the regular cliqz dropdown
+    CliqzUtils.setPref('dropDownABCGroup', 'cliqz');
+    CliqzUtils.clearPref('dropDownStyle');
+
   }.bind(this));
 });
 

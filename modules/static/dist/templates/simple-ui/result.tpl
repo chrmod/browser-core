@@ -1,6 +1,5 @@
 <!-- simple-result.tpl -->
 <div class='cqz-result-simple' local-source='{{data.localSource}}' url='{{url}}'>
-    {{log this}}
     <span class='cqz-icon-simple' style="left:{{math data.resultXPosition '-' 25}}px;">
         {{#if data.resultIcon}}
             <img src='{{data.resultIcon}}'/>

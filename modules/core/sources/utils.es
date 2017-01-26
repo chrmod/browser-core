@@ -768,8 +768,26 @@ var CliqzUtils = {
                   CliqzUtils.setPref('config_' + k, config[k]);
                 }
               }
+
+              // we only set the prefered backend once at first start
               if (CliqzUtils.getPref('backend_country', '') === '') {
-                CliqzUtils.setPref('backend_country', CliqzUtils.getPref('config_location', ''));
+                if(CliqzUtils.getPref('config_location', 'de') === 'de' &&
+                   Date.now() < 1486684800000 /* 10.02.2017 */){
+                  var rand = Math.random();
+
+                  if (rand < 0.33) {
+                    CliqzUtils.setPref('dropDownABCGroup', 'simple');
+                  } else if (rand > 0.66) {
+                    CliqzUtils.setPref('dropDownABCGroup', 'ff');
+                  } else {
+                    CliqzUtils.setPref('dropDownABCGroup', 'cliqz');
+                  }
+                }
+
+                // waiting a bit to be sure first initialization is complete
+                CliqzUtils.setTimeout(function(){
+                  CliqzUtils.setDefaultIndexCountry(CliqzUtils.getPref('config_location', 'de'), true);
+                }, 2000);
               }
             } catch(e){
               CliqzUtils.log(e);
@@ -778,12 +796,38 @@ var CliqzUtils = {
           resolve();
         },
         resolve, //on error the callback still needs to be called
-        2000
+        10000
       );
     });
   },
-  setDefaultIndexCountry: function(country) {
+  setDefaultIndexCountry: function(country, restart) {
     CliqzUtils.setPref('backend_country', country);
+
+    if(country !== 'de'){
+      // simple UI for outside germany
+      CliqzUtils.setPref('dropDownStyle', 'simple');
+    } else {
+      var group = CliqzUtils.getPref('dropDownABCGroup');
+      if (group === 'simple') {
+        CliqzUtils.setPref('dropDownStyle', 'simple');
+      } else if (group === 'ff') {
+        CliqzUtils.setPref('dropDownStyle', 'ff');
+      } else if (group === 'cliqz') {
+        CliqzUtils.clearPref('dropDownStyle');
+      } else {
+        // old german users outside of the drop down style AB test
+        CliqzUtils.clearPref('dropDownStyle');
+      }
+    }
+
+    if(restart){
+      CliqzUtils.setPref('modules.ui.enabled', false);
+
+      // we need to avoid the throttle on prefs
+      CliqzUtils.setTimeout(function() {
+        CliqzUtils.setPref('modules.ui.enabled', true);
+      }, 0);
+    }
   },
   encodeLocale: function() {
     // send browser language to the back-end

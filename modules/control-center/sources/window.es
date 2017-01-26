@@ -249,7 +249,21 @@ export default class {
   }
 
   searchIndexCountry(data) {
+    function rerender(target, n){
+      target.classList.toggle('forceRerender');
+
+      if(n >= 0){
+        utils.setTimeout(rerender, 10, target, n - 1);
+      }
+    }
+
     events.pub('control-center:setDefault-indexCountry', data.defaultCountry);
+
+    // changing the search index triggers an update of the UI module
+    // which reloads the urlbar which makes the control center crazy
+    // -> we need to trigger a rerender to avoid having it empty
+    rerender(this.panel.panel.children[0], 10);
+
     utils.telemetry({
       type: TELEMETRY_TYPE,
       target: 'search-index-country',

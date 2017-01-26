@@ -111,7 +111,7 @@ $('#control-center').on('click', '[data-function]', function(ev){
   });
 });
 
-$('#control-center').on('click', '[complementarySearchChanger]', function(ev) {
+$('#control-center').on('change', '[complementarySearchChanger]', function(ev) {
   sendMessageToWindow({
     action: 'complementary-search',
     data: {
@@ -120,7 +120,7 @@ $('#control-center').on('click', '[complementarySearchChanger]', function(ev) {
   });
 });
 
-$('#control-center').on('click', '[searchIndexCountryChanger]', function(ev) {
+$('#control-center').on('change', '[searchIndexCountryChanger]', function(ev) {
   sendMessageToWindow({
     action: 'search-index-country',
     data: {
@@ -129,7 +129,7 @@ $('#control-center').on('click', '[searchIndexCountryChanger]', function(ev) {
   });
 });
 
-$('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
+$('#control-center').on('change', '[antiTrackingStatusChanger]', function(ev){
   var state,
       type = $(this).attr('data-type'), status;
   if (type === 'switch') {

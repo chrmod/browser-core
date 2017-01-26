@@ -318,13 +318,8 @@ var CliqzABTests = {
                 CliqzUtils.setPref('offers2FeatureEnabled', true);
                 break;
             case "1091_A":
-                CliqzUtils.clearPref('dropDownStyle');
-                break;
-            case "1091_B":
-                CliqzUtils.setPref('dropDownStyle', 'simple');
-                break;
-            case "1091_C":
-                CliqzUtils.setPref('dropDownStyle', 'ff');
+                CliqzUtils.clearPref('dropDownABCGroup');
+                CliqzUtils.setDefaultIndexCountry(CliqzUtils.getPref('backend_country', 'de'), false);
                 break;
             case "1092_A":
                 CliqzUtils.setPref("extOnboardVideoDownloader", false);
@@ -527,8 +522,6 @@ var CliqzABTests = {
               CliqzUtils.clearPref('offers2FeatureEnabled');
               break;
             case "1091_A":
-            case "1091_B":
-            case "1091_C":
               CliqzUtils.clearPref('dropDownStyle');
               break;
             case "1092_A":
