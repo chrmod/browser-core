@@ -198,7 +198,7 @@
         "message": "Nous n'avons pas de résultats adéquats pour l'instant."
     },
     "noResultMessage":{
-        "message":"Presser la touche entrée pour effectuer la recherche sur $1, ou essayez l'un des moteurs de recherche suivants :"
+        "message":"Presser la touche entrée pour effectuer la recherche sur $1, ou essayer l'un des moteurs de recherche suivants :"
     },
     "searchOn": {
       "message": "Rechercher sur $1"
