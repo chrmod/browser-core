@@ -117,6 +117,10 @@ export default background({
     },
     'content:location-change': function onLocationChange({ url, isPrivate }) {
       events.pub('core.location_change', url, isPrivate);
+      utils.telemetry({
+        'type': 'navigation',
+        'action': 'location_change',
+      });
     },
   },
 
