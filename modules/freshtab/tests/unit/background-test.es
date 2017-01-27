@@ -26,7 +26,7 @@ export default describeModule("freshtab/background",
       "core/onboarding": {
 
       },
-      "core/adult-domain": {
+      "freshtab/adult-domain": {
         AdultDomain: function () {}
       },
       "core/base/background": {
@@ -42,7 +42,7 @@ export default describeModule("freshtab/background",
 
     beforeEach(function () {
       subject = this.module().default;
-      this.deps("core/adult-domain").AdultDomain.prototype.isAdult = () => false;
+      this.deps("freshtab/adult-domain").AdultDomain.prototype.isAdult = () => false;
       subject.init({});
     });
 
