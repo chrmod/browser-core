@@ -377,7 +377,6 @@ platforms/firefox/globals.es
 platforms/firefox/gzip.es
 platforms/firefox/history-manager.es
 platforms/firefox/language.es
-platforms/firefox/load-logo-db.es
 platforms/firefox/moment.es
 platforms/firefox/places-utils.es
 platforms/firefox/platform.es
