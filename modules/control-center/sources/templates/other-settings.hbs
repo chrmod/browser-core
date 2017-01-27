@@ -25,6 +25,7 @@
     <div id="accordion-1" class="accordion-section-content {{#unless securityON }}open{{/unless}}"
          {{#unless securityON }}style="display: block;"{{/unless}}>
       {{#unless searchDisabled }}
+      {{# if module.geolocation.visible }}
       <span class="bullet">
         <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
           <defs></defs>
@@ -53,6 +54,7 @@
 
         <span class="location-more" openUrl="https://cliqz.com/support/local-results" data-i18n="control-center-info-share-location-link"></span>
       </span>
+      {{/if}}
       <span class="bullet">
         <span data-i18n="control-center-explicit"></span>
 
