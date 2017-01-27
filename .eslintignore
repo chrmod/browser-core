@@ -137,7 +137,6 @@ modules/freshtab/news.es
 modules/freshtab/speed-dial.es
 modules/freshtab/tests/unit/background-test.es
 modules/freshtab/tests/unit/news-test.es
-modules/freshtab/window.es
 modules/geolocation/background.es
 modules/geolocation/window.es
 modules/history-ui-desktop/background.es

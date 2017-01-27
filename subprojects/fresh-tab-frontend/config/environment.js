@@ -4,7 +4,7 @@ module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'fresh-tab',
     environment: environment,
-    locationType: 'hash',
+    locationType: 'none',
     rootURL: '/',
     EmberENV: {
       FEATURES: {
