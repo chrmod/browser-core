@@ -122,8 +122,9 @@ var CLIQZEnvironment = {
    openLink: function(win, url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
         // for storing it properly in Firefoxe's history DB)
-        if(url.indexOf("://") == -1 && url.trim().indexOf('about:') != 0)
-            url = "http://" + url;
+        if(url.indexOf("://") == -1 && url.trim().indexOf('about:') != 0) {
+          url = "http://" + url;
+        }
 
         // Firefox history boosts URLs that are typed in the URL bar, autocompleted,
         // or selected from the history dropbdown; thus, mark page the user is

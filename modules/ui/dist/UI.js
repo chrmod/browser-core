@@ -168,6 +168,7 @@ var UI = {
           data.push({
             title: ctrl.getCommentAt(i),
             url: unEscapeUrl(ctrl.getValueAt(i)),
+            originalUrl: ctrl.getValueAt(i),
             type: ctrl.getStyleAt(i),
             text: q,
             data: lastRes && lastRes.getDataAt(i),
