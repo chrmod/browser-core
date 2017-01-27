@@ -819,11 +819,14 @@ const popupEventHandlers = {
     this.popupEvent(true);
     this.window.CLIQZ.UI.popupClosed = false;
   },
+
   /**
   * @event popupClose
   * @param e
   */
   popupClose: function(e){
+    // ensures popup is closed (EX-3819)
+    CliqzEvents.pub('ui:popup_hide');
     autocomplete.isPopupOpen = false;
     autocomplete.markResultsDone(null);
     this.popupEvent(false);
