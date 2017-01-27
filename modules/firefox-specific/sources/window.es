@@ -38,7 +38,7 @@ export default class {
 
     Redirect.addHttpObserver();
 
-    return this.whoAmI();
+    return this.whoAmI(true);
   }
 
   unload() {
