@@ -11,6 +11,9 @@ module.exports = function(defaults) {
     babel: {
       optional: ['es6.spec.symbols'],
       includePolyfill: true
+    },
+    fingerprint: {
+      customHash: null
     }
   });
 
