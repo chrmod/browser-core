@@ -799,15 +799,23 @@ var CliqzUtils = {
     if (doDedup) return '&ddl=0';
     else return ""
   },
-  encodeFilter: function() {
+  getAdultContentFilterState: function() {
     var data = {
       'conservative': 3,
       'moderate': 0,
       'liberal': 1
     },
-    state = data[CliqzUtils.getPref('adultContentFilter', 'moderate')];
-
-    return '&adult='+state;
+    pref = CliqzUtils.getPref('adultContentFilter', 'moderate');
+    if (CliqzUtils.dropDownStyle == 'ff' && pref == 'moderate') {
+      // in FF UI we cannot display the adult warning message, so "always ask"
+      // should behave the same as "Always block", to preserve the default blocking
+      // behaviour
+      pref = 'conservative';
+    }
+    return data[pref];
+  },
+  encodeFilter: function() {
+    return '&adult=' + CliqzUtils.getAdultContentFilterState();
   },
   encodeResultCount: function(count) {
     count = count || 5;
