@@ -802,6 +802,7 @@ var CliqzUtils = {
   },
   setDefaultIndexCountry: function(country, restart) {
     CliqzUtils.setPref('backend_country', country);
+    CliqzUtils._country = country;
 
     if(country !== 'de'){
       // simple UI for outside germany
