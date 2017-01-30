@@ -124,7 +124,9 @@
                 class="custom-dropdown"
                 data-target="complementary_search">
           {{#each module.autocomplete.state}}
-            <option {{#if default }}selected{{/if}} value="{{ name }}">[{{ alias }}] {{ name }}</option>
+            <option {{#if default }}selected{{/if}} value="{{ name }}">
+            {{#if alias }}[{{ alias }}] {{/if}}
+            {{ name }}</option>
           {{/each}}
         </select>
       </span>
