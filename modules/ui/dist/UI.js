@@ -225,7 +225,6 @@ var UI = {
           clearTimeout(UI.resultIconsTimer);
         }
         currentResults = enhanceResults(rawResults);
-        //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
         var query = currentResults.q;
         if (!query)
