@@ -3,7 +3,7 @@ import console from 'core/console';
 
 const ADULT_DOMAINS_BF_FILE_URI = 'chrome://cliqz/content/freshtab/adult-domains.bin';
 
-export class AdultDomain {
+export default class {
   constructor() {
     try {
       this.filter = BloomFilterUtils.loadFromInput(ADULT_DOMAINS_BF_FILE_URI, 'uri')[0];

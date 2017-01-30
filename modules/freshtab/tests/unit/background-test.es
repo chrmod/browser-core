@@ -27,7 +27,7 @@ export default describeModule("freshtab/background",
 
       },
       "freshtab/adult-domain": {
-        AdultDomain: function () {}
+        default: function () { this.prototype.constructor.apply(this, arguments) }
       },
       "core/base/background": {
         default: b => b
@@ -42,7 +42,10 @@ export default describeModule("freshtab/background",
 
     beforeEach(function () {
       subject = this.module().default;
-      this.deps("freshtab/adult-domain").AdultDomain.prototype.isAdult = () => false;
+      this.deps("freshtab/adult-domain").default.prototype = function() {}
+      this.deps("freshtab/adult-domain").default.prototype.isAdult = function() {
+        return false
+      }
       subject.init({});
     });
 
@@ -61,13 +64,12 @@ export default describeModule("freshtab/background",
     });
 
     context('events', function () {
-   
+
       describe("geolocation:wake-notification", function() {
 
         it("fetches news", function (done) {
           subject.actions.getNews = () => Promise.resolve().then(() => done());
-
-          subject.events['geolocation:wake-notification'] = 
+          subject.events['geolocation:wake-notification'] =
             subject.events['geolocation:wake-notification'].bind(subject);
 
           subject.events['geolocation:wake-notification']();
@@ -79,7 +81,7 @@ export default describeModule("freshtab/background",
           subject.actions.getNews = () => Promise.resolve();
           subject.actions.refreshFrontend = () => done();
 
-          subject.events['geolocation:wake-notification'] = 
+          subject.events['geolocation:wake-notification'] =
             subject.events['geolocation:wake-notification'].bind(subject);
 
           subject.events['geolocation:wake-notification']();
