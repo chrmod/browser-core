@@ -1788,11 +1788,13 @@ function onEnter(ev, item){
       (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
 
       var r = currentResults.results;
-      if(r[0].vertical == 'custom' // if custom provider - don't require double enter
-         || // results exist and they're "known" - don't require double enter
-         (!currentResults.blocked
-         && r.length > 0
-         && (r.length > 1 || r[0].vertical != 'noResult'))){
+
+      // simplifying complex condition
+      let notCustom = (r.length > 0) && (r[0].vertical != 'custom')
+      let notBlockedAndExists = !currentResults.blocked
+                                && (r.length > 1 || r[0].vertical != 'noResult')
+
+      if(notCustom && notBlockedAndExists) {
         currentResults.blocked = true;
         var signal = {
             type: 'activity',
