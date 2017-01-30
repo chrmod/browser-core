@@ -1217,7 +1217,7 @@ var CliqzUtils = {
   copyResult: CLIQZEnvironment.copyResult,
   openPopup: CLIQZEnvironment.openPopup,
   isOnPrivateTab: CLIQZEnvironment.isOnPrivateTab,
-  getCliqzPrefs: CLIQZEnvironment.getCliqzPrefs,
+  getAllCliqzPrefs: CLIQZEnvironment.getAllCliqzPrefs,
   isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser,
   setDefaultSearchEngine: CLIQZEnvironment.setDefaultSearchEngine,
   isUnknownTemplate: CLIQZEnvironment.isUnknownTemplate,
@@ -1228,6 +1228,24 @@ var CliqzUtils = {
   getSearchEngines: CLIQZEnvironment.getSearchEngines,
   updateAlias: CLIQZEnvironment.updateAlias,
   openLink: CLIQZEnvironment.openLink,
+  getCliqzPrefs() {
+    function filterer(entry) {
+        // avoid privay leaking prefs ('backup').
+        // avoid irrelevant deep prefs (something.otherthing.x.y)
+        // allow 'enabled' prefs
+        return ((entry.indexOf('.') == -1 && entry.indexOf('backup') == -1)
+                || entry.indexOf('.enabled') != -1);
+      }
+
+      let cliqzPrefs = {}
+      let cliqzPrefsKeys = CliqzUtils.getAllCliqzPrefs().filter(filterer);
+
+      for (let i = 0; i < cliqzPrefsKeys.length; i++) {
+        cliqzPrefs[cliqzPrefsKeys[i]] = prefs.get(cliqzPrefsKeys[i]);
+      }
+
+      return cliqzPrefs;
+  },
   promiseHttpHandler: promiseHttpHandler,
   registerResultProvider: function (o) {
     CLIQZEnvironment.CliqzResultProviders = o.ResultProviders;

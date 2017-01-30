@@ -70,6 +70,7 @@ var Extension = {
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/prefs.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/console.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/console.js", this);
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/globals.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/environment.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/gzip.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/gzip.js", this);
@@ -111,10 +112,10 @@ var Extension = {
       Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
         CliqzUtils.setSupportInfo()
       }, 30000);
-      
+
       // Load Config - Synchronous!
       this.config = {{CONFIG}};
-      
+
       // Ensure prefs are set to our custom values
       Extension.setOurOwnPrefs();
 
@@ -364,7 +365,7 @@ var Extension = {
           CliqzUtils.setPref('unifiedcomplete', true);
           urlBarPref.setBoolPref("unifiedcomplete", false)
         }
-      
+
         if (this.config.environment === 'development') {
           CliqzUtils.setPref('developer', true);
         }

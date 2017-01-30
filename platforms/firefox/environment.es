@@ -1,16 +1,19 @@
 import autocomplete from "autocomplete/autocomplete";
 import { promiseHttpHandler } from "core/http";
+import { Components, Services } from "platform/globals";
 
-const {
-  classes:    Cc,
-  interfaces: Ci,
-  utils:      Cu,
-  manager:    Cm
-} = Components;
 
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('resource://gre/modules/NewTabUtils.jsm');
+  const {
+    classes:    Cc,
+    interfaces: Ci,
+    utils:      Cu,
+    manager:    Cm
+  } = Components;
+
+try {
+  Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+  Cu.import('resource://gre/modules/NewTabUtils.jsm');
+} catch(e) {}
 
 import console from "core/console";
 import prefs from "core/prefs";
@@ -85,25 +88,17 @@ var CLIQZEnvironment = {
     BROWSER_ONBOARDING_PREF: "browserOnboarding",
     BROWSER_ONBOARDING_STEP_PREF: "browserOnboarding-step",
 
-    init: function(){
+    init: function(){},
 
-    },
-    unload: function() {
-    },
-    getCliqzPrefs: function(){
+    unload: function() {},
+
+    getAllCliqzPrefs: function() {
       return Cc['@mozilla.org/preferences-service;1']
-        .getService(Ci.nsIPrefService)
-        .getBranch('extensions.cliqz.')
-        .getChildList('')
-        .reduce(function (prev, curr) {
-          // dont send any :
-          //    - backup data like startpage to avoid privacy leaks
-          //    - deep keys like "attrack.update" which are not needed
-          if(curr.indexOf('backup') == -1 && curr.indexOf('.') == -1 )
-            prev[curr] = prefs.get(curr);
-          return prev;
-        }, {});
+             .getService(Ci.nsIPrefService)
+             .getBranch('extensions.cliqz.')
+             .getChildList('')
     },
+
     isUnknownTemplate: function(template){
       return template &&
         CLIQZEnvironment.TEMPLATES.hasOwnProperty(template) == false;
