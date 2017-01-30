@@ -129,7 +129,7 @@ $('#control-center').on('change', '[searchIndexCountryChanger]', function(ev) {
   });
 });
 
-$('#control-center').on('change', '[antiTrackingStatusChanger]', function(ev){
+$('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
   var state,
       type = $(this).attr('data-type'), status;
   if (type === 'switch') {

@@ -4,7 +4,7 @@ import History from 'freshtab/history';
 import { utils, events } from 'core/cliqz';
 import SpeedDial from 'freshtab/speed-dial';
 import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
-import { AdultDomain } from 'freshtab/adult-domain';
+import AdultDomain from 'freshtab/adult-domain';
 import background from 'core/base/background';
 import { forEachWindow } from 'core/browser';
 
