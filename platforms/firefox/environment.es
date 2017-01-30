@@ -470,7 +470,8 @@ var CLIQZEnvironment = {
               {"name": "Google Images", "base_url": "https://images.google.de/"},
               {"name": "Google Maps", "base_url": "https://maps.google.de/"}
           ],
-          chosen = new Array();
+          chosen = new Array(),
+          isUrl = CliqzUtils.isUrl(q);
 
       var engines = CLIQZEnvironment.CliqzResultProviders.getSearchEngines(),
           defaultName = engines[0].name;
@@ -497,10 +498,10 @@ var CLIQZEnvironment = {
           template:'noResult',
           snippet:
           {
-            text_line1: CLIQZEnvironment.getLocalizedString('noResultTitle'),
+            text_line1: CLIQZEnvironment.getLocalizedString(isUrl ? 'noResultUrlNavigate' : 'noResultTitle'),
             // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
             // we should take care of this specific case differently on alternative platforms
-            text_line2: CLIQZEnvironment.getLocalizedString('noResultMessage', defaultName),
+            text_line2: isUrl ? CLIQZEnvironment.getLocalizedString('noResultUrlSearch') : CLIQZEnvironment.getLocalizedString('noResultMessage', defaultName),
             "search_engines": chosen,
             //use local image in case of no internet connection
             "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg",

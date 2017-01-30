@@ -197,6 +197,12 @@
     "noResultTitle":{
         "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },
+    "noResultUrlNavigate":{
+        "message":"Drücke auf Enter um diese Seite aufzurufen"
+    },
+    "noResultUrlSearch":{
+        "message":"oder starte eine Suche auf:"
+    },
     "noResultMessage":{
         "message": "Versuche es mit ,Enter' bei $1 oder per Klick auf:"
     },

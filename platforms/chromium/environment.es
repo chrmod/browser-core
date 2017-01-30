@@ -207,24 +207,25 @@ const CLIQZEnvironment = {
   getEngineByName: function(name) {
     return CE._ENGINES.find(engine => { return engine.name === name; });
   },
-  getNoResults: function() {
+  getNoResults: function(q) {
     const engines = CE.getSearchEngines().map(e => {
       e.style = CE.getLogoDetails(
           CE.getDetailsFromUrl(e.searchForm)).style;
       e.text =  e.alias.slice(1);
       return e;
     });
-    const defaultName = CE.getDefaultSearchEngine().name;
+    const defaultName = CE.getDefaultSearchEngine().name,
+          isUrl = CliqzUtils.isUrl(q);
 
     return CE.Result.cliqz(
             {
                 template:'noResult',
                 snippet:
                 {
-                    text_line1: CE.getLocalizedString('noResultTitle'),
+                    text_line1: CE.getLocalizedString(isUrl ? 'noResultUrlNavigate' : 'noResultTitle'),
                     // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
                     // we should take care of this specific case differently on alternative platforms
-                    text_line2: CE.getLocalizedString('noResultMessage', defaultName),
+                    text_line2: isUrl ? CE.getLocalizedString('noResultUrlSearch') : CE.getLocalizedString('noResultMessage', defaultName),
                     "search_engines": engines,
                     //use local image in case of no internet connection
                     "cliqz_logo": CE.SKIN_PATH + "img/cliqz.svg"

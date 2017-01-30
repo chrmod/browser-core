@@ -197,6 +197,12 @@
     "noResultTitle":{
         "message": "We don't have great results this time."
     },
+    "noResultUrlNavigate":{
+        "message":"Press enter to visit this page"
+    },
+    "noResultUrlSearch":{
+        "message":"or try one of these:"
+    },
     "noResultMessage":{
         "message":"press enter to search on $1, or try one of these:"
     },

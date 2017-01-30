@@ -388,8 +388,5 @@ export default class Mixer {
     else {
       return results;
     }
-
-
-
   }
 }
