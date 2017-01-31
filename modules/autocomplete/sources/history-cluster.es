@@ -496,7 +496,6 @@ var CliqzHistoryCluster = {
         link: cleanUrl,
         domain: cleanUrl.split('/')[0],
         title: urls[i].title,
-        style: urls[i].style,
         extra: 'history-' + i,
         favicon: favicon,
         // logo is only necessary for 3-up mini-history view, this can be removed if that is retired
