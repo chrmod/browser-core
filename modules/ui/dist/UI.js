@@ -1540,7 +1540,7 @@ function resultClick(ev) {
                     return;
                 case 'alternative-search-engine':
                     enginesClick(ev);
-                    break;
+                    return;
                 default:
                     break;
             }
