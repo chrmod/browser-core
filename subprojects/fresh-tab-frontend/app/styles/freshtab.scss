@@ -289,6 +289,11 @@ body.freshTabContainer {
     margin: 20px 0px 10px;
     text-align: center;
 
+    .is-custom {
+      position: relative;
+      z-index: 1;
+    }
+
     a {
       display: block;
       padding-top: 10px;
