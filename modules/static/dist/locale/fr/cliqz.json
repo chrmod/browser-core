@@ -198,10 +198,10 @@
         "message": "Nous n'avons pas de résultats adéquats pour l'instant."
     },
     "noResultUrlNavigate":{
-        "message":"Appuyez sur la touche entrée pour visiter la page"
+        "message":"Appuyer sur la touche entrée pour visiter la page"
     },
     "noResultUrlSearch":{
-        "message":"ou essayez l'un des moteurs de recherche suivants:"
+        "message":"ou essayer l'un des moteurs de recherche suivants:"
     },
     "noResultMessage":{
         "message":"Presser la touche entrée pour effectuer la recherche sur $1, ou essayer l'un des moteurs de recherche suivants :"
