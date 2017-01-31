@@ -43,6 +43,7 @@ CLIQZ.Core = {
   popup: document.getElementById('results'),
   refreshButtons: function(){}
 }
+CLIQZ.Core.popup.closePopup = function(){};
 
 System.baseURL = "modules/";
 System.config({
