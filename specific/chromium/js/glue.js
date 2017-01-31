@@ -263,6 +263,7 @@ function updateSearchEngines(engines, defIdx) {
 function startAutocomplete(query) {
   settings.classList.remove("open");
   urlbar.value = query;
+  CLIQZ.UI.lastInput = query;  // Fixes CLIQZIUM-183.
   SEARCH.search(query, function(r, i) {
     CLIQZ.UI.setRawResults({
       q: r._searchString,
