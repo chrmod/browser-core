@@ -770,6 +770,9 @@
     "cMenuOpenInNewTab": {
       "message": "Ouvrir dans un nouvel onglet"
     },
+    "cMenuOpenInNewPrivateTab": {
+      "message": "Ouvrir dans un nouvel onglet en mode $1"
+    },
     "cMenuOpenInNewWindow": {
       "message": "Ouvrir dans une nouvelle fenêtre"
     },

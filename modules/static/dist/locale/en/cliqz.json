@@ -770,6 +770,9 @@
     "cMenuOpenInNewTab": {
       "message": "Open Link in New Tab"
     },
+    "cMenuOpenInNewPrivateTab": {
+      "message": "Open Link in New $1 Tab"
+    },
     "cMenuOpenInNewWindow": {
       "message": "Open Link in New Window"
     },
