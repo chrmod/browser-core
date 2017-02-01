@@ -50,6 +50,14 @@ function patchFFPopup(popup) {
   };
 }
 
+function unPatchFFPopup(popup) {
+  // remove the patch at unload
+  if(popup.__appendCurrentResult !== undefined){
+    popup._appendCurrentResult = popup.__appendCurrentResult;
+    delete popup.__appendCurrentResult;
+  }
+}
+
 function initPopup(popup, urlbar, win) {
   //patch this method to avoid any caching FF might do for components.xml
   popup._appendCurrentResult = function(){
@@ -518,6 +526,7 @@ export default class {
       this.urlbarGoButton.removeEventListener('click', this.firefoxUrlbarGoButtonHandler);
     }
 
+    unPatchFFPopup(this.popup);
 
     var searchContainer = this.window.document.getElementById('search-container');
     if(this._searchContainer){
