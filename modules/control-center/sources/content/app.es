@@ -405,9 +405,10 @@ function draw(data){
 
     e.preventDefault();
     var currentAttrValue = $(this).attr('href'),
+        sectionTitle = $(this).closest('.accordion-section-title'),
         state;
 
-    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == 'accordion-section-title active')) {
+    if (sectionTitle.hasClass('active')) {
       close_accordion_section();
       state = 'collapsed';
     } else {
