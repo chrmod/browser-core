@@ -33,7 +33,7 @@ function patchFFPopup(popup) {
   // The FF popup has a bug that causes misalignment of elements with cliqz results
   // (or any provider that needs to render results more than once per query).
   popup.__appendCurrentResult = popup._appendCurrentResult.bind(popup);
-  popup._appendCurrentResult = function(invalidationReason) {
+  popup._appendCurrentResult = (invalidationReason) => {
     popup.__appendCurrentResult(invalidationReason);
 
     for (let i = 0; i < popup._matchCount; i++) {
@@ -46,6 +46,24 @@ function patchFFPopup(popup) {
           item.handleOverUnderflow();
         }
       }, 0, item);
+    }
+
+    const firstUIResult = popup.richlistbox.childNodes[0];
+    const firstResult = {
+      url: null,
+      title: null,
+    };
+
+    if (firstUIResult) {
+      firstResult.url = firstUIResult.getAttribute('url');
+      firstResult.title = firstUIResult.getAttribute('title');
+    }
+
+    if(firstResult && firstResult.url){
+      this.autocompleteQuery(
+        utils.cleanMozillaActions(firstResult.url)[1],
+        firstResult.title
+      );
     }
   };
 }
@@ -230,7 +248,7 @@ export default class {
     // FF UI
     else {
       this.popup = this.window.document.getElementById(this.urlbar.getAttribute('autocompletepopup'));
-      patchFFPopup(this.popup);
+      patchFFPopup.call(this, this.popup);
       this.window.CLIQZ.Core.popup = this.popup;
       if (!this.urlbar.popup) {
         this.urlbar.popup = this.popup;
