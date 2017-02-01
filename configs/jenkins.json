@@ -64,6 +64,7 @@
     "moncomp",
     "firefox-tests",
     "type-filter",
+    "history",
     "telemetry-speed-dial",
     "video-downloader"
   ],
