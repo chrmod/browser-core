@@ -1,31 +1,19 @@
-html {
-    display: table;
-    width: 100%;
-    height: 100%;
-}
-
-body {
-    display: table-cell;
-    margin: 0;
-    padding: 0;
-    vertical-align: middle;
-    background: #ddd;
-}
-
-.cqz-offers-wrapper {
-    position: relative;
-    overflow: auto;
-    max-height: 200px;
-    min-width: 500px;
-    padding: 0 15px 0 20px;
-    border-bottom: none;
-}
-
 .cqz-ticket-offer {
     position: relative;
     max-width: 1000px;
     margin: 7px auto;
     padding: 0  10px;
+
+    &:before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #ddd;
+        z-index: -1;
+    }
 
     .cqz-offer-holder {
         overflow: hidden;
