@@ -64,7 +64,7 @@ class ProviderAutoCompleteResultCliqz {
   getImageAt (index) { return (this._results[index] || {}).image || ''; }
   getLabelAt(index) {
     const val = this.getValueAt(index);
-    if (val.indexOf('moz-action:') == 0 && utils.dropDownStyle === 'ff') {
+    if (val && val.indexOf('moz-action:') == 0 && utils.dropDownStyle === 'ff') {
       return val;
     } else {
       return (this._results[index] || {}).label;

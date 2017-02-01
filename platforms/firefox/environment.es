@@ -462,7 +462,7 @@ var CLIQZEnvironment = {
             });
         }
     })(),
-    getNoResults: function(q) {
+    getNoResults: function(q, dropDownStyle) {
       var se = [// default
               {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
               {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
@@ -510,10 +510,12 @@ var CLIQZEnvironment = {
         },
         q
       );
-      const engine = this.getDefaultSearchEngine();
-      res.val = engine.getSubmissionForQuery(q);
-      res.label = CLIQZEnvironment.getLocalizedString('searchOn', engine.name);
-      res.text = res.comment = q;
+      if(dropDownStyle){
+        const engine = this.getDefaultSearchEngine();
+        res.val = engine.getSubmissionForQuery(q);
+        res.label = CLIQZEnvironment.getLocalizedString('searchOn', engine.name);
+        res.text = res.comment = q;
+      }
       return res;
     }
 }

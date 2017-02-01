@@ -377,7 +377,7 @@ export default class Mixer {
     });
     // Show no results message
     if (results.length === 0 && !only_history) {
-      utils.getNoResults && results.push(utils.getNoResults(q));
+      utils.getNoResults && results.push(utils.getNoResults(q, utils.dropDownStyle));
     }
 
     if (['simple', 'ff'].indexOf(utils.dropDownStyle) !== -1) {
