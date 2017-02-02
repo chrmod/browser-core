@@ -20,9 +20,9 @@ import prefs from "core/prefs";
 
 
 var CLIQZEnvironment = {
-    RESULTS_PROVIDER: 'https://newbeta.cliqz.com/api/v2/results?nrh=1&q=',
-    RICH_HEADER: 'https://newbeta.cliqz.com/api/v2/rich-header?path=/v2/map',
-    LOG: 'https://logging.cliqz.com',
+    RESULTS_PROVIDER: 'https://api.cliqz.com/api/v2/results?nrh=1&q=',
+    RICH_HEADER: 'https://api.cliqz.com/api/v2/rich-header?path=/v2/map',
+    LOG: 'https://stats.cliqz.com',
     LOCALE_PATH: 'chrome://cliqz/content/static/locale/',
     TEMPLATES_PATH: 'chrome://cliqz/content/static/templates/',
     SKIN_PATH: 'chrome://cliqz/content/static/skin/',
