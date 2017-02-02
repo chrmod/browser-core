@@ -483,7 +483,7 @@ var CLIQZEnvironment = {
 
               def.code = e.code;
               def.style = CLIQZEnvironment.getLogoDetails(CLIQZEnvironment.getDetailsFromUrl(url)).style;
-              def.text = e.alias.slice(1);
+              def.text = e.alias ? e.alias.slice(1) : '';
 
               chosen.push(def)
           }
