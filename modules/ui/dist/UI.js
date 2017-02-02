@@ -272,12 +272,12 @@ var UI = {
       const url = imgPlaceHolder.getAttribute('url');
       const uri = CliqzUtils.makeUri(url);
       if (PlacesUtils.bookmarks.isBookmarked(uri)) {
-        imgPlaceHolder.setAttribute('src', 'http://cdn.cliqz.com/extension/core/icons/bookmark_cliqz.svg')
+        imgPlaceHolder.setAttribute('src', 'https://cdn.cliqz.com/extension/core/icons/bookmark_cliqz.svg')
       }
       else {
         PlacesUtils.asyncHistory.isURIVisited(uri, function(aURI, isVisited) {
           if (isVisited) {
-            imgPlaceHolder.setAttribute('src', 'http://cdn.cliqz.com/extension/core/icons/history_cliqz.svg');
+            imgPlaceHolder.setAttribute('src', 'https://cdn.cliqz.com/extension/core/icons/history_cliqz.svg');
           }
         });
       }
@@ -948,7 +948,7 @@ function getNoResultsForSimpleUI(r) {
     logo: CliqzUtils.getLogoDetails(urlDetails),
     data: {
       template: 'generic',
-      resultIcon: 'http://cdn.cliqz.com/extension/core/icons/search_cliqz.svg',
+      resultIcon: 'https://cdn.cliqz.com/extension/core/icons/search_cliqz.svg',
       resultXPosition: urlbarBox.x,
     },
   };
@@ -987,13 +987,13 @@ function enhanceResults(res){
           r.data.template = r.template;
         }
         if (r.type.indexOf('bookmark') >= 0) {
-          r.data.resultIcon = 'http://cdn.cliqz.com/extension/core/icons/bookmark_cliqz.svg';
+          r.data.resultIcon = 'https://cdn.cliqz.com/extension/core/icons/bookmark_cliqz.svg';
           r.title = r.data.title || r.title;
         } else if (r.type.indexOf('favicon') >= 0) {
-          r.data.resultIcon = 'http://cdn.cliqz.com/extension/core/icons/history_cliqz.svg';
+          r.data.resultIcon = 'https://cdn.cliqz.com/extension/core/icons/history_cliqz.svg';
           r.title = r.data.title || r.title;
         } else if (r.data.template == 'news') {
-          r.data.resultIcon = 'http://cdn.cliqz.com/extension/core/icons/news_cliqz.svg';
+          r.data.resultIcon = 'https://cdn.cliqz.com/extension/core/icons/news_cliqz.svg';
         } else if (r.data.template === 'noResult' && CliqzUtils.dropDownStyle === 'simple') {
           res.results[i] = r = getNoResultsForSimpleUI(r);
         } else if (r.data.template === 'custom' && CliqzUtils.dropDownStyle === 'simple') {

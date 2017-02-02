@@ -4,7 +4,7 @@
         <div class="main mulitple">
             {{#each links}}
                 <div url="{{url}}" extra="entry-{{@index}}" class="item">
-                    <div class="main__image" data-style="background-image: url({{#if extra.thumbnail}}{{ extra.thumbnail }}{{else}}http://cdn.cliqz.com/extension/EZ/news/no-image-mobile.png{{/if}});">
+                    <div class="main__image" data-style="background-image: url({{#if extra.thumbnail}}{{ extra.thumbnail }}{{else}}https://cdn.cliqz.com/extension/EZ/news/no-image-mobile.png{{/if}});">
                             Image
                     </div>
                     <h1 class="main__headline">
@@ -12,7 +12,7 @@
                         <span>
                             {{#if extra.tweet_count}}
                                 <span class="tweet_count">
-                                    <img data-src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg"> {{extra.tweet_count}}
+                                    <img data-src="https://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg"> {{extra.tweet_count}}
                                 </span>
                             {{/if}}
                             {{ agoline extra.creation_timestamp }}

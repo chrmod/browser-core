@@ -7,7 +7,7 @@ export default class {
   }
 
   getSnippet(url) {
-    const mixerUrl = `https://newbeta.cliqz.com/api/v1/results?q=${url}`;
+    const mixerUrl = `https://api.cliqz.com/api/v1/results?q=${url}`;
 
     if (url in this.cache) {
       return Promise.resolve(this.cache[url]);
