@@ -584,6 +584,7 @@ const firefoxUrlbarEventHandlers = {
   },
   keydown: function (event) {
     const keyEvent = this.window.KeyEvent;
+    autocomplete._lastKey = event.keyCode;
     switch (event.keyCode) {
       case keyEvent.DOM_VK_BACK_SPACE:
       case keyEvent.DOM_VK_DELETE:
