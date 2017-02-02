@@ -1533,7 +1533,7 @@
       "message": "Telemetry"
     },
     "transparency_telemetry_content": {
-      "message": "Telemetry includes all data concerning the usage and performance of the browser and its features. We use these data to continuously improve your Cliqz experience. These data include e.g. the version number of the browser, or the time it takes to display Cliqz search results. Telemetry data do not contain any information about queries, search results or visited URLs. Find more information <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#telemetry'>here</a>."
+      "message": "Telemetry includes all data concerns the usage and performance of the browser and its features. We use these data to continuously improve your Cliqz experience. These data include e.g. the version number of the browser, or the time it takes to display Cliqz search results. Telemetry data do not contain any information about queries, search results or visited URLs. Find more information <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#telemetry'>here</a>."
     },
     "transparency_activity_buttons": {
       "message": "No activity was captured"
