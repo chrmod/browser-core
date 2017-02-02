@@ -1,5 +1,4 @@
 // Browserified from https://github.com/fent/node-ytdl-core
-// Of course, porting it manually should result in much less code
 
 // global.ytdl = require('./lib/index');
 // global.getVideoID = require('./lib/util').getVideoID;
@@ -2100,6 +2099,7 @@ module.exports = {
   "428": "Precondition Required",
   "429": "Too Many Requests",
   "431": "Request Header Fields Too Large",
+  "451": "Unavailable For Legal Reasons",
   "500": "Internal Server Error",
   "501": "Not Implemented",
   "502": "Bad Gateway",
@@ -5964,12 +5964,34 @@ try {
   exports.blobConstructor = true
 } catch (e) {}
 
-var xhr = new global.XMLHttpRequest()
-// If XDomainRequest is available (ie only, where xhr might not work
-// cross domain), use the page location. Otherwise use example.com
-xhr.open('GET', global.XDomainRequest ? '/' : 'https://example.com')
+// The xhr request to example.com may violate some restrictive CSP configurations,
+// so if we're running in a browser that supports `fetch`, avoid calling getXHR()
+// and assume support for certain features below.
+var xhr
+function getXHR () {
+  // Cache the xhr value
+  if (xhr !== undefined) return xhr
+
+  if (global.XMLHttpRequest) {
+    xhr = new global.XMLHttpRequest()
+    // If XDomainRequest is available (ie only, where xhr might not work
+    // cross domain), use the page location. Otherwise use example.com
+    // Note: this doesn't actually make an http request.
+    try {
+      xhr.open('GET', global.XDomainRequest ? '/' : 'https://example.com')
+    } catch(e) {
+      xhr = null
+    }
+  } else {
+    // Service workers don't have XHR
+    xhr = null
+  }
+  return xhr
+}
 
 function checkTypeSupport (type) {
+  var xhr = getXHR()
+  if (!xhr) return false
   try {
     xhr.responseType = type
     return xhr.responseType === type
@@ -5982,13 +6004,20 @@ function checkTypeSupport (type) {
 var haveArrayBuffer = typeof global.ArrayBuffer !== 'undefined'
 var haveSlice = haveArrayBuffer && isFunction(global.ArrayBuffer.prototype.slice)
 
-exports.arraybuffer = haveArrayBuffer && checkTypeSupport('arraybuffer')
+// If fetch is supported, then arraybuffer will be supported too. Skip calling
+// checkTypeSupport(), since that calls getXHR().
+exports.arraybuffer = exports.fetch || (haveArrayBuffer && checkTypeSupport('arraybuffer'))
+
 // These next two tests unavoidably show warnings in Chrome. Since fetch will always
 // be used if it's available, just return false for these to avoid the warnings.
 exports.msstream = !exports.fetch && haveSlice && checkTypeSupport('ms-stream')
 exports.mozchunkedarraybuffer = !exports.fetch && haveArrayBuffer &&
   checkTypeSupport('moz-chunked-arraybuffer')
-exports.overrideMimeType = isFunction(xhr.overrideMimeType)
+
+// If fetch is supported, then overrideMimeType will be supported too. Skip calling
+// getXHR().
+exports.overrideMimeType = exports.fetch || (getXHR() ? isFunction(getXHR().overrideMimeType) : false)
+
 exports.vbArray = isFunction(global.VBArray)
 
 function isFunction (value) {
@@ -6040,8 +6069,9 @@ var ClientRequest = module.exports = function (opts) {
 
   var preferBinary
   var useFetch = true
-  if (opts.mode === 'disable-fetch') {
-    // If the use of XHR should be preferred and includes preserving the 'content-type' header
+  if (opts.mode === 'disable-fetch' || 'timeout' in opts) {
+    // If the use of XHR should be preferred and includes preserving the 'content-type' header.
+    // Force XHR to be used since the Fetch API does not yet support timeouts.
     useFetch = false
     preferBinary = true
   } else if (opts.mode === 'prefer-streaming') {
@@ -6099,7 +6129,7 @@ ClientRequest.prototype._onFinish = function () {
   var opts = self._opts
 
   var headersObj = self._headers
-  var body
+  var body = null
   if (opts.method === 'POST' || opts.method === 'PUT' || opts.method === 'PATCH' || opts.method === 'MERGE') {
     if (capability.blobConstructor) {
       body = new global.Blob(self._body.map(function (buffer) {
@@ -6150,6 +6180,13 @@ ClientRequest.prototype._onFinish = function () {
 
     if (self._mode === 'text' && 'overrideMimeType' in xhr)
       xhr.overrideMimeType('text/plain; charset=x-user-defined')
+
+    if ('timeout' in opts) {
+      xhr.timeout = opts.timeout
+      xhr.ontimeout = function () {
+        self.emit('timeout')
+      }
+    }
 
     Object.keys(headersObj).forEach(function (name) {
       xhr.setRequestHeader(headersObj[name].name, headersObj[name].value)
@@ -6222,6 +6259,10 @@ ClientRequest.prototype._connect = function () {
     return
 
   self._response = new IncomingMessage(self._xhr, self._fetchResponse, self._mode)
+  self._response.on('error', function(err) {
+    self.emit('error', err)
+  })
+
   self.emit('response', self._response)
 }
 
@@ -6341,6 +6382,8 @@ var IncomingMessage = exports.IncomingMessage = function (xhr, response, mode) {
         }
         self.push(new Buffer(result.value))
         read()
+      }).catch(function(err) {
+        self.emit('error', err)
       })
     }
     read()
@@ -7590,6 +7633,14 @@ exports.get = function(key) {
   return exports.store[key];
 };
 
+
+/**
+ * Empties the cache.
+ */
+exports.reset = function() {
+  exports.store = {};
+};
+
 },{}],44:[function(require,module,exports){
 /**
  * http://en.wikipedia.org/wiki/YouTube#Quality_and_formats
@@ -8309,7 +8360,8 @@ function doDownload(stream, url, options, tryCount) {
   req.on('response', function(res) {
     myres = res;
     if (stream._isDestroyed) { return; }
-    if (res.statusCode !== 200) {
+    // Support for Streaming 206 status videos
+    if (res.statusCode !== 200 && res.statusCode !== 206) {
       if (redirectCodes.has(res.statusCode)) {
         // Redirection header.
         doDownload(stream, res.headers.location, options, tryCount - 1);
@@ -8384,176 +8436,184 @@ module.exports = function getInfo(link, options, callback) {
 
   var myrequest = options.request || request;
   var id = util.getVideoID(link);
-  util.parallel([
-    function(callback) {
-      // Try getting config from the video page first.
-      var url = VIDEO_URL + id;
-      myrequest(url, options.requestOptions, function(err, body) {
-        if (err) return callback(err);
 
-        // Get description from #eow-description
-        var description = util.getVideoDescription(body);
-
-        var jsonStr = util.between(body, 'ytplayer.config = ', '</script>');
-        if (jsonStr) {
-          jsonStr = jsonStr.slice(0, jsonStr.lastIndexOf(';ytplayer.load'));
-          var config;
-          try {
-            config = JSON.parse(jsonStr);
-          } catch (err) {
-            return callback(new Error('Error parsing config: ' + err.message));
-          }
-          if (!config) {
-            return callback(new Error('Could not parse video page config'));
-          }
-          callback(null, [description, config, false]);
-
-        } else {
-          // If the video page doesn't work, maybe because it has mature content
-          // and requires an account logged into view, try the embed page.
-          url = EMBED_URL + id;
-          myrequest(url, options.requestOptions, function(err, body) {
-            if (err) return callback(err);
-
-            var html5player = util.between(body, '"js":"', '"');
-            if (!html5player) {
-              return callback(new Error('Could not find `player config`'));
-            }
-
-            html5player = html5player.replace(/\\\//g, '/');
-            callback(null, [description, { assets: { js: html5player }}, true]);
-          });
-        }
-      });
-    },
-    function(callback) {
-      var url = format({
-        protocol: 'https',
-        host: INFO_HOST,
-        pathname: INFO_PATH,
-        query: {
-          video_id: id,
-          eurl: VIDEO_EURL + id,
-          ps: 'default',
-          gl: 'US',
-          hl: 'en',
-        },
-      });
-      myrequest(url, options.requestOptions, function(err, body) {
-        if (err) return callback(err);
-        callback(null, querystring.parse(body));
-      });
-    }
-  ], function(err, results) {
+  // Try getting config from the video page first.
+  var url = VIDEO_URL + id;
+  myrequest(url, options.requestOptions, function(err, body) {
     if (err) return callback(err);
 
-    var description = results[0][0];
-    var config = results[0][1];
-    var dashmpd2;
-    if (results[0][2]) {
-      config.args = results[1];
-    } else {
-      dashmpd2 = results[1].dashmpd;
+    // Check if this video exists.
+    var unavailableMsg = util.between(body, '<h1 id="unavailable-message" class="message">', '</h1>');
+    if (unavailableMsg) {
+      if (unavailableMsg.trim() == 'This video does not exist.') {
+        return callback(new Error('Video not found'));
+      }
     }
-    gotConfig(options, description, config, dashmpd2, callback);
+
+    // Parse out some additional informations since we already load that page.
+    var additional = {
+      // Get informations about the author/uploader.
+      author: util.getAuthor(body),
+      // Get the day the vid was published.
+      published: util.getPublished(body),
+      // Get description from #eow-description.
+      description: util.getVideoDescription(body),
+      // Get related videos.
+      relatedVideos: util.getRelatedVideos(body),
+    };
+
+    var jsonStr = util.between(body, 'ytplayer.config = ', '</script>');
+    if (jsonStr) {
+      jsonStr = jsonStr.slice(0, jsonStr.lastIndexOf(';ytplayer.load'));
+      var config;
+      try {
+        config = JSON.parse(jsonStr);
+      } catch (err) {
+        return callback(new Error('Error parsing config: ' + err.message));
+      }
+      if (!config) {
+        return callback(new Error('Could not parse video page config'));
+      }
+      gotConfig(id, options, additional, config, callback);
+
+    } else {
+      // If the video page doesn't work, maybe because it has mature content.
+      // and requires an account logged into view, try the embed page.
+      url = EMBED_URL + id;
+      myrequest(url, options.requestOptions, function(err, body) {
+        if (err) return callback(err);
+
+        config = util.between(body, 't.setConfig({\'PLAYER_CONFIG\': ', '},\'');
+        if (!config) {
+          return callback(new Error('Could not find `player config`'));
+        }
+        try {
+          config = JSON.parse(config + '}');
+        } catch (err) {
+          return callback(new Error('Error parsing config: ' + err.message));
+        }
+        gotConfig(id, options, additional, config, callback);
+      });
+    }
   });
 };
 
 
 /**
+ * @param {Object} id
  * @param {Object} options
- * @param {String} description
+ * @param {Object} additional
  * @param {Object} config
- * @param {String} dashmpd2
  * @param {Function(Error, Object)} callback
  */
-function gotConfig(options, description, config, dashmpd2, callback) {
-  var info = config.args;
-  if (info.status === 'fail') {
-    var msg = info.errorcode && info.reason ?
-      'Code ' + info.errorcode + ': ' + info.reason : 'Video not found';
-    callback(new Error(msg));
-    return;
+function gotConfig(id, options, additional, config, callback) {
+  if (config.status === 'fail') {
+    return new Error(config.errorcode && config.reason ?
+      'Code ' + config.errorcode + ': ' + config.reason : 'Video not found');
   }
-
-  // Split some keys by commas.
-  KEYS_TO_SPLIT.forEach(function(key) {
-    if (!info[key]) return;
-    info[key] = info[key]
-    .split(',')
-    .filter(function(v) { return v !== ''; });
+  var url = format({
+    protocol: 'https',
+    host: INFO_HOST,
+    pathname: INFO_PATH,
+    query: {
+      video_id: id,
+      eurl: VIDEO_EURL + id,
+      ps: 'default',
+      gl: 'US',
+      hl: 'en',
+      sts: config.sts,
+    },
   });
-
-  info.fmt_list = info.fmt_list ?
-    info.fmt_list.map(function(format) {
-      return format.split('/');
-    }) : [];
-
-  if (info.video_verticals) {
-    info.video_verticals = info.video_verticals
-    .slice(1, -1)
-    .split(', ')
-    .filter(function(val) { return val !== ''; })
-    .map(function(val) { return parseInt(val, 10); })
-    ;
-  }
-
-  info.formats = util.parseFormats(info);
-  info.description = description;
-
-  if (info.formats.some(function(f) { return !!f.s; }) ||
-      info.dashmpd || (dashmpd2 && dashmpd2 !== info.dashmpd) || info.hlsvp) {
-    sig.getTokens(config.assets.js, options, function(err, tokens) {
-      if (err) return callback(err);
-
-      sig.decipherFormats(info.formats, tokens, options.debug);
-
-      var funcs = [];
-      if (info.dashmpd) {
-        var dashmpd = decipherURL(info.dashmpd, tokens);
-        funcs.push(getDashManifest.bind(null, dashmpd, options));
-      }
-
-      if (dashmpd2 && dashmpd2 !== info.dashmpd) {
-        dashmpd2 = decipherURL(dashmpd2, tokens);
-        funcs.push(getDashManifest.bind(null, dashmpd2, options));
-      }
-
-      if (info.hlsvp) {
-        info.hlsvp = decipherURL(info.hlsvp, tokens);
-        funcs.push(getM3U8.bind(null, info.hlsvp, options));
-      }
-
-      util.parallel(funcs, function(err, results) {
-        if (err) return callback(err);
-        if (results[0]) { mergeFormats(info, results[0]); }
-        if (results[1]) { mergeFormats(info, results[1]); }
-        if (results[2]) { mergeFormats(info, results[2]); }
-        if (!info.formats.length) {
-          callback(new Error('No formats found'));
-          return;
-        }
-        if (options.debug) {
-          info.formats.forEach(function(format) {
-            var itag = format.itag;
-            if (!FORMATS[itag]) {
-              console.warn('No format metadata for itag ' + itag + ' found');
-            }
-          });
-        }
-        info.formats.sort(util.sortFormats);
-        callback(null, info);
-      });
-    });
-  } else {
-    if (!info.formats.length) {
-      callback(new Error('Video not found'));
-      return;
+  var myrequest = options.request || request;
+  myrequest(url, options.requestOptions, function(err, body) {
+    if (err) return callback(err);
+    var info = querystring.parse(body);
+    if (info.status === 'fail') {
+      info = config.args;
     }
-    sig.decipherFormats(info.formats, null, options.debug);
-    info.formats.sort(util.sortFormats);
-    callback(null, info);
-  }
+
+    // Split some keys by commas.
+    KEYS_TO_SPLIT.forEach(function(key) {
+      if (!info[key]) return;
+      info[key] = info[key]
+      .split(',')
+      .filter(function(v) { return v !== ''; });
+    });
+
+    info.fmt_list = info.fmt_list ?
+      info.fmt_list.map(function(format) {
+        return format.split('/');
+      }) : [];
+
+    if (info.video_verticals) {
+      info.video_verticals = info.video_verticals
+      .slice(1, -1)
+      .split(', ')
+      .filter(function(val) { return val !== ''; })
+      .map(function(val) { return parseInt(val, 10); })
+      ;
+    }
+
+    info.formats = util.parseFormats(info);
+
+    // Add additional properties to info.
+    info = util.objectAssign(info, additional, false);
+
+    if (info.formats.some(function(f) { return !!f.s; }) ||
+        config.args.dashmpd || info.dashmpd || info.hlsvp) {
+      sig.getTokens(config.assets.js, options, function(err, tokens) {
+        if (err) return callback(err);
+
+        sig.decipherFormats(info.formats, tokens, options.debug);
+
+        var funcs = [];
+        var dashmpd;
+        if (config.args.dashmpd) {
+          dashmpd = decipherURL(config.args.dashmpd, tokens);
+          funcs.push(getDashManifest.bind(null, dashmpd, options));
+        }
+
+        if (info.dashmpd && info.dashmpd !== config.args.dashmpd) {
+          dashmpd = decipherURL(info.dashmpd, tokens);
+          funcs.push(getDashManifest.bind(null, dashmpd, options));
+        }
+
+        if (info.hlsvp) {
+          info.hlsvp = decipherURL(info.hlsvp, tokens);
+          funcs.push(getM3U8.bind(null, info.hlsvp, options));
+        }
+
+        util.parallel(funcs, function(err, results) {
+          if (err) return callback(err);
+          if (results[0]) { mergeFormats(info, results[0]); }
+          if (results[1]) { mergeFormats(info, results[1]); }
+          if (results[2]) { mergeFormats(info, results[2]); }
+          if (!info.formats.length) {
+            callback(new Error('No formats found'));
+            return;
+          }
+          if (options.debug) {
+            info.formats.forEach(function(format) {
+              var itag = format.itag;
+              if (!FORMATS[itag]) {
+                console.warn('No format metadata for itag ' + itag + ' found');
+              }
+            });
+          }
+          info.formats.sort(util.sortFormats);
+          callback(null, info);
+        });
+      });
+    } else {
+      if (!info.formats.length) {
+        callback(new Error('Video does not contain any available formats'));
+        return;
+      }
+      sig.decipherFormats(info.formats, null, options.debug);
+      info.formats.sort(util.sortFormats);
+      callback(null, info);
+    }
+  });
 }
 
 
@@ -8625,7 +8685,8 @@ function getDashManifest(url, options, callback) {
   var req = myrequest(url, options.requestOptions);
   req.on('error', callback);
   req.on('response', function(res) {
-    if (res.statusCode !== 200) {
+    // Support for Streaming 206 status videos.
+    if (res.statusCode !== 200 && res.statusCode !== 206) {
       // Ignore errors on manifest.
       return parser.close();
     }
@@ -8701,11 +8762,12 @@ module.exports = function(url, options, callback) {
     return;
   }
 
-  if (options) { util.assignDeep(parsed, options); }
+  if (options) { util.objectAssign(parsed, options, true); }
   var req = httpLib.get(parsed);
   if (callback) {
     req.on('response', function(res) {
-      if (res.statusCode !== 200) {
+      // Support for Streaming 206 status videos
+      if (res.statusCode !== 200 && res.statusCode !== 206) {
         callback(new Error('Status code ' + res.statusCode));
         return;
       }
@@ -8733,6 +8795,9 @@ var request = require('./request');
 var cache   = require('./cache');
 
 
+var VIDEO_URL = 'https://www.youtube.com/watch?v=';
+
+
 /**
  * Extract signature deciphering tokens from html5player file.
  *
@@ -8753,7 +8818,7 @@ exports.getTokens = function(html5playerfile, options, callback) {
   if (cachedTokens) {
     callback(null, cachedTokens);
   } else {
-    html5playerfile = 'http:' + html5playerfile;
+    html5playerfile = url.resolve(VIDEO_URL, html5playerfile);
     var myrequest = options.request || request;
     myrequest(html5playerfile, options.requestOptions, function(err, body) {
       if (err) return callback(err);
@@ -9289,7 +9354,65 @@ exports.getVideoDescription = function(html) {
     .replace(/\n/g, ' ')
     .replace(/\s*<\s*br\s*\/?\s*>\s*/gi, '\n')
     .replace(/<\s*\/\s*p\s*>\s*<\s*p[^>]*>/gi, '\n')
-    .replace(/<.*?>/gi, '')).trim() : '';
+    .replace(/<.*?>/gi, '')).trim() : ''
+    ;
+};
+
+
+/**
+ * Get video Owner from html.
+ *
+ * @param {String} body
+ * @return {Object}
+ */
+var authorRegexp = /<a href="\/channel\/([\w-]+)"[^>]+>(.+?(?=<\/a>))/;
+var aliasRegExp = /<a href="\/user\/([^"]+)/;
+exports.getAuthor = function(body) {
+  var ownerinfo = exports.between(body, '<div id="watch7-user-header" class=" spf-link ">', '<div id="watch8-action-buttons" class="watch-action-buttons clearfix">');
+  if (ownerinfo === '') {
+    return {};
+  }
+  ownerinfo = new Entities().decode(ownerinfo);
+  var match = ownerinfo.match(authorRegexp);
+  return {
+    ref: '/channel/' + match[1],
+    id: match[1],
+    name: match[2],
+    avatar: exports.between(ownerinfo, 'data-thumb="', '"'),
+    user: ownerinfo.match('/user/') ? ownerinfo.match(aliasRegExp)[1] : null,
+  };
+};
+
+
+/**
+ * Get video published at from html.
+ *
+ * @param {String} body
+ * @return {String}
+ */
+exports.getPublished = function(body) {
+  return Date.parse(exports.between(body, '<meta itemprop="datePublished" content="', '">'));
+};
+
+
+/**
+ * Get video published at from html.
+ * Credits to https://github.com/paixaop.
+ *
+ * @param {String} body
+ * @return {Array.<Object>}
+ */
+exports.getRelatedVideos = function(body) {
+  var jsonStr = exports.between(body, '\'RELATED_PLAYER_ARGS\': {"rvs":', '},');
+  try {
+    jsonStr = JSON.parse(jsonStr);
+  }
+  catch (err) {
+    return [];
+  }
+  return jsonStr.split(',').map(function(link) {
+    return qs.parse(link);
+  });
 };
 
 
@@ -9327,16 +9450,17 @@ exports.parallel = function(funcs, callback) {
 
 
 /**
- * Deep assign object to another.
+ * (Deep) assign object to another.
  *
  * @param {Object} target
  * @param {Object} source
+ * @param {boolean} deep
  */
-exports.assignDeep = function(target, source) {
+exports.objectAssign = function(target, source, deep) {
   for (var key in source) {
-    if (typeof source[key] === 'object' && source[key] != null &&
+    if (deep && typeof source[key] === 'object' && source[key] != null &&
         target[key]) {
-      exports.assignDeep(target[key], source[key]);
+      exports.objectAssign(target[key], source[key]);
     } else {
       target[key] = source[key];
     }
