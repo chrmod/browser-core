@@ -31,3 +31,4 @@ npm.err
 subprojects/**/dist
 /docs
 mocha.log
+/guides/build_docs

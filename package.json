@@ -6,7 +6,7 @@
   "scripts": {
     "deploy-mobile-release": "./fern.js build configs/mobile.json --environment=production && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/extension",
     "deploy-mobile-beta": "./fern.js build configs/mobile.json --environment=production && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/beta",
-    "doc": "yuidoc",
+    "doc": "mkdir docs;yuidoc; selleck guides --out docs/guides",
     "start": "./fern.js serve configs/browser.json --freshtab"
   },
   "author": "Cliqz GmbH",
@@ -60,6 +60,7 @@
     "node-notifier": "4.6.1",
     "pouchdb": "^6.0.7",
     "rimraf": "2.5.4",
+    "selleck": "^0.1.18",
     "sinon": "^1.17.6",
     "sinon-as-promised": "4.0.2",
     "sinon-chai": "^2.8.0",
@@ -70,6 +71,7 @@
     "walk": "2.3.9",
     "walk-sync": "0.2.5",
     "wrench": "1.5.9",
-    "yuidoc-lucid-theme": "0.1.2"
+    "yuidoc-lucid-theme": "0.1.2",
+    "yuidocjs": "^0.10.2"
   }
 }

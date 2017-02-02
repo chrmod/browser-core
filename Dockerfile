@@ -5,7 +5,8 @@ RUN npm install -g \
   broccoli-cli \
   ember-cli \
   phantomjs \
-  yuidocjs
+  yuidocjs \
+  selleck
 
 RUN apt-get update && \
   apt-get install -y \
