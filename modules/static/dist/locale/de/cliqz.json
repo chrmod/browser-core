@@ -1497,7 +1497,7 @@
       "message": "Sorry! Wir können das Video leider nicht herunterladen."
     },
     "transparency_html_title": {
-      "message": "Cliqz | Transparenz-Cockpit"
+      "message": "Cliqz | Transparenz Cockpit"
     },
     "transparency_document_title": {
       "message": "Transparenz Cockpit"
@@ -1515,7 +1515,7 @@
       "message": "Transparenz Cockpit"
     },
     "transparency_content": {
-      "message": "Deine Privatsphäre ist uns heilig. CLIQZ erhebt keine persönlichen Daten. Damit du überprüfen kannst, welche Daten bei der Nutzung des CLIQZ-Browser generiert werden, haben wir das Transparenz-Cockpit entwickelt. Dieses zeigt Dir in Echtzeit, die Daten, die wir erhalten. Um deine Privatsphäre zu schützen, werden manche Daten blockiert. Das heißt, sie veranlassen entweder gar nicht erst den Browser (z.B. Geo-Daten, sofern diese nicht erlaubt wurden) oder werden nicht weiterverarbeit bzw. mit anderen Daten kombiniert. Mach dir dein eigenes Bild!"
+      "message": "Deine Privatsphäre ist uns heilig. CLIQZ erhebt keine persönlichen Daten. Damit du überprüfen kannst, welche Daten bei der Nutzung des CLIQZ-Browser generiert werden, haben wir das Transparenz Cockpit entwickelt. Dieses zeigt Dir in Echtzeit, die Daten, die wir erhalten. Um deine Privatsphäre zu schützen, werden manche Daten blockiert. Das heißt, sie veranlassen entweder gar nicht erst den Browser (z.B. Geo-Daten, sofern diese nicht erlaubt wurden) oder werden nicht weiterverarbeit bzw. mit anderen Daten kombiniert. Mach dir dein eigenes Bild!"
     },
     "transparency_search_title": {
       "message": "Deine Suche bei CLIQZ"

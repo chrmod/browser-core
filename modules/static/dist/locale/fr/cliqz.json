@@ -1496,5 +1496,47 @@
     "video-downloader-unsupported-format": {
       "message": "Désolé! Nous n'arrivons pas à télécharger cette video."
     },
+    "transparency_html_title": {
+      "message": "Cliqz | Panneau de Transparence"
+    },
+    "transparency_document_title": {
+      "message": "Panneau de Transparence"
+    },
+    "transparency_legend_title": {
+      "message": "Légende:"
+    },
+    "transparency_blocked1": {
+      "message": "Bloquées pour protéger ta vie privée"
+    },
+    "transparency_blocked2": {
+      "message": "Reçues par Cliqz"
+    },
+    "transparency_content_title": {
+      "message": "Panneau de Transparence"
+    },
+    "transparency_content": {
+      "message": "Nous respectons ta vie privée et avons pour but de la protéger. Cliqz ne recueille ni enregistre aucune de tes données personnelles. Notre Panneau de Transparence a éte dévéloppé pour te donner un aperçu des données générées quand tu navigues avec Cliqz. Il affiche en temps réel les données que nous recevons quand tu commences à saisir une requête dans la barre d'adresse ou quand tu surfes sur un site. Pour protéger ta vie privée, certaines données sont/ont étées bloquées, c'est à dire qu' elles ne quittent pas du tout ton navigateur (c'est le cas des données de localisation, suivant tes paramètres Cliqz)."
+    },
+    "transparency_search_title": {
+      "message": "Your search with Cliqz"
+    },
+    "transparency_search_content": {
+      "message": "The following are data signals concerning the Cliqz search function and display queries and URLs you enter or visit. They help us to optimize your search experience. As you can see, these data do not contain any personally identifiable information (“PII”). You are anonymous to Cliqz. You can route your searches through a network of proxy servers for an even stronger protection. Find more information <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#your-search'>here</a>."
+    },
+    "transparency_humanweb_title": {
+      "message": "Human Web"
+    },
+    "transparency_humanweb_content": {
+      "message": "Our Human Web technology uses statistical methods and algorithms to continuously enhance the quality of our search results. The collected anonymous, statistical data are related to queries and shown results displayed by one of the complimentary search engines. The chosen data architecture prevents any inference about a natural person. The transfer of Human Web data is encrypted and routed through a network of proxy servers. Find more information <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#human-web'>here</a>."
+    },
+    "transparency_telemetry_title": {
+      "message": "Telemetry"
+    },
+    "transparency_telemetry_content": {
+      "message": "Telemetry includes all data concerning the usage and performance of the browser and its features. We use these data to continuously improve your Cliqz experience. These data include e.g. the version number of the browser, or the time it takes to display Cliqz search results. Telemetry data do not contain any information about queries, search results or visited URLs. Find more information <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#telemetry'>here</a>."
+    },
+    "transparency_activity_buttons": {
+      "message": "No activity was captured"
+    },
     "TEST": "OK"
 }
