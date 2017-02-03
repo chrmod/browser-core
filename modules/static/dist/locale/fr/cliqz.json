@@ -1518,25 +1518,25 @@
       "message": "Nous respectons ta vie privée et avons pour but de la protéger. Cliqz ne recueille ni enregistre aucune de tes données personnelles. Notre Panneau de Transparence a éte dévéloppé pour te donner un aperçu des données générées quand tu navigues avec Cliqz. Il affiche en temps réel les données que nous recevons quand tu commences à saisir une requête dans la barre d'adresse ou quand tu surfes sur un site. Pour protéger ta vie privée, certaines données sont/ont étées bloquées, c'est à dire qu' elles ne quittent pas du tout ton navigateur (c'est le cas des données de localisation, suivant tes paramètres Cliqz)."
     },
     "transparency_search_title": {
-      "message": "Your search with Cliqz"
+      "message": "Ta recherche avec Cliqz"
     },
     "transparency_search_content": {
-      "message": "The following are data signals concerning the Cliqz search function and display queries and URLs you enter or visit. They help us to optimize your search experience. As you can see, these data do not contain any personally identifiable information (“PII”). You are anonymous to Cliqz. You can route your searches through a network of proxy servers for an even stronger protection. Find more information <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#your-search'>here</a>."
+      "message": "Ici, tu verras des données sur tes recherches et sur les sites Web que tu visites sur Cliqz. Ces données nous aident à optimiser ton experience de recherche. Comme tu peux le voir, elles ne contiennent aucune information personnelle. Pour Cliqz, tu es anonyme. Tu pourrais aussi surfer avec Cliqz en utilisant un réseau de serveurs proxy, si tu veux une meilleure protection. Pour en savoir plus, clique <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#your-search'>ici</a>."
     },
     "transparency_humanweb_title": {
       "message": "Human Web"
     },
     "transparency_humanweb_content": {
-      "message": "Our Human Web technology uses statistical methods and algorithms to continuously enhance the quality of our search results. The collected anonymous, statistical data are related to queries and shown results displayed by one of the complimentary search engines. The chosen data architecture prevents any inference about a natural person. The transfer of Human Web data is encrypted and routed through a network of proxy servers. Find more information <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#human-web'>here</a>."
+      "message": "Notre technologie, Human Web, utilise des méthodes statistiques et des algorithmes pour toujours améliorer la qualité de nos résultats de recherche. Les données statistiques, collectionnées de façon anonyme, sont combinées aux requêtes et aux résultats de recherche fournis par l'un des moteurs de recherche complémentaires. L'architecture des données que nous avons choisi empêche aucune toute déduction sur l'identité de la personne . La transmission des données de “Human Web” est réalisée au travers d' un réseau des serveurs proxy. Pour en savoir plus, clique <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#human-web'>ici</a>."
     },
     "transparency_telemetry_title": {
-      "message": "Telemetry"
+      "message": "Télémétrie"
     },
     "transparency_telemetry_content": {
-      "message": "Telemetry includes all data concerns the usage and performance of the browser and its features. We use these data to continuously improve your Cliqz experience. These data include e.g. the version number of the browser, or the time it takes to display Cliqz search results. Telemetry data do not contain any information about queries, search results or visited URLs. Find more information <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#telemetry'>here</a>."
+      "message": "La télémétrie inclut toutes les données qui concernent l'utilisation et la performance du navigateur et ses fonctionnalités. Ces données comprennent par example le numéro de version du navigateur ou le temps nécéssaire pour afficher les resultats de recherche de Cliqz. Les données de la télémétrie ne contiennent aucune information sur les recherches, les résultats de recherche ou les URL visitées. Pour en savoir plus, clique <a target='_blank' href='https://cliqz.com/en/whycliqz/transparency#telemetry'>ici</a>."
     },
     "transparency_activity_buttons": {
-      "message": "No activity was captured"
+      "message": "Aucune activité n'a été saisie"
     },
     "TEST": "OK"
 }
