@@ -1,6 +1,6 @@
 import utils from 'core/utils';
 
-Components.utils.importGlobalProperties(['XMLHttpRequest', 'fetch']);
+Components.utils.importGlobalProperties(['XMLHttpRequest']);
 
 const global = {
   XMLHttpRequest,
@@ -12,8 +12,7 @@ const global = {
 };
 global.window = global;
 
-// TODO: any other global. object needed? fetch?
-Services.scriptloader.loadSubScript('chrome://cliqz/content/video-downloader/ytdl.js', global);
+Services.scriptloader.loadSubScript('chrome://cliqz/content/video-downloader/lib/ytdl-core.js', global);
 
 const getVideoID = global.getVideoID.bind(global);
 const getInfo = global.ytdl.getInfo.bind(global.ytdl);

@@ -7,7 +7,7 @@ var Babel = require('broccoli-babel-transpiler');
 var eslint = require('broccoli-lint-eslint');
 var compileSass = require('broccoli-sass-source-maps');
 var broccoliSource = require('broccoli-source');
-var browserify = require('broccoli-fast-browserify');
+var watchify = require('broccoli-watchify');
 var WatchedDir = broccoliSource.WatchedDir;
 var UnwatchedDir = broccoliSource.UnwatchedDir;
 var broccoliHandlebars = require('broccoli-handlebars-precompiler');
@@ -166,18 +166,48 @@ function getLintTestsTree() {
   ]);
 }
 
+function walk(p, filter) {
+  let list = [];
+  fs.readdirSync(p)
+  .forEach((file) => {
+    const fullPath = path.join(p, file);
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      list = list.concat(walk(fullPath, filter));
+    } else if (!filter || filter(fullPath)) {
+      list.push(fullPath);
+    }
+  });
+  return list;
+}
+
+function getBrowserifyTree() {
+  const browserifyTrees = [];
+  cliqzConfig.modules.forEach((name) => {
+    const modulePath = path.join('modules', name);
+    walk(modulePath, p => p.endsWith('.browserify'))
+    .forEach((p) => {
+      const rel = path.relative('modules', p);
+      const options = {
+        browserify: {
+          entries: [rel],
+          debug: true,
+        },
+        outputFile: rel.replace(/\.browserify$/, '.js'),
+        cache: true,
+      };
+      browserifyTrees.push(new Funnel(watchify(modulesTree, options), {
+        getDestinationPath(p) {
+          return p.replace('/sources', '');
+        },
+      }));
+    });
+  });
+  return new MergeTrees(browserifyTrees);
+}
 
 function getSourceTree() {
   let sources = getSourceFunnel();
-
-  let nodeModulesTree = new Funnel(modulesTree, {
-    include: cliqzConfig.modules.map(name => `${name}/sources/**/*.browserify`),
-    getDestinationPath(path) {
-      return path.replace("/sources", "");
-    }
-  });
-
-  let browserifyTree = browserify(nodeModulesTree)
 
   const moduleTestsTree = new Funnel(modulesTree, {
     include: cliqzConfig.modules.map(name =>  `${name}/tests/**/*.es`),
@@ -200,7 +230,7 @@ function getSourceTree() {
   );
 
   let sourceTrees = [
-    browserifyTree,
+    getBrowserifyTree(),
     transpiledSources,
   ];
   if ((cliqzConfig.environment !== 'production') &&
