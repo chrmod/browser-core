@@ -71,10 +71,10 @@
     "MWL":{
         "message": "Islamishe Weltliga"
     },
-    "CookingIntruct":{
+    "instruction":{
         "message": "Zubereitungsschritte"
     },
-    "Ingredients":{
+    "ingredients":{
         "message": "Zutaten"
     },
     "Votes":{

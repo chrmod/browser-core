@@ -30,7 +30,7 @@ function isReady() {
     incognito: false,
     showConsoleLogs: true,
   });
-
+  events.pub('mobile-browser:urlbar-focus');
   // notify tests
   window.postMessage('cliqz-ready', '*');
 }

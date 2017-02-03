@@ -1271,9 +1271,6 @@ a
       background-color: #e2a500
       border-radius: 4px
 
-.recipe .item .cqz-rd-info img
-  width: 38%
-
 .currency .main__headline
   padding-bottom: 16px
   border-bottom: 1px #eee solid
@@ -1366,13 +1363,6 @@ a
   border-radius: 5px
   padding: 5px
 
-
-ul.recipe_ingredients
-  list-style-type: none
-  li
-    padding: 7px 0
-    border-top: 1px solid #FFF
-    /* font-size: 12px */
 
 
 .no-results-title
@@ -1599,6 +1589,8 @@ body
     padding: 0rem 1rem 1rem
     line-height: 1.25rem
     color: #0C2B4A
+    .cook__time
+      margin-top: 0.25rem
   .card__meta
     position: absolute
     -webkit-transform: translateZ(0)
@@ -2069,3 +2061,28 @@ em
 
 ::-webkit-scrollbar
   display: none
+
+.recipe__details
+  margin-bottom: 1rem
+  border-bottom: 1px #EDECEC solid
+  .accordion
+    text-transform: capitalize
+    padding: 0.5rem 1rem;
+    text-align: left;
+    border-top: 1px #EDECEC solid
+    img
+      padding: 5px
+      float: right
+      transition: 0.5s
+      &.active
+        -moz-transform: scale(-1, -1);
+        -o-transform: scale(-1, -1);
+        -webkit-transform: scale(-1, -1);
+        transform: scale(-1, -1);
+  .panel
+    background-color: white;
+    display: none;
+    padding: 0 2rem
+    margin: 0
+    li
+      margin: 0.5rem 0

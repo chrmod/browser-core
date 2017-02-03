@@ -71,10 +71,10 @@
     "MWL":{
         "message": "Muslim World League"
     },
-    "CookingIntruct":{
-        "message": "Direction"
+    "instruction":{
+        "message": "Instructions"
     },
-    "Ingredients":{
+    "ingredients":{
         "message": "Ingredients"
     },
     "Votes":{

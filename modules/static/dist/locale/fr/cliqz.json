@@ -71,10 +71,10 @@
     "MWL":{
         "message": "Ligue islamique mondiale"
     },
-    "CookingIntruct":{
+    "instruction":{
         "message": "Étapes de préparation"
     },
-    "Ingredients":{
+    "ingredients":{
         "message": "Ingrédients"
     },
     "Votes":{
