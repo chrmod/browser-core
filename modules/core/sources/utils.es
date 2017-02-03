@@ -31,9 +31,9 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 var CliqzUtils = {
   RESULTS_PROVIDER:               CLIQZEnvironment.RESULTS_PROVIDER,
   RICH_HEADER:                    CLIQZEnvironment.RICH_HEADER,
-  RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
-  RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
-  CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
+  RESULTS_PROVIDER_LOG:           'https://api.cliqz.com/api/v1/logging?q=',
+  RESULTS_PROVIDER_PING:          'https://api.cliqz.com/ping',
+  CONFIG_PROVIDER:                'https://api.cliqz.com/api/v1/config',
   SAFE_BROWSING:                  'https://safe-browsing.cliqz.com',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',

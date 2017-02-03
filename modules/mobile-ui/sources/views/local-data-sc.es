@@ -75,7 +75,7 @@ export default class {
 
     if (!data.rating) { data.rating = 0; }
 
-    rating_img = "http://cdn.cliqz.com/extension/EZ/richresult/stars" + Math.max(0, Math.min(Math.round(data.rating), 5)) + ".svg";
+    rating_img = "https://cdn.cliqz.com/extension/EZ/richresult/stars" + Math.max(0, Math.min(Math.round(data.rating), 5)) + ".svg";
 
     if (!isBigSnippet) {
       data.extra = {

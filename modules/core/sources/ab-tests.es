@@ -15,7 +15,7 @@ function log(msg){
 var CliqzABTests = {
     PREF: 'ABTests',
     PREF_OVERRIDE: 'ABTestsOverride',
-    URL: 'https://logging.cliqz.com/abtests/check?session=',
+    URL: 'https://stats.cliqz.com/abtests/check?session=',
     // Accessors to list of tests this user is current in
     getCurrent: function() {
         if(CliqzUtils.hasPref(CliqzABTests.PREF))

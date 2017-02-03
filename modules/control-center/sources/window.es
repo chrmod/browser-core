@@ -626,8 +626,11 @@ export default class {
 
   enableSearch() {
     this.panel.hide();
-    events.pub('autocomplete:enable-search',{
-      urlbar: this.window.document.getElementById('urlbar')
-    });
+    utils.setTimeout(
+      events.pub,
+      1000,
+      "autocomplete:enable-search",
+      { urlbar: this.window.document.getElementById('urlbar') }
+    );
   }
 }

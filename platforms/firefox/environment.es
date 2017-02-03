@@ -20,9 +20,9 @@ import prefs from "core/prefs";
 
 
 var CLIQZEnvironment = {
-    RESULTS_PROVIDER: 'https://newbeta.cliqz.com/api/v2/results?nrh=1&q=',
-    RICH_HEADER: 'https://newbeta.cliqz.com/api/v2/rich-header?path=/v2/map',
-    LOG: 'https://logging.cliqz.com',
+    RESULTS_PROVIDER: 'https://api.cliqz.com/api/v2/results?nrh=1&q=',
+    RICH_HEADER: 'https://api.cliqz.com/api/v2/rich-header?path=/v2/map',
+    LOG: 'https://stats.cliqz.com',
     LOCALE_PATH: 'chrome://cliqz/content/static/locale/',
     TEMPLATES_PATH: 'chrome://cliqz/content/static/templates/',
     SKIN_PATH: 'chrome://cliqz/content/static/skin/',
@@ -462,7 +462,7 @@ var CLIQZEnvironment = {
             });
         }
     })(),
-    getNoResults: function(q) {
+    getNoResults: function(q, dropDownStyle) {
       var se = [// default
               {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
               {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
@@ -483,7 +483,7 @@ var CLIQZEnvironment = {
 
               def.code = e.code;
               def.style = CLIQZEnvironment.getLogoDetails(CLIQZEnvironment.getDetailsFromUrl(url)).style;
-              def.text = e.alias.slice(1);
+              def.text = e.alias ? e.alias.slice(1) : '';
 
               chosen.push(def)
           }
@@ -511,10 +511,12 @@ var CLIQZEnvironment = {
         },
         q
       );
-      const engine = this.getDefaultSearchEngine();
-      res.val = engine.getSubmissionForQuery(q);
-      res.label = CLIQZEnvironment.getLocalizedString('searchOn', engine.name);
-      res.text = res.comment = q;
+      if(dropDownStyle){
+        const engine = this.getDefaultSearchEngine();
+        res.val = engine.getSubmissionForQuery(q);
+        res.label = CLIQZEnvironment.getLocalizedString('searchOn', engine.name);
+        res.text = res.comment = q;
+      }
       return res;
     }
 }

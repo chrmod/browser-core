@@ -17,6 +17,8 @@ export default class {
       hash[moduleName] = new Module(moduleName);
       return hash;
     }, Object.create(null));
+
+    this.prefchangeEventListener = subscribe('prefchange', this.onPrefChange, this);
   }
 
   modules() {
@@ -63,8 +65,6 @@ export default class {
           return System.import(module.name + '/background');
         }
       });
-
-    this.prefchangeEventListener = subscribe('prefchange', this.onPrefChange, this);
 
     return Promise.all(backgroundPromises).then(() => {
       console.log('App', 'Loading modules -- all background loaded');
