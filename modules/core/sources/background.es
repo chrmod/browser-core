@@ -66,7 +66,12 @@ export default background({
         '|',
         config.settings.channel || 'NONE',
       ].join('');
-      this.actions.setSupportInfo();
+
+      utils.setTimeout(() => {
+        this.setSupportInfo();
+        this.browserDetection();
+      }, 30000);
+
       prefs.set('session', session);
       prefs.set('install_date', session.split('|')[1]);
       prefs.set('new_session', true);
@@ -116,6 +121,38 @@ export default background({
       var module = win.CLIQZ.Core.windowModules[moduleName];
       return module && module.status ? module.status() : null;
     })
+  },
+
+  setSupportInfo(status) {
+    const version = this.settings.version;
+    const host = prefs.get('distribution.id', '', '');
+    const hostVersion = prefs.get('distribution.version', '', '');
+    const info = JSON.stringify({
+      version,
+      host,
+      hostVersion,
+      status: status || 'active',
+    });
+
+    ['http://cliqz.com', 'https://cliqz.com'].forEach(url => {
+      const ls = new Storage(url);
+      ls.setItem('extension-info', info);
+    });
+  },
+
+  browserDetection() {
+    var pref = 'detection',
+        sites = ["https://www.ghostery.com", "https://ghostery.com"];
+
+    // make sure we only do it once
+    if(CliqzUtils.getPref(pref, false) !== true){
+      CliqzUtils.setPref(pref, true);
+
+      sites.forEach(function(url){
+          var ls = new Storage(url)
+          if (ls) ls.setItem("cliqz", true)
+      });
+    }
   },
 
   events: {
@@ -247,22 +284,6 @@ export default background({
     },
     resizeWindow(width, height) {
       utils.getWindow().resizeTo(width, height);
-    },
-    setSupportInfo(status) {
-      const version = this.settings.version;
-      const host = prefs.get('distribution.id', '', '');
-      const hostVersion = prefs.get('distribution.version', '', '');
-      const info = JSON.stringify({
-        version,
-        host,
-        hostVersion,
-        status: status || 'active',
-      });
-
-      ['http://cliqz.com', 'https://cliqz.com'].forEach(url => {
-        const ls = new Storage(url);
-        ls.setItem('extension-info', info);
-      });
     },
     queryHTML(url, selector, attribute) {
       const requestId = lastRequestId++,
