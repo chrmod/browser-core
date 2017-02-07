@@ -173,7 +173,7 @@ export default class {
         } else {
           this.failedToLoadResults(el);
         }
-        CliqzUtils.onRenderComplete(q, box);
+        utils.onRenderComplete(q, box);
       } else {
         this.failedToLoadResults(el);
       }
