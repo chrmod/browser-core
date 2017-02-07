@@ -23,7 +23,16 @@ describe('Search View', function() {
       document.body.appendChild(testBox);
     }).then(function () {
       contentWindow = testBox.contentWindow;
-      return injectSinon(contentWindow);
+      const promise = new Promise(function (resolve) {
+        testBox.contentWindow.addEventListener('message', function (ev) {
+          if (ev.data === 'cliqz-ready') {
+            resolve();
+          }
+        });
+      });
+      return promise;
+    }).then(() => {
+      return injectSinon(testBox.contentWindow);
     }).then(done);
   });
 

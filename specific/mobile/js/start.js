@@ -48,9 +48,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.CliqzUtils = utils;
     window.CliqzEvents  = events;
     utils.setPref("incognito", false);
-    return utils.init({
-      lang: window.navigator.language || window.navigator.userLanguage
-    });
   }).then(function () {
     return startup(window, [
       "mobile-dev",

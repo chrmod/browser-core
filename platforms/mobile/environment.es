@@ -178,6 +178,8 @@ var CLIQZEnvironment = {
   getDefaultSearchEngine: function() {
     return storage.getObject('defaultSearchEngine', CLIQZEnvironment.GOOGLE_ENGINE);
   },
+  addEngineWithDetails() {
+  },
 };
 
 CLIQZEnvironment.setCurrentQuery = function(query) {

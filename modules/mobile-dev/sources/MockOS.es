@@ -30,6 +30,9 @@ function isReady() {
     incognito: false,
     showConsoleLogs: true,
   });
+
+  // notify tests
+  window.postMessage('cliqz-ready', '*');
 }
 function openLink(url) {
   const id = parseInt(6 + (100 * Math.random()), 10);

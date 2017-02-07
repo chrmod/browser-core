@@ -48,10 +48,6 @@
                 "static"
               ]);
             }).then(function () {
-              return CliqzUtils.init({
-                lang: window.navigator.language || window.navigator.userLanguage
-              });
-            }).then(function () {
               jsAPI.init();
               osAPI.init();
               osAPI.isReady();

@@ -4,7 +4,6 @@ import SmartCliqzCache from 'autocomplete/smart-cliqz-cache/smart-cliqz-cache';
 import TriggerUrlCache from 'autocomplete/smart-cliqz-cache/trigger-url-cache';
 import CliqzAutocomplete from "autocomplete/autocomplete";
 import historyCluster from "autocomplete/history-cluster";
-import ResultProviders from "autocomplete/result-providers";
 import Result from "autocomplete/result";
 import Mixer from "autocomplete/mixer";
 import SpellCheck from "autocomplete/spell-check";
@@ -103,7 +102,7 @@ export default class Search {
     this.historyTimeout = false;
     this.instant = [];
     CliqzAutocomplete.spellCheck = this.spellCheck;
-    this.resultProviders = new ResultProviders();
+    this.resultProviders = CliqzAutocomplete.CliqzResultProviders;
     this.rerankerTimeouts = {
       before: 30,
       during: this.TIMEOUT,
