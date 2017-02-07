@@ -30,13 +30,13 @@ var events = {
   click: {
     "cqz_location_yes": function(ev) {
       ev.preventDefault();
-      CliqzUtils.callAction(
+      utils.callAction(
         "geolocation",
         "setLocationPermission",
         ["yes"]
       );
       this.loadLocalResults(ev.target);
-      CliqzUtils.telemetry({
+      utils.telemetry({
         type: 'setting',
         setting: "location-setting-dropdown",
         value: "share-location-yes"
@@ -44,9 +44,9 @@ var events = {
     },
     "cqz_location_once": function(ev) {
       ev.preventDefault();
-      CliqzUtils.SHARE_LOCATION_ONCE = true;
+      utils.SHARE_LOCATION_ONCE = true;
       this.loadLocalResults(ev.target);
-      CliqzUtils.telemetry({
+      utils.telemetry({
         type: 'setting',
         setting: "location-setting-dropdown",
         value: "share-location-once-step-" + ev.target.getAttribute("location_dialogue_step")
@@ -61,20 +61,20 @@ var events = {
           url: el.getAttribute("bm_url"),
           trans_str: messages[localType].trans_str
       });
-      CliqzUtils.telemetry({
+      utils.telemetry({
         type: 'setting',
         setting: "location-setting-dropdown",
         value: "share-location-no"
       });
     },
     "cqz_location_never": function(ev) {
-      CliqzUtils.callAction(
+      utils.callAction(
         "geolocation",
         "setLocationPermission",
         ["no"]
       );
       this.displayMessageForNoPermission();
-      CliqzUtils.telemetry({
+      utils.telemetry({
         type: 'setting',
         setting: "location-setting-dropdown",
         value: "share-location-never"
@@ -84,7 +84,7 @@ var events = {
       this.displayMessageForNoPermission();
     },
     "cqz_location_yes_confirm": function(ev) {
-      CliqzUtils.callAction(
+      utils.callAction(
         "geolocation",
         "setLocationPermission",
         ["yes"]
@@ -109,11 +109,11 @@ export default class {
 
   loadLocalResults(el) {
     this.CLIQZ.UI.gCliqzBox.querySelector(".location_permission_prompt").classList.add("loading");
-    CliqzUtils.callAction("geolocation", "updateGeoLocation", []).then(loc => {
+    utils.callAction("geolocation", "updateGeoLocation", []).then(loc => {
       if(loc.latitude && loc.longitude){
         var query = autocomplete.lastResult._searchString,
             localResult = autocomplete.lastResult._results[0],
-            url = CliqzUtils.RICH_HEADER + CliqzUtils.getRichHeaderQueryString(
+            url = utils.RICH_HEADER + utils.getRichHeaderQueryString(
               query,
               loc
             ),
@@ -129,14 +129,13 @@ export default class {
                 }
               ]
             };
-        CliqzUtils.httpPut(url, this.handleNewLocalResults(el, this.CLIQZ.UI.gCliqzBox, query), JSON.stringify(data));
-
+        utils.httpPut(url, this.handleNewLocalResults(el, this.CLIQZ.UI.gCliqzBox, query), JSON.stringify(data));
       } else {
-        CliqzUtils.log("Unable to get user's location", "getlocation.actions.updateGeoLocation");
+        utils.log("Unable to get user's location", "getlocation.actions.updateGeoLocation");
         this.failedToLoadResults(el);
       }
     }).catch(() => {
-        CliqzUtils.log("Unable to get user's location", "getlocation.actions.updateGeoLocation");
+        utils.log("Unable to get user's location", "getlocation.actions.updateGeoLocation");
         this.failedToLoadResults(el);
     });
   }

@@ -1,3 +1,5 @@
+import CliqzUtils from 'core/utils';
+
 /* UGLY TEST SYSTEM */
 
 var iterator = 0;

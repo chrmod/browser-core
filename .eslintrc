@@ -1,7 +1,7 @@
 {
     "extends": "airbnb",
     "env": {
-        "browser": true,
+        "browser": false,
         "commonjs": false,
         "es6": true,
         "mocha": true,
@@ -11,19 +11,14 @@
         "worker": true
     },
     "globals": {
-        "CLIQZEnvironment": {},
-        "CliqzABTests": {},
-        "CliqzEvents": {},
-        "CliqzHandlebars": {},
-        "CliqzHistoryCluster": {},
-        "CliqzHistoryManager": {},
-        "CliqzLanguage": {},
-        "CliqzSearchHistory": {},
-        "CliqzUtils": {},
         "Components": {},
         "Services": {},
         "dump": {},
-        "XPCOMUtils": {}
+        "System": {},
+        "Promise": {},
+        "setTimeout": {},
+        "setInterval": {},
+        "clearTimeout": {}
     },
     "rules": {
         "import/no-unresolved": "off",

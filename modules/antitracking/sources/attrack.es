@@ -78,7 +78,7 @@ var CliqzAttrack = {
     getPrivateValues: function(window) {
         // creates a list of return values of functions may leak private info
         var p = {};
-        // var navigator = CliqzUtils.getWindow().navigator;
+        // var navigator = utils.getWindow().navigator;
         var navigator = window.navigator;
         // plugins
         for (var i = 0; i < navigator.plugins.length; i++) {
@@ -126,31 +126,31 @@ var CliqzAttrack = {
         }
     },
     isEnabled: function() {
-        return CliqzUtils.getPref(CliqzAttrack.ENABLE_PREF, false);
+        return utils.getPref(CliqzAttrack.ENABLE_PREF, false);
     },
     isCookieEnabled: function(source_hostname) {
         if (source_hostname != undefined && CliqzAttrack.isSourceWhitelisted(source_hostname)) {
             return false;
         }
-        return CliqzUtils.getPref('attrackBlockCookieTracking', true);
+        return utils.getPref('attrackBlockCookieTracking', true);
     },
     isQSEnabled: function() {
-        return CliqzUtils.getPref('attrackRemoveQueryStringTracking', true);
+        return utils.getPref('attrackRemoveQueryStringTracking', true);
     },
     isFingerprintingEnabled: function() {
-        return CliqzUtils.getPref('attrackCanvasFingerprintTracking', false);
+        return utils.getPref('attrackCanvasFingerprintTracking', false);
     },
     isReferrerEnabled: function() {
-        return CliqzUtils.getPref('attrackRefererTracking', false);
+        return utils.getPref('attrackRefererTracking', false);
     },
     isTrackerTxtEnabled: function() {
-        return CliqzUtils.getPref('trackerTxt', false);
+        return utils.getPref('trackerTxt', false);
     },
     isBloomFilterEnabled: function() {
-        return CliqzUtils.getPref('attrackBloomFilter', false);
+        return utils.getPref('attrackBloomFilter', false);
     },
     isForceBlockEnabled: function() {
-        return CliqzUtils.getPref('attrackForceBlock', false);
+        return utils.getPref('attrackForceBlock', false);
     },
     initPacemaker: function() {
         const two_mins = 2 * 60 * 1000;
@@ -201,7 +201,7 @@ var CliqzAttrack = {
         }
 
         // Replace getWindow functions with window object used in init.
-        if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
+        if (CliqzAttrack.debug) utils.log("Init function called:", CliqzAttrack.LOG_KEY);
 
         if (!CliqzAttrack.hashProb) {
           CliqzAttrack.hashProb = new HashProb();
@@ -253,7 +253,7 @@ var CliqzAttrack = {
         WebRequest.onHeadersReceived.addListener(CliqzAttrack.httpResponseObserver, undefined, ['responseHeaders']);
 
         try {
-            CliqzAttrack.disabled_sites = new Set(JSON.parse(CliqzUtils.getPref(CliqzAttrack.DISABLED_SITES_PREF, "[]")));
+            CliqzAttrack.disabled_sites = new Set(JSON.parse(utils.getPref(CliqzAttrack.DISABLED_SITES_PREF, "[]")));
         } catch(e) {
             CliqzAttrack.disabled_sites = new Set();
         }
@@ -684,7 +684,7 @@ var CliqzAttrack = {
     getCurrentTabBlockingInfo: function(_gBrowser) {
       var tabId, urlForTab;
       try {
-        var gBrowser = _gBrowser || CliqzUtils.getWindow().gBrowser,
+        var gBrowser = _gBrowser || utils.getWindow().gBrowser,
             selectedBrowser = gBrowser.selectedBrowser;
         // on FF < 38 selectBrowser.outerWindowID is undefined, so we get the windowID from _loadContext
         tabId = selectedBrowser.outerWindowID || selectedBrowser._loadContext.DOMWindowID;
@@ -712,21 +712,21 @@ var CliqzAttrack = {
       if (CliqzAttrack.isEnabled()) {
           return;
       }
-      CliqzUtils.setPref(CliqzAttrack.ENABLE_PREF, true);
+      utils.setPref(CliqzAttrack.ENABLE_PREF, true);
       if (!module_only) {
-        CliqzUtils.setPref('attrackBlockCookieTracking', true);
-        CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
+        utils.setPref('attrackBlockCookieTracking', true);
+        utils.setPref('attrackRemoveQueryStringTracking', true);
       }
     },
     /** Disables anti-tracking immediately.
      */
     disableModule: function() {
-      CliqzUtils.setPref(CliqzAttrack.ENABLE_PREF, false);
+      utils.setPref(CliqzAttrack.ENABLE_PREF, false);
     },
     disabled_sites: new Set(),
     DISABLED_SITES_PREF: "attrackSourceDomainWhitelist",
     saveSourceDomainWhitelist: function() {
-      CliqzUtils.setPref(CliqzAttrack.DISABLED_SITES_PREF,
+      utils.setPref(CliqzAttrack.DISABLED_SITES_PREF,
         JSON.stringify(Array.from(CliqzAttrack.disabled_sites)));
     },
     isSourceWhitelisted: function(hostname) {

@@ -8,6 +8,7 @@ import { sendM } from 'hpn/send-message';
 import * as hpnUtils from 'hpn/utils';
 import { overRideCliqzResults } from 'hpn/http-handler-patch';
 import ResourceLoader from 'core/resource-loader';
+import CliqzUtils from 'core/utils';
 import ProxyFilter from 'hpn/proxy-filter';
 
 const { utils: Cu } = Components;

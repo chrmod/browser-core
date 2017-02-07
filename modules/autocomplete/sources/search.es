@@ -259,16 +259,16 @@ export default class Search {
       var data = null;
       var query = res.query || res.q; // query will be called q if RH is down
       if (hist_search_type === 1) {
-        data = CliqzUtils.hm.do_search(query, false);
+        data = utils.hm.do_search(query, false);
         data['cont'] = null;
       }
       else {
-        data = CliqzUtils.hm.do_search(query, true);
+        data = utils.hm.do_search(query, true);
       }
 
-      var urlAuto = CliqzUtils.hm.urlForAutoLoad(data);
+      var urlAuto = utils.hm.urlForAutoLoad(data);
       if (false && urlAuto) {
-        var win = CliqzUtils.getWindow().gBrowser.contentWindow;
+        var win = utils.getWindow().gBrowser.contentWindow;
         //if (CliqzAutocomplete.currentAutoLoadURL==null || win.location.href=='about:cliqz') {
           if (win.location.href!=urlAuto) {
               console.log(">> AUTOLOAD LAUNCH: " + urlAuto, 'CliqzHM');
@@ -281,19 +281,19 @@ export default class Search {
       // Extract results
       var patterns = [];
       for (var i = 0; i < data.result.length; i++) {
-        var url = CliqzUtils.cleanMozillaActions(data.result[i][0])[1],
+        var url = utils.cleanMozillaActions(data.result[i][0])[1],
             title = data.result[i][1];
 
         if (!title || title == 'N/A') {
-          title = CliqzUtils.generalizeUrl(url);
+          title = utils.generalizeUrl(url);
         }
 
-        if (title.length > 0 && url.length > 0 && Result.isValid(url, CliqzUtils.getDetailsFromUrl(url))) {
+        if (title.length > 0 && url.length > 0 && Result.isValid(url, utils.getDetailsFromUrl(url))) {
           var item = {
             url: url,
             title: title,
             favicon: null, //history.results[i].image,
-            _genUrl: CliqzUtils.generalizeUrl(url, true),
+            _genUrl: utils.generalizeUrl(url, true),
           };
           if (data.result[i][3]) {
             if (data.result[i][3].hasOwnProperty('c')) {
@@ -383,7 +383,7 @@ export default class Search {
       this.historyTimeout = true;
       // History timed out but maybe we have some results already
       // So show what you have - AB 1073
-      if (this.historyResults && CliqzUtils.getPref("history.timeouts", false)) {
+      if (this.historyResults && utils.getPref("history.timeouts", false)) {
           historyCluster.addFirefoxHistory(this.historyResults);
           console.log('historyTimeoutCallback: push collected results:' + this.historyResults.results.length, CliqzAutocomplete.LOG_KEY);
       } else {

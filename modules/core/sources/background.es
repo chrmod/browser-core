@@ -1,4 +1,4 @@
-import { events, Promise } from "core/cliqz";
+import { events } from "core/cliqz";
 import utils from "./utils";
 import console from "./console";
 import language from "./language";
@@ -7,9 +7,10 @@ import ProcessScriptManager from "platform/process-script-manager";
 import HistoryManager from "./history-manager";
 import prefs from './prefs';
 import background from './base/background';
-import { Window, mapWindows } from 'platform/browser';
+import { Window, mapWindows, getLang } from 'platform/browser';
 import loadLogoDb from "platform/load-logo-db";
 import { isMobile } from "./platform";
+import Storage from 'core/storage';
 
 var lastRequestId = 0;
 var callbacks = {};
@@ -17,6 +18,10 @@ var callbacks = {};
 export default background({
 
   init(settings) {
+    this.settings = settings;
+    utils.init({
+      lang: getLang(),
+    });
     if (!isMobile) {
       this.checkSession();
       language.init();
@@ -59,7 +64,7 @@ export default background({
         '|',
         config.settings.channel || 'NONE',
       ].join('');
-      utils.setSupportInfo()
+      this.actions.setSupportInfo();
       prefs.set('session', session);
       prefs.set('install_date', session.split('|')[1]);
       prefs.set('new_session', true);
@@ -144,13 +149,10 @@ export default background({
       events.pub('core:mouse-down', ...args);
     },
     restart() {
-      return utils.extensionRestart();
+      return utils.app.extensionRestart();
     },
     status() {
-      if (!utils.Extension) {
-        return {};
-      }
-      const availableModules = utils.Extension.app.availableModules;
+      const availableModules = utils.app.availableModules;
       const modules = config.modules.reduce((hash, moduleName) => {
         const module = availableModules[moduleName];
         const windowWrappers = mapWindows(window => new Window(window));
@@ -235,13 +237,29 @@ export default background({
       window.gBrowser.selectedTab = tab;
     },
     enableModule(moduleName) {
-      return utils.Extension.app.enableModule(moduleName);
+      return utils.app.enableModule(moduleName);
     },
     disableModule(moduleName) {
-      utils.Extension.app.disableModule(moduleName);
+      utils.app.disableModule(moduleName);
     },
     resizeWindow(width, height) {
       utils.getWindow().resizeTo(width, height);
+    },
+    setSupportInfo(status) {
+      const version = this.settings.version;
+      const host = prefs.get('distribution.id', '', '');
+      const hostVersion = prefs.get('distribution.version', '', '');
+      const info = JSON.stringify({
+        version,
+        host,
+        hostVersion,
+        status: status || 'active',
+      });
+
+      ['http://cliqz.com', 'https://cliqz.com'].forEach(url => {
+        const ls = new Storage(url);
+        ls.setItem('extension-info', info);
+      });
     },
     queryHTML(url, selector, attribute) {
       const requestId = lastRequestId++,

@@ -67,9 +67,10 @@
     "new-tab-button",
     "moncomp",
     "type-filter",
-    "offers-v2",
     "history",
     "telemetry-speed-dial",
+    "offboarding",
+    "offers-v2",
     "video-downloader"
   ],
   "subprojects": [

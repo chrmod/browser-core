@@ -3,6 +3,7 @@ import { getGeneralDomain } from 'antitracking/domain';
 import * as datetime from 'antitracking/time';
 import { HashProb } from 'antitracking/hash';
 import { dURIC } from 'antitracking/url';
+import CliqzUtils from 'core/utils';
 
 const STAT_KEYS = ['cookie', 'private', 'cookie_b64', 'private_b64', 'safekey', 'whitelisted',
   'cookie_newToken', 'cookie_countThreshold', 'private_newToken', 'private_countThreshold',

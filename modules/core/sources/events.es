@@ -28,7 +28,7 @@ var CliqzEvents = CliqzEvents || {
     const args = Array.prototype.slice.call(arguments, 1);
 
     const callbacks = (CliqzEvents.cache[id] || []).map(ev => {
-      return new CliqzUtils.Promise(resolve => {
+      return new Promise(resolve => {
         CliqzUtils.setTimeout(function () {
           try {
             ev.apply(null, args);
@@ -40,7 +40,7 @@ var CliqzEvents = CliqzEvents || {
       });
     });
 
-    const finishedPromise = CliqzUtils.Promise.all(callbacks).then(() => {
+    const finishedPromise = Promise.all(callbacks).then(() => {
       const index = this.queue.indexOf(finishedPromise);
       this.queue.splice(index, 1);
       if (this.queue.length === 0) {

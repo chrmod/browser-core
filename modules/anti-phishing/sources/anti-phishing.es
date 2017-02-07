@@ -155,7 +155,7 @@ const CliqzAntiPhishing = {
   },
 
   isAntiPhishingActive() {
-    return CliqzUtils.getPref('cliqz-anti-phishing-enabled', false);
+    return utils.getPref('cliqz-anti-phishing-enabled', false);
   },
 
   updateSuspiciousStatus(url, status) {
@@ -177,7 +177,7 @@ const CliqzAntiPhishing = {
       if (CliqzHumanWeb.state.v[url]) {
         notifyHumanWeb(p);
       } else {
-        CliqzUtils.setTimeout(notifyHumanWeb, 1000, p);
+        utils.setTimeout(notifyHumanWeb, 1000, p);
       }
     }
   },

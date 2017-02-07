@@ -73,7 +73,7 @@ export default class {
 
     this.addCCbutton();
     setTimeout(this.actions.refreshState, 100);
-    CliqzEvents.sub("core.location_change", this.actions.refreshState);
+    events.sub("core.location_change", this.actions.refreshState);
 
     this.updateFFHelpMenu();
   }
@@ -141,7 +141,7 @@ export default class {
   unload() {
     this.panel.detach();
     removeStylesheet(this.window.document, this.cssUrl);
-    CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
+    events.un_sub("core.location_change", this.actions.refreshState);
 
     this.button.parentElement.removeChild(this.button);
 
@@ -439,7 +439,7 @@ export default class {
       onboarding: this.isOnboarding(),
       searchDisabled: utils.getPref('cliqz_core_disabled', false),
       debug: utils.getPref('showConsoleLogs', false),
-      amo: config.settings.channel !== '40',
+      amo: this.settings.channel !== '40',
       securityON: this.settings.controlCenterSecurity
     }
   }
@@ -467,7 +467,7 @@ export default class {
       }
 
       moduleData.adult = { visible: true, state: utils.getAdultFilterState() };
-      if(utils.hasPref('browser.privatebrowsing.apt', '') && config.settings.channel === '40'){
+      if(utils.hasPref('browser.privatebrowsing.apt', '') && this.settings.channel === '40'){
         moduleData.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
       }
 

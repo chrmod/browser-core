@@ -1,6 +1,6 @@
+import utils from '../core/utils';
 import CliqzAntiPhishing from 'anti-phishing/anti-phishing';
 import CliqzHumanWeb from 'human-web/human-web';
-
 
 function updateBlackWhiteStatus(req, md5Prefix) {
   const response = req.response;
@@ -42,7 +42,7 @@ export default {
       // check if whitelisted
       if (md5Prefix in CliqzAntiPhishing.forceWhiteList) {
         if (CliqzAntiPhishing.forceWhiteList[md5Prefix] === 2) {
-          CliqzUtils.setTimeout(() => {
+          utils.setTimeout(() => {
             delete CliqzAntiPhishing.forceWhiteList[md5Prefix];
           }, 1000);
         }
@@ -60,7 +60,7 @@ export default {
         };
       } else {
         return new Promise((resolve, reject) => {
-          CliqzUtils.httpGet(
+          utils.httpGet(
             CliqzAntiPhishing.BW_URL + md5Prefix,
             (req) => {
               updateBlackWhiteStatus(req, md5Prefix);

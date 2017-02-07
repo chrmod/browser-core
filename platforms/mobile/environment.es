@@ -1,6 +1,7 @@
 import console from "core/console";
 import prefs from "core/prefs";
 import Storage from "core/storage";
+import CliqzUtils from "core/utils";
 
 //TODO: get rid of me!
 var lastSucceededUrl;

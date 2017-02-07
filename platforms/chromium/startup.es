@@ -1,5 +1,6 @@
 /* global System */
 import config from "core/config";
+import CliqzUtils from "core/utils";
 
 function loadModule(moduleName) {
   return System.import(moduleName+"/background")

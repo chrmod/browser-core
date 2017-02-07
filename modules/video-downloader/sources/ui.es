@@ -3,6 +3,7 @@ import ToolbarButtonManager from 'video-downloader/ToolbarButtonManager';
 import { isVideoURL, getVideoInfo } from 'video-downloader/video-downloader';
 import Panel from '../core/ui/panel';
 import { addStylesheet, removeStylesheet } from '../core/helpers/stylesheet';
+import CliqzEvents from 'core/events';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import("resource://gre/modules/Downloads.jsm");

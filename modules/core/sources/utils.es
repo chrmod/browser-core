@@ -1,3 +1,4 @@
+import System from "system";
 import CLIQZEnvironment from "platform/environment";
 import console from "core/console";
 import prefs from "core/prefs";
@@ -93,6 +94,7 @@ var CliqzUtils = {
     CLIQZEnvironment.getLogoDetails = CliqzUtils.getLogoDetails.bind(CliqzUtils);
     CLIQZEnvironment.getDetailsFromUrl = CliqzUtils.getDetailsFromUrl.bind(CliqzUtils);
     CLIQZEnvironment.getLocalizedString = CliqzUtils.getLocalizedString.bind(CliqzUtils);
+    CLIQZEnvironment.app = CliqzUtils.app;
     System.import('platform/language').then((module) => {
       CliqzLanguage = module.default;
     })
@@ -116,18 +118,13 @@ var CliqzUtils = {
     CliqzUtils.getLocaleFile(supportedLang);
   },
 
-  initPlatform: function(System) {
-    System.baseURL = CLIQZEnvironment.SYSTEM_BASE_URL;
-    CliqzUtils.System = System;
-  },
-
   importModule: function(moduleName) {
-    return CliqzUtils.System.import(moduleName)
+    return System.import(moduleName)
   },
 
   callAction(moduleName, actionName, args) {
-    const module = CliqzUtils.System.get(
-        CliqzUtils.System.normalizeSync(`${moduleName}/background`));
+    const module = System.get(
+        System.normalizeSync(`${moduleName}/background`));
     if (!module) {
       return Promise.reject(`module "${moduleName}" does not exist`);
     }
@@ -178,29 +175,6 @@ var CliqzUtils = {
    */
   makeUri: CLIQZEnvironment.makeUri,
 
-  //move this out of CliqzUtils!
-  setSupportInfo: function(status){
-    var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch),
-        host = 'firefox', hostVersion='';
-    //check if the prefs exist and if they are string
-    if(prefs.getPrefType('distribution.id') == 32 && prefs.getPrefType('distribution.version') == 32){
-      host = prefs.getCharPref('distribution.id');
-      hostVersion = prefs.getCharPref('distribution.version');
-    }
-    var info = JSON.stringify({
-          version: CliqzUtils.extensionVersion,
-          host: host,
-          hostVersion: hostVersion,
-          status: status != undefined ? status : "active"
-        }),
-        sites = ["http://cliqz.com","https://cliqz.com"]
-
-    sites.forEach(function(url){
-        var ls = new Storage(url)
-
-        if (ls) ls.setItem("extension-info",info)
-    })
-  },
   setLogoDb: function (db) {
     BRANDS_DATABASE = CliqzUtils.BRANDS_DATABASE = db;
   },
@@ -1036,35 +1010,6 @@ var CliqzUtils = {
         el.textContent = CliqzUtils.getLocalizedString(el.getAttribute('key'));
     }
   },
-  extensionRestart: function(changes){
-    // unload windows
-    const enumerator = Services.wm.getEnumerator('navigator:browser');
-    while (enumerator.hasMoreElements()) {
-      const win = enumerator.getNext();
-      if(win.CLIQZ && win.CLIQZ.Core){
-        CliqzUtils.Extension.app.unloadWindow(win);
-      }
-    }
-    // unload background
-    CliqzUtils.Extension.app.unload();
-
-    // apply changes
-    changes && changes();
-
-    // load background
-    return CliqzUtils.Extension.app.load().then(() => {
-      // load windows
-      const corePromises = [];
-      const enumerator = Services.wm.getEnumerator('navigator:browser');
-      while (enumerator.hasMoreElements()) {
-        var win = enumerator.getNext();
-        corePromises.push(
-          CliqzUtils.Extension.app.loadWindow(win)
-        )
-      }
-      return CliqzUtils.Promise.all(corePromises);
-    });
-  },
   isWindows: function(){
     return CLIQZEnvironment.OS.indexOf("win") === 0;
   },
@@ -1187,8 +1132,6 @@ var CliqzUtils = {
   },
 
   getNoResults: CLIQZEnvironment.getNoResults,
-  disableCliqzResults: CLIQZEnvironment.disableCliqzResults,
-  enableCliqzResults: CLIQZEnvironment.enableCliqzResults,
   getParameterByName: function(name, location) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),

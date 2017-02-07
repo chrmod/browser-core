@@ -65,7 +65,6 @@ if (cliqzConfig.environment !== 'production') {
 var firefox = new MergeTrees(firefoxOutputTrees);
 
 var configTree = util.injectConfig(firefox, config, 'cliqz.json', [
-  cliqzConfig.settings.id + '/modules/Extension.jsm',
   cliqzConfig.settings.id + '/chrome/content/core/processScript.js',
   cliqzConfig.settings.id + '/chrome/content/core/config.js',
   cliqzConfig.settings.id + '/install.rdf',

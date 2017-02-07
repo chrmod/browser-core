@@ -31,10 +31,10 @@ var bloomFilterNHashes = 7;
 function _log(msg){
     try{
         if(CliqzHumanWeb.debug) {
-            CliqzUtils.log(msg, CliqzHumanWeb.LOG_KEY);
+            utils.log(msg, CliqzHumanWeb.LOG_KEY);
         }
     }
-    catch(e){CliqzUtils.log(e, CliqzHumanWeb.LOG_KEY)};
+    catch(e){utils.log(e, CliqzHumanWeb.LOG_KEY)};
 }
 
 function getRandomIntInclusive(min, max) {
@@ -162,7 +162,7 @@ var CliqzHumanWeb = {
         }
     },
     getTime:function() {
-        try { var ts = CliqzUtils.getPref('config_ts', null)} catch(ee){};
+        try { var ts = utils.getPref('config_ts', null)} catch(ee){};
         if(!ts){
             var d = null;
             var m = null;
@@ -1302,7 +1302,7 @@ var CliqzHumanWeb = {
         var payload = {};
         var url = cd.location.href;
         var doorwayURL = cd.getElementsByTagName('a')[0].href;
-        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+        try {var location = utils.getPref('config_location', null)} catch(ee){};
         var orignalDomain = CliqzHumanWeb.parseURL(url).hostname;
         var dDomain = CliqzHumanWeb.parseURL(doorwayURL).hostname;
         if(orignalDomain == dDomain) return;
@@ -1455,7 +1455,7 @@ var CliqzHumanWeb = {
         }
 
         // extract the location of the user (country level)
-        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){}
+        try {var location = utils.getPref('config_location', null)} catch(ee){}
 
         var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url, 'nfsh': frames_same_host, 'nifsh': iframes_same_host};
 
@@ -1572,7 +1572,7 @@ var CliqzHumanWeb = {
 
             // suggested by AMO - requires further testing in case of rapid tab switching (orange, blue)
             // original:
-            // var currwin = aProgress.topWindow || CliqzUtils.getWindow().gBrowser.selectedBrowser.contentDocument;
+            // var currwin = aProgress.topWindow || utils.getWindow().gBrowser.selectedBrowser.contentDocument;
 
             // currwin is not used anymore, since the document is fetched using content script.
 
@@ -1587,15 +1587,14 @@ var CliqzHumanWeb = {
                     CliqzHumanWeb.mRefresh[tabID] = decodeURIComponent(aURI.spec);
                 }
             }
-
-            // var currwin = CliqzUtils.getWindow();
+            // var currwin = utils.getWindow();
             // var _currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
 
             /*
             //This needs to go away. Should get the content from contentDocument, but it is coming as null right now.
             if(_currURL.indexOf('t.co/') > -1){
-                CliqzUtils.httpGet(_currURL,
+                utils.httpGet(_currURL,
                 function(res){
                     if(res && res.response){
                         try {
@@ -1607,7 +1606,7 @@ var CliqzHumanWeb = {
                 }, null, 2000);
             }
             else if(_currURL.indexOf('r.search.yahoo.com') > -1){
-                CliqzUtils.httpGet(_currURL,
+                utils.httpGet(_currURL,
                 function(res){
                     if(res && res.response){
                         try {
@@ -1641,7 +1640,7 @@ var CliqzHumanWeb = {
 
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
                     if (se > -1) {
-                        CliqzUtils.setTimeout(function(url) {
+                        utils.setTimeout(function(url) {
                           if (!CliqzHumanWeb) {
                             return;
                           }
@@ -1748,7 +1747,7 @@ var CliqzHumanWeb = {
                     }
 
 
-                    CliqzUtils.setTimeout(function(currURL) {
+                    utils.setTimeout(function(currURL) {
 
                         // Extract info about the page, title, length of the page, number of links, hash signature,
                         // 404, soft-404, you name it
@@ -1966,7 +1965,7 @@ var CliqzHumanWeb = {
                 // must create the signal
                 //
                 if (CliqzHumanWeb.userTransitions['search'][query]['data'].length > 1) {
-                    try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+                    try {var location = utils.getPref('config_location', null)} catch(ee){};
                     var doc = {'q': query, 'sources': CliqzHumanWeb.userTransitions['search'][query]['data'],'ctry': location};
                     if (CliqzHumanWeb.debug) {
                         _log(JSON.stringify(doc,undefined,2));
@@ -2013,7 +2012,7 @@ var CliqzHumanWeb = {
     },
     unload: function() {
         //Check is active usage, was sent
-        try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){};
+        try {var activeUsageTrk = utils.getPref('config_activeUsage', null)} catch(ee){};
         // Save action stats
         CliqzHumanWeb.saveActionStats();
         if(activeUsageTrk){
@@ -2022,13 +2021,13 @@ var CliqzHumanWeb = {
                 CliqzHumanWeb.checkActiveUsage();
             }
             else{
-                CliqzUtils.setPref('config_activeUsageCount', CliqzHumanWeb.activeUsage);
+                utils.setPref('config_activeUsageCount', CliqzHumanWeb.activeUsage);
             }
         }
         // send all the data
         CliqzHumanWeb.pushTelemetry();
-        CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
-        CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
+        utils.clearTimeout(CliqzHumanWeb.pacemakerId);
+        utils.clearTimeout(CliqzHumanWeb.trkTimer);
     },
     unloadAtBrowser: function(){
         try {
@@ -2037,7 +2036,7 @@ var CliqzHumanWeb = {
         } catch(e){}
     },
     currentURL: function() {
-        var currwin = CliqzUtils.getWindow(), ret = null;
+        var currwin = utils.getWindow(), ret = null;
         if (currwin && currwin.gBrowser) {
             ret = currwin.gBrowser.selectedBrowser.currentURI.spec;
         }
@@ -2277,9 +2276,9 @@ var CliqzHumanWeb = {
         */
     },
     init: function(window) {
-        if(CliqzUtils.getPref("dnt", false)) return;
+        if(utils.getPref("dnt", false)) return;
 
-        CliqzUtils.hw = this;
+        utils.hw = this;
 
         refineFuncMappings = {
            "splitF":CliqzHumanWeb.refineSplitFunc,
@@ -2317,7 +2316,7 @@ var CliqzHumanWeb = {
         */
 
         if (CliqzHumanWeb.pacemakerId==null) {
-            CliqzHumanWeb.pacemakerId = CliqzUtils.setInterval(CliqzHumanWeb.pacemaker, CliqzHumanWeb.tpace, null);
+            CliqzHumanWeb.pacemakerId = utils.setInterval(CliqzHumanWeb.pacemaker, CliqzHumanWeb.tpace, null);
         }
 
 
@@ -2370,7 +2369,7 @@ var CliqzHumanWeb = {
         CliqzHumanWeb.loadQuorumBloomFilter();
     },
     initAtBrowser: function(){
-        if(CliqzUtils.getPref("dnt", false)) return;
+        if(utils.getPref("dnt", false)) return;
         CliqzHumanWeb.activityDistributor.addObserver(CliqzHumanWeb.httpObserver);
         CliqzEvents.sub("human-web:sanitize-result-telemetry", CliqzHumanWeb.sanitizeResultTelemetry);
     },
@@ -2382,7 +2381,7 @@ var CliqzHumanWeb = {
 
         //Check and add time , else do not send the message
 
-        try {msg.ts = CliqzUtils.getPref('config_ts', null)} catch(ee){};
+        try {msg.ts = utils.getPref('config_ts', null)} catch(ee){};
 
         if(!msg.ts || msg.ts == ''){
             return null;
@@ -2579,12 +2578,12 @@ var CliqzHumanWeb = {
 
     },
     // ****************************
-    // telemetry, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though
+    // telemetry, PREFER NOT TO SHARE WITH utils for safety, blatant rip-off though
     // ****************************
     trk: [],
     trkTimer: null,
     notification: function(payload){
-      try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+      try {var location = utils.getPref('config_location', null)} catch(ee){};
       if(payload && typeof(payload) === 'object'){
         payload['ctry'] = location;
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
@@ -2595,8 +2594,8 @@ var CliqzHumanWeb = {
     },
     telemetry: function(msg, instantPush) {
         if (!CliqzHumanWeb || //might be called after the module gets unloaded
-            CliqzUtils.getPref('dnt', false) ||
-            CliqzUtils.isPrivate(CliqzUtils.getWindow())) return;
+            utils.getPref('dnt', false) ||
+            utils.isPrivate(utils.getWindow())) return;
 
         // Check if host is private or not.
         CliqzHumanWeb.isPublicDomain(msg)
@@ -2612,11 +2611,11 @@ var CliqzHumanWeb = {
                     if (msg) CliqzHumanWeb.trk.push(msg);
                     _log("Added to the queue");
 
-                    CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
+                    utils.clearTimeout(CliqzHumanWeb.trkTimer);
                     if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
                         CliqzHumanWeb.pushTelemetry();
                     } else {
-                        CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
+                        CliqzHumanWeb.trkTimer = utils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
                     }
                 } else {
                     // Send telemetry.
@@ -2638,7 +2637,7 @@ var CliqzHumanWeb = {
         // put current data aside in case of failure
         CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.splice(0);
         var data = JSON.stringify(CliqzHumanWeb._telemetry_sending);
-        CliqzHumanWeb._telemetry_req = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.SAFE_BROWSING, data, 60000, true);
+        CliqzHumanWeb._telemetry_req = utils.promiseHttpHandler('POST', utils.SAFE_BROWSING, data, 60000, true);
         CliqzHumanWeb._telemetry_req.then( CliqzHumanWeb.pushTelemetryCallback );
         CliqzHumanWeb._telemetry_req.catch( CliqzHumanWeb.pushTelemetryError );
     },
@@ -3383,13 +3382,13 @@ var CliqzHumanWeb = {
     },
     fetchAndStoreConfig: function(){
         //Load latest config.
-        CliqzUtils.httpGet(CliqzHumanWeb.configURL,
+        utils.httpGet(CliqzHumanWeb.configURL,
           function success(req){
             if(!CliqzHumanWeb) return;
                 try {
                     var config = JSON.parse(req.response);
                     for(var k in config){
-                        CliqzUtils.setPref('config_' + k, config[k]);
+                        utils.setPref('config_' + k, config[k]);
                     }
                 } catch(e){};
           },
@@ -3513,7 +3512,7 @@ var CliqzHumanWeb = {
                         }
 
                         if(rules[key][each_key]['etype'] == 'ctry'){
-                            try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+                            try {var location = utils.getPref('config_location', null)} catch(ee){};
                             innerDict[each_key] = [location];
                         }
 
@@ -3598,7 +3597,7 @@ var CliqzHumanWeb = {
 
             if (payloadRules['type'] == 'single' && payloadRules['results'] == 'single' ){
                 scrapeResults[key].forEach(function(e){
-                    try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+                    try {var location = utils.getPref('config_location', null)} catch(ee){};
                     e['ctry'] = location;
                     CliqzHumanWeb.sendMessage(payloadRules, e)
                 })
@@ -3713,7 +3712,7 @@ var CliqzHumanWeb = {
     },
     getTabID: function(){
         try {
-            var win = CliqzUtils.getWindow();
+            var win = utils.getWindow();
             var gBrowser = win.gBrowser;
             return win.__SSi + ":" + gBrowser.mCurrentTab._tPos;
         }
@@ -3956,19 +3955,19 @@ var CliqzHumanWeb = {
   checkActiveUsage: function(){
     //This function needs to be scheduled every one hour.
     var oldUsage = 0;
-    try {oldUsage = CliqzUtils.getPref('config_activeUsageCount', 0)} catch(ee){};
+    try {oldUsage = utils.getPref('config_activeUsageCount', 0)} catch(ee){};
     var activeUsage = CliqzHumanWeb.activeUsage + oldUsage;
     if(activeUsage && activeUsage > CliqzHumanWeb.activeUsageThreshold){
         //Sample event to be sent
         var payload = {};
         payload['status'] = true;
         payload['t'] = CliqzHumanWeb.getTime();
-        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+        try {var location = utils.getPref('config_location', null)} catch(ee){};
         payload['ctry'] = location;
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload':payload})
         CliqzHumanWeb.activeUsage = 0;
-        CliqzUtils.setPref('config_activeUsage', new Date().getTime().toString());
-        CliqzUtils.setPref('config_activeUsageCount', 0);
+        utils.setPref('config_activeUsage', new Date().getTime().toString());
+        utils.setPref('config_activeUsageCount', 0);
     }
   },
   insertCanUrl: function(canUrl){
@@ -4341,7 +4340,7 @@ var CliqzHumanWeb = {
         let sanitisedQuery = null;
         let url = msg.u;
 
-        const hostNameDetails = CliqzUtils.getDetailsFromUrl(url);
+        const hostNameDetails = utils.getDetailsFromUrl(url);
         if(!hostNameDetails) {
             _log("Invalid URL, should be dropped");
             return;
@@ -4454,7 +4453,7 @@ var CliqzHumanWeb = {
                         data.msg.o +
                         (data.msg.e ? '&e=' + data.msg.e : '');
         const payLoadURL = data.endpoint + params;
-        CliqzUtils.httpGet(payLoadURL);
+        utils.httpGet(payLoadURL);
     },
     validFrameCount: function(struct_bef, struct_aft) {
         //
@@ -4683,7 +4682,7 @@ var CliqzHumanWeb = {
     },
     fetchSafeQuorumConfig: function(){
         //Load latest config.
-        CliqzUtils.httpGet(CliqzHumanWeb.SAFE_QUORUM_PROVIDER,
+        utils.httpGet(CliqzHumanWeb.SAFE_QUORUM_PROVIDER,
           function success(req){
             if(!CliqzHumanWeb) return;
                 try {
