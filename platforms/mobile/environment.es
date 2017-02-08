@@ -27,9 +27,6 @@ const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
   "topsites": true,
   "weatherAlert": true,
   "weatherEZ": true,
-  "liveTicker": true,
-  "ligaEZ1Game": true,
-  "ligaEZTable": true
 }));
 
 var CLIQZEnvironment = {
