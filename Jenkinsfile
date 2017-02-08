@@ -2,6 +2,7 @@
 
 def gitCommit = ''
 
+
 node('ubuntu && docker && !gpu') {
   stage('checkout') {
     checkout scm
@@ -13,6 +14,16 @@ node('ubuntu && docker && !gpu') {
     'DOCKER_REGISTRY_URL': 'https://141047255820.dkr.ecr.us-east-1.amazonaws.com',
     'AWS_REGION': 'us-east-1'
   ])
+
+  stage('Check if wip') {
+    def labels = helpers.getGitLabels()
+
+    for (String label: labels) {
+      if (label.containsKey('name') && label.get('name') == 'WIP') {
+        error "Branch is wip"
+      }
+    }
+  }
 
   params = []
 
