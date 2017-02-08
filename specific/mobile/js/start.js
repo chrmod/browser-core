@@ -27,7 +27,7 @@ window.Components = {
 
 var startup, loadModule;
 
-System.set(System.normalizeSync('system'), System.newModule({default: System}))
+System.set(System.normalizeSync('system'), System.newModule({default: System}));
 document.addEventListener("DOMContentLoaded", function () {
   System.import("platform/startup").then(function (startupModule) {
     startup = startupModule.default;

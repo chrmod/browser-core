@@ -20,7 +20,7 @@
                 'app.js': ['core/startup.js']
               }
             });
-
+            System.set(System.normalizeSync('system'), System.newModule({default: System}));
             System.import("core/startup").then(function (startupModule) {
               return Promise.all([
                 System.import("platform/environment"),
@@ -38,7 +38,6 @@
               window.CLIQZEnvironment = environment;
               window.CliqzUtils = utils;
               window.CliqzEvents  = events;
-              utils.initPlatform(System);
               return modules.shift();
             }).then(function (startupModule) {
               return startupModule.default(window, [

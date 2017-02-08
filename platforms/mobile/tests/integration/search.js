@@ -58,7 +58,7 @@ describe('Search View', function() {
         "snippet": {
           "friendlyUrl": "cadillac.movieplace.de",
           "description": "Cadillac Veranda Kino, M\u00fcnchen, Aktuelles Kinoprogramm, Kino, Film- und Kino-Infos, Online-Tickets, News, Events und vieles mehr...",
-          "title": "Kino in M\u00fcnchen: Cadillac Veranda Kino mit Kinoprogramm, Infos rund ums Kino und die Filme, Filmtrailern und vielem mehr.",
+          "title": "!!!fake title!!! Kino in M\u00fcnchen: Cadillac Veranda Kino mit Kinoprogramm, Infos rund ums Kino und die Filme, Filmtrailern und vielem mehr.",
           "extra": {
             "rating": 4.7,
             "map_img": "http://maps.google.com/maps/api/staticmap?size=124x124&zoom=16&center=48.1517753,11.6197005&format=png&markers=size:mid|color:red|label:C|48.1517753,11.6197005",
@@ -91,6 +91,10 @@ describe('Search View', function() {
       cliqzResponse(query, [ extraResult ]);
 
       contentWindow.jsAPI.search(query, true, 48.151753799999994, 11.620054999999999);
+    });
+
+    it("should intercept request and respond with fake result", function () {
+      expect($('.card__title')[0].innerText).to.contain('!!!fake title!!!');
     });
 
     it("has one local result", function () {
@@ -129,7 +133,7 @@ describe('Search View', function() {
           "snippet": {
             "friendlyUrl": "amazon.de",
             "description": "Entdecken, shoppen und einkaufen bei Amazon.de: G\u00fcnstige Preise f\u00fcr Elektronik & Foto, Filme, Musik, B\u00fccher, Games, Spielzeug, Sportartikel, Drogerie & mehr bei Amazon.de",
-            "title": "Amazon.de: G\u00fcnstige Preise f\u00fcr Elektronik & Foto, Filme, Musik, B\u00fccher, Games, Spielzeug & mehr",
+            "title": "!!!fake title!!! Amazon.de: G\u00fcnstige Preise f\u00fcr Elektronik & Foto, Filme, Musik, B\u00fccher, Games, Spielzeug & mehr",
             "extra": {
               "og": {
                 "description": "Entdecken, shoppen und einkaufen bei Amazon.de: G\u00fcnstige Preise f\u00fcr Elektronik & Foto, Filme, Musik, B\u00fccher, Games, Spielzeug, Sportartikel, Drogerie & mehr bei Amazon.de"
@@ -171,6 +175,10 @@ describe('Search View', function() {
       ]);
 
       contentWindow.jsAPI.search(query);
+    });
+
+    it("should intercept request and respond with fake result", function () {
+      expect($('.card__title')[0].innerText).to.contain('!!!fake title!!!');
     });
 
     it("should render generic template", function () {
@@ -299,7 +307,7 @@ describe('Search View', function() {
     					"todayWeekday": "Heute"
     				},
     				"friendlyUrl": "wunderground.com/cgi-bin/findweather/getforecast",
-    				"title": "München, Deutschland"
+    				"title": "!!!fake title!!! München, Deutschland"
     			},
     			"type": "rh",
     			"subType": {
@@ -313,6 +321,10 @@ describe('Search View', function() {
       ]);
 
       contentWindow.jsAPI.search(query);
+    });
+
+    it("should intercept request and respond with fake result", function () {
+      expect($('.card__title')[0].innerText).to.contain('!!!fake title!!!');
     });
 
     it("should have the weather card", function () {
@@ -336,7 +348,7 @@ describe('Search View', function() {
           "snippet": {
             "friendlyUrl": "fcbayern.de",
             "description": "Willkommen auf dem offiziellen Internetportal des FC Bayern M\u00fcnchen! Hier gibt es aktuelle News, Spielberichte, FCB.tv-Videos, Online-Shop, FCB Erlebniswelt u.v.m. Klicken Sie rein!",
-            "title": "FC Bayern M\u00fcnchen - Offizielle Website",
+            "title": "!!!fake title!!! FC Bayern M\u00fcnchen - Offizielle Website",
             "extra": {
               "scored": "",
               "status": "scheduled",
@@ -408,6 +420,10 @@ describe('Search View', function() {
       ]);
 
       contentWindow.jsAPI.search(query);
+    });
+
+    it("should intercept request and respond with fake result", function () {
+      expect($('.card__title')[0].innerText).to.contain('!!!fake title!!!');
     });
 
     it("should have the latest results smart card", function () {

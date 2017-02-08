@@ -35,8 +35,10 @@ export default background({
 
     this.mm = new ProcessScriptManager(this.dispatchMessage);
     this.mm.init();
-
-    this.report = utils.setTimeout(this.reportStartupTime.bind(this), 1000 * 60);
+    // @TODO: mobile doesn't use utils.app
+    if (utils.app) {
+      this.report = utils.setTimeout(this.reportStartupTime.bind(this), 1000 * 60);
+    }
   },
 
   unload() {
