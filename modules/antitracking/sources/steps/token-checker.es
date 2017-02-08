@@ -1,7 +1,7 @@
 import md5 from 'antitracking/md5';
 import { getGeneralDomain } from 'antitracking/domain';
 import * as datetime from 'antitracking/time';
-import { HashProb } from 'antitracking/hash';
+import { HashProb, isMostlyNumeric } from 'antitracking/hash';
 import { dURIC } from 'antitracking/url';
 import CliqzUtils from 'core/utils';
 
@@ -65,8 +65,15 @@ export default class {
 
     var _countCheck = function(tok) {
         // for token length < 12 and may be not a hash, we let it pass
-        if (tok.length < 12 && !self.hashProb.isHash(tok))
+        if (tok.length < 12) {
+          if(isMostlyNumeric(tok)) {
+            stats.short_numeric++;
+          } else if (self.hashProb.isHash(tok)) {
+            stats.short_hash++;
+          } else {
             return 0;
+          }
+        }
         // update tokenDomain
         tok = md5(tok);
         self.blockLog.tokenDomain.addTokenOnFirstParty(tok, sourceD);

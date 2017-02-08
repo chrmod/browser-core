@@ -29,6 +29,12 @@ export default class {
     }
     state.incrementStat = incrementStat;
 
+    // add triggeringPrinciple info
+    const pageLoad = this.tpEvents._active[state.tabId];
+    if (pageLoad && state.trigger) {
+      pageLoad.addTrigger(urlParts.hostname, state.trigger);
+    }
+
     return true;
   }
 
