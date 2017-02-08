@@ -237,7 +237,7 @@ export default class Search {
       }
 
       utils.clearTimeout(this.historyTimer);
-      this.historyTimer = utils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
+      this.historyTimer = utils.setTimeout(this.historyTimeoutCallback, this.HISTORY_TIMEOUT, this.searchString);
       this.historyTimeout = false;
       // trigger history search
       utils.historySearch(searchString, this.onHistoryDone.bind(this));
