@@ -31,6 +31,7 @@ import DomChecker from 'antitracking/steps/dom-checker';
 import TokenChecker from 'antitracking/steps/token-checker';
 import BlockRules from 'antitracking/steps/block-rules';
 import CookieContext from 'antitracking/steps/cookie-context';
+import RedirectTagger from 'antitracking/steps/redirect-tagger';
 
 var countReload = false;
 
@@ -299,6 +300,7 @@ var CliqzAttrack = {
         tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, CliqzAttrack.blockLog, {}, CliqzAttrack.hashProb, CliqzAttrack.config),
         blockRules: new BlockRules(),
         cookieContext: new CookieContext(),
+        redirectTagger: new RedirectTagger(),
       }
       CliqzAttrack.pipelineSteps = steps;
 
@@ -355,7 +357,7 @@ var CliqzAttrack = {
         checkSameGeneralDomain,
         steps.pageLogger.attachStatCounter.bind(steps.pageLogger),
         function catchMissedOpenListener(state, response) {
-          if (state.reqLog && state.reqLog.c === 0) {
+          if ((state.reqLog && state.reqLog.c === 0) || steps.redirectTagger.isFromRedirect(state.url)) {
             // take output from httpopenObserver and copy into our response object
             const openResponse = CliqzAttrack.httpopenObserver(state) || {};
             Object.keys(openResponse).forEach((k) => {
@@ -431,6 +433,7 @@ var CliqzAttrack = {
           return state.sourceUrl !== '' && state.sourceUrl.indexOf('about:') === -1;
         },
         checkSameGeneralDomain,
+        steps.redirectTagger.checkRedirectStatus.bind(steps.redirectTagger),
         steps.pageLogger.attachStatCounter.bind(steps.pageLogger),
         function logResponseStats(state) {
           if (state.incrementStat) {
