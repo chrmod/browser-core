@@ -89,7 +89,7 @@ class ProviderAutoCompleteResultCliqz {
 export default class Search {
   constructor() {
     this.TIMEOUT = 1000;
-    this.HISTORY_TIMEOUT = 200;
+    this.HISTORY_TIMEOUT = 400;
 
     var mixerArgs = isFirefox ? {
       smartCliqzCache: new SmartCliqzCache(),
@@ -378,13 +378,12 @@ export default class Search {
   }
 
   historyTimeoutCallback(params) {
-      console.log('history timeout', CliqzAutocomplete.LOG_KEY);
+      console.log('History timeout', CliqzAutocomplete.LOG_KEY);
       this.historyTimeout = true;
-      // History timed out but maybe we have some results already
-      // So show what you have - AB 1073
-      if (this.historyResults && utils.getPref("history.timeouts", false)) {
+
+      // push all the history results we managed to when the timeout occured
+      if (this.historyResults) {
           historyCluster.addFirefoxHistory(this.historyResults);
-          console.log('historyTimeoutCallback: push collected results:' + this.historyResults.results.length, CliqzAutocomplete.LOG_KEY);
       } else {
           this.pushResults(this.searchString);
       }
@@ -400,13 +399,18 @@ export default class Search {
       this.historyResults = result;
       this.latency.history = now - this.startTime;
 
-      //console.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
-      //               "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
-      // Choose an instant result if we have all history results (timeout)
-      // and we haven't already chosen one
-      if(result && (this.isHistoryReady() || this.historyTimeout) && this.mixedResults.matchCount == 0) {
-          utils.clearTimeout(this.historyTimer);
+      if(this.isHistoryReady()) {
+          // history is ready -> push to UI
           historyCluster.addFirefoxHistory(result);
+
+          // we cancel the history timout timer to avoid having a
+          // random call out of the blue
+          utils.clearTimeout(this.historyTimer);
+      } else {
+        // history is not ready lets try to add an instant result
+        if(this.isHistoryNotEmpty() && (this.instant || []).length == 0) {
+            historyCluster.addFirefoxHistory(result);
+        }
       }
   }
 
@@ -414,12 +418,16 @@ export default class Search {
       return this.historyResults && this.historyResults.ready;
   }
 
+  isHistoryNotEmpty() {
+      return this.historyResults && this.historyResults.results && this.historyResults.results.length > 0;
+  }
+
   historyPatternCallback(res) {
       // abort if we already have results
     var query = res.query || res.q || ''; // query will be called q if RH is down
     if(this.mixedResults.matchCount > 0) return;
 
-    if (query == this.searchString) {
+    if (query == CliqzAutocomplete.lastSearch) {
       CliqzAutocomplete.lastPattern = res;
       var latency = 0;
       if (historyCluster.latencies[query]) {
@@ -452,12 +460,12 @@ export default class Search {
 
   // checks if all the results are ready or if the timeout is exceeded
   pushResults(q) {
-      if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
+      if(q == CliqzAutocomplete.lastSearch && this.startTime != null){ // be sure this is not a delayed result
         var now = Date.now();
 
-        if((now > this.startTime + utils.RESULTS_TIMEOUT) ||
-           (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
-            this.cliqzResults) { // all results are ready
+       if((now > this.startTime + utils.RESULTS_TIMEOUT) || // do we have a timeout or
+           (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out and
+            this.cliqzResults.length > 0) {                  // backend results are ready
           /// Push full result
           utils.clearTimeout(this.resultsTimer);
           utils.clearTimeout(this.historyTimer);

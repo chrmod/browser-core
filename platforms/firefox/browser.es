@@ -140,10 +140,10 @@ export function setOurOwnPrefs() {
   const urlBarPref = Components.classes['@mozilla.org/preferences-service;1']
     .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-  if (!utils.hasPref('maxRichResultsBackup')) {
-    utils.setPref('maxRichResultsBackup',
-      utils.getPref('maxRichResults', 'browser.urlbar.'));
-    utils.setPref('maxRichResults', 30, 'browser.urlbar.');
+  if (utils.hasPref('maxRichResultsBackup')) {
+    // we reset CLIQZ change to "browser.urlbar.maxRichResults"
+    utils.clearPref('maxRichResultsBackup');
+    utils.clearPref('browser.urlbar.maxRichResults', '');
   }
 
   const unifiedComplete = urlBarPref.getPrefType('unifiedcomplete');
