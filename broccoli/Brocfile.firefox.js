@@ -57,7 +57,8 @@ if (cliqzConfig.environment !== 'production') {
   var contentTests = concat(contentTestsTree, {
     header: ";System = { register: function () {arguments[2]().execute(); }};",
     inputFiles: "**/*.js",
-    outputFile: 'tests/tests.js'
+    outputFile: 'tests/tests.js',
+    allowNone: true
   })
   firefoxOutputTrees.push(contentTests);
 }
