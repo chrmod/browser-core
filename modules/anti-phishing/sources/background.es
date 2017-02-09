@@ -64,7 +64,6 @@ export default {
             CliqzAntiPhishing.BW_URL + md5Prefix,
             (req) => {
               updateBlackWhiteStatus(req, md5Prefix);
-              console.log('fetched', url, 'anti-phishing', checkStatus(url, md5Prefix, md5Surfix));
               resolve({
                 block: checkStatus(url, md5Prefix, md5Surfix),
                 type: 'phishingURL',
@@ -72,7 +71,8 @@ export default {
             },
             (e) => {
               reject(e);
-            }
+            },
+            3000
           );
         });
       }
