@@ -41,10 +41,11 @@ var OffersConfigs = {
   // how often we want to send the signals related with the offers to the BE
   // one hour
   SIGNALS_OFFERS_FREQ_SECS: 60 * 60,
-  SIGNALS_OFFERS_BUCKET_NAME: 'sig-offers',
-  SIGNALS_TRIGGERS_BUCKET_NAME: 'sig-triggers',
   SIGNALS_HPN_BE_ADDR: 'https://offers-api.cliqz.com/api/v1/savesignal',
   SIGNALS_HPN_BE_ACTION: 'offers-signal',
+  // the time we want to keep the signals (accumulating) from the last time
+  // the signal was modified (#GR-298)
+  SIGNALS_OFFERS_EXPIRATION_SECS: 60 * 60 * 24 * 60, //60 days?
 
   //////////////////////////////////////////////////////////////////////////////
   // CONFIG / DEBUG variables

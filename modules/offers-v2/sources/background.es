@@ -103,9 +103,6 @@ export default background({
     };
     this.env.uiOfferProcessor = this.uiOfferProc;
     this.env.signalHandler = this.signalsHandler;
-    // TODO: remove this test method
-    //this.generateTestOffers();
-    //this.testSignalHandler();
 
     // to be checked on unload
     this.initialized = true;
@@ -126,7 +123,6 @@ export default background({
     if (this.signalsHandler) {
       this.signalsHandler.destroy();
     }
-
     if (this.eventHandler) {
       this.eventHandler.destroy();
       delete this.eventHandler;
@@ -151,6 +147,10 @@ export default background({
     if (this.uiOfferProc) {
       this.uiOfferProc.savePersistenceData();
       this.uiOfferProc.destroy();
+    }
+
+    if (this.signalsHandler) {
+      this.signalsHandler.savePersistenceData();
     }
 
     //TODO: savePersistentData()
@@ -213,93 +213,6 @@ export default background({
     }
   },
 
-  // TODO: remove this
-  //
-  generateTestOffers() {
-    var mockOffer = {};
-    var offersData = {};
-
-    var self = this;
-    utils.loadResource('chrome://cliqz/content/offers-v2/offers_examples.json',  (req) => {
-       offersData = JSON.parse(req.response);
-
-       for (let ii = 0; ii < offersData.length; ++ii) {
-         mockOffer = offersData[ii];
-         this.uiOfferProc.addOffer(mockOffer);
-
-         // update the ui info
-         if (ii === 0) {
-          utils.setTimeout(function() {
-            const newRuleInfo = {
-            type: 'domains_match',
-              url: [
-                'offers.com'
-              ],
-            };
-            this.uiOfferProc.addRuleInfoForOffer(offersData[0].offer_id, newRuleInfo);
-          }.bind(this), 15 * 1000);
-
-         }
-       }
-    });
-  },
-
-  // TODO: remove this
-  testSignalHandler() {
-    function linfo(msg) {
-      LoggingHandler.LOG_ENABLED && LoggingHandler.info(MODULE_NAME, msg);
-    }
-    function lwarn(msg) {
-      LoggingHandler.LOG_ENABLED && LoggingHandler.warning(MODULE_NAME, msg);
-    }
-    function lerr(msg) {
-      LoggingHandler.LOG_ENABLED && LoggingHandler.error(MODULE_NAME, msg);
-    }
-
-    function test_createSimpleSignal() {
-      var sigHandler = new SignalHandler();
-
-      const config = {
-        tts_secs: 10,
-      };
-      const bucketKey = 'testbucket';
-      if (!sigHandler.createBucket(bucketKey, config)) {
-        lerr('#signal_handler test: error creating bucket');
-      }
-      sigHandler.addSignal(bucketKey, 'k1', {data: 'test'});
-
-      // add a signal every 3 seconds
-      var counter = 0;
-      utils.setInterval(function () {
-        counter += 1;
-        // here we need to process this particular bucket
-        sigHandler.addSignal(bucketKey, 'k1-' + String(counter), {data: 'test-' + String(counter)});
-      }, 3 * 1000);
-
-      //sigHandler.destroy();
-    }
-
-    function test_dataPersistance() {
-      var sigHandler = new SignalHandler();
-
-      const config = {
-        tts_secs: 30,
-      };
-      const bucketKey = 'testbucket';
-      if (!sigHandler.createBucket(bucketKey, config, true)) {
-        lerr('#signal_handler test: error creating bucket');
-      }
-      sigHandler.addSignal(bucketKey, 'k1', {data: 'test'});
-      sigHandler.addSignal(bucketKey, 'k2', {data: 'test2'});
-      sigHandler.addSignal(bucketKey, 'k3', {data: 'test3'});
-      sigHandler.destroy();
-    }
-
-    // perform tests
-    //test_createSimpleSignal();
-    test_dataPersistance();
-
-}
 
 
 });
