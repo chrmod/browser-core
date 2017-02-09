@@ -1,14 +1,14 @@
-import { events } from "core/cliqz";
+import events from './events';
 import utils from "./utils";
 import console from "./console";
 import language from "./language";
 import config from "./config";
-import ProcessScriptManager from "platform/process-script-manager";
+import ProcessScriptManager from "../platform/process-script-manager";
 import HistoryManager from "./history-manager";
 import prefs from './prefs';
 import background from './base/background';
-import { Window, mapWindows, getLang } from 'platform/browser';
-import loadLogoDb from "platform/load-logo-db";
+import { Window, mapWindows, getLang } from '../platform/browser';
+import loadLogoDb from "../platform/load-logo-db";
 import { isMobile } from "./platform";
 import Storage from 'core/storage';
 

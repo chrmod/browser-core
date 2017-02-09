@@ -354,6 +354,7 @@ var CLIQZEnvironment = {
       }
       return uri;
     },
+
     disableCliqzResults: function (urlbar) {
       CLIQZEnvironment.app.extensionRestart(() => {
         prefs.set("cliqz_core_disabled", true);

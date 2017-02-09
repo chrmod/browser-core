@@ -24,7 +24,7 @@ const subprojectsTree = new UnwatchedDir('subprojects');
 var babelOptions = {
   sourceMaps: cliqzConfig.sourceMaps ? 'inline' : false,
   filterExtensions: ['es'],
-  modules: 'system',
+  modules: cliqzConfig.format || 'system',
   moduleIds: true,
   compact: false,
   blacklist: ['regenerator'],

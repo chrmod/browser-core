@@ -85,11 +85,7 @@ export function overRideCliqzResults() {
       callback && callback({ 'response': '{"success":true}' });
     } else if (url === OFFER_TELEMETRY) {
       const batch = JSON.parse(data);
-      if (batch.length > 0) {
-        batch.forEach(eachMsg => {
-          CliqzSecureMessage.telemetry(eachMsg);
-        });
-      }
+      CliqzSecureMessage.telemetry(batch);
       callback && callback({ 'response': '{"success":true}' });
     } else {
       return proxyHttpHandler.apply(undefined, arguments);

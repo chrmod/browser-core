@@ -1,7 +1,7 @@
-import * as ftch from 'platform/fetch';
-import console from 'core/console';
-import { compress } from 'core/gzip';
-import { XMLHttpRequestFactory, setPrivateFlags, setBackgroundRequest } from 'platform/xmlhttprequest';
+import * as ftch from '../platform/fetch';
+import console from './console';
+import { compress } from './gzip';
+import { XMLHttpRequestFactory, setPrivateFlags, setBackgroundRequest } from '../platform/xmlhttprequest';
 
 export let fetch = ftch.fetch;
 export let Headers = ftch.Headers;

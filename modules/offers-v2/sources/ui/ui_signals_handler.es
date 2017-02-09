@@ -3,8 +3,8 @@
  *        backend related with the ui
  */
 
-import LoggingHandler from 'offers-v2/logging_handler';
-import OffersConfigs from 'offers-v2/offers_configs';
+import LoggingHandler from '../logging_handler';
+import OffersConfigs from '../offers_configs';
 
 
 ////////////////////////////////////////////////////////////////////////////////

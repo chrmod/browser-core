@@ -1,14 +1,12 @@
-import { utils, events } from 'core/cliqz';
-import background from 'core/base/background';
-import OffersConfigs from 'offers-v2/offers_configs';
-import LoggingHandler from 'offers-v2/logging_handler';
-import ExtensionEnvironment from 'offers-v2/environments/extension_environment';
-import EventLoop from 'offers-v2/event_loop';
-import { EventHandler } from 'offers-v2/event_handler';
-import { UIOfferProcessor } from 'offers-v2/ui/ui_offer_processor';
-// TODO: remove this
-import {UIDisplayManager} from 'offers-v2/ui/ui_display_manager';
-import {SignalHandler} from 'offers-v2/signals_handler';
+import { utils, events } from '../core/cliqz';
+import background from '../core/base/background';
+import OffersConfigs from './offers_configs';
+import LoggingHandler from './logging_handler';
+import ExtensionEnvironment from './environments/extension_environment';
+import EventLoop from './event_loop';
+import { EventHandler } from './event_handler';
+import { UIOfferProcessor } from './ui/ui_offer_processor';
+import {SignalHandler} from './signals_handler';
 
 ////////////////////////////////////////////////////////////////////////////////
 // consts
@@ -16,9 +14,6 @@ import {SignalHandler} from 'offers-v2/signals_handler';
 const MODULE_NAME = 'background';
 
 export default background({
-  enabled() {
-    return true;
-  },
 
   init(settings) {
     // check if we need to do something or not
@@ -100,7 +95,9 @@ export default background({
 
     // for the new ui system
     this.signalsHandler = new SignalHandler();
+
     this.uiOfferProc = new UIOfferProcessor(this.signalsHandler, this.eventHandler);
+
     this.actions = {
       windowUIConnector: this.windowUIConnector.bind(this),
     };
@@ -186,6 +183,11 @@ export default background({
 
   //////////////////////////////////////////////////////////////////////////////
   events: {
+    'content:location-change': function onLocationChange({ url }) {
+    },
+  },
+
+  actions: {
   },
 
   // new ui system functions needed

@@ -4,7 +4,7 @@
  */
 
 
-import CliqzUtils from "core/utils";
+import CliqzUtils from "./utils";
 
 var timer=null, ONE_HOUR = 60 * 60 * 1000;
 

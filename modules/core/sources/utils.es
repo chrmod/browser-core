@@ -1,12 +1,11 @@
 import System from "system";
-import CLIQZEnvironment from "platform/environment";
-import console from "core/console";
-import prefs from "core/prefs";
-import Storage from "core/storage";
-import CliqzEvents from 'core/events';
-import { TLDs } from "core/tlds";
-//import CliqzLanguage from "platform/language";
-import { httpHandler, promiseHttpHandler } from 'core/http';
+import CLIQZEnvironment from "../platform/environment";
+import console from "./console";
+import prefs from "./prefs";
+import Storage from "./storage";
+import CliqzEvents from './events';
+import { TLDs } from "./tlds";
+import { httpHandler, promiseHttpHandler } from './http';
 
 var CliqzLanguage;
 

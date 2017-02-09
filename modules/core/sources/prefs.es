@@ -1,4 +1,4 @@
-import { getPref, setPref, hasPref, clearPref, enableChangeEvents, disableChangeEvents } from 'platform/prefs';
+import { getPref, setPref, hasPref, clearPref, enableChangeEvents, disableChangeEvents } from "../platform/prefs";
 
 export default {
   /**

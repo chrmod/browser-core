@@ -13,10 +13,10 @@
  *
  */
 
-import { utils } from 'core/cliqz';
-import LoggingHandler from 'offers-v2/logging_handler';
-import  OffersConfigs  from 'offers-v2/offers_configs';
-import config from 'core/config';
+import { utils } from '../core/cliqz';
+import LoggingHandler from './logging_handler';
+import  OffersConfigs  from './offers_configs';
+import config from '../core/config';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ import config from 'core/config';
 
 const MODULE_NAME = 'signals_handler';
 
-const DB_MAIN_FIELD = 'chrome://cliqz/content/offers-v2/signals_data.json';
+const DB_MAIN_FIELD = ''; // TODO: fix me 'chrome://cliqz/content/offers-v2/signals_data.json';
 const DB_PREFIX = 'sig_hand_';
 
 // TODO: remove this methods
@@ -157,7 +157,7 @@ class SignalBucket {
           }
         };
       hpnSignal.payload.data[k] = this.elems[k];
-      const hpnStrSignal = JSON.stringify([hpnSignal]);
+      const hpnStrSignal = JSON.stringify(hpnSignal);
       utils.httpPost(OffersConfigs.SIGNALS_HPN_BE_ADDR,
                      success => {linfo('sendSignalsToBE: hpn signal sent')},
                      hpnStrSignal,

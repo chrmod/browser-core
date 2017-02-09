@@ -1,8 +1,7 @@
-import LoggingHandler from 'offers-v2/logging_handler';
+import LoggingHandler from '../logging_handler';
 import EmptyEnvironment from './empty_environment'
-import OffersConfigs from 'offers-v2/offers_configs';
-import HistorySignalID from 'offers-v2/ui/ui_offers_history';
-
+import OffersConfigs from '../offers_configs';
+import HistorySignalID from '../ui/ui_offers_history';
 
 const MODULE_NAME = 'extension_environment';
 
@@ -83,7 +82,11 @@ export default class ExtensionEnvironment extends EmptyEnvironment {
   }
 
   hasOffer(offerId) {
-    return this.uiOfferProcessor.hasOffer(offerId);
+    if (this.uiOfferProcessor) {
+      return this.uiOfferProcessor.hasOffer(offerId);
+    } else {
+      return false;
+    }
   }
 
   getOfferLastUpdate(offerId, signal) {

@@ -1,5 +1,5 @@
-import console from "platform/console";
-import prefs from "core/prefs";
+import console from "../platform/console";
+import prefs from "./prefs";
 
 const isLoggingEnabled = prefs.get('showConsoleLogs', false);
 

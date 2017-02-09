@@ -1,3 +1,5 @@
+import { isChromium } from '../core/platform';
+
 var OffersConfigs = {
 
   //////////////////////////////////////////////////////////////////////////////
@@ -29,7 +31,7 @@ var OffersConfigs = {
   LOAD_OFFERS_HISTORY_DATA: true,
   // this will clear the current saved that
   CLEAR_OFFERS_HISTORY_DATA: false,
-  OFFERS_HISTORY_DATA: 'chrome://cliqz/content/offers-v2/offers_history.json',
+  OFFERS_HISTORY_DATA: isChromium ? undefined : 'chrome://cliqz/content/offers-v2/offers_history.json',
   // the time we want to track the signals after they were created
   OFFERS_HISTORY_LIVE_TIME_SECS: 60 * 60 * 24 * 60,
 

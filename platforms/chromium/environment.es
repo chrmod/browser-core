@@ -1,7 +1,7 @@
-import console from "core/console";
-import prefs from "core/prefs";
-import Storage from "core/storage";
-import CliqzUtils from "core/utils"
+import console from "../core/console";
+import prefs from "../core/prefs";
+import Storage from "../core/storage";
+import CliqzUtils from "../core/utils"
 
 let eventIDs = {};
 const port = chrome.runtime.connect({name: "encrypted-query"});
@@ -248,6 +248,7 @@ const CLIQZEnvironment = {
   onRenderComplete: function(query, urls){
     chrome.cliqzSearchPrivate.processResults(query, urls);
   },
+  setSupportInfo() {},
 };
 const CE = CLIQZEnvironment;  // Shorthand alias.
 

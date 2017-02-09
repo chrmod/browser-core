@@ -1,8 +1,8 @@
-import { utils, events } from 'core/cliqz';
-import LoggingHandler from 'offers-v2/logging_handler';
-import OffersConfigs from 'offers-v2/offers_configs';
-import { forEachWindow } from 'platform/browser';
-import { queryActiveTabs } from 'core/tabs';
+import { utils, events } from '../../core/cliqz';
+import LoggingHandler from '../logging_handler';
+import OffersConfigs from '../offers_configs';
+import { forEachWindow } from '../../platform/browser';
+import { queryActiveTabs } from '../../core/tabs';
 
 
 // TODO: remove all not needed logs
