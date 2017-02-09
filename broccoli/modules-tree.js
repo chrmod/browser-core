@@ -97,16 +97,21 @@ function getSourceFunnel() {
 
 
 
-function testGenerator(relativePath, errors) {
+function testGenerator(relativePath, errors, extra) {
+  let fileName = relativePath;
+  if (extra.filePath.includes('platforms/')) {
+    fileName = `platform/${fileName}`;
+  }
+
   return `
-  System.register("tests/${relativePath.replace('.es', '.lint-test.js')}", [], function (_export) {
+  System.register("tests/${fileName.replace('.es', '.lint-test.js')}", [], function (_export) {
   "use strict";
 
   return {
     setters: [],
     execute: function () {
       _export("default", describeModule("core/lint", function () { return {}; }, function () {
-        describe("Check eslint on ${relativePath}", function () {
+        describe("Check eslint on ${fileName}", function () {
           it('should have no style error', function () {
             chai.expect(${errors.length}).to.equal(0);
           });
