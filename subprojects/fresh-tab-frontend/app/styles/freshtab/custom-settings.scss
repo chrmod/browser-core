@@ -123,6 +123,14 @@
     border-radius: 15px;
     background: #BCBCBC;
     transition: all 0.3s;
+
+    &.active {
+      background-color: #8BE0E7;
+      &:before {
+        left: auto;
+        right: 1px;
+      }
+    }
   }
 
   .cqz-switch-box::before {

@@ -61,8 +61,12 @@ export default background({
   },
 
   actions: {
+    _hasActiveNotifications() {
+      return this.notifications.action('hasActiveNotifications').then((res) => {
+        return res;
+      });
+    },
     _getNewsLanguage() {
-      utils.log("!!get news language", utils.getPref('news_language', 'de'));
       return utils.getPref('news_language', 'de');
     },
     _showOnboarding() {
@@ -376,9 +380,14 @@ export default background({
         showFeedback: self.actions._showFeedback(),
         showNewBrandAlert: self.actions._showNewBrandAlert(),
         messages: this.messages,
-        newsLanguage: self.actions._getNewsLanguage()
+        newsLanguage: self.actions._getNewsLanguage(),
       };
-      return Promise.resolve(config);
+
+      let hasActiveNotifications = self.actions._hasActiveNotifications();
+      return Promise.all([hasActiveNotifications]).then((res) => {
+        config.hasActiveNotifications = res[0];
+        return config;
+      })
     },
     /**
     * @method takeFullTour

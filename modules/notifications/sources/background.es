@@ -80,6 +80,11 @@ export default background({
       return this.notificationCenter.updateUnreadStatus();
     },
 
+    hasActiveNotifications() {
+      let gmailNotifications = this.actions.getNotifications(['mail.google.com']);
+      return (gmailNotifications['mail.google.com'].status === 'enabled') || (gmailNotifications['mail.google.com'].status === 'inaccessible');
+    },
+
     /**
     * query store for notifications for specified sources
     */

@@ -33,7 +33,8 @@ export default Ember.Route.extend({
       showFeedback: config.showFeedback,
       showNewBrandAlert: config.showNewBrandAlert,
       messageCenter: this.get('messageCenter'),
-      newsLanguage: config.newsLanguage
+      newsLanguage: config.newsLanguage,
+      hasActiveNotifications: config.hasActiveNotifications
     });
   },
 

@@ -35,16 +35,7 @@
           <span>{{t 'settings.tooltip-mail-notifications'}}</span>
         </div>
           <label>{{t 'settings.txt-show-mail-notifications'}}</label>
-          <span>
-            <span class="cqz-switch">
-              <span class="cqz-switch-box">
-
-              </span>
-
-            </span>
-            <span>{{t 'general.switch-on'}}</span>
-            <span>{{t 'general.switch-off'}}</span>
-          </span>
+          {{mail-notifications model=model}}
         </div>
       </div>
 
