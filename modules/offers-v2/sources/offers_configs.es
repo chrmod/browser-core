@@ -35,6 +35,10 @@ var OffersConfigs = {
   // the time we want to track the signals after they were created
   OFFERS_HISTORY_LIVE_TIME_SECS: 60 * 60 * 24 * 60,
 
+  // trigger specific browser history
+  TRIGGER_HISTORY_DATA: 'chrome://cliqz/content/offers-v2/trigger_history.json',
+
+
   //////////////////////////////////////////////////////////////////////////////
   // SIGNALS
 

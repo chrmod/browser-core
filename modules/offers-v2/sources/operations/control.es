@@ -3,8 +3,6 @@
 var ops = {};
 export default ops;
 
-var compiledRegexp = {};
-var compiledRegexpCount = 0;
 
 ops['$log'] = function(args, eventLoop) {
   return new Promise((resolve, reject) => {
@@ -91,30 +89,20 @@ ops['$lt'] = function(args) {
   });
 };
 
-ops['$match'] = function(args) {
+
+ops['$match'] = function(args, eventLoop) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
     }
 
     var text = args.shift();
+    var patterns = args;
 
-    var regexp = [];
-    args.forEach(function(arg) {
-      var re = compiledRegexp[arg];
-      if(!re) {
-        re = new RegExp(arg);
-        if(compiledRegexpCount++ < 250) {
-          compiledRegexp[arg] = re;
-          compiledRegexpCount++;
-        }
-      }
+    for(var i = 0; i < patterns.length; i++) {
+      var re = eventLoop.regexpCache.getRegexp(patterns[0])
 
-      regexp.push(re);
-    });
-
-    for(var i = 0; i < regexp.length; i++) {
-      if(regexp[i].exec(text)) {
+      if(re.exec(text)) {
         resolve(true);
         return;
       }
