@@ -2,7 +2,6 @@ import CliqzSecureMessage from 'hpn/main';
 import utils from 'core/utils';
 import * as http from 'core/http';
 
-const BW_URL = 'https://antiphishing.cliqz.com/api/bwlist?md5=';
 const OFFER_TELEMETRY = 'https://offers-api.cliqz.com/api/v1/savesignal';
 
 let proxyHttpHandler = null;
@@ -44,27 +43,6 @@ export function overRideCliqzResults() {
               ts: '',
               ver: '1.5',
               payload: query,
-        },
-        uid: uid,
-        type: 'instant',
-        sourcemap: CliqzSecureMessage.sourceMap,
-        upk: CliqzSecureMessage.uPK,
-        dspk: CliqzSecureMessage.dsPK,
-        sspk: CliqzSecureMessage.secureLogger,
-        queryproxyip: CliqzSecureMessage.queryProxyIP,
-      });
-      return null;
-    } else if (url.startsWith(BW_URL)) {
-      const query = url.replace(BW_URL, '');
-      const uid = Math.floor(Math.random() * 10000000);
-      CliqzSecureMessage.queriesID[uid] = callback;
-      CliqzSecureMessage.wCrypto.postMessage({
-        msg: { action: 'instant',
-              type: 'cliqz',
-              ts: '',
-              ver: '1.5',
-              payload: query,
-              rp: BW_URL,
         },
         uid: uid,
         type: 'instant',
