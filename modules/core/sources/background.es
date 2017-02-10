@@ -69,7 +69,9 @@ export default background({
 
       utils.setTimeout(() => {
         this.setSupportInfo();
-        this.browserDetection();
+        if(config.settings.channel == 40){
+          this.browserDetection();
+        }
       }, 30000);
 
       prefs.set('session', session);
