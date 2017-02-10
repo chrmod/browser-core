@@ -15,16 +15,6 @@ node('ubuntu && docker && !gpu') {
     'AWS_REGION': 'us-east-1'
   ])
 
-  stage('Check if wip') {
-    def labels = helpers.getGitLabels()
-
-    for (String label: labels) {
-      if (label.containsKey('name') && label.get('name') == 'WIP') {
-        error "Branch is wip"
-      }
-    }
-  }
-
   params = []
 
   for (int i = 0; i < props.size(); i++) {
@@ -43,8 +33,30 @@ node('ubuntu && docker && !gpu') {
   }
 
   properties([
+    disableConcurrentBuilds(),
     parameters(params)
   ])
+
+  stage('Check if more jobs are queued') {
+      def queue = jenkins.model.Jenkins.getInstance().getQueue().getItems()
+      if (queue.it { it.task.getName() == env.JOB_NAME}) {
+          echo "Jobs in queue, aborting"
+          error("No need to run")
+      } else {
+          echo "No jobs in queue, proceeding"
+      }
+  }
+
+  stage('Check if wip') {
+    def labels = helpers.getGitLabels()
+
+    for (String label: labels) {
+      if (label.containsKey('name') && label.get('name') == 'WIP') {
+        error "Branch is wip"
+      }
+    }
+  }
+
 
   gitCommit = helpers.getGitCommit()
 
