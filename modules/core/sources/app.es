@@ -5,6 +5,7 @@
   import events, { subscribe } from './events';
   import prefs from './prefs';
   import Module from './app/module';
+  import { setGlobal } from './kord';
   import { mapWindows, forEachWindow, addWindowObserver,
     removeWindowObserver, reportError, mustLoadWindow, setInstallDatePref,
     setOurOwnPrefs, resetOriginalPrefs, enableChangeEvents,
@@ -56,6 +57,7 @@
       }, Object.create(null));
 
       utils.app = this;
+      setGlobal(this);
       this.prefchangeEventListener = subscribe('prefchange', this.onPrefChange, this);
     }
 
@@ -251,6 +253,7 @@
 
   loadWindow(window) {
     const CLIQZ = {
+      app: this,
       System,
       Core: {
         windowModules: {},

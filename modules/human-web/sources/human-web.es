@@ -1,19 +1,17 @@
-import CliqzEvents from "core/events";
-import CliqzBloomFilter from "human-web/bloom-filter";
-import { utils } from "core/cliqz";
-import md5 from "core/helpers/md5";
-import ResourceLoader from 'core/resource-loader';
-import { queryActiveTabs } from 'core/tabs';
-import { forEachWindow } from 'platform/browser';
-import CliqzSecureMessage from 'hpn/main';
+import inject from '../core/kord/inject';
+import CliqzEvents from "../core/events";
+import CliqzBloomFilter from "./bloom-filter";
+import utils from '../core/utils';
+import md5 from "../core/helpers/md5";
+import ResourceLoader from '../core/resource-loader';
+import { queryActiveTabs } from '../core/tabs';
+import { forEachWindow } from '../core/browser';
+import CliqzSecureMessage from '../hpn/main';
 
-Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 const dnsService = Components.classes["@mozilla.org/network/dns-service;1"]
   .createInstance(Components.interfaces.nsIDNSService);
-
 
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
@@ -44,7 +42,8 @@ function getRandomIntInclusive(min, max) {
 }
 
 function getHTML(...args) {
-  return utils.callAction('core', 'getHTML', args);
+  const core = inject.module('core');
+  return core.action('getHTML', ...args);
 }
 
 var CliqzHumanWeb = {

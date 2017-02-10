@@ -46,5 +46,8 @@ export default background({
       };
       this.messageCenter.registerMessageHandler(id, new NewMessageHandler());
     },
+    showMessage(handler, message) {
+      this.messageCenter.showMessage(message, handler);
+    },
   },
 });

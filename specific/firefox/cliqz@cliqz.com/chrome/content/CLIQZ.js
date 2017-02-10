@@ -10,6 +10,7 @@ var global = {
   Cu: Components.utils,
   Cm: Components.manager,
   Cr: Components.results,
+  CC: Components.Constructor,
   XPCOMUtils: XPCOMUtils,
   Services: Services,
   TextEncoder: TextEncoder,

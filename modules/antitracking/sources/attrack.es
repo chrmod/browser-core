@@ -1,6 +1,7 @@
 /*
  * This module prevents user from 3rd party tracking
  */
+import inject from '../core/kord/inject';
 import pacemaker from 'antitracking/pacemaker';
 import * as persist from 'antitracking/persistent-state';
 import TempSet from 'antitracking/temp-set';
@@ -36,11 +37,13 @@ import RedirectTagger from 'antitracking/steps/redirect-tagger';
 var countReload = false;
 
 function queryHTML(...args) {
-  return utils.callAction('core', 'queryHTML', args);
+  const core = inject.module('core');
+  return core.action('queryHTML', ...args);
 }
 
 function getCookie(...args) {
-  return utils.callAction('core', 'getCookie', args);
+  const core = inject.module('core');
+  return core.action('getCookie', ...args);
 }
 
 var CliqzAttrack = {

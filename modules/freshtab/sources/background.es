@@ -1,12 +1,14 @@
-import FreshTab from 'freshtab/main';
-import News from 'freshtab/news';
-import History from 'freshtab/history';
-import { utils, events } from 'core/cliqz';
-import SpeedDial from 'freshtab/speed-dial';
-import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
-import AdultDomain from 'freshtab/adult-domain';
-import background from 'core/base/background';
-import { forEachWindow } from 'core/browser';
+import inject from '../core/kord/inject';
+import FreshTab from './main';
+import News from './news';
+import History from './history';
+import utils from '../core/utils';
+import events from '../core/events';
+import SpeedDial from './speed-dial';
+import { version as onboardingVersion, shouldShowOnboardingV2 } from "../core/onboarding";
+import AdultDomain from './adult-domain';
+import background from '../core/base/background';
+import { forEachWindow } from '../core/browser';
 
 const DIALUPS = 'extensions.cliqzLocal.freshtab.speedDials';
 const DISMISSED_ALERTS = 'dismissedAlerts';
@@ -27,6 +29,10 @@ const isWithinNDaysAfterInstallation = function(days) {
 * @class Background
 */
 export default background({
+  core: inject.module('core'),
+  geolocation: inject.module('geolocation'),
+  notifications: inject.module('notifications'),
+
   /**
   * @method init
   */
@@ -393,7 +399,7 @@ export default background({
 
     shareLocation(decision) {
       events.pub('msg_center:hide_message', {'id': 'share-location' }, 'MESSAGE_HANDLER_FRESHTAB');
-      utils.callAction('geolocation', 'setLocationPermission', [decision]);
+      this.geolocation.action('setLocationPermission', decision);
 
       const target = (decision === 'yes') ?
         'always_share' : 'never_share';
@@ -427,7 +433,7 @@ export default background({
       if(FreshTab.isActive()) {
         events.pub('notifications:notifications-cleared');
       } else {
-        utils.callAction('notifications', 'hasUnread').then( (res) => {
+        this.notifications.action('hasUnread').then( (res) => {
           if (res) {
             events.pub('notifications:new-notification');
           }
@@ -438,25 +444,27 @@ export default background({
     "message-center:handlers-freshtab:new-message": function onNewMessage(message) {
       if( !(message.id in this.messages )) {
         this.messages[message.id] = message;
-        utils.callAction('core', 'broadcastMessage', [
+        this.core.action(
+          'broadcastMessage',
           utils.CLIQZ_NEW_TAB_RESOURCE_URL,
           {
             action: 'addMessage',
             message: message,
           }
-        ]);
+        );
       }
     },
     "message-center:handlers-freshtab:clear-message": function onMessageClear(message) {
 
       delete this.messages[message.id];
-      utils.callAction('core', 'broadcastMessage', [
+      this.core.action(
+        'broadcastMessage',
         utils.CLIQZ_NEW_TAB_RESOURCE_URL,
         {
           action: 'closeNotification',
           messageId: message.id,
         }
-      ]);
+      );
     },
     "geolocation:wake-notification": function onWake(timestamp) {
       this.actions.getNews().then(() => {

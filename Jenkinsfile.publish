@@ -62,6 +62,22 @@ node('docker') {
 
         }
       }
+
+      stage('generate and upload documentation') {
+        sh 'npm run doc'
+
+        withCredentials([[
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: '06ec4a34-9d01-46df-9ff8-64c79eda8b14',
+            passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+            usernameVariable: 'AWS_ACCESS_KEY_ID']]) {
+
+          def s3DocPath = 's3://internal.clyqz.com/docs/browser-core'
+
+          sh "aws s3 del -r $s3DocPath"
+          sh "aws s3 cp docs $s3DocPath -r --acl public-read"
+        }
+      }
     }
   }
 }

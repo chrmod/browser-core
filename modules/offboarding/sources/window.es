@@ -1,9 +1,11 @@
-import utils from 'core/utils';
+import inject from '../core/kord/inject';
+import utils from '../core/utils';
 
 export default class {
   constructor({ window, settings }) {
     this.settings = settings;
     this.window = window;
+    this.core = inject.module('core');
   }
   init() {}
   unload() {}
@@ -11,7 +13,7 @@ export default class {
     const version = this.settings.version;
     const window = this.window;
     if (window === utils.getWindow()) {
-      utils.callAction('core', 'setSupportInfo', ['disabled']);
+      this.core.action('setSupportInfo', 'disabled');
       try {
         const UNINSTALL_PREF = 'uninstallVersion';
         const lastUninstallVersion = utils.getPref(UNINSTALL_PREF, '');

@@ -2,6 +2,13 @@ import { Window } from 'platform/browser';
 import System from 'system';
 import console from 'core/console';
 
+function prepareBackgroundReadyPromise() {
+  this.backgroundReadyPromise = new Promise((resolve, reject) => {
+    this.backgroundReadyPromiseResolver = resolve;
+    this.backgroundReadyPromiseRejecter = reject;
+  });
+}
+
 export default class Module {
   constructor(name, settings) {
     this.name = name;
@@ -9,6 +16,11 @@ export default class Module {
     this.loadingTime = null;
     this.settings = settings;
     this.windows = Object.create(null);
+    prepareBackgroundReadyPromise.call(this);
+  }
+
+  isReady() {
+    return this.backgroundReadyPromise;
   }
 
   enable() {
@@ -18,11 +30,15 @@ export default class Module {
       throw new Error('Module already enabled');
     }
     return System.import(`${this.name}/background`)
-      .then(({ default: background }) => background.init(this.settings))
+      .then(({ default: background }) => {
+        this.background = background;
+        return background.init(this.settings);
+      })
       .then(() => {
         this.isEnabled = true;
         this.loadingTime = Date.now() - loadingStartedAt;
         console.log('Module: ', this.name, ' -- Background loaded');
+        this.backgroundReadyPromiseResolver();
       });
   }
 
@@ -39,6 +55,7 @@ export default class Module {
       background.unload();
       this.isEnabled = false;
       this.loadingTime = null;
+      prepareBackgroundReadyPromise.call(this);
     }
     console.log('Module', this.name, 'unloading finished');
   }

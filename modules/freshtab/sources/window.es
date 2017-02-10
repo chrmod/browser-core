@@ -1,28 +1,8 @@
+import inject from '../core/kord/inject';
 import FreshTab from './main';
 import prefs from '../core/prefs';
 import utils from '../core/utils';
 
-function clearUrlbar(window) {
-  const currentUrl = window.gBrowser.selectedBrowser.currentURI.spec;
-  const initialPages = window.gInitialPages;
-  const cliqzInitialPages = [
-    utils.CLIQZ_NEW_TAB_RESOURCE_URL,
-    utils.CLIQZ_NEW_TAB,
-  ];
-
-  cliqzInitialPages.forEach((initialPage) => {
-    const isInitialPage = initialPages.indexOf(initialPage) >= 0;
-    const isCurrentUrl = cliqzInitialPages.indexOf(currentUrl) >= 0;
-
-    if (!isInitialPage) {
-      initialPages.push(initialPage);
-    }
-
-    if (isCurrentUrl) {
-      utils.callAction('core', 'setUrlbar', ['']);
-    }
-  });
-}
 
 /**
 * @namespace freshtab
@@ -43,7 +23,8 @@ export default class {
   *@return null
   */
   init() {
-    clearUrlbar(this.window);
+    this.core = inject.module('core');
+    this.clearUrlbar();
   }
 
   unload() {}
@@ -53,5 +34,27 @@ export default class {
       visible: true,
       enabled: FreshTab.isActive(),
     };
+  }
+
+  clearUrlbar() {
+    const currentUrl = this.window.gBrowser.selectedBrowser.currentURI.spec;
+    const initialPages = this.window.gInitialPages;
+    const cliqzInitialPages = [
+      utils.CLIQZ_NEW_TAB_RESOURCE_URL,
+      utils.CLIQZ_NEW_TAB,
+    ];
+
+    cliqzInitialPages.forEach((initialPage) => {
+      const isInitialPage = initialPages.indexOf(initialPage) >= 0;
+      const isCurrentUrl = cliqzInitialPages.indexOf(currentUrl) >= 0;
+
+      if (!isInitialPage) {
+        initialPages.push(initialPage);
+      }
+
+      if (isCurrentUrl) {
+        this.core.action('setUrlbar', '');
+      }
+    });
   }
 }

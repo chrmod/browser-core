@@ -121,27 +121,6 @@ var CliqzUtils = {
     return System.import(moduleName)
   },
 
-  callAction(moduleName, actionName, args) {
-    const module = System.get(
-        System.normalizeSync(`${moduleName}/background`));
-    if (!module) {
-      return Promise.reject(`module "${moduleName}" does not exist`);
-    }
-
-    const action = module.default.actions[actionName];
-    if (!action) {
-      return Promise.reject(`module ${moduleName} does not implement action "${actionName}"`);
-    }
-
-    try {
-      const response = action.apply(null, args);
-      return Promise.resolve(response);
-    } catch (e) {
-      console.error(`callAction`, moduleName, actionName, e);
-      return Promise.reject(e);
-    }
-  },
-
   callWindowAction(win, moduleName, actionName, args) {
     try {
       var module = win.CLIQZ.Core.windowModules[moduleName];

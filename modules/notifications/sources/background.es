@@ -1,9 +1,11 @@
+import inject from '../core/kord/inject';
 import utils from '../core/utils';
 import events from '../core/events';
 import background from '../core/base/background';
 import NotificationCenter from './notification-center';
 
 export default background({
+  core: inject.module('core'),
 
   init() {
     this.notificationCenter = new NotificationCenter();
@@ -50,13 +52,14 @@ export default background({
   },
 
   broadcastMessage(action, message) {
-    utils.callAction('core', 'broadcastMessage', [
+    this.core.action(
+      'broadcastMessage',
       utils.CLIQZ_NEW_TAB_RESOURCE_URL,
       {
         action: action,
         message
       }
-    ]);
+    );
   },
 
   actions: {

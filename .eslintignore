@@ -217,7 +217,6 @@ modules/notifications/providers/pin-tab.es
 modules/notifications/storage.es
 modules/notifications/tests/unit/notification-center-test.es
 modules/notifications/tests/window-test.es
-modules/notifications/window.es
 modules/offers-v2/background.es
 modules/offers-v2/content/app.es
 modules/offers-v2/content/data.es

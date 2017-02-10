@@ -1,13 +1,13 @@
-import RegexProxyRule from 'unblock/regexp-proxy-rule';
-import ResourceLoader from 'core/resource-loader';
-import { utils } from 'core/cliqz';
-
-Components.utils.import('resource://gre/modules/Services.jsm');
+import inject from '../core/kord/inject';
+import RegexProxyRule from './regexp-proxy-rule';
+import ResourceLoader from '../core/resource-loader';
+import utils from '../core/utils';
 
 const REFRESH_RETRIES = 2;
 
 function queryHTML(...args) {
-  return utils.callAction('core', 'queryHTML', args);
+  const core = inject.module('core');
+  return core.action('queryHTML', ...args);
 }
 
 export default class {

@@ -1,9 +1,7 @@
-import background from "core/base/background";
-import utils from "core/utils";
-import UITour from 'platform/ui-tour';
-
-const { classes: Cc, Constructor: CC, interfaces: Ci, utils: Cu, manager: Cm } =
-    Components;
+import background from "../core/base/background";
+import utils from "../core/utils";
+import UITour from '../platform/ui-tour';
+import inject from '../core/kord/inject';
 
 const StringInputStream = CC(
   '@mozilla.org/io/string-input-stream;1',
@@ -56,9 +54,7 @@ const AboutURLFactory =
  */
 export default background({
 
-  enabled() {
-    return true;
-  },
+  core: inject.module('core'),
 
   /**
     @method init
@@ -186,12 +182,13 @@ export default background({
     },
 
     shakeIt() {
-      utils.callAction('core', 'broadcastMessage', [
+      this.core.action(
+        'broadcastMessage',
         ONBOARDING_URL,
         {
           action: 'shakeIt'
         }
-      ]);
+      );
     }
 
   }
