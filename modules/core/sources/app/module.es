@@ -13,6 +13,7 @@ export default class Module {
   constructor(name, settings) {
     this.name = name;
     this.isEnabled = false;
+    this.isLoading = true;
     this.loadingTime = null;
     this.settings = settings;
     this.windows = Object.create(null);
@@ -36,6 +37,7 @@ export default class Module {
       })
       .then(() => {
         this.isEnabled = true;
+        this.isLoading = false;
         this.loadingTime = Date.now() - loadingStartedAt;
         console.log('Module: ', this.name, ' -- Background loaded');
         this.backgroundReadyPromiseResolver();

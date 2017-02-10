@@ -222,6 +222,8 @@
             return Promise.resolve();
           }
         } else {
+          module.isLoading = false;
+          module.isEnabled = false;
           // TODO: should not be here
           return System.import(`${module.name}/background`);
         }
