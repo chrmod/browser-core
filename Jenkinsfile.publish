@@ -28,6 +28,10 @@ node('docker') {
           stage('fern build') {
             sh './fern.js build --freshtab --environment=production'
           }
+
+          stage('npm run doc') {
+            sh 'npm run doc'
+          }
         }
       }
 
@@ -63,14 +67,7 @@ node('docker') {
         }
       }
 
-      stage('generate and upload documentation') {
-        docker.image(imgName).inside() {
-          helpers.withCache {
-            sh 'npm install'
-            sh 'npm run doc'
-          }
-        }
-
+      stage('upload docs') {
         withCredentials([[
             $class: 'UsernamePasswordMultiBinding',
             credentialsId: '06ec4a34-9d01-46df-9ff8-64c79eda8b14',
@@ -79,8 +76,8 @@ node('docker') {
 
           def s3DocPath = 's3://internal.clyqz.com/docs/browser-core'
 
-          sh "aws s3 del -r $s3DocPath"
-          sh "aws s3 cp docs $s3DocPath -r --acl public-read"
+          sh "aws s3 rm $s3DocPath --recursive"
+          sh "aws s3 cp docs $s3DocPath --recursive"
         }
       }
     }
