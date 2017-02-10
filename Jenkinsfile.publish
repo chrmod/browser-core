@@ -64,7 +64,12 @@ node('docker') {
       }
 
       stage('generate and upload documentation') {
-        sh 'npm run doc'
+        docker.image(imgName).inside() {
+          helpers.withCache {
+            sh 'npm install'
+            sh 'npm run doc'
+          }
+        }
 
         withCredentials([[
             $class: 'UsernamePasswordMultiBinding',
