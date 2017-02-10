@@ -4,6 +4,7 @@ import { isVideoURL, getVideoInfo } from 'video-downloader/video-downloader';
 import Panel from '../core/ui/panel';
 import { addStylesheet, removeStylesheet } from '../core/helpers/stylesheet';
 import CliqzEvents from 'core/events';
+import console from 'core/console';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import("resource://gre/modules/Downloads.jsm");
@@ -264,10 +265,26 @@ export default class UI {
             type: TELEMETRY_TYPE,
             version: TELEMETRY_VERSION,
             action: 'popup_open',
-            is_downloadable: 'false'
+            is_downloadable: 'false',
           });
         }
       }
+    })
+    .catch((e) => {
+      console.error('Error getting video links', e);
+      this.sendMessageToPopup({
+        action: 'pushData',
+        data: {
+          unSupportedFormat: true,
+        },
+      });
+      // Should we send a different telemetry message here?
+      utils.telemetry({
+        type: TELEMETRY_TYPE,
+        version: TELEMETRY_VERSION,
+        action: 'popup_open',
+        is_downloadable: 'false',
+      });
     });
   }
 

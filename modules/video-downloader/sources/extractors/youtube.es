@@ -43,6 +43,7 @@ function handleFormats(formats) {
       output.size = parseInt(size, 10);
       return output;
     })
+    .filter(x => (x.type && x.container)),
   );
 }
 
