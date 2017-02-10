@@ -39,7 +39,7 @@ node('ubuntu && docker && !gpu') {
 
   stage('Check if more jobs are queued') {
       def queue = jenkins.model.Jenkins.getInstance().getQueue().getItems()
-      if (queue.it { it.task.getName() == env.JOB_NAME}) {
+      if (queue.any{ it.task.getName() == env.JOB_NAME}) {
           echo "Jobs in queue, aborting"
           error("No need to run")
       } else {
