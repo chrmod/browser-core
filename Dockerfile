@@ -14,7 +14,8 @@ RUN apt-get update && \
     python-dev \
     python-pip \
     zip
-
+    
+RUN pip install --upgrade cffi
 RUN pip install \
   fabric \
   jinja2 \
