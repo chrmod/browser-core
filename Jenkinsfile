@@ -37,29 +37,14 @@ node('ubuntu && docker && !gpu') {
     parameters(params)
   ])
 
-  stage('Check if more jobs are queued') {
-      def queue = jenkins.model.Jenkins.getInstance().getQueue().getItems()
-      for (int i=0; i < queue.length; i++) {
-        if (queue[i].task.getName() == env.JOB_NAME ) {
-          echo "Jobs in queue, aborting"
-          error("No need to run")
-        } else {
-          echo "No jobs in queue, proceeding"
-        }
-      }
+  if (helpers.hasNewerQueuedJobs()) {
+    error("Has Jobs in queue, aborting")
   }
 
-  stage('Check if wip') {
-    def labels = helpers.getGitLabels()
-
-    for (String label: labels) {
-      if (label.containsKey('name') && label.get('name') == 'WIP') {
-        error "Branch is wip"
-      }
-    }
+  if (helpers.hasWipLabel()) {
+    error "Branch is wip"
   }
-
-
+  
   gitCommit = helpers.getGitCommit()
 
   // stash dockerfile for use on other nodes without checkout

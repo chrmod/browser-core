@@ -39,6 +39,27 @@ def getGitLabels() {
   }
 }
 
+def hasNewerQueuedJobs() {
+  def queue = jenkins.model.Jenkins.getInstance().getQueue().getItems()
+  for (int i=0; i < queue.length; i++) {
+    if (queue[i].task.getName() == env.JOB_NAME ) {
+      echo "Jobs in queue, aborting"
+      return true
+    }
+  }
+  return false
+}
+
+def hasWipLabel(){ 
+  def labels = getGitLabels()
+
+  for (String label: labels) {
+    if (label.containsKey('name') && label.get('name') == 'WIP') {
+      return true
+    }
+  }
+  return false
+}
 
 
 def withCache(Closure body=null) {
