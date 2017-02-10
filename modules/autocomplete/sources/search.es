@@ -182,7 +182,7 @@ export default class Search {
           this.spellCheck.state.userConfirmed = false;
       }
 
-      this.cliqzResults = null;
+      this.cliqzResults = [];
       this.cliqzResultsParams = { };
       this.cliqzCache = null;
       this.historyResults = null;
@@ -610,7 +610,7 @@ export default class Search {
                      q,
                      (attemptsSoFar || 0) + 1);
           this.cliqzResults = json.results.filter(this.isReadyToRender).map(this.enhanceResult);
-          console.log(this.cliqzResults ? this.cliqzResults.length : 0,"CliqzAutocomplete.cliqzResultFetcher");
+          console.log(this.cliqzResults.length,"CliqzAutocomplete.cliqzResultFetcher");
 
           this.cliqzResultsParams = {
             choice: json.choice,
@@ -631,7 +631,7 @@ export default class Search {
       return r;
     });
 
-    this.cliqzResults = (this.cliqzResults || []).map(function(r, i) {
+    this.cliqzResults = this.cliqzResults.map(function(r, i) {
       return Result.cliqz(r, q);
     });
   }
@@ -720,7 +720,7 @@ export default class Search {
       utils.clearTimeout(obj.historyTimer);
       obj.resultsTimer = null;
       obj.historyTimer = null;
-      obj.cliqzResults = null;
+      obj.cliqzResults = [];
       obj.cliqzCache = null;
       obj.historyResults = null;
       obj.instant = [];
