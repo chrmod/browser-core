@@ -7,15 +7,17 @@
 
     <div class="recipe__details">
         {{#each mobi}}
-            <div cliqz-action="stop-click-event-propagation" class="accordion">
-                {{local @key}}
-                <img src="skin/img/arrow-down.svg" />
-            </div>
-            <ul class="panel">
-                {{#each this}}
-                    <li>{{this}}</li>
-                {{/each}}
-            </ul>
+            {{#if this}}
+                <div cliqz-action="stop-click-event-propagation" class="accordion">
+                    {{local @key}}
+                    <img src="skin/img/arrow-down.svg" />
+                </div>
+                <ul class="panel">
+                    {{#each this}}
+                        <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            {{/if}}
         {{/each}}
     </div>
 {{/with}}

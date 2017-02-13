@@ -1109,6 +1109,9 @@
     "mobile_local_card_call": {
       "message": "Anrufen"
     },
+    "mobile_share_location": {
+      "message": "Einmalig lokale Informationen abrufen"
+    },
     "mobile_freshtab_breaking_news": {
       "message": "EILMELDUNG:"
     },

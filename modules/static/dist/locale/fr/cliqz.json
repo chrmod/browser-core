@@ -1109,6 +1109,9 @@
     "mobile_local_card_call": {
       "message": "Appeler"
     },
+    "mobile_share_location": {
+      "message": "Partager mon emplacement une fois"
+    },
     "mobile_freshtab_breaking_news": {
       "message": "BREAKING NEWS :"
     },

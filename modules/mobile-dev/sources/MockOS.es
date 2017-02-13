@@ -47,7 +47,11 @@ function openLink(url) {
 function getTopSites() {
   return mockedHistory;
 }
-function browserAction() {}
+function browserAction(data) {
+  if (data.type === 'shareLocation') {
+    jsAPI.search(CliqzAutocomplete.lastSearch, true, 48.1517832, 11.6200855);
+  }
+}
 function autocomplete() {}
 function notifyQuery() {}
 function pushTelemetry() {}
