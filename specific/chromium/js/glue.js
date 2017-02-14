@@ -292,8 +292,8 @@ urlbar.addEventListener('keyup', function(ev){
 
 // Debugging stubs for running outside of chromium extension context.
 function declareStubs(props, context) {
-  function makePrintCall(pn) {
-    return function() {
+  function makePrintCall(pn, pf) {
+    return pf || function() {
       console.log(pn + ": " + Array.prototype.slice.call(arguments));
     }
   }
@@ -307,7 +307,7 @@ function declareStubs(props, context) {
         context[propName] = stub;
     }
     else if (!(propName in context)) {
-      context[propName] = makePrintCall(propName);
+      context[propName] = makePrintCall(propName, props[propName]);
     }
   }
 }
@@ -318,7 +318,23 @@ const stubs = {
       getCurrent: 0
     },
     cliqzSearchPrivate: {
-      queryHistory: 0,
+      queryHistory: function(q, callback) {
+        var res = [{
+          url:   "https://cliqz.com/hello_history",
+          description: "Cliqz dummy history for query: " + q,
+          provider_type:   'favicon'
+        },{
+          url:   "https://cliqzbookmark.com/hello_bookmark",
+          description: "Cliqz dummy bookmark for query: " + q,
+          provider_type:   'bookmark'
+        },{
+          url:   "https://www.cliqzbookmark22.com/hello_bookmark",
+          description: "Cliqz new dummy bookmark for query: " + q,
+          provider_type:   'bookmark'
+        }];
+
+        setTimeout(callback, 100, q, res, true);
+      },
       processResults: 0,
       onInputChanged: {
         addListener: 0
