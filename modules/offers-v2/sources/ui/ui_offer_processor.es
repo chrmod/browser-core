@@ -134,32 +134,33 @@ export class UIOfferProcessor {
     }
 
     // TODO: separate this properly and apply the logic we need here
+    var offerInfoCpy = JSON.parse(JSON.stringify(offerInfo));
     const offerData = {
-      id: offerInfo.offer_id,
-      template_name: offerInfo.ui_info.template_name,
-      template_data: offerInfo.ui_info.template_data
+      id: offerInfoCpy.offer_id,
+      template_name: offerInfoCpy.ui_info.template_name,
+      template_data: offerInfoCpy.ui_info.template_data
     };
 
     if (isChromium) {
       events.pub('msg_center:show_message', {
-        id: offerInfo.display_id,
-        Message: offerInfo.ui_info.template_data.title,
-        Link: offerInfo.ui_info.template_data.call_to_action.text,
-        LinkText: offerInfo.ui_info.template_data.call_to_action.url
+        id: offerInfoCpy.display_id,
+        Message: offerInfoCpy.ui_info.template_data.title,
+        Link: offerInfoCpy.ui_info.template_data.call_to_action.text,
+        LinkText: offerInfoCpy.ui_info.template_data.call_to_action.url
       }, 'ghostery');
     } else {
-      this.uiDisplayMngr.addOffer(offerData, offerInfo.rule_info);
+      this.uiDisplayMngr.addOffer(offerData, offerInfoCpy.rule_info);
     }
 
-    this.activeOffers[offerInfo.offer_id] = offerInfo;
+    this.activeOffers[offerInfoCpy.offer_id] = offerInfoCpy;
 
     // track the last time we show this particular offer and displayid
-    const displayID = offerInfo.display_id;
-    this.offersHistory.incHistorySignal(offerInfo.offer_id, HistorySignalID.HSIG_OFFER_ADDED);
+    const displayID = offerInfoCpy.display_id;
+    this.offersHistory.incHistorySignal(offerInfoCpy.offer_id, HistorySignalID.HSIG_OFFER_ADDED);
     this.offersHistory.incHistorySignal(displayID, HistorySignalID.HSIG_OFFER_ADDED);
 
     // to track we use the offer_id
-    this.sigHandler.trackOfferSignal(offerInfo.offer_id, TrackSignalID.TSIG_OFFER_ADDED);
+    this.sigHandler.trackOfferSignal(offerInfoCpy.offer_id, TrackSignalID.TSIG_OFFER_ADDED);
   }
 
   //
