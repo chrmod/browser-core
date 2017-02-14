@@ -374,12 +374,12 @@ export default Ember.Service.extend({
     }), '*');
   },
 
-  setUrlbar(value) {
+  queryCliqz(value) {
     this.callbacks.getUrlbar = () => {};
     window.postMessage(JSON.stringify({
       target: 'cliqz',
       module: 'core',
-      action: 'setUrlbar',
+      action: 'queryCliqz',
       args: [value]
     }), '*');
   },
