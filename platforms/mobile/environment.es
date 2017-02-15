@@ -186,6 +186,7 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
   }
 
   var recentItems = storage.getObject('recentQueries', []);
+  query = unescape(query);
 
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];

@@ -90,7 +90,7 @@ describe('Search View', function() {
 
       cliqzResponse(query, [ extraResult ]);
 
-      contentWindow.jsAPI.search(query, true, 48.151753799999994, 11.620054999999999);
+      contentWindow.jsAPI.search(escape(query), true, 48.151753799999994, 11.620054999999999);
     });
 
     it("should intercept request and respond with fake result", function () {
@@ -174,7 +174,7 @@ describe('Search View', function() {
         }
       ]);
 
-      contentWindow.jsAPI.search(query);
+      contentWindow.jsAPI.search(escape(query));
     });
 
     it("should intercept request and respond with fake result", function () {
@@ -214,7 +214,7 @@ describe('Search View', function() {
         }
       ]);
 
-      contentWindow.jsAPI.search(query);
+      contentWindow.jsAPI.search(escape(query));
     });
 
     it("should filter all results", function () {
@@ -320,7 +320,7 @@ describe('Search View', function() {
     		}
       ]);
 
-      contentWindow.jsAPI.search(query);
+      contentWindow.jsAPI.search(escape(query));
     });
 
     it("should intercept request and respond with fake result", function () {
@@ -419,7 +419,7 @@ describe('Search View', function() {
         },
       ]);
 
-      contentWindow.jsAPI.search(query);
+      contentWindow.jsAPI.search(escape(query));
     });
 
     it("should intercept request and respond with fake result", function () {
