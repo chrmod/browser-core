@@ -360,7 +360,8 @@ const bowerTree = new MergeTrees([
   new Funnel(bowerComponents, { include: Array.from(requiredBowerComponents) }),
 ]);
 
-const styleCheckTestsTree = getLintTestsTree();
+const styleCheckTestsTree = cliqzConfig.environment === 'production' ?
+  new MergeTrees([]) : getLintTestsTree();
 
 
 module.exports = {
