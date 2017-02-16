@@ -343,7 +343,7 @@ class NetworkFilter {
 
       // Deal with hostname pattern
       if (line.startsWith('127.0.0.1')) {
-        this.hostname = line.substring(line.lastIndexOf(' '));
+        this.hostname = line.substring(line.lastIndexOf(' ') + 1);
         this._f = '';
         this.setMask(NETWORK_FILTER_MASK.isHostname);
         this.setMask(NETWORK_FILTER_MASK.isPlain);
