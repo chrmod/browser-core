@@ -66,11 +66,23 @@ export default class Module {
    * return window module
    */
   loadWindow(window) {
-    console.log('Module window:', `"${this.name}"`, 'loading');
+    let resolver;
+    let rejecter;
+    const loadingPromise = new Promise((resolve, reject) => {
+      resolver = resolve;
+      rejecter = reject;
+    });
+    const win = new Window(window);
 
-    if (window.CLIQZ.Core.windowModules[this.name]) {
+    if (this.windows[win.id]) {
+      console.log('Module window:', `"${this.name}"`, 'already loaded');
       return Promise.resolve();
     }
+
+    this.windows[win.id] = {
+      loadingPromise,
+    };
+    console.log('Module window:', `"${this.name}"`, 'loading started');
 
     const loadingStartedAt = Date.now();
     const settings = this.settings;
@@ -78,12 +90,16 @@ export default class Module {
       .then(({ default: WindowModule }) => new WindowModule({ settings, window }))
       .then(module => Promise.resolve(module.init()).then(() => module))
       .then((windowModule) => {
-        const win = new Window(window);
         this.windows[win.id] = {
           loadingTime: Date.now() - loadingStartedAt,
         };
         console.log('Module window:', `"${this.name}"`, 'loading finished');
         win.window.CLIQZ.Core.windowModules[this.name] = windowModule;
+        resolver();
+      })
+      .catch((e) => {
+        rejecter(e);
+        throw e;
       });
   }
 

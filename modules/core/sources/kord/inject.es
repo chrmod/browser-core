@@ -1,3 +1,5 @@
+import { Window } from '../browser';
+
 let app;
 
 export class ModuleMissingError extends Error {
@@ -21,7 +23,15 @@ class ModuleWrapper {
     this.moduleName = moduleName;
   }
 
-  action(actionName, ...args) {
+  isWindowReady(window) {
+    const win = new Window(window);
+    return this.isReady().then(() => {
+      const module = app.availableModules[this.moduleName];
+      return module.windows[win.id].loadingPromise;
+    });
+  }
+
+  isReady() {
     const module = app.availableModules[this.moduleName];
 
     if (!module) {
@@ -32,8 +42,23 @@ class ModuleWrapper {
       return Promise.reject(new ModuleDisabledError(this.moduleName));
     }
 
-    return module.isReady()
-      .then(() => module.background.actions[actionName](...args));
+    return module.isReady();
+  }
+
+  action(actionName, ...args) {
+    return this.isReady()
+      .then(() => {
+        const module = app.availableModules[this.moduleName];
+        return module.background.actions[actionName](...args);
+      });
+  }
+
+  windowAction(window, actionName, ...args) {
+    return this.isWindowReady(window).then(() => {
+      const module = window.CLIQZ.Core.windowModules[this.moduleName];
+      const action = module.actions[actionName];
+      return Promise.resolve(action(...args));
+    });
   }
 }
 

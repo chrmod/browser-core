@@ -121,18 +121,6 @@ var CliqzUtils = {
     return System.import(moduleName)
   },
 
-  callWindowAction(win, moduleName, actionName, args) {
-    try {
-      var module = win.CLIQZ.Core.windowModules[moduleName];
-      var action = module.actions[actionName];
-      return action.apply(null, args);
-    } catch (e){
-      CliqzUtils.log('Failed to call "' + actionName +'" on "' + moduleName + '"' +
-                     '. With error: ' + e,
-                     "callWindowAction failed");
-    }
-  },
-
   isNumber: function(n){
       /*
       NOTE: this function can't recognize numbers in the form such as: "1.2B", but it can for "1e4". See specification for isFinite()

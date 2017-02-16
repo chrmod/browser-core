@@ -2,6 +2,7 @@ import background from 'antitracking/background';
 import CliqzAttrack from 'antitracking/attrack';
 import { utils, events } from 'core/cliqz';
 import { URLInfo } from 'antitracking/url';
+import inject from '../core/kord/inject';
 
 function onLocationChange(ev) {
   if(this.interval) { utils.clearInterval(this.interval); }
@@ -33,6 +34,7 @@ export default class {
 
   constructor(config) {
     this.window = config.window;
+    this.controlCenter = inject.module('control-center');
 
     this.popup = background.popup;
 
@@ -77,11 +79,10 @@ export default class {
     if( this.popup ){
       this.popup.setBadge(this.window, count);
     } else {
-      utils.callWindowAction(
+      this.controlCenter.windowAction(
         this.window,
-        'control-center',
         'setBadge',
-        [ count ]
+        count
       );
     }
   }

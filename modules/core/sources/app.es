@@ -1,178 +1,183 @@
-  import System from 'system';
-  import config from './config';
-  import console from './console';
-  import utils from './utils';
-  import events, { subscribe } from './events';
-  import prefs from './prefs';
-  import Module from './app/module';
-  import { setGlobal } from './kord';
-  import { mapWindows, forEachWindow, addWindowObserver,
-    removeWindowObserver, reportError, mustLoadWindow, setInstallDatePref,
-    setOurOwnPrefs, resetOriginalPrefs, enableChangeEvents,
-    disableChangeEvents, waitWindowReady } from '../platform/browser';
+import System from 'system';
+import config from './config';
+import console from './console';
+import utils from './utils';
+import events, { subscribe } from './events';
+import prefs from './prefs';
+import Module from './app/module';
+import { setGlobal } from './kord';
+import { mapWindows, forEachWindow, addWindowObserver,
+  removeWindowObserver, reportError, mustLoadWindow, setInstallDatePref,
+  setOurOwnPrefs, resetOriginalPrefs, enableChangeEvents,
+  disableChangeEvents, waitWindowReady } from '../platform/browser';
 
-  function shouldEnableModule(name) {
-    const pref = `modules.${name}.enabled`;
-    return !prefs.has(pref) || prefs.get(pref) === true;
+function shouldEnableModule(name) {
+  const pref = `modules.${name}.enabled`;
+  return !prefs.has(pref) || prefs.get(pref) === true;
+}
+
+export default class {
+
+  constructor({ version, extensionId }) {
+    this.version = version;
+    this.extensionId = extensionId;
+    this.priorityModulesLoaded = false;
+    this.availableModules = config.modules.reduce((hash, moduleName) => {
+      hash[moduleName] = new Module(
+        moduleName,
+        Object.assign({}, config.settings, { version })
+      );
+      return hash;
+    }, Object.create(null));
+
+    utils.app = this;
+    setGlobal(this);
+    this.prefchangeEventListener = subscribe('prefchange', this.onPrefChange, this);
   }
 
-  export default class {
-    extensionRestart(changes) {
-      // unload windows
+  extensionRestart(changes) {
+    // unload windows
+    forEachWindow(win => {
+      if (win.CLIQZ && win.CLIQZ.Core) {
+        this.unloadWindow(win);
+      }
+    });
+
+    // unload background
+    this.unload();
+
+    // apply changes
+    if (changes) {
+      changes();
+    }
+
+    // load background
+    return this.load().then(() => {
+      // load windows
+      const corePromises = [];
       forEachWindow(win => {
-        if (win.CLIQZ && win.CLIQZ.Core) {
-          this.unloadWindow(win);
-        }
+        corePromises.push(this.loadWindow(win));
       });
+      return Promise.all(corePromises);
+    });
+  }
 
-      // unload background
-      this.unload();
+  unloadFromWindow(win, data) {
+    // unload core even if the window closes to allow all modules to do their cleanup
+    if (!mustLoadWindow(win)) {
+      return;
+    }
 
-      // apply changes
-      if (changes) {
-        changes();
-      }
-
-      // load background
-      return this.load().then(() => {
-        // load windows
-        const corePromises = [];
-        forEachWindow(win => {
-          corePromises.push(this.loadWindow(win));
-        });
-        return Promise.all(corePromises);
+    try {
+      this.unloadWindow(win, data);
+      // count the number of opened windows here and send it to events
+      // if the last window was closed then remaining == 0.
+      let remainingWin = 0;
+      forEachWindow(() => {
+        remainingWin += 1;
       });
+      events.pub('core.window_closed', { remaining: remainingWin });
+    } catch (e) {
+      reportError(e);
     }
+  }
 
-    constructor({ version, extensionId }) {
-      this.version = version;
-      this.extensionId = extensionId;
-      this.priorityModulesLoaded = false;
-      this.availableModules = config.modules.reduce((hash, moduleName) => {
-        hash[moduleName] = new Module(
-          moduleName,
-          Object.assign({}, config.settings, { version })
-        );
-        return hash;
-      }, Object.create(null));
+  loadIntoWindow(win) {
+    if (!win) return;
 
-      utils.app = this;
-      setGlobal(this);
-      this.prefchangeEventListener = subscribe('prefchange', this.onPrefChange, this);
-    }
-
-    unloadFromWindow(win, data) {
-      // unload core even if the window closes to allow all modules to do their cleanup
-      if (!mustLoadWindow(win)) {
-        return;
-      }
-
-      try {
-        this.unloadWindow(win, data);
-        // count the number of opened windows here and send it to events
-        // if the last window was closed then remaining == 0.
-        let remainingWin = 0;
-        forEachWindow(() => {
-          remainingWin += 1;
-        });
-        events.pub('core.window_closed', { remaining: remainingWin });
-      } catch (e) {
-        reportError(e);
-      }
-    }
-
-    loadIntoWindow(win) {
-      if (!win) return;
-
-      waitWindowReady(win)
+    waitWindowReady(win)
       .then(() => {
-        if (mustLoadWindow(win)) {
-          this.modulesLoadedPromise
-          .then(() => {
-            utils.log('Extension CLIQZ App background loaded');
-            return this.loadWindow(win);
-          })
-          .catch(e => {
-            utils.log(e, 'Extension filed loaded window modules');
-          });
+        if (!mustLoadWindow(win)) {
+          return Promise.reject();
         }
+        return this.modulesLoadedPromise;
+      })
+      .then(() => {
+        utils.log('Extension CLIQZ App background loaded');
+        return this.loadWindow(win);
+      }, () => { /* do nothin for non browser.xul windows */ })
+      .catch(e => {
+        utils.log(e, 'Extension filed loaded window modules');
       });
-    }
+  }
 
-    start() {
-      // Load Config - Synchronous!
-      utils.FEEDBACK_URL = `${utils.FEEDBACK}${this.version}-${config.settings.channel}`;
+  start() {
+    // Load Config - Synchronous!
+    utils.FEEDBACK_URL = `${utils.FEEDBACK}${this.version}-${config.settings.channel}`;
 
-      this.modulesLoadedPromise = this.load()
-        .then(() => {
-          enableChangeEvents();
+    this.modulesLoadedPromise = this.load()
+      .then(() => {
+        enableChangeEvents();
 
-          // Load into currently open windows
-          forEachWindow(win => {
+        this.windowWatcher = (win, event) => {
+          if (event === 'opened') {
             this.loadIntoWindow(win);
-          });
+          } else if (event === 'closed') {
+            this.unloadFromWindow(win);
+          }
+        };
 
-          this.windowWatcher = (win, event) => {
-            if (event === 'opened') {
-              this.loadIntoWindow(win);
-            } else if (event === 'closed') {
-              this.unloadFromWindow(win);
-            }
-          };
+        addWindowObserver(this.windowWatcher);
 
-          addWindowObserver(this.windowWatcher);
-        })
-        .catch(e => {
-          utils.log(e, 'Extension -- failed to init CLIQZ App');
+        // Load into currently open windows
+        forEachWindow(win => {
+          this.loadIntoWindow(win);
         });
+      })
+      .catch(e => {
+        utils.log(e, 'Extension -- failed to init CLIQZ App');
+      });
+  }
+
+  stop(isShutdown, disable, telemetrySignal) {
+    utils.telemetry({
+      type: 'activity',
+      action: telemetrySignal,
+    }, true /* force push */);
+
+    /**
+     *
+     *  There are different reasons on which extension does shutdown:
+     *  https://developer.mozilla.org/en-US/Add-ons/Bootstrapped_extensions#Reason_constants
+     *
+     *  We handle them differently:
+     *  * APP_SHUTDOWN - nothing need to be unloaded as browser shutdown, but
+     *      there may be data that we may like to persist
+     *  * ADDON_DISABLE, ADDON_UNINSTALL - full cleanup + bye bye messages
+     *  * ADDON_UPGRADE, ADDON_DOWNGRADE - fast cleanup
+     *
+     */
+
+    if (isShutdown) {
+      this.unload({ quick: true });
+      return;
     }
 
-    stop(isShutdown, disable, telemetrySignal) {
-      utils.telemetry({
-        type: 'activity',
-        action: telemetrySignal,
-      }, true /* force push */);
+    // Unload from any existing windows
+    forEachWindow(w => {
+      this.unloadFromWindow(w, { disable });
+    });
 
-      /**
-       *
-       *  There are different reasons on which extension does shutdown:
-       *  https://developer.mozilla.org/en-US/Add-ons/Bootstrapped_extensions#Reason_constants
-       *
-       *  We handle them differently:
-       *  * APP_SHUTDOWN - nothing need to be unloaded as browser shutdown, but
-       *      there may be data that we may like to persist
-       *  * ADDON_DISABLE, ADDON_UNINSTALL - full cleanup + bye bye messages
-       *  * ADDON_UPGRADE, ADDON_DOWNGRADE - fast cleanup
-       *
-       */
+    this.unload();
 
-      if (isShutdown) {
-        this.unload({ quick: true });
-        return;
-      }
+    if (disable) {
+      this.restorePrefs();
+    }
 
-      // Unload from any existing windows
-      forEachWindow(w => {
-        this.unloadFromWindow(w, { disable });
-      });
+    removeWindowObserver(this.windowWatcher);
 
-      this.unload();
+    disableChangeEvents();
 
-      if (disable) {
-        this.restorePrefs();
-      }
-
-      removeWindowObserver(this.windowWatcher);
-
-      disableChangeEvents();
-
-      this.prefchangeEventListener = subscribe('prefchange', this.onPrefChange, this);
+    this.prefchangeEventListener = subscribe('prefchange', this.onPrefChange, this);
   }
 
   modules() {
+
     const notPriority = Object.keys(this.availableModules)
-                          .filter((m) => config.priority.indexOf(m) === -1);
+      .filter((m) => config.priority.indexOf(m) === -1);
+
     const modules = this.priorityModulesLoaded ? notPriority : config.priority;
+
     return modules.map(
       moduleName => this.availableModules[moduleName]
     );
@@ -271,7 +276,6 @@
     }
 
     const windowModulePromises = this.enabledModules().map(module => {
-      console.log('App window', 'loading module', `"${module.name}"`, 'started');
       return module.loadWindow(window)
         .catch(e => {
           console.error('App window', `Error loading module: ${module.name}`, e);
@@ -279,8 +283,6 @@
     });
 
     return Promise.all(windowModulePromises).then(() => {
-      console.log('App', 'Window loaded');
-    }).then(() => {
       if (this.priorityModulesLoaded) {
         return Promise.resolve();
       }
@@ -288,6 +290,7 @@
       return this.load().then(() => {
         return this.loadWindow(window);
       }).then(() => {
+        console.log('App', 'Window loaded');
         this.isFullyLoaded = true;
       });
     });

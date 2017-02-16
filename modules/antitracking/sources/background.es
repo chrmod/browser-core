@@ -7,12 +7,15 @@ import { DEFAULT_ACTION_PREF, updateDefaultTrackerTxtRule } from 'antitracking/t
 import { utils, events } from 'core/cliqz';
 import telemetry from 'antitracking/telemetry';
 import Config from 'antitracking/config';
+import inject from '../core/kord/inject';
 
 /**
 * @namespace antitracking
 * @class Background
 */
 export default background({
+  controlCenter: inject.module('control-center'),
+
   /**
   * @method init
   * @param settings
@@ -92,11 +95,10 @@ export default background({
       if (this.popup) {
         this.popup.setBadge(utils.getWindow(), info.cookies.blocked + info.requests.unsafe);
       } else {
-        utils.callWindowAction(
+        this.controlCenter.windowAction(
           utils.getWindow(),
-          'control-center',
           'setBadge',
-          [info.cookies.blocked + info.requests.unsafe]
+          info.cookies.blocked + info.requests.unsafe
         );
       }
     },

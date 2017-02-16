@@ -25,6 +25,7 @@ const BTN_ID = 'cliqz-cc-btn',
 export default class {
   constructor(config) {
     this.window = config.window;
+    this.controlCenter = inject.module('control-center');
     this.settings = config.settings;
     this.channel = config.settings.channel;
     this.cssUrl = 'chrome://cliqz/content/control-center/styles/xul.css';
@@ -321,11 +322,9 @@ export default class {
       var win = enumerator.getNext();
       if(win != this.window){
         setTimeout((win) => {
-          utils.callWindowAction(
+          this.controlCenter.windowAction(
             win,
-            'control-center',
-            'refreshState',
-            []
+            'refreshState'
           );
         }, 3000 /* some modules need time to start eg: antitracking */, win);
       }

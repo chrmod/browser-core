@@ -28,6 +28,27 @@
           core.action('queryCliqz', 'some query');
         ```
       </li>
+      <li>
+        <a href="https://github.com/cliqz/navigation-extension/pull/3034">
+          PR-3034
+        </a>
+        `utils.callWindowAction` is removed in favor of `kord` module wrapper.
+        <br/>
+        Old code:
+        ```
+          import utils from '../core/utils';
+
+          utils.callWindowAction(window, 'control-center', 'setBadge', [17]);
+        ```
+
+        New code:
+        ```
+          import inject from '../core/kord/inject';
+
+          const controlCenter = inject.module('control-center');
+          controlCenter.windowAction(window, 'setBadge', 17);
+        ```
+      </li>
     </ul>
   </li>
 </ul>
