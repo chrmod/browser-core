@@ -41,6 +41,8 @@ export default background({
       // enable logs?
       LoggingHandler.LOG_ENABLED = true;
       LoggingHandler.SAVE_TO_FILE = true;
+      // enable trigger history
+      OffersConfigs.LOAD_TRIGGER_HISTORY_DATA = false;
     }
 
     if(utils.getPref('triggersBE')) {

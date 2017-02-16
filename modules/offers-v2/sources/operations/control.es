@@ -100,9 +100,32 @@ ops['$match'] = function(args, eventLoop) {
     var patterns = args;
 
     for(var i = 0; i < patterns.length; i++) {
-      var re = eventLoop.regexpCache.getRegexp(patterns[0])
+      var re = eventLoop.regexpCache.getRegexp(patterns[i])
 
       if(re.exec(text)) {
+        resolve(true);
+        return;
+      }
+    }
+
+    resolve(false);
+  });
+};
+
+
+ops['$match_url'] = function(args, eventLoop, context) {
+  return new Promise((resolve, reject) => {
+    if(args.length < 2) {
+      reject(new Error('invalid args'));
+    }
+
+    var patterns = args;
+
+    for(var i = 0; i < patterns.length; i++) {
+      var re = eventLoop.regexpCache.getRegexp(patterns[i])
+
+      if(re.exec(context['#url'])) {
+        eventLoop.historyIndex.addUrl(context['#url'], context);
         resolve(true);
         return;
       }

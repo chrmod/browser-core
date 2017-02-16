@@ -33,7 +33,7 @@ ops['$match_history'] = function(args, eventLoop, context) {
     for(var i = 0; i < patterns.length; i++) {
       var re = eventLoop.regexpCache.getRegexp(patterns[i]);
       if(re.exec(context['#url'])) {
-        eventLoop.historyIndex.addUrl(context['#url']);
+        eventLoop.historyIndex.addUrl(context['#url'], context);
         break;
       }
     }
@@ -43,7 +43,7 @@ ops['$match_history'] = function(args, eventLoop, context) {
 };
 
 
-ops['$count_history_sessions'] = function(args, eventLoop) {
+ops['$count_history_sessions'] = function(args, eventLoop, context) {
   return new Promise((resolve, reject) => {
     if(args.length < 4) {
       reject(new Error('invalid args'));
@@ -75,7 +75,7 @@ ops['$count_history_sessions'] = function(args, eventLoop) {
     for(var i = 0; i < patterns.length; i++) {
       var re = eventLoop.regexpCache.getRegexp(patterns[i]);
       if(re.exec(context['#url'])) {
-        eventLoop.historyIndex.addUrl(context['#url']);
+        eventLoop.historyIndex.addUrl(context['#url'], context);
         break;
       }
     }

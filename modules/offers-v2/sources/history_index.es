@@ -26,8 +26,13 @@ export default class HistoryIndex {
     return result;
   }
 
-  addUrl(url) {
+  addUrl(url, context) {
     var self = this;
+
+    if(context._urlAddedToHistory) {
+      return;
+    }
+    context._urlAddedToHistory = true;
 
     self.eventLoop.environment.info("HistoryIndex", "URL added to history: " + url);
 
@@ -55,12 +60,17 @@ export default class HistoryIndex {
   load() {
     var self = this;
 
-    var history = self.localStorage.getItem('trigger_history');
-    if(history) {
-      this.entries = JSON.parse(history);
-    }
+    if (OffersConfigs.LOAD_TRIGGER_HISTORY_DATA) {
+      var history = self.localStorage.getItem('trigger_history');
+      if(history) {
+        this.entries = JSON.parse(history);
+      }
 
-    self.eventLoop.environment.info("HistoryIndex", "Loaded trigger history from local storage. Num entries: " + this.entries.length);
+      self.eventLoop.environment.info("HistoryIndex", "Loaded trigger history from local storage. Num entries: " + this.entries.length);
+    }
+    else {
+      self.eventLoop.environment.info("HistoryIndex", "Loading history disabled");
+    }
   }
 
   timestamp() {

@@ -36,7 +36,8 @@ var OffersConfigs = {
   OFFERS_HISTORY_LIVE_TIME_SECS: 60 * 60 * 24 * 60,
 
   // trigger specific browser history
-  TRIGGER_HISTORY_DATA: 'chrome://cliqz/content/offers-v2/trigger_history.json',
+  LOAD_TRIGGERS_HISTORY_DATA: true,
+  TRIGGER_HISTORY_DATA: isChromium ? undefined : 'chrome://cliqz/content/offers-v2/trigger_history.json',
 
 
   //////////////////////////////////////////////////////////////////////////////

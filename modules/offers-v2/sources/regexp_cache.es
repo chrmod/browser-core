@@ -20,6 +20,9 @@ export default class RegexpCache {
         self.compiledRegexp[pattern] = re;
         self.compiledRegexpCount++;
       }
+      else {
+        self.compiledRegexpCount = {};
+      }
     }
 
     return re;
