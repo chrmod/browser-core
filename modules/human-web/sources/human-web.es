@@ -7,6 +7,7 @@ import ResourceLoader from '../core/resource-loader';
 import { queryActiveTabs } from '../core/tabs';
 import { forEachWindow } from '../core/browser';
 import CliqzSecureMessage from '../hpn/main';
+import random from 'core/random';
 
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
@@ -2387,7 +2388,7 @@ var CliqzHumanWeb = {
         }
 
         // Adding anti-duplicate key, so to detect duplicate messages on the backend.
-        msg['anti-duplicates'] = Math.floor(Math.random() * 10000000);
+        msg['anti-duplicates'] = Math.floor(random() * 10000000);
 
         if (msg.action == 'page') {
             if(msg.payload.tend  && msg.payload.tin){
