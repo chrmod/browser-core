@@ -331,7 +331,6 @@ modules/unblock/youtube.es
 modules/video-downloader/ToolbarButtonManager.es
 modules/video-downloader/ui.es
 modules/video-downloader/window.es
-modules/video-downloader/extractors/youtube.es
 modules/video-downloader/content/app.es
 modules/video-downloader/content/data.es
 modules/video-downloader/content/helpers.es
