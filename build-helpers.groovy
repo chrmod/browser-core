@@ -31,7 +31,14 @@ def getGitLabels() {
                     credentialsId: '5d3e0a3c-2490-491b-8a67-aa5eab2f27f2', 
                     variable: 'GITHUB_TOKEN']]) {
     repository = "cliqz/navigation-extension"
-    pr_number = JOB_BASE_NAME.split(/(-)/)[1]
+    def pr_number
+
+    try {
+      pr_number = JOB_BASE_NAME.split(/(-)/)[1]  
+    } catch(err) {
+      return false
+    }
+    
     URLConnection connLabels = new URL("https://api.github.com/repos/${repository}/issues/${pr_number}/labels").openConnection();
     connLabels.setRequestProperty("Authorization", "token ${env.GITHUB_TOKEN}");
     def resp = new groovy.json.JsonSlurper().parse(new BufferedReader(new InputStreamReader(connLabels.getInputStream())));
@@ -52,6 +59,12 @@ def hasNewerQueuedJobs() {
 
 def hasWipLabel(){ 
   def labels = getGitLabels()
+  if (!labels) {
+    return false
+  }
+
+
+
 
   for (String label: labels) {
     if (label.containsKey('name') && label.get('name') == 'WIP') {
