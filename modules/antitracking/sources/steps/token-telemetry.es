@@ -3,7 +3,7 @@ import * as datetime from 'antitracking/time';
 import * as persist from 'antitracking/persistent-state';
 import { splitTelemetryData } from 'antitracking/utils';
 import pacemaker from 'antitracking/pacemaker';
-import random from 'core/random';
+import random from 'core/crypto/random';
 
 /**
  * Add padding characters to the left of the given string.

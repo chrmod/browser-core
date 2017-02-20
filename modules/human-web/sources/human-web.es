@@ -7,7 +7,7 @@ import ResourceLoader from '../core/resource-loader';
 import { queryActiveTabs } from '../core/tabs';
 import { forEachWindow } from '../core/browser';
 import CliqzSecureMessage from '../hpn/main';
-import random from 'core/random';
+import random from 'core/crypto/random';
 
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 

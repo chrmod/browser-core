@@ -1,5 +1,5 @@
 import { compress } from 'core/gzip';
-import random from 'core/random';
+import random from 'core/crypto/random';
 
 function _arrayBufferToBase64( buffer ) {
     var binary = '';
