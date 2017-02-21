@@ -1,11 +1,11 @@
 /* eslint-disable camelcase */
-import CliqzUtils from 'core/utils';
-import Crypto from 'pairing/crypto';
-import console from 'core/console';
-import { encryptPairedMessage, decryptPairedMessage, ERRORS } from 'pairing/shared';
-import CliqzPeer from 'p2p/cliqz-peer';
-import fetch from 'platform/fetch';
-import { base64_decode } from 'p2p/internal/utils';
+import CliqzUtils from '../core/utils';
+import Crypto from './crypto';
+import console from '../core/console';
+import { encryptPairedMessage, decryptPairedMessage, ERRORS } from './shared';
+import CliqzPeer from '../p2p/cliqz-peer';
+import fetch from '../platform/fetch';
+import { fromBase64 } from '../core/encoding';
 
 // This class has the responsibility of handling the desktop-mobile pairing.
 // It should be agnostic of concrete features, just providing the infrastructure
@@ -306,7 +306,7 @@ export default class CliqzPairing {
       };
       if (Array.isArray(data)) {
         // This might cause out of order msgs (single msgs that are faster to decrypt)
-        Promise.all(data.map(base64_decode).map(decMsg))
+        Promise.all(data.map(fromBase64).map(decMsg))
         .catch((e) => {
           errorDecrypting(e);
           throw e;

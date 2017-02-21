@@ -296,7 +296,6 @@ modules/privacy-dashboard/background.es
 modules/privacy-dashboard/main.es
 modules/privacy-dashboard/signals.es
 modules/privacy-dashboard/window.es
-modules/proxyPeer/rtc-crypto.es
 modules/static/background.es
 modules/static/main.es
 modules/static/tests/unit/locales-validation-test.es

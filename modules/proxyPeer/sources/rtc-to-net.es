@@ -1,12 +1,11 @@
-
 import { utils } from '../core/cliqz';
-// import md5 from 'core/helpers/md5';
 
 import logger from './logger';
 import { openSocket } from './tcp-socket';
 import { SERVER_REPLY
        , parseRequest } from './socks-protocol';
-import { unwrapAESKey, b64Decode } from './rtc-crypto';
+import { unwrapAESKey } from './rtc-crypto';
+import { fromBase64 } from '../core/encoding';
 import { createResponseFromExitNode } from './rtc-onion';
 import MessageQueue from './message-queue';
 
@@ -104,7 +103,7 @@ export default class {
    */
   openNewConnection(message, peer, sender, connectionHash, peerPrivKey) {
     const connectionID = message.connectionID;
-    const data = b64Decode(message.data);
+    const data = fromBase64(message.data);
     logger.debug(`EXIT ${connectionID} ${message.messageNumber} openNewConnection`);
 
     // We have a SOCKS Request and need to establish the connection
@@ -203,7 +202,7 @@ export default class {
 
   relayToOpenedConnection(message, connectionHash) {
     const connectionID = message.connectionID;
-    const data = b64Decode(message.data);
+    const data = fromBase64(message.data);
 
     // This should be a byte array (Uint8Array) and the connection should be established
     if (this.outgoingTcpConnections.has(connectionHash)) {

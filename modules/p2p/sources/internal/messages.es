@@ -2,13 +2,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-plusplus */
 
-import random from 'core/crypto/random';
+import random from '../../core/crypto/random';
+import { toUTF8, fromUTF8 } from '../../core/encoding';
 import constants from './constants';
-import * as utils from './utils';
-
-const strToUTF8Arr = utils.strToUTF8Arr;
-const UTF8ArrToStr = utils.UTF8ArrToStr;
-const isArrayBuffer = utils.isArrayBuffer;
+import { isArrayBuffer } from './utils';
 
 
 function putInt(data, offset, num) {
@@ -37,9 +34,9 @@ function decodeMessage(buffer) {
   let data = new Uint8Array(buffer);
   const type = data[0];
   const labelSize = data[1];
-  const label = UTF8ArrToStr(data.subarray(2, 2 + labelSize));
+  const label = fromUTF8(data.subarray(2, 2 + labelSize));
   if (type & constants.JSON_MSG_FLAG) {
-    data = JSON.parse(UTF8ArrToStr(data.subarray(2 + labelSize)));
+    data = JSON.parse(fromUTF8(data.subarray(2 + labelSize)));
   } else {
     data = data.slice(2 + labelSize);
   }
@@ -58,7 +55,7 @@ function encodeAck(msgId, chunkId) {
 }
 
 function encodeMessage(data, label) {
-  label = strToUTF8Arr(label);
+  label = toUTF8(label);
   if (label.byteLength > 255) {
     throw new Error('Label length must be <= 255 bytes');
   }
@@ -69,7 +66,7 @@ function encodeMessage(data, label) {
       // than the underlying buffer...
       data = data.slice().buffer;
     } else {
-      data = strToUTF8Arr(JSON.stringify(data)).buffer;
+      data = toUTF8(JSON.stringify(data)).buffer;
       type |= constants.JSON_MSG_FLAG;
     }
   }

@@ -1,14 +1,14 @@
 /* eslint-disable camelcase */
 /* global USERAGENT */
 
-import MessageStorage from 'pairing/message-storage';
-import CliqzCrypto from 'pairing/crypto';
-import console from 'core/console';
-import utils from 'core/utils';
-import fetch from 'platform/fetch';
-import { encryptPairedMessage, decryptPairedMessage, ERRORS, getMessageTargets } from 'pairing/shared';
-import { base64_encode, hex_decode } from 'p2p/internal/utils';
-import CliqzPeer from 'p2p/cliqz-peer';
+import MessageStorage from './message-storage';
+import CliqzCrypto from './crypto';
+import console from '../core/console';
+import utils from '../core/utils';
+import fetch from '../platform/fetch';
+import { encryptPairedMessage, decryptPairedMessage, ERRORS, getMessageTargets } from './shared';
+import { toBase64, fromHex } from '../core/encoding';
+import CliqzPeer from '../p2p/cliqz-peer';
 
 const PAIRING_ERRORS = {
   BAD_DEVICE_NAME: 2,
@@ -274,7 +274,7 @@ export default class PeerMaster {
         .catch(() => {
           // If we fail sending the message, then store it.
           try {
-            this.msgStorage.pushPeerMessage(base64_encode(data), peerID);
+            this.msgStorage.pushPeerMessage(toBase64(data), peerID);
             this.checkMessagePusher();
           } catch (e) {
             this.log(e, 'Failed storing message');
@@ -325,11 +325,11 @@ export default class PeerMaster {
     if (hexArn.length !== 32) {
       return Promise.reject(new Error('arn length is not 32'));
     }
-    data.set(hex_decode(hexArn));
+    data.set(fromHex(hexArn));
     new DataView(data.buffer).setInt32(16, ts, true);
     const cleanPK = publicKey.split('\n').filter(x => x.trim() && !x.includes('-')).join('');
     return CliqzCrypto.rawEncryptRSA(data, cleanPK)
-    .then(x => base64_encode(x));
+    .then(x => toBase64(x));
   }
 
   setDeviceARN(arn) {

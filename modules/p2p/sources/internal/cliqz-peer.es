@@ -1,13 +1,13 @@
-import CliqzUtils from 'core/utils';
-import crypto from 'platform/crypto';
+import { toBase64, fromBase64, toHex, toUTF8 } from '../../core/encoding';
+import CliqzUtils from '../../core/utils';
+import crypto from '../../platform/crypto';
 import CliqzPeerConnection from './cliqz-peer-connection';
 import logger from './logger';
 import constants from './constants';
-import * as utils from './utils';
+import { has, isArrayBuffer } from './utils';
 import { importPrivateKey, exportPublicKeySPKI, exportPrivateKeyPKCS8 } from './crypto';
 import * as _messages from './messages';
 
-const has = utils.has;
 const InMessage = _messages.InMessage;
 const OutMessage = _messages.OutMessage;
 const decodeChunk = _messages.decodeChunk;
@@ -417,12 +417,12 @@ export default class CliqzPeer {
                   'spki',
                   key.publicKey,
               )
-              .then(keydata => utils.base64_encode(keydata)),
+              .then(keydata => toBase64(keydata)),
         subtle.exportKey(
                   'pkcs8',
                   key.privateKey,
               )
-              .then(keydata => utils.base64_encode(keydata)),
+              .then(keydata => toBase64(keydata)),
       ]));
   }
 
@@ -838,7 +838,7 @@ export default class CliqzPeer {
         }
       };
       connection.onmessage = (message) => {
-        if (utils.isArrayBuffer(message)) {
+        if (isArrayBuffer(message)) {
           const _message = new Uint8Array(message);
           const type = _message[0];
           if (type === constants.CHUNKED_MSG_TYPE) {
@@ -915,7 +915,7 @@ export default class CliqzPeer {
       if (this.privateKey) {
         subtle.importKey(
           'pkcs8', // can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
-          utils.base64_decode(this.privateKey),
+          fromBase64(this.privateKey),
           {   // these are the algorithm options
             name: 'RSASSA-PKCS1-v1_5',
             hash: { name: 'SHA-256' }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
@@ -923,8 +923,8 @@ export default class CliqzPeer {
           false, // whether the key is extractable (i.e. can be used in exportKey)
           ['sign'], // "verify" for public key import, "sign" for private key imports
         )
-        .then(privateKey => subtle.sign({ name: 'RSASSA-PKCS1-v1_5' }, privateKey, utils.strToUTF8Arr(data.data).buffer))
-        .then(signature => this._sendSocket('connect', { authLogin: true, publicKey: this.publicKey, signature: utils.hex_encode(signature) }))
+        .then(privateKey => subtle.sign({ name: 'RSASSA-PKCS1-v1_5' }, privateKey, toUTF8(data.data).buffer))
+        .then(signature => this._sendSocket('connect', { authLogin: true, publicKey: this.publicKey, signature: toHex(signature) }))
         .catch(e => this.logError(e));
       } else {
         this.stats.signalingfailedconn += 1;

@@ -1,10 +1,10 @@
 import logger from './logger';
+import { toBase64 } from '../core/encoding';
 import { generateAESKey
        , encryptRSA
        , decryptRSA
        , encryptAES
-       , decryptAES
-       , b64Encode } from './rtc-crypto';
+       , decryptAES } from './rtc-crypto';
 
 
 /*
@@ -45,7 +45,7 @@ export function wrapOnionRequest(data, peers, connectionID, aesKey, messageNumbe
     connectionID,
     messageNumber,
     role: 'exit',
-    data: b64Encode(data),
+    data: toBase64(data),
   };
 
   const wrapRequest = (layer, i) => {
