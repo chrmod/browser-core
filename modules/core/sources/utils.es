@@ -267,16 +267,17 @@ var CliqzUtils = {
     return [action, url];
   },
   cleanUrlProtocol: function(url, cleanWWW){
-    if(!url) return '';
+    if (!url)
+      return '';
 
-    var protocolPos = url.indexOf('://');
-
-    // removes protocol http(s), ftp, ...
-    if(protocolPos != -1 && protocolPos <= 6)
-      url = url.split('://')[1];
+    // removes protocol if it's http(s). See CLIQZIUM-218.
+    const urlPattern = /^https?:\/\/(.*)$/i;
+    const match = url.match(urlPattern);
+    if (match)
+      url = match[1];
 
     // removes the www.
-    if(cleanWWW && url.toLowerCase().indexOf('www.') == 0)
+    if (cleanWWW && url.toLowerCase().startsWith('www.'))
       url = url.slice(4);
 
     return url;
