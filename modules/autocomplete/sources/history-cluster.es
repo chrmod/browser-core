@@ -495,11 +495,12 @@ var CliqzHistoryCluster = {
         title: urls[i].title,
         extra: 'history-' + i,
         favicon: favicon,
-        // logo is only necessary for 3-up mini-history view, this can be removed if that is retired
-        logo: utils.getLogoDetails(utils.getDetailsFromUrl(urls[i].url)),
         kind: ['H'],
         style: urls[i].style
       };
+      // logo is only necessary for 3-up mini-history view, this can be removed if that is retired
+      if (urls[i].url && urls[i].url.toLowerCase().startsWith("http"))
+        item.logo = utils.getLogoDetails(utils.getDetailsFromUrl(urls[i].url));
 
       if (urls[i].hasOwnProperty('xtra_c')) {
         item['xtra_c'] = urls[i]['xtra_c'];
