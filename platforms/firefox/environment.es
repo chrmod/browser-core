@@ -40,6 +40,7 @@ var CLIQZEnvironment = {
       'rd-h3-w-rating': 1,
       'movie': 3,
       'vod': 3,
+      'movie-vod': 3,
       'liveTicker': 3,
       'simple-ui/result': 1,
       'simple-ui/results': 1,

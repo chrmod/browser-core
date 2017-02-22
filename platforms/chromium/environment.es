@@ -35,6 +35,7 @@ const CLIQZEnvironment = {
     'ligaEZTable': 3,
     'rd-h3-w-rating': 1,
     'vod': 3,
+    'movie-vod': 3,
     'liveTicker': 3
   },
   MESSAGE_TEMPLATES: [

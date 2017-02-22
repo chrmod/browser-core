@@ -43,7 +43,8 @@ var CLIQZEnvironment = {
   KNOWN_TEMPLATES: {
       'entity-generic': true,
       'entity-video-1': true,
-      'vod': true
+      'vod': true,
+      'movie-vod': true
   },
   PARTIALS: [
       'url',
