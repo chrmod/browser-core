@@ -23,6 +23,7 @@ import WebRequest from 'core/webrequest';
 import telemetry from 'antitracking/telemetry';
 import console from 'core/console';
 import { fetch } from 'core/http';
+import Pipeline from './pipeline';
 
 import { determineContext, skipInternalProtocols, checkSameGeneralDomain } from 'antitracking/steps/context';
 import PageLogger from 'antitracking/steps/page-logger';
@@ -93,34 +94,14 @@ var CliqzAttrack = {
         }
         CliqzAttrack.privateValues = p;
     },
-    executePipeline: function(pipeline, initialState, logKey) {
-      const state = initialState;
-      const response = {};
-      let i = 0;
-      for (; i<pipeline.length; i++) {
-        try {
-          const cont = pipeline[i](state, response);
-          if (!cont) {
-            break;
-          }
-        } catch(e) {
-          console.error(logKey, state.url, 'Step exception', e);
-          break;
-        }
-      }
-      if (CliqzAttrack.debug) {
-        console.log(logKey, state.url, 'Break at', (pipeline[i] || {name: "end"}).name);
-      }
-      return response;
-    },
     httpopenObserver: function(requestDetails) {
-      return CliqzAttrack.executePipeline(CliqzAttrack.onOpenPipeline, requestDetails, 'ATTRACK.OPEN');
+      return CliqzAttrack.pipeline.execute('open', requestDetails);
     },
     httpResponseObserver: function(requestDetails) {
-      return CliqzAttrack.executePipeline(CliqzAttrack.responsePipeline, requestDetails, 'ATTRACK.RESP');
+      return CliqzAttrack.pipeline.execute('response', requestDetails);
     },
     httpmodObserver: function(requestDetails) {
-      return CliqzAttrack.executePipeline(CliqzAttrack.onModifyPipeline, requestDetails, 'ATTRACK.MOD');
+      return CliqzAttrack.pipeline.execute('modify', requestDetails);
     },
     getDefaultRule: function() {
         if (CliqzAttrack.isForceBlockEnabled()) {
@@ -293,6 +274,7 @@ var CliqzAttrack = {
     },
     initPipeline: function() {
       CliqzAttrack.unloadPipeline();
+      const pipeline = CliqzAttrack.pipeline;
 
       // initialise classes which are used as steps in listeners
       const steps = {
@@ -305,6 +287,7 @@ var CliqzAttrack = {
         cookieContext: new CookieContext(),
         redirectTagger: new RedirectTagger(),
       }
+
       CliqzAttrack.pipelineSteps = steps;
 
       // initialise step objects
@@ -316,10 +299,10 @@ var CliqzAttrack = {
       });
 
       // create pipeline for on open request
-      CliqzAttrack.onOpenPipeline = [
+      pipeline.addAll(['open'], [
         CliqzAttrack.qs_whitelist.isReady.bind(CliqzAttrack.qs_whitelist),
         determineContext,
-        steps.pageLogger.checkIsMainDocument.bind(steps.pageLogger),
+        steps.pageLogger.logMainDocument.bind(steps.pageLogger),
         skipInternalProtocols,
         checkSameGeneralDomain,
         CliqzAttrack.cancelRecentlyModified.bind(CliqzAttrack),
@@ -346,12 +329,10 @@ var CliqzAttrack = {
           return state.badTokens.length > 0 && CliqzAttrack.qs_whitelist.isUpToDate();
         },
         CliqzAttrack.applyBlock.bind(CliqzAttrack),
-      ];
-
-
+      ]);
 
       // create pipeline for on modify request
-      CliqzAttrack.onModifyPipeline = [
+      pipeline.addAll(['modify'], [
         determineContext,
         function checkIsMainDocument(state) {
           return !state.requestContext.isFullPage();
@@ -407,10 +388,10 @@ var CliqzAttrack = {
           response.requestHeaders.push({name: CliqzAttrack.config.cliqzHeader, value: ' '});
           return true;
         },
-      ];
+      ]);
 
       // create pipeline for on response received
-      CliqzAttrack.responsePipeline = [
+      pipeline.addAll(['response'], [
         CliqzAttrack.qs_whitelist.isReady.bind(CliqzAttrack.qs_whitelist),
         determineContext,
         function checkMainDocumentRedirects(state) {
@@ -467,7 +448,7 @@ var CliqzAttrack = {
           state.incrementStat('set_cookie_blocked');
           return true;
         },
-      ]
+      ]);
     },
     unloadPipeline: function() {
       Object.keys(CliqzAttrack.pipelineSteps || {}).forEach((key) => {
@@ -476,7 +457,7 @@ var CliqzAttrack = {
           step.unload();
         }
       });
-      CliqzAttrack.pipelineSteps = {};
+      CliqzAttrack.pipeline = new Pipeline();
     },
     /** Per-window module initialisation
      */
@@ -515,7 +496,9 @@ var CliqzAttrack = {
     },
     checkInstalledAddons: function() {
         System.import('platform/antitracking/addon-check').then( (addons) => {
-            CliqzAttrack.similarAddon = addons.checkInstalledAddons();
+            addons.checkInstalledAddons().then((adds) => {
+              CliqzAttrack.similarAddon = adds;
+            });
         }).catch( (e) => {
             utils.log("Error loading addon checker", "attrack");
         });

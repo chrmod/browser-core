@@ -67,6 +67,22 @@ export default background({
     this.enabled = false;
   },
 
+  actions: {
+    addPipelineStep(opts) {
+      if (CliqzAttrack.pipeline) {
+        CliqzAttrack.pipeline.addPipelineStep(opts);
+      }
+    },
+    removePipelineStep(name) {
+      if (CliqzAttrack.pipeline) {
+        CliqzAttrack.pipeline.removePipelineStep(name);
+      }
+    },
+    telemetry(opts) {
+      return CliqzAttrack.telemetry(opts);
+    },
+  },
+
   popupActions: {
     /**
     * @method popupActions.getPopupData

@@ -68,7 +68,8 @@
     "telemetry-speed-dial",
     "offboarding",
     "video-downloader",
-    "p2p"
+    "p2p",
+    "antispy"
   ],
   "subprojects": [
     "fresh-tab-frontend"

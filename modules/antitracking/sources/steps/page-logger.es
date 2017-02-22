@@ -7,7 +7,7 @@ export default class {
     this.blockLog = blockLog;
   }
 
-  checkIsMainDocument(state) {
+  logMainDocument(state) {
     const requestContext = state.requestContext;
     if (state.requestContext.isFullPage()) {
       this.tpEvents.onFullPage(state.urlParts, requestContext.getOuterWindowID(), requestContext.isChannelPrivate());

@@ -32,5 +32,10 @@
             'WithStatement',
         ],
         "no-underscore-dangle": "off",
+        "comma-dangle": ["error", {
+            "arrays": "only-multiline",
+            "objects": "only-multiline",
+            "functions": "ignore",
+        }],
     }
 }
