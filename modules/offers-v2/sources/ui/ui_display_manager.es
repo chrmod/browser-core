@@ -321,7 +321,7 @@ export class UIDisplayManager {
     // TODO: ensure that the offerData is properly formatted
 
     // communicate with the window sending the offer data
-    this.offers.windowAction(win, 'showOfferCoreHandler', ...offerData);
+    this.offersModule.windowAction(win, 'showOfferCoreHandler', offerData);
   }
 
   _hideOffer(win) {
@@ -331,7 +331,7 @@ export class UIDisplayManager {
     }
 
     // this will just hide the current offer on the given tab
-    this.offers.windowAction(win, 'hideOfferCoreHandler');
+    this.offersModule.windowAction(win, 'hideOfferCoreHandler');
   }
 
   _emitSignal(signalType, offerID, data) {
