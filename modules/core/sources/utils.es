@@ -271,10 +271,11 @@ var CliqzUtils = {
       return '';
 
     // removes protocol if it's http(s). See CLIQZIUM-218.
-    const urlPattern = /^https?:\/\/(.*)$/i;
-    const match = url.match(urlPattern);
-    if (match)
-      url = match[1];
+    const urlLowered = url.toLowerCase();
+    if (urlLowered.startsWith('http://'))
+      url = url.slice(7);
+    if (urlLowered.startsWith('https://'))
+      url = url.slice(8);
 
     // removes the www.
     if (cleanWWW && url.toLowerCase().startsWith('www.'))
