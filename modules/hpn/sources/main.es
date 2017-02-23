@@ -23,9 +23,6 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 */
 let proxyCounter = 0;
 
-
-const queryProxyFilter = new ProxyFilter();
-
 const CliqzSecureMessage = {
   VERSION: '0.1',
   LOG_KEY: 'securemessage',
@@ -57,6 +54,7 @@ const CliqzSecureMessage = {
   queriesID: {},
   servicesToProxy : ["api.cliqz.com", "antiphishing.cliqz.com"],
   proxyInfoObj: {},
+  queryProxyFilter: null,
   pacemaker: function () {
     if ((CliqzSecureMessage.counter / CliqzSecureMessage.tmult) % 10 === 0) {
       if (CliqzSecureMessage.debug) {
@@ -220,6 +218,10 @@ const CliqzSecureMessage = {
     }
     // Check user-key present or not.
     CliqzSecureMessage.registerUser();
+
+    // Register proxy fr query.
+
+    CliqzSecureMessage.queryProxyFilter = new ProxyFilter();
   },
   initDB: function() {
     if (FileUtils.getFile('ProfD', ['cliqz.dbhumanweb']).exists()) {
@@ -235,7 +237,7 @@ const CliqzSecureMessage = {
     }
   },
   unload: function() {
-    queryProxyFilter.destroy();
+    CliqzSecureMessage.queryProxyFilter.destroy();
     hpnUtils.saveLocalCheckTable();
     CliqzSecureMessage.pushTelemetry();
     this.sourceMapLoader.stop();
