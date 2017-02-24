@@ -133,6 +133,7 @@ export default background({
       version,
       host,
       hostVersion,
+      country: CliqzUtils.getPref('config_location', ''),
       status: status || 'active',
     });
 
