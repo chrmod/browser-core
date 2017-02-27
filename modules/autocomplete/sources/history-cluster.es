@@ -161,6 +161,12 @@ var CliqzHistoryCluster = {
 
     for (var key in patterns) {
       var url = patterns[key].url;
+
+      // only consider http(s) urls for patterns
+      if(url.indexOf('http://') == -1 && url.indexOf('https://') == -1 ){
+        continue;
+      }
+
       var domaintmp = utils.getDetailsFromUrl(url).domain;
       // assign a higher weight to this domain entry if it is one of the first N entries
       var weightedCount = index < boostRange ? boostFactor : 1;
