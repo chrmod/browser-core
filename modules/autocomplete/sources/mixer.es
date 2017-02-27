@@ -267,8 +267,10 @@ export default class Mixer {
     var allResults = [];
     if (response.results) {
       for (var i = 0; i < response.results.length; i++) {
-        if (response.results[i].data.url) {
-          allResults.push(response.results[i]);
+        if ((response.results[i].style === 'cliqz-pattern' || response.results[i].style == 'cliqz-extra' || response.results[i].data.cluster) && response.results[i].data.urls) {
+          if(response.results[i].val){
+            allResults.push(response.results[i]);
+          }
           const historyPattern = response.results[i];
           const historyPatternResults = historyPattern.data.urls.map((result) => {
             return {
