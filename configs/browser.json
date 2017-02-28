@@ -24,9 +24,6 @@
     "modules.context-search.enabled": false,
     "modules.type-filter.enabled": false
   },
-  "default_prefs" : {
-    "modules.context-search.enabled": false
-  },
   "priority": [
     "core",
     "firefox-specific",
@@ -71,7 +68,9 @@
     "telemetry-speed-dial",
     "offboarding",
     "offers-v2",
-    "video-downloader"
+    "video-downloader",
+    "p2p",
+    "proxyPeer"
   ],
   "subprojects": [
     "fresh-tab-frontend"

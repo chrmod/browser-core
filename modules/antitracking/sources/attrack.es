@@ -33,6 +33,7 @@ import DomChecker from 'antitracking/steps/dom-checker';
 import TokenChecker from 'antitracking/steps/token-checker';
 import BlockRules from 'antitracking/steps/block-rules';
 import CookieContext from 'antitracking/steps/cookie-context';
+import TrackerProxy from 'antitracking/steps/tracker-proxy';
 import RedirectTagger from 'antitracking/steps/redirect-tagger';
 
 var countReload = false;
@@ -285,8 +286,9 @@ var CliqzAttrack = {
         tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, CliqzAttrack.blockLog, {}, CliqzAttrack.hashProb, CliqzAttrack.config),
         blockRules: new BlockRules(),
         cookieContext: new CookieContext(),
+        trackerProxy: new TrackerProxy(CliqzAttrack.qs_whitelist),
         redirectTagger: new RedirectTagger(),
-      }
+      };
 
       CliqzAttrack.pipelineSteps = steps;
 
@@ -313,6 +315,7 @@ var CliqzAttrack = {
         steps.domChecker.checkDomLinks.bind(steps.domChecker),
         steps.domChecker.parseCookies.bind(steps.domChecker),
         steps.tokenChecker.findBadTokens.bind(steps.tokenChecker),
+        steps.trackerProxy.checkShouldProxy.bind(steps.trackerProxy),
         function checkHasBadTokens(state) {
           return (state.badTokens.length > 0)
         },
@@ -572,9 +575,9 @@ var CliqzAttrack = {
           state.incrementStat('token_blocked_' + rule);
 
           // TODO: do this nicer
-          if (CliqzAttrack.pipelineSteps.trackerProxy && CliqzAttrack.pipelineSteps.trackerProxy.shouldProxy(tmp_url)) {
-              state.incrementStat('proxy');
-          }
+          // if (CliqzAttrack.pipelineSteps.trackerProxy && CliqzAttrack.pipelineSteps.trackerProxy.shouldProxy(tmp_url)) {
+          //     state.incrementStat('proxy');
+          // }
           CliqzAttrack.recentlyModified.add(state.requestContext.getOriginWindowID() + state.url, 30000);
           CliqzAttrack.recentlyModified.add(state.requestContext.getOriginWindowID() + tmp_url, 30000);
 

@@ -69,6 +69,7 @@
     "offboarding",
     "video-downloader",
     "p2p",
+    "proxyPeer",
     "antispy"
   ],
   "subprojects": [
