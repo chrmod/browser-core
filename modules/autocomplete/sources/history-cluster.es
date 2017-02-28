@@ -155,42 +155,35 @@ var CliqzHistoryCluster = {
     // if there are only very few patterns (i.e, patternCount < boostRange * 2)
     boostFactor = Math.max(1, boostFactor);
 
-    var domains = [];
+    var domains = new Map();
     var index = 0;
-    var cnt = 0;
 
     for (var key in patterns) {
-      var url = patterns[key].url;
+      var url = patterns[key].url, domainName;
 
       // only consider http(s) urls for patterns
-      if(url.indexOf('http://') == -1 && url.indexOf('https://') == -1 ){
-        continue;
+      if(url.indexOf('http://') === 0 || url.indexOf('https://') === 0 ){
+        domainName = utils.getDetailsFromUrl(url).domain;
       }
 
-      var domaintmp = utils.getDetailsFromUrl(url).domain;
       // assign a higher weight to this domain entry if it is one of the first N entries
       var weightedCount = index < boostRange ? boostFactor : 1;
-      if (!domains[domaintmp]) {
-        domains[domaintmp] = weightedCount;
-      } else {
-        cnt = 1;
-        if (patterns[key].cnt) cnt = patterns[key].cnt;
-        domains[domaintmp] += weightedCount;
-      }
+      var prevValue = domains.get(domainName) || 0;
+      domains.set(domainName, prevValue + weightedCount);
       index++;
     }
-    var max = 0.0;
-    cnt = 0.0;
-    var domain = null;
-    for (key in domains) {
-      cnt += domains[key];
-      if (domains[key] > max) {
-        max = domains[key];
-        domain = key;
+    var max = 0.0,
+        cnt = 0.0;
+    var mainDomain = null;
+    for (var [domain, value] of domains.entries()) {
+      cnt += value;
+      if (value > max && domain) {
+       max = value;
+       mainDomain = domain;
       }
     }
 
-    return [domain, max / cnt];
+    return [mainDomain, max / cnt];
   },
   _filterPatterns: function(patterns, full_query) {
     var queries = full_query.trim().split(' ');
