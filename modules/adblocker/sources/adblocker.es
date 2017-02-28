@@ -36,6 +36,8 @@ export const ADB_PREF_VALUES = {
   Disabled: 0,
 };
 export const ADB_DEFAULT_VALUE = ADB_PREF_VALUES.Disabled;
+export const ADB_USER_LANG = 'cliqz-adb-lang';
+export const ADB_USER_LANG_OVERRIDE = 'cliqz-adb-lang-override';
 
 
 export function autoBlockAds() {
