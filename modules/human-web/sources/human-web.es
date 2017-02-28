@@ -26,6 +26,7 @@ Configuration for Bloomfilter
 var bloomFilterSize = 500001;
 var falsePositive = 0.01;
 var bloomFilterNHashes = 7;
+const allowedCountryCodes = ['de', 'at', 'ch', 'es', 'us', 'fr', 'nl', 'gb', 'it', 'se'];
 
 function _log(msg){
     try{
@@ -48,7 +49,8 @@ function getHTML(...args) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '2.4',
+    CHANNEL: '{{HW_CHANNEL}}',
+    VERSION: '2.5',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -85,7 +87,7 @@ var CliqzHumanWeb = {
     anonIdMappings: {},
     patternsURL: 'https://cdn.cliqz.com/human-web/patterns',
     anonPatternsURL: 'https://cdn.cliqz.com/human-web/patterns-anon',
-    configURL: 'https://safe-browsing-proxy-network.cliqz.com/config',
+    configURL: 'https://safe-browsing.cliqz.com/config',
     searchCache: {},
     ts : "",
     mRefresh : {},
@@ -146,6 +148,19 @@ var CliqzHumanWeb = {
             return masked_url;
         }
         return url;
+    },
+    maskURLStrict: function(url){
+        var url_parts = null;
+        var masked_url = null;
+        // Fix
+        // url_parts = CliqzHumanWeb.parseUri(url);
+        url_parts = CliqzHumanWeb.parseURL(url);
+
+        // TO BE FIXED
+        if (!url_parts) return '';
+
+        masked_url = url_parts.protocol + "://"  + url_parts.hostname + "/ (PROTECTED)" ;
+        return masked_url;
     },
     isShortenerURL: function(url) {
         try {
@@ -392,7 +407,15 @@ var CliqzHumanWeb = {
     },
     getHeaders: function(strData) {
       var o = {};
-      o['status'] = strData.split(" ")[1];
+      let _status = strData.split(" ")[1];
+
+      if(parseInt(_status)) {
+        _status = parseInt(_status);
+      } else {
+        _status = null;
+      }
+
+      o['status'] = _status;
 
       var l = strData.split("\n");
       for(var i=0;i<l.length;i++) {
@@ -426,11 +449,11 @@ var CliqzHumanWeb = {
                     var refU = aChannel.referrer.spec;
                     CliqzHumanWeb.linkCache[url] = {'s': ''+refU, 'time': CliqzHumanWeb.counter};
                 }
-                if (status=='301' || status == '302') {
+                if (status === 301 || status === 302) {
                     CliqzHumanWeb.httpCache[url] = {'status': status, 'time': CliqzHumanWeb.counter, 'location': loc};
                 }
 
-                else if (status=='401') {
+                else if (status === 401) {
                     CliqzHumanWeb.httpCache401[url] = {'time': CliqzHumanWeb.counter};
                 }
 
@@ -566,7 +589,7 @@ var CliqzHumanWeb = {
         try{
             for(var key in CliqzHumanWeb.httpCache) {
                 if(CliqzHumanWeb.httpCache[key]){
-                    if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301' || CliqzHumanWeb.httpCache[key]['status']=='302')) {
+                    if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status'] === 301 || CliqzHumanWeb.httpCache[key]['status'] === 302)) {
                         if (CliqzHumanWeb.httpCache[key]['location']==url || decodeURIComponent(CliqzHumanWeb.httpCache[key]['location']) == url) {
                             res.unshift(key)
                             CliqzHumanWeb.getRedirects(key, res);
@@ -1298,18 +1321,6 @@ var CliqzHumanWeb = {
 
     },
     */
-    eventDoorWayPage: function(cd){
-        var payload = {};
-        var url = cd.location.href;
-        var doorwayURL = cd.getElementsByTagName('a')[0].href;
-        try {var location = utils.getPref('config_location', null)} catch(ee){};
-        var orignalDomain = CliqzHumanWeb.parseURL(url).hostname;
-        var dDomain = CliqzHumanWeb.parseURL(doorwayURL).hostname;
-        if(orignalDomain == dDomain) return;
-        payload = {"url":url, "durl":doorwayURL,"ctry": location};
-        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'doorwaypage', 'payload': payload});
-
-    },
     getPageData: function(url, cd) {
 
         var len_html = null;
@@ -1396,14 +1407,6 @@ var CliqzHumanWeb = {
 
         try { forms = cd.getElementsByTagName('form'); } catch(ee) {}
 
-        //Detect doorway pages
-        // TBF : Need to make detecting of doorway page more strong. Currently lot of noise getting through.
-        /*
-        if(numlinks == 1 && cd.location){
-            CliqzHumanWeb.eventDoorWayPage(cd);
-        }
-        */
-
         var metas = cd.getElementsByTagName('meta');
 
         // extract the language of th
@@ -1416,10 +1419,18 @@ var CliqzHumanWeb = {
                 tag_html = cd.getElementsByTagName('html');
                 pg_l = tag_html[0].getAttribute("lang");
             };
+
+            // Keep a tab on the length of pagel.
+            if(pg_l) {
+                if (pg_l.length > 10) {
+                    pg_l = null;
+                }
+            }
         }catch(ee){}
 
 
         // extract if indexable, no noindex on robots meta tag
+        /*
         try {
             for (let i=0;i<metas.length;i++) {
                 var cnt = metas[i].getAttribute('content').toLowerCase();
@@ -1428,6 +1439,21 @@ var CliqzHumanWeb = {
                 }
             }
         }catch(ee){}
+        */
+
+        // Check if page is not allowed for indexing, by checking the no-index tag.
+        let headTag = '';
+        try {
+            headTag = cd.querySelector('head');
+            if (headTag) {
+                let headContent = headTag.innerHTML.toLowerCase();
+                if(headContent && headContent.indexOf('noindex') > -1){
+                    iall = false;
+                }
+            }
+        } catch (ee) {
+            _log("no-index check failed " + ee);
+        }
 
         // extract the canonical url if available
         var link_tag = cd.getElementsByTagName('link');
@@ -1455,7 +1481,7 @@ var CliqzHumanWeb = {
         }
 
         // extract the location of the user (country level)
-        try {var location = utils.getPref('config_location', null)} catch(ee){}
+        try {var location = CliqzHumanWeb.getCountryCode();} catch(ee){}
 
         var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url, 'nfsh': frames_same_host, 'nifsh': iframes_same_host};
 
@@ -1511,7 +1537,7 @@ var CliqzHumanWeb = {
         if(aRequest && aRequest.referrer) {
             var refU = aRequest.referrer.asciiSpec;
             var newURL =  aURI.spec;
-            if(refU.indexOf('t.co/') > -1) CliqzHumanWeb.httpCache[refU] = {'status': '301', 'time': CliqzHumanWeb.counter, 'location': aURI.spec};
+            if(refU.indexOf('t.co/') > -1) CliqzHumanWeb.httpCache[refU] = {'status': 301, 'time': CliqzHumanWeb.counter, 'location': aURI.spec};
 
             //Get first redirection.. for yahoo and stuff
             var refyahoo = /\.search.yahoo\..*RU=/;
@@ -1965,7 +1991,7 @@ var CliqzHumanWeb = {
                 // must create the signal
                 //
                 if (CliqzHumanWeb.userTransitions['search'][query]['data'].length > 1) {
-                    try {var location = utils.getPref('config_location', null)} catch(ee){};
+                    try {var location = CliqzHumanWeb.getCountryCode();} catch(ee){};
                     var doc = {'q': query, 'sources': CliqzHumanWeb.userTransitions['search'][query]['data'],'ctry': location};
                     if (CliqzHumanWeb.debug) {
                         _log(JSON.stringify(doc,undefined,2));
@@ -2166,7 +2192,7 @@ var CliqzHumanWeb = {
 
                 var linkURL = targetURL;
                 if(CliqzHumanWeb.httpCache[targetURL]){
-                    if(CliqzHumanWeb.httpCache[targetURL]['status'] == '301'){
+                    if(CliqzHumanWeb.httpCache[targetURL]['status'] === 301){
                         linkURL = CliqzHumanWeb.httpCache[targetURL]['location'];
                     }
                 }
@@ -2381,6 +2407,11 @@ var CliqzHumanWeb = {
 
         //Check and add time , else do not send the message
 
+        if (utils.getPref('ff-experiment', null)) {
+            msg.channel = 'ff-experiment';
+        } else {
+            msg.channel = CliqzHumanWeb.CHANNEL;
+        }
         try {msg.ts = utils.getPref('config_ts', null)} catch(ee){};
 
         if(!msg.ts || msg.ts == ''){
@@ -2439,7 +2470,7 @@ var CliqzHumanWeb = {
 
                 msg.payload.c = cleanCont;
             }
-
+            */
             // Check for title.
             if(msg.payload.x.t){
                 if(CliqzHumanWeb.isSuspiciousTitle(msg.payload.x.t)){
@@ -2451,7 +2482,6 @@ var CliqzHumanWeb = {
                 _log("Missing Title: " + msg.payload.x.t);
                 return null;
             }
-            */
 
             // Remove C
             if(msg.payload.c) {
@@ -2500,7 +2530,9 @@ var CliqzHumanWeb = {
             if(msg.payload.red){
                 var cleanRed = [];
                 msg.payload.red.forEach(function(e){
-                    cleanRed.push(CliqzHumanWeb.maskURL(e));
+                    if(!CliqzHumanWeb.isSuspiciousURL(e)) {
+                        cleanRed.push(CliqzHumanWeb.maskURL(e));
+                    }
                 })
                 msg.payload.red = cleanRed;
             }
@@ -2583,7 +2615,7 @@ var CliqzHumanWeb = {
     trk: [],
     trkTimer: null,
     notification: function(payload){
-      try {var location = utils.getPref('config_location', null)} catch(ee){};
+      try {var location = CliqzHumanWeb.getCountryCode();} catch(ee){};
       if(payload && typeof(payload) === 'object'){
         payload['ctry'] = location;
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
@@ -2597,36 +2629,49 @@ var CliqzHumanWeb = {
             utils.getPref('dnt', false) ||
             utils.isPrivate(utils.getWindow())) return;
 
-        // Check if host is private or not.
-        CliqzHumanWeb.isPublicDomain(msg)
-            .then( success => CliqzHumanWeb.safeQuorumCheck(msg), fail => Promise.reject("localcheck") )
-            .then( isSafe => {
-                _log("Quorum consent ?" + isSafe);
-                if (isSafe) {
-                    msg.ver = CliqzHumanWeb.VERSION;
-                    msg = CliqzHumanWeb.msgSanitize(msg);
-                    _log("Message sanitized");
 
-                    if (msg) CliqzHumanWeb.incrActionStats(msg.action);
-                    if (msg) CliqzHumanWeb.trk.push(msg);
-                    _log("Added to the queue");
 
-                    utils.clearTimeout(CliqzHumanWeb.trkTimer);
-                    if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
-                        CliqzHumanWeb.pushTelemetry();
+        // Sanitize message before doing the quorum check.
+        msg.ver = CliqzHumanWeb.VERSION;
+        msg = CliqzHumanWeb.msgSanitize(msg);
+        _log("Message sanitized");
+
+        if (msg) {
+            // Check if host is private or not.
+            CliqzHumanWeb.isPublicDomain(msg)
+                .then( success => CliqzHumanWeb.safeQuorumCheck(msg), fail => Promise.reject("localcheck") )
+                .then( isSafe => {
+                    _log("Quorum consent ?" + isSafe);
+                    if (isSafe) {
+
+                        // Check and sanitize all other urls.
+                        CliqzHumanWeb.quorumCheckOtherUrls(msg)
+                            .then( msg => {
+                                CliqzHumanWeb.incrActionStats(msg.action);
+                                CliqzHumanWeb.trk.push(msg);
+                                _log("Added to the queue");
+
+                                utils.clearTimeout(CliqzHumanWeb.trkTimer);
+                                if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
+                                    CliqzHumanWeb.pushTelemetry();
+                                } else {
+                                    CliqzHumanWeb.trkTimer = utils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
+                                }
+                            })
+                            .catch( err => _log("Error while checking other urls for quorum.: " + err));
                     } else {
-                        CliqzHumanWeb.trkTimer = utils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
+                        // Send telemetry.
+                        _log("Dropping data as quorum check failed");
+                        CliqzHumanWeb.incrActionStats("droppedQC");
                     }
-                } else {
-                    // Send telemetry.
-                    _log("Dropping data as quorum check failed");
-                    CliqzHumanWeb.incrActionStats("droppedQC");
-                }
-            })
-            .catch( err => {
-                _log("Error while safe quorum check: " + err);
-                CliqzHumanWeb.incrActionStats("dropped-" + err);
-            });
+                })
+                .catch( err => {
+                    _log("Error while safe quorum check: " + err);
+                    CliqzHumanWeb.incrActionStats("dropped-" + err);
+                });
+        } else {
+            _log("Message failed sanitization step");
+        }
     },
     _telemetry_req: null,
     _telemetry_sending: [],
@@ -3382,7 +3427,8 @@ var CliqzHumanWeb = {
     },
     fetchAndStoreConfig: function(){
         //Load latest config.
-        utils.httpGet(CliqzHumanWeb.configURL,
+        let url = `${CliqzHumanWeb.configURL}?rnd=${Math.floor(random() * 10000000)}`;
+        utils.httpGet(url,
           function success(req){
             if(!CliqzHumanWeb) return;
                 try {
@@ -3512,7 +3558,7 @@ var CliqzHumanWeb = {
                         }
 
                         if(rules[key][each_key]['etype'] == 'ctry'){
-                            try {var location = utils.getPref('config_location', null)} catch(ee){};
+                            try {var location = CliqzHumanWeb.getCountryCode();} catch(ee){};
                             innerDict[each_key] = [location];
                         }
 
@@ -3597,7 +3643,7 @@ var CliqzHumanWeb = {
 
             if (payloadRules['type'] == 'single' && payloadRules['results'] == 'single' ){
                 scrapeResults[key].forEach(function(e){
-                    try {var location = utils.getPref('config_location', null)} catch(ee){};
+                    try {var location = CliqzHumanWeb.getCountryCode();} catch(ee){};
                     e['ctry'] = location;
                     CliqzHumanWeb.sendMessage(payloadRules, e)
                 })
@@ -3775,13 +3821,31 @@ var CliqzHumanWeb = {
         // 2. Title should should not contain number greater than 8.
         // 3. Title should not contain html.
 
+        if (title.length > 500) return true;
         var vt = title.split(' ');
         for(var i=0;i<vt.length;i++) {
             if (vt[i].length>CliqzHumanWeb.rel_segment_len) {
                 var cstr = vt[i].replace(/[^A-Za-z0-9]/g,'');
                 if (cstr.length > CliqzHumanWeb.rel_segment_len) {
                     if (CliqzHumanWeb.isHash(cstr)) return true;
+
+                    var pp = CliqzHumanWeb.isHashProb(cstr.toLowerCase());
+                    if (pp < CliqzHumanWeb.probHashThreshold*1.5) {
+                            return true;
+                    }
                 }
+            }
+            var cstr = vt[i].replace(/[^A-Za-z0-9]/g,'');
+            if (CliqzHumanWeb.checkForLongNumber(cstr, 8) != null) {
+                return true;
+            }
+
+            if (CliqzHumanWeb.checkForEmail(cstr)) {
+                return true;
+            }
+
+            if(/<[^<]+>/.test(cstr)){
+                return true;
             }
         }
 
@@ -3962,7 +4026,7 @@ var CliqzHumanWeb = {
         var payload = {};
         payload['status'] = true;
         payload['t'] = CliqzHumanWeb.getTime();
-        try {var location = utils.getPref('config_location', null)} catch(ee){};
+        try {var location = CliqzHumanWeb.getCountryCode();} catch(ee){};
         payload['ctry'] = location;
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload':payload})
         CliqzHumanWeb.activeUsage = 0;
@@ -4489,9 +4553,9 @@ var CliqzHumanWeb = {
             let parse_url = CliqzHumanWeb.parseURL(msg.payload.url);
 
             if (msg.payload.qr && (msg.payload.qr.t === "cl" || msg.payload.qr.t === "othr")) {
-                if (parse_url && parse_url.path.length > 1) return true;
+                if (parse_url && parse_url.path.length > 1 || (parse_url.query_string && parse_url.path.length == 1 && parse_url.query_string.length > 1)) return true;
             } else if (!msg.payload.qr) {
-                if (parse_url && parse_url.path.length > 1) return true;
+                if (parse_url && parse_url.path.length > 1 || (parse_url.query_string && parse_url.path.length == 1 && parse_url.query_string.length > 1)) return true;
             }
         }
         return false;
@@ -4695,6 +4759,128 @@ var CliqzHumanWeb = {
           function error(res){
             _log('Error loading config. ')
           }, 5000);
+    },
+    getCountryCode: function() {
+        let ctryCode = null;
+
+        try {
+            ctryCode = utils.getPref('config_location', null);
+        } catch (ee) {
+            _log("Could not get config_location");
+        };
+
+        return CliqzHumanWeb.sanitizeCounrtyCode(ctryCode);
+    },
+    sanitizeCounrtyCode: function(ctryCode){
+        let _countryCode = ctryCode;
+        if(allowedCountryCodes.indexOf(_countryCode) === -1) {
+            _countryCode = '--';
+        }
+        return _countryCode;
+    },
+    getQuorumCheckOtherUrls: function(msg){
+        let urls = [];
+        let urlPos = {};
+        if (msg.payload.x.canonical_url) {
+            let canURL = msg.payload.x.canonical_url;
+            let parse_url = CliqzHumanWeb.parseURL(canURL);
+
+            if ( parse_url && parse_url.path.length > 1 ||
+                (parse_url.query_string && parse_url.path.length == 1 &&
+                parse_url.query_string.length > 1) ) {
+
+                urlPos[urls.length] = {t : "canonical", url: canURL};
+                urls.push(canURL);
+            }
+        }
+        if (msg.payload.ref) {
+            let refURL = msg.payload.ref;
+            let parse_url = CliqzHumanWeb.parseURL(refURL);
+
+            if ( parse_url && parse_url.path.length > 1 ||
+                (parse_url.query_string && parse_url.path.length == 1 &&
+                parse_url.query_string.length > 1) ) {
+
+                urlPos[urls.length] = {t : "ref", url: refURL};
+                urls.push(refURL);
+            }
+        }
+
+        if (msg.payload.red) {
+            msg.payload.red.forEach( (_redURL, idx) => {
+                let redURL = _redURL;
+                let parse_url = CliqzHumanWeb.parseURL(redURL);
+
+                if ( parse_url && parse_url.path.length > 1 ||
+                    (parse_url.query_string && parse_url.path.length == 1 &&
+                    parse_url.query_string.length > 1) ) {
+
+                    urlPos[urls.length] = {t : "red:" + idx, url: redURL};
+                    urls.push(redURL);
+                }
+            })
+        }
+
+        return {u: urls, up: urlPos};
+    },
+    quorumCheckOtherUrls: function(msg) {
+        /*
+        Before sending the action page, we need to ensure
+        that the URLs carried in canonical_url field, ref-
+        rre and redirect chain are safe.
+
+        To do a final sanity, we are going to check for safety-quorum
+        of these URLs, if returned false then we will mask the domain
+        with (PROTECTED).
+
+        Not all URLs require a sanity check , we only send the URLs
+        which either have a path/ or query string.
+
+        Example:
+        https://example.com/ will not be sent.
+        https://example.com/?q=something will be sent.
+
+        */
+        let promise = new Promise( (resolve, reject) => {
+            if (msg.action === "page") {
+
+                var urls;
+                var urlPos;
+                var allURLS = CliqzHumanWeb.getQuorumCheckOtherUrls(msg);
+                urls = allURLS.u;
+                urlPos = allURLS.up;
+                _log("All urls in the message:" + JSON.stringify(urls));
+                _log("All urls in the message:" + JSON.stringify(urlPos));
+
+                Promise.all(urls.map(CliqzHumanWeb.sha1)).then( hashes => {
+                    _log(JSON.stringify(hashes));
+                    Promise.all(hashes.map(CliqzHumanWeb.getQuorumConsent)).then( results => {
+                        _log(JSON.stringify(results));
+                        results.forEach( (r, idx) => {
+                            let original = urlPos[idx];
+                            if(original.t === 'canonical') {
+                                if(!r) msg.payload.x.canonical_url = CliqzHumanWeb.maskURLStrict(original.url);
+                            }
+
+                            if(original.t === 'ref') {
+                                if(!r) msg.payload.ref = CliqzHumanWeb.maskURLStrict(original.url);
+                            }
+
+                            if(original.t.startsWith('red')) {
+                                let redPos = original.t.split(':')[1];
+                                if(!r) msg.payload.red[redPos] = maskURLStrict(original.url);
+                            }
+                        });
+                        _log("All urls in the message:" + JSON.stringify(msg));
+                        resolve(msg);
+                    }).catch( err => reject("Error in getQuorumConsent"));
+                }).catch( err => reject("Error in sha1"));
+            } else {
+                resolve(msg);
+            }
+        });
+
+        return promise;
     },
 };
 

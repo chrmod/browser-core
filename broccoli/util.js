@@ -108,6 +108,10 @@ module.exports = {
         {
           match: /\{\{KEY_SECURE_LOGGER_PUBKEY\}\}/g,
           replacement: config => config.settings.KEY_SECURE_LOGGER_PUBKEY || ''
+        },
+        {
+          match: /\{\{HW_CHANNEL\}\}/g,
+          replacement: config => config.settings.HW_CHANNEL || ''
         }
       ]
     });
