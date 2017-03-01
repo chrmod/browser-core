@@ -192,7 +192,7 @@ export default class extends UpdateCallbackHandler {
         const assetName = stripProtocol(asset);
         const filterRemoteURL = BASE_URL + assetName;
 
-        if (lang === null || userLang.includes(lang)) {
+        if (lang === null || userLang.indexOf(lang) !== -1) {
           filtersLists.push({
             checksum,
             asset,
