@@ -26,7 +26,7 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
     ipv4_part = "0*([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])", // numbers 0 - 255
     ipv4_regex = new RegExp("^" + ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "([:]([0-9])+)?$"), // port number
     ipv6_regex = new RegExp("^\\[?(([0-9]|[a-f]|[A-F])*[:.]+([0-9]|[a-f]|[A-F])+[:.]*)+[\\]]?([:][0-9]+)?$");
-
+const schemeRE = /^(\S+?):(\/\/)?(.*)$/i;
 
 var CliqzUtils = {
   environment: CLIQZEnvironment,
@@ -298,17 +298,23 @@ var CliqzUtils = {
     var [action, originalUrl] = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
     var url = originalUrl,
+        scheme = '',
+        slashes = '',
         name = '',
         tld = '',
         subdomains = [],
         path = '',
         query ='',
-        fragment = '',
-        ssl = originalUrl.indexOf('https') == 0;
+        fragment = '';
 
     // remove scheme
-    url = CliqzUtils.cleanUrlProtocol(url, false);
-    var scheme = originalUrl.replace(url, '').replace('//', '');
+    const schemeMatch = schemeRE.exec(url);
+    if (schemeMatch) {
+      scheme = schemeMatch[1];
+      slashes = schemeMatch[2];
+      url = schemeMatch[3];
+    }
+    const ssl = scheme == 'https';
 
     // separate hostname from path, etc. Could be separated from rest by /, ? or #
     var host = url.split(/[\/\#\?]/)[0].toLowerCase();
@@ -402,6 +408,8 @@ var CliqzUtils = {
     }
 
     var friendly_url = cleanHost + extra;
+    if (scheme && scheme != 'http' && scheme != 'https')
+      friendly_url = scheme + ":" + slashes + friendly_url;
     //remove trailing slash from the end
     friendly_url = CliqzUtils.stripTrailingSlash(friendly_url);
 
@@ -413,7 +421,7 @@ var CliqzUtils = {
     var urlDetails = {
               scheme: scheme,
               name: name,
-              domain: tld ? name + '.' + tld : '',
+              domain: host,
               tld: tld,
               subdomains: subdomains,
               path: path,
