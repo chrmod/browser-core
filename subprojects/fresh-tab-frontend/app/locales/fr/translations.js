@@ -68,11 +68,14 @@ export default {
     "cta-share-location": "En savoir plus",
     "btn-always-share": "Toujours partager sa position",
     "btn-never-share": "Ne jamais partager sa position",
-    "txt-email-inaccessible": "Please log in to see email notifications",
+    "txt-email-inaccessible": "Connecte-toi pour voir les notifications de ton e-mail",
+    "txt-email-available": "Clique-droit et active les notifications pour recevoir les alertes e-mail",
     "txt-email-refresh": "Actualiser les notifications",
     "hdr-video-downloader": "Télécharger des vidéos de Youtube",
     "txt-video-downloader": "À la grande demande de nos utilisateurs, tu peux maintenant télécharger des vidéos YouTube sur ton ordinateur. Vas simplement sur une vidéo sur youtube.com et clique sur l'icône qui apparaîtra dans la barre de navigation.",
-    "cta-video-downloader": "En savoir plus..."
+    "cta-video-downloader": "En savoir plus...",
+    "txt-cliqz-ghostery": "GHOSTERY REJOINT NOS RANGS",
+    "cta-learn-more": "EN APPRENDRE PLUS"
   },
   title: 'Nouvel onglet',
 };
