@@ -335,7 +335,12 @@ const stubs = {
 
         setTimeout(callback, 100, q, res, true);
       },
-      processResults: 0,
+      processResults: function(query, allUrls){
+        console.log("OnRenderComplete", query, allUrls)
+      },
+      onResultSelectionChange: function(position, selectedUrl, allUrls){
+        console.log("onResultSelectionChange", position, selectedUrl, allUrls)
+      },
       onInputChanged: {
         addListener: 0
       },

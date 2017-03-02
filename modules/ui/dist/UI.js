@@ -1677,6 +1677,8 @@ function setResultSelection(el, scrollTop, changeUrl, mouseOver){
 
         if (!mouseOver)
           UI.keyboardSelection = target;
+
+        CliqzUtils.onSelectionChange(el.getAttribute("url"));
     } else if (changeUrl && UI.lastInput != "") {
         urlbar.value = UI.lastInput;
         UI.lastSelectedUrl = "";

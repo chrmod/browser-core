@@ -1159,6 +1159,7 @@ var CliqzUtils = {
     CLIQZEnvironment.CliqzResultProviders = o.ResultProviders;
     CLIQZEnvironment.Result = o.Result;
   },
+  lastRenderedResults: [],
   onRenderComplete: function(query, box){
     if (!CLIQZEnvironment.onRenderComplete)
       return;
@@ -1168,7 +1169,17 @@ var CliqzUtils = {
         .map(node => node.getAttribute("url") || node.getAttribute("href"))
         .filter(url => !!url);
 
+    CliqzUtils.lastRenderedResults = urls;
     CLIQZEnvironment.onRenderComplete(query, urls);
+  },
+  onSelectionChange: function(url){
+    if(CLIQZEnvironment.onResultSelectionChange){
+      CLIQZEnvironment.onResultSelectionChange(
+        CliqzUtils.lastRenderedResults.indexOf(url),
+        url,
+        CliqzUtils.lastRenderedResults
+      );
+    }
   }
 };
 
