@@ -49,7 +49,7 @@ function getCookie(...args) {
 }
 
 var CliqzAttrack = {
-    VERSION: '0.97',
+    VERSION: '0.98',
     MIN_BROWSER_VERSION: 35,
     LOG_KEY: 'attrack',
     ENABLE_PREF: 'modules.antitracking.enabled',
