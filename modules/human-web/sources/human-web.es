@@ -2603,6 +2603,31 @@ var CliqzHumanWeb = {
                     return null;
                 }
             }
+
+            // We need to check the URLs for suspicious patterns,
+            // Remove the suspicious URLs and limit them to 8 results.
+            // Ensure reordering is done.
+            if (msg.payload.r) {
+                let cleanR = [];
+                let newR = {};
+
+                Object.keys(msg.payload.r).forEach( eachResult => {
+                    if (!CliqzHumanWeb.isSuspiciousURL(msg.payload.r[eachResult].u)) {
+                        cleanR.push(msg.payload.r[eachResult]);
+                    }
+                });
+                // If after the check, the number of results is less than 8,
+                // drop the message.
+
+                if (cleanR.length < 8) return null;
+                cleanR.slice(0,8).forEach( (each, idx) => {
+                    newR[idx] = each;
+                });
+
+                _log("Original: " + JSON.stringify(msg.payload.r));
+                _log("New: " + JSON.stringify(newR));
+                msg.payload.r = newR;
+            }
         }
 
         return msg;
