@@ -1640,7 +1640,12 @@ function setResultSelection(el, scrollTop, changeUrl, mouseOver){
             target.setAttribute('url', el.getAttribute('url'));
         }
         arrow.className = arrow.className.replace(" notransition", "");
-        if(!mouseOver && el.getAttribute("url") == UI.lastSelectedUrl) arrow.className += " notransition";
+        if(!mouseOver &&
+           (el.getAttribute("url") == UI.lastSelectedUrl ||
+            el.getAttribute('type') && el.getAttribute('type').indexOf('cliqz-custom') == 0)){
+          arrow.className += " notransition";
+        }
+
         UI.lastSelectedUrl = el.getAttribute("url");
 
         var offset = target.offsetTop;

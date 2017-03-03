@@ -353,7 +353,17 @@ const stubs = {
       onOmniboxFocusChanged: {
         addListener: 0
       },
-      getSearchEngines: 0,
+      getSearchEngines: function(callback){
+        callback([{
+          "keyword": "#qq",
+          "faviconUrl": "",
+          "id": "1",
+          "searchUrl": "https://www.cliqz.com/q=%s",
+          "base_url": "https://www.cliqz.com/q=%s",
+          "name": "CLIQZ",
+          "suggestionsUrl": "https://www.cliqz.com/q=%s"
+        }], 0);
+      },
       onSearchEnginesChanged: {
         addListener: 0
       },
