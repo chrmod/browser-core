@@ -105,7 +105,7 @@ export default class {
   main(element) {
     this.dropdown = new Dropdown(element, this.window);
     this.dropdown.init();
-    this.popup = new Popup(this.window.CLIQZ.Core.popup);
+    this.popup = new Popup(this.window);
   }
 
   handleResults() {
