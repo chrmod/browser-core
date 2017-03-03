@@ -70,7 +70,8 @@ var __CliqzChromeDB = function() { // (_export) {
                     CliqzChromeDB.size();
                 },
                 init: function() {
-
+                    console.log(">> Check size of DB is commented until fixed.");
+                    /*
                     CliqzChromeDB.size(function(sv) {
                         if (sv && sv[1] > 0.90) {
                             // more than 90% utilization,
@@ -89,7 +90,7 @@ var __CliqzChromeDB = function() { // (_export) {
                             CliqzHumanWeb.telemetry({ 'type': CliqzHumanWeb.msgType, 'action': 'dbcleared', 'payload': payload });
                         }
                     })
-
+                    */
                 },
                 __test_sets: function() {
 
