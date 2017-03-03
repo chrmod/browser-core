@@ -27,6 +27,7 @@
   },
   "priority": [
     "core",
+    "dropdown",
     "firefox-specific",
     "static",
     "autocomplete",
@@ -37,6 +38,7 @@
   ],
   "modules": [
     "core",
+    "dropdown",
     "firefox-specific",
     "static",
     "notifications",

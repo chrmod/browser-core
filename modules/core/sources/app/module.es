@@ -88,6 +88,10 @@ export default class Module {
     const settings = this.settings;
     return System.import(`${this.name}/window`)
       .then(({ default: WindowModule }) => new WindowModule({ settings, window }))
+      .then((module) => {
+        win.window.CLIQZ.Core.windowModules[this.name] = module;
+        return module;
+      })
       .then(module => Promise.resolve(module.init()).then(() => module))
       .then((windowModule) => {
         this.windows[win.id] = {

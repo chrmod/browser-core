@@ -39,9 +39,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     currentResults, // enhancedResults
     rawResults, // raw results
     adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
-    privateWindow = false,
-    urlbarEvents = ['keydown']
-    ;
+    privateWindow = false;
 
 var UI = {
     showDebug: false,
@@ -67,11 +65,6 @@ var UI = {
 
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
 
-        for(var i in urlbarEvents){
-            var ev = urlbarEvents[i];
-            urlbar.addEventListener(ev, CLIQZ.UI['urlbar' + ev]);
-        }
-
         CliqzEvents.sub('msg_handler_dropdown:message_ready', function (message) {
           CLIQZ.UI.messageCenterMessage = message;
         });
@@ -85,12 +78,6 @@ var UI = {
         // we need to know if the window is private or not in some
         // cases like switchTab which needs to be deactivated
         privateWindow = CliqzUtils.isOnPrivateTab(window);
-    },
-    unload: function(){
-        for(var i in urlbarEvents){
-            var ev = urlbarEvents[i];
-            urlbar.removeEventListener(ev, CLIQZ.UI['urlbar' + ev]);
-        }
     },
     main: function(box) {
         CLIQZ.UI.gCliqzBox = gCliqzBox = box;
@@ -141,6 +128,7 @@ var UI = {
     },
     // FF specific
     handleResults: function(){
+      CliqzUtils.log("!!handle results in UI.js")
       // TODO: this is FF specific - move it to another place!
       var popup = urlbar.popup,
         data = [],
@@ -198,8 +186,11 @@ var UI = {
       if(curResAll && curResAll.length > 0){
         //if the first result has no url and it is a history pattern result try to extract the first url and set it to the whole entry
         if(!firstResult.url && firstResult.type == "cliqz-pattern"
-            && firstResult.data && firstResult.data.urls && firstResult.data.urls.length > 0)
+            && firstResult.data
+            && firstResult.data.urls
+            && firstResult.data.urls.length > 0) {
           firstResult.url = firstResult.data.urls[0].href;
+        }
 
         if(firstResult.url){
           setTimeout(function () {
@@ -355,12 +346,6 @@ var UI = {
     redrawResult: function(filter, template, data){
         var result = $('.' + IC + filter, gCliqzBox);
         if(result) result.innerHTML = CliqzHandlebars.tplCache[template](data);
-    },
-    urlbarkeydown: function(ev){
-        CliqzAutocomplete._lastKey = ev.keyCode;
-        var cancel = CLIQZ.UI.keyDown(ev);
-        cancel && ev.preventDefault();
-        cancel && ev.stopImmediatePropagation();
     },
     keyDown: function(ev){
         var sel = getResultSelection(),
@@ -919,6 +904,7 @@ function setPartialTemplates(data) {
 
 
   if (data.deepResults) {
+    CliqzUtils.log(data.deepResults, "!!deepResults")
     data.deepResults.forEach(function (item) {
       if (item.type == 'buttons') {
         data.btns = item.links;
@@ -1736,7 +1722,7 @@ function onEnter(ev, item){
   var cleanInput = input;
   var lastAuto = CliqzAutocomplete.lastAutocomplete ? CliqzAutocomplete.lastAutocomplete : "";
   var urlbar_time = CliqzAutocomplete.lastFocusTime ? (new Date()).getTime() - CliqzAutocomplete.lastFocusTime: null;
-  var newTab = ev.metaKey || ev.ctrlKey;
+  var newTab = ev.metaKey || ev.altKey;
   var isFFaction = false;
 
   // Check if protocols match

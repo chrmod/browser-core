@@ -505,7 +505,7 @@ var CLIQZEnvironment = {
         },
         q
       );
-      if(dropDownStyle){
+      if(dropDownStyle && dropDownStyle !== 'cliqzilla'){
         const engine = this.getDefaultSearchEngine();
         res.val = engine.getSubmissionForQuery(q);
         res.label = CLIQZEnvironment.getLocalizedString('searchOn', engine.name);
@@ -514,6 +514,7 @@ var CLIQZEnvironment = {
       return res;
     }
 }
+
 function urlbar(){
   return CLIQZEnvironment.getWindow().CLIQZ.Core.urlbar;
 }

@@ -411,3 +411,4 @@ platforms/mobile/startup.es
 platforms/mobile/storage.es
 platforms/mobile/window.es
 platforms/mobile/xmlhttprequest.es
+modules/dropdown/helpers.es
