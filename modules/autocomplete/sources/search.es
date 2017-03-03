@@ -427,7 +427,7 @@ export default class Search {
     var query = res.query || res.q || ''; // query will be called q if RH is down
     if(this.mixedResults.matchCount > 0) return;
 
-    if (query == CliqzAutocomplete.lastSearch) {
+    if (query == this.searchString) {
       CliqzAutocomplete.lastPattern = res;
       var latency = 0;
       if (historyCluster.latencies[query]) {
@@ -460,7 +460,7 @@ export default class Search {
 
   // checks if all the results are ready or if the timeout is exceeded
   pushResults(q) {
-      if(q == CliqzAutocomplete.lastSearch && this.startTime != null){ // be sure this is not a delayed result
+      if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
         var now = Date.now();
 
        if((now > this.startTime + utils.RESULTS_TIMEOUT) || // do we have a timeout or
