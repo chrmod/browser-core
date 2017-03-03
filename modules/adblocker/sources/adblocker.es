@@ -394,7 +394,7 @@ const CliqzADB = {
       CliqzADB.adblockInitialized = true;
       CliqzADB.initPacemaker();
       WebRequest.onBeforeRequest.addListener(
-        CliqzADB.httpopenObserver.observe,
+        CliqzADB.httpOpenObserver.observe,
         undefined,
         ['blocking'],
       );
@@ -423,7 +423,7 @@ const CliqzADB = {
       this.onPrefChangeEvent.unsubscribe();
     }
     CliqzADB.unloadPacemaker();
-    WebRequest.onBeforeRequest.removeListener(CliqzADB.httpopenObserver.observe);
+    WebRequest.onBeforeRequest.removeListener(CliqzADB.httpOpenObserver.observe);
   },
 
   initPacemaker() {
@@ -449,7 +449,7 @@ const CliqzADB = {
     CliqzADB.timers.forEach(utils.clearTimeout);
   },
 
-  httpopenObserver: {
+  httpOpenObserver: {
     observe(requestDetails) {
       const requestContext = new HttpRequestContext(requestDetails);
       const url = requestContext.url;
@@ -480,41 +480,6 @@ const CliqzADB = {
 
       return {};
     },
-  },
-  getBrowserMajorVersion() {
-    try {
-      const appInfo = Components.classes['@mozilla.org/xre/app-info;1']
-                      .getService(Components.interfaces.nsIXULAppInfo);
-      return parseInt(appInfo.version.split('.')[0], 10);
-    } catch (e) {
-      return 100;
-    }
-  },
-  isTabURL(url) {
-    try {
-      const wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                .getService(Components.interfaces.nsIWindowMediator);
-      const browserEnumerator = wm.getEnumerator('navigator:browser');
-
-      while (browserEnumerator.hasMoreElements()) {
-        const browserWin = browserEnumerator.getNext();
-        const tabbrowser = browserWin.gBrowser;
-
-        const numTabs = tabbrowser.browsers.length;
-        for (let index = 0; index < numTabs; index += 1) {
-          const currentBrowser = tabbrowser.getBrowserAtIndex(index);
-          if (currentBrowser) {
-            const tabURL = currentBrowser.currentURI.spec;
-            if (url === tabURL || url === tabURL.split('#')[0]) {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    } catch (e) {
-      return false;
-    }
   },
 };
 

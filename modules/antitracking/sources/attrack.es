@@ -23,7 +23,6 @@ import WebRequest from '../core/webrequest';
 import telemetry from './telemetry';
 import console from '../core/console';
 import domainInfo from '../core/domain-info';
-import { fetch } from '../core/http';
 import Pipeline from './pipeline';
 
 import { determineContext, skipInternalProtocols, checkSameGeneralDomain } from './steps/context';
@@ -76,16 +75,6 @@ var CliqzAttrack = {
         }
     },
     visitCache: {},
-    getBrowserMajorVersion: function() {
-        try {
-          var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                          .getService(Components.interfaces.nsIXULAppInfo);
-          return parseInt(appInfo.version.split('.')[0]);
-        } catch(e) {
-          // fallback for when no version API
-          return 100;
-        }
-    },
     getPrivateValues: function(window) {
         // creates a list of return values of functions may leak private info
         var p = {};
@@ -192,7 +181,7 @@ var CliqzAttrack = {
     init: function(config) {
         this.config = config;
         // disable for older browsers
-        if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (browser.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
 
@@ -465,14 +454,14 @@ var CliqzAttrack = {
     /** Per-window module initialisation
      */
     initWindow: function(window) {
-        if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (browser.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
         CliqzAttrack.getPrivateValues(window);
     },
     unload: function() {
         // don't need to unload if disabled
-        if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (browser.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
         //Check is active usage, was sent

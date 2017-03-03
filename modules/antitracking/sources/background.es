@@ -1,4 +1,5 @@
 import background from "../core/base/background";
+import * as browser from '../platform/browser';
 import CliqzPopupButton from './popup-button';
 import CliqzAttrack from './attrack';
 import {PrivacyScore} from './privacy-score';
@@ -21,7 +22,7 @@ export default background({
   * @param settings
   */
   init(settings) {
-    if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+    if (browser.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
       return;
     }
 
@@ -54,7 +55,7 @@ export default background({
   * @method unload
   */
   unload() {
-    if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+    if (browser.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
       return;
     }
 

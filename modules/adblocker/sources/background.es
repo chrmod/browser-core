@@ -1,5 +1,6 @@
 import { utils } from '../core/cliqz';
 import background from '../core/base/background';
+import { getBrowserMajorVersion } from '../platform/browser';
 import CliqzADB,
       { ADB_PREF_VALUES,
         ADB_PREF,
@@ -22,14 +23,14 @@ export default background({
   enabled() { return true; },
 
   init() {
-    if (CliqzADB.getBrowserMajorVersion() < CliqzADB.MIN_BROWSER_VERSION) {
+    if (getBrowserMajorVersion() < CliqzADB.MIN_BROWSER_VERSION) {
       return Promise.resolve();
     }
     return CliqzADB.init(this.humanWeb);
   },
 
   unload() {
-    if (CliqzADB.getBrowserMajorVersion() < CliqzADB.MIN_BROWSER_VERSION) {
+    if (getBrowserMajorVersion() < CliqzADB.MIN_BROWSER_VERSION) {
       return;
     }
     CliqzADB.unload();

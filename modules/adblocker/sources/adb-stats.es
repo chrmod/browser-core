@@ -1,7 +1,8 @@
 import { getGeneralDomain } from '../antitracking/domain';
-import CliqzADB from '../adblocker/adblocker';
+import { isTabURL } from '../platform/browser';
 import { URLInfo } from '../antitracking/url';
 import domainInfo from '../core/domain-info';
+
 
 class PageStats {
   constructor(url) {
@@ -75,7 +76,7 @@ class AdbStats {
 
   clearStats() {
     this.pages.forEach((value, key) => {
-      if (!CliqzADB.isTabURL(key)) {
+      if (!isTabURL(key)) {
         this.pages.delete(key);
       }
     });

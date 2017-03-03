@@ -26,3 +26,11 @@ export function mapWindows(fn) {
 export function getLang() {
   return '';
 }
+
+export function isTabURL() {
+  return false;
+}
+
+export function getBrowserMajorVersion() {
+  return 100;
+}
