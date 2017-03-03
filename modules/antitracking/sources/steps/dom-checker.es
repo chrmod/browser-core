@@ -1,6 +1,6 @@
-import pacemaker from 'antitracking/pacemaker';
-import core from 'core/background';
-import { dURIC } from 'antitracking/url';
+import pacemaker from '../pacemaker';
+import core from '../../core/background';
+import { dURIC } from '../url';
 
 const DOM_CHECK_PERIOD = 1000;
 

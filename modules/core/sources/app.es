@@ -320,7 +320,7 @@ export default class {
       return;
     }
 
-    const isEnabled = prefs.get(pref);
+    const isEnabled = prefs.get(pref) === true;
     const moduleName = prefParts.pop();
     const module = this.availableModules[moduleName];
 

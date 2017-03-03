@@ -1,5 +1,5 @@
-import { readFile, writeFile, mkdir } from 'core/fs';
-import { utils } from 'core/cliqz';
+import { readFile, writeFile, mkdir } from '../core/fs';
+import { utils } from '../core/cliqz';
 
 
 // Common durations

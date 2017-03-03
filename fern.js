@@ -403,5 +403,25 @@ program.command('generate <type> <moduleName>')
         });
        });
 
+program.command('react-dev')
+      .description('run the react-native dev server')
+      .action(() => {
+        setConfigPath('configs/react-native.json');
+        const projectRoots = [OUTPUT_PATH, path.resolve(__dirname, 'node_modules')]
+        const options = ['./node_modules/react-native/local-cli/cli.js', 'start',
+                         '--projectRoots', projectRoots.join(',')]
+        spaws.sync('node', options, { stdio: 'inherit', stderr: 'inherit'});
+      });
+
+program.command('react-bundle <platform> [dest]')
+      .description('create a react-native jsbundle')
+      .action((platform, dest) => {
+        setConfigPath('configs/react-native.json');
+        var options = ['./node_modules/react-native/local-cli/cli.js', 'bundle',
+          '--platform', platform, '--entry-file', `${OUTPUT_PATH}/index.${platform}.js`,
+          '--bundle-output', dest || 'jsengine.bundle.js']
+        spaws.sync('node', options, { stdio: 'inherit', stderr: 'inherit'});
+      });
+
 program.parse(process.argv);
 }

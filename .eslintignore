@@ -367,6 +367,7 @@ platforms/firefox/auto-complete-component.es
 platforms/firefox/bloom-filter-utils.es
 platforms/firefox/bloom-filter.es
 platforms/firefox/browser.es
+platforms/firefox/chrome-url-handler.es
 platforms/firefox/console.es
 platforms/firefox/database.es
 platforms/firefox/dom-parser.es

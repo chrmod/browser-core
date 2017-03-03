@@ -97,6 +97,10 @@ export function isWindowActive(windowID) {
   return false;
 }
 
+export function checkIsWindowActive(windowID) {
+  return Promise.resolve(isWindowActive(windowID));
+}
+
 const windowObservers = new Map();
 export function addWindowObserver(callback) {
   const cb = (win, topic) => {

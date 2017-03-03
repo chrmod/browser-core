@@ -109,6 +109,36 @@ export default background({
     */
     recordCopy() {
       HumanWeb.captureCopyPage.apply(HumanWeb, arguments);
-    }
+    },
+
+    /**
+     * Check whether there is some state for this url.
+     * @param  {String}  url
+     * @return {Boolean}     true if a state object exists.
+     */
+    isProcessingUrl(url) {
+      return HumanWeb.state.v[url] !== undefined;
+    },
+
+    /**
+     * Add some data to the metadata for a url under the specified key. If data
+     * already exists, we will merge it, overwriting any duplicates.
+     *
+     * @param {String} url
+     * @param {String} key  object key under-which to add this data
+     * @param {Object} data data to add
+     * @returns {Promise} Resolves if data was added, rejects if we have no state
+     * for this url.
+     */
+    addDataToUrl(url, key, data) {
+      if (HumanWeb.state.v[url]) {
+        HumanWeb.state.v[url][key] = Object.keys(data).reduce((acc, val) => {
+          acc[val] = data[val];
+          return acc;
+        }, HumanWeb.state.v[url][key] || {});
+        return Promise.resolve();
+      }
+      return Promise.reject();
+    },
   }
 })

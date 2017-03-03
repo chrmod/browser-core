@@ -1,12 +1,12 @@
-import background from "core/base/background";
-import CliqzPopupButton from 'antitracking/popup-button';
-import CliqzAttrack from 'antitracking/attrack';
-import {PrivacyScore} from 'antitracking/privacy-score';
-import md5 from 'antitracking/md5';
-import { DEFAULT_ACTION_PREF, updateDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
-import { utils, events } from 'core/cliqz';
-import telemetry from 'antitracking/telemetry';
-import Config from 'antitracking/config';
+import background from "../core/base/background";
+import CliqzPopupButton from './popup-button';
+import CliqzAttrack from './attrack';
+import {PrivacyScore} from './privacy-score';
+import md5 from './md5';
+import { DEFAULT_ACTION_PREF, updateDefaultTrackerTxtRule } from './tracker-txt';
+import { utils, events } from '../core/cliqz';
+import telemetry from './telemetry';
+import Config from './config';
 import inject from '../core/kord/inject';
 
 /**
@@ -27,7 +27,7 @@ export default background({
 
     // fix for users without pref properly set: set to value from build config
     if (!utils.hasPref('attrackRemoveQueryStringTracking')) {
-      utils.setPref('attrackRemoveQueryStringTracking', settings.antitrackingButton);
+      utils.setPref('attrackRemoveQueryStringTracking', true);
     }
 
     this.enabled = false;

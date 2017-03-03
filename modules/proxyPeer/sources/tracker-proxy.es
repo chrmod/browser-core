@@ -1,6 +1,4 @@
 import { utils, events } from 'core/cliqz';
-import md5 from 'core/helpers/md5';
-import { getGeneralDomain } from 'antitracking/domain';
 import ProxyPeer from 'proxyPeer/proxy-peer';
 
 
@@ -20,7 +18,7 @@ function shouldProxyAll() {
 
 export default class {
 
-  constructor(qsWhitelist) {
+  constructor(antitracking) {
     // Use a local socks proxy to be able to 'hack' the HTTP lifecycle
     // inside Firefox. This allows us to proxy some requests in a peer
     // to peer fashion using WebRTC.
@@ -36,9 +34,9 @@ export default class {
     this.proxyAll = shouldProxyAll();
     this.proxyTrackers = shouldProxyTrackers();
 
-    this.qsWhitelist = qsWhitelist;
-
     this.proxyStats = new Map();
+
+    this.antitracking = antitracking;
   }
 
   init() {
@@ -62,6 +60,12 @@ export default class {
         // and 'unblock/sources/request-listener.es' is in position 0.
         this.pps.registerFilter(this, 2);
       }
+      this.antitracking.action('addPipelineStep', {
+        name: 'checkShouldProxy',
+        stages: ['open'],
+        after: ['findBadTokens'],
+        fn: this.checkShouldProxy.bind(this),
+      });
     }
 
     if (!this.initialised) {
@@ -80,6 +84,7 @@ export default class {
         this.proxyPeer = null;
         this.proxy = null;
       }
+      this.antitracking.action('removePipelineStep', 'checkShouldProxy');
 
       events.un_sub('prefchange', this.prefListener);
       this.initialised = false;
@@ -108,9 +113,8 @@ export default class {
 
   checkShouldProxy(state) {
     const hostname = state.urlParts.hostname;
-    const hostGD = getGeneralDomain(hostname);
-    const s = md5(hostGD).substr(0, 16);
-    const isTrackerDomain = this.qsWhitelist.isTrackerDomain(s);
+    const hostGD = state.urlParts.generalDomain;
+    const isTrackerDomain = state.isTracker; // from token-checker step
 
     if (this.shouldProxy(state.url, isTrackerDomain)) {
       state.incrementStat('proxy');

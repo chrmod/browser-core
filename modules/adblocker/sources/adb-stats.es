@@ -1,8 +1,7 @@
-import { getGeneralDomain } from 'antitracking/domain';
-import attrack from 'antitracking/attrack';
-import CliqzADB from 'adblocker/adblocker';
-import { URLInfo } from 'antitracking/url';
-
+import { getGeneralDomain } from '../antitracking/domain';
+import CliqzADB from '../adblocker/adblocker';
+import { URLInfo } from '../antitracking/url';
+import domainInfo from '../core/domain-info';
 
 class PageStats {
   constructor(url) {
@@ -17,12 +16,12 @@ class PageStats {
     let company;
     // Re-use anti tracking company list for the moment.
     // TODO: Replace it with a proper ads company list later
-    if (domain in attrack.tracker_companies) {
-      company = attrack.tracker_companies[domain];
+    if (domain in domainInfo.domainOwners) {
+      company = domainInfo.domainOwners[domain];
     } else if (domain === getGeneralDomain(URLInfo.get(this.pageUrl).hostname)) {
       company = 'First party';
     } else {
-      company = '_Unknown';
+      company = domain;
     }
     if (this.blocked.get(company)) {
       if (!this.blocked.get(company).has(url)) {

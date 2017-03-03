@@ -1,8 +1,8 @@
-import md5 from 'antitracking/md5';
-import * as datetime from 'antitracking/time';
-import * as persist from 'antitracking/persistent-state';
-import { splitTelemetryData } from 'antitracking/utils';
-import pacemaker from 'antitracking/pacemaker';
+import md5 from '../md5';
+import * as datetime from '../time';
+import * as persist from '../persistent-state';
+import { splitTelemetryData } from '../utils';
+import pacemaker from '../pacemaker';
 
 /**
  * Add padding characters to the left of the given string.

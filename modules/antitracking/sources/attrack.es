@@ -2,39 +2,39 @@
  * This module prevents user from 3rd party tracking
  */
 import inject from '../core/kord/inject';
-import pacemaker from 'antitracking/pacemaker';
-import * as persist from 'antitracking/persistent-state';
-import TempSet from 'antitracking/temp-set';
-import PageEventTracker from 'antitracking/tp_events';
-import md5 from 'antitracking/md5';
-import { URLInfo, shuffle } from 'antitracking/url';
-import { getGeneralDomain } from 'antitracking/domain';
-import { HashProb } from 'antitracking/hash';
-import { TrackerTXT, getDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
-import { AttrackBloomFilter } from 'antitracking/bloom-filter';
-import * as datetime from 'antitracking/time';
-import QSWhitelist from 'antitracking/qs-whitelists';
-import BlockLog from 'antitracking/block-log';
-import { utils, events } from 'core/cliqz';
-import ResourceLoader from 'core/resource-loader';
-import { compressionAvailable, compressJSONToBase64, generatePayload } from 'antitracking/utils';
-import * as browser from 'platform/browser';
-import WebRequest from 'core/webrequest';
-import telemetry from 'antitracking/telemetry';
-import console from 'core/console';
-import { fetch } from 'core/http';
+import pacemaker from './pacemaker';
+import * as persist from './persistent-state';
+import TempSet from './temp-set';
+import PageEventTracker from './tp_events';
+import md5 from './md5';
+import { URLInfo, shuffle } from './url';
+import { getGeneralDomain } from './domain';
+import { HashProb } from './hash';
+import { TrackerTXT, getDefaultTrackerTxtRule } from './tracker-txt';
+import { AttrackBloomFilter } from './bloom-filter';
+import * as datetime from './time';
+import QSWhitelist from './qs-whitelists';
+import BlockLog from './block-log';
+import { utils, events } from '../core/cliqz';
+import ResourceLoader from '../core/resource-loader';
+import { compressionAvailable, compressJSONToBase64, generatePayload } from './utils';
+import * as browser from '../platform/browser';
+import WebRequest from '../core/webrequest';
+import telemetry from './telemetry';
+import console from '../core/console';
+import domainInfo from '../core/domain-info';
+import { fetch } from '../core/http';
 import Pipeline from './pipeline';
 
-import { determineContext, skipInternalProtocols, checkSameGeneralDomain } from 'antitracking/steps/context';
-import PageLogger from 'antitracking/steps/page-logger';
-import TokenExaminer from 'antitracking/steps/token-examiner';
-import TokenTelemetry from 'antitracking/steps/token-telemetry';
-import DomChecker from 'antitracking/steps/dom-checker';
-import TokenChecker from 'antitracking/steps/token-checker';
-import BlockRules from 'antitracking/steps/block-rules';
-import CookieContext from 'antitracking/steps/cookie-context';
-import TrackerProxy from 'antitracking/steps/tracker-proxy';
-import RedirectTagger from 'antitracking/steps/redirect-tagger';
+import { determineContext, skipInternalProtocols, checkSameGeneralDomain } from './steps/context';
+import PageLogger from './steps/page-logger';
+import TokenExaminer from './steps/token-examiner';
+import TokenTelemetry from './steps/token-telemetry';
+import DomChecker from './steps/dom-checker';
+import TokenChecker from './steps/token-checker';
+import BlockRules from './steps/block-rules';
+import CookieContext from './steps/cookie-context';
+import RedirectTagger from './steps/redirect-tagger';
 
 var countReload = false;
 
@@ -77,9 +77,14 @@ var CliqzAttrack = {
     },
     visitCache: {},
     getBrowserMajorVersion: function() {
-        var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                        .getService(Components.interfaces.nsIXULAppInfo);
-        return parseInt(appInfo.version.split('.')[0]);
+        try {
+          var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                          .getService(Components.interfaces.nsIXULAppInfo);
+          return parseInt(appInfo.version.split('.')[0]);
+        } catch(e) {
+          // fallback for when no version API
+          return 100;
+        }
     },
     getPrivateValues: function(window) {
         // creates a list of return values of functions may leak private info
@@ -96,7 +101,12 @@ var CliqzAttrack = {
         CliqzAttrack.privateValues = p;
     },
     httpopenObserver: function(requestDetails) {
-      return CliqzAttrack.pipeline.execute('open', requestDetails);
+      const response =  CliqzAttrack.pipeline.execute('open', requestDetails);
+      // annotate source of this block
+      if (Object.keys(response).length > 0) {
+        response.source = 'ATTRACK';
+      }
+      return response;
     },
     httpResponseObserver: function(requestDetails) {
       return CliqzAttrack.pipeline.execute('response', requestDetails);
@@ -133,7 +143,7 @@ var CliqzAttrack = {
         return utils.getPref('trackerTxt', false);
     },
     isBloomFilterEnabled: function() {
-        return utils.getPref('attrackBloomFilter', false);
+        return utils.getPref('attrackBloomFilter', true);
     },
     isForceBlockEnabled: function() {
         return utils.getPref('attrackForceBlock', false);
@@ -212,14 +222,6 @@ var CliqzAttrack = {
             }
         });
 
-        // load tracker companies data
-        this._trackerLoader = new ResourceLoader( ['antitracking', 'tracker_owners.json'], {
-            remoteURL: 'https://cdn.cliqz.com/anti-tracking/tracker_owners_list.json',
-            cron: 24 * 60 * 60 * 1000,
-        });
-        this._trackerLoader.load().then(CliqzAttrack._parseTrackerCompanies);
-        this._trackerLoader.onUpdate(CliqzAttrack._parseTrackerCompanies);
-
         // load cookie whitelist
         this._cookieWhitelistLoader = new ResourceLoader( ['antitracking', 'cookie_whitelist.json'], {
             remoteURL: 'https://cdn.cliqz.com/anti-tracking/whitelist/cookie_whitelist.json',
@@ -286,7 +288,6 @@ var CliqzAttrack = {
         tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, CliqzAttrack.blockLog, {}, CliqzAttrack.hashProb, CliqzAttrack.config),
         blockRules: new BlockRules(),
         cookieContext: new CookieContext(),
-        trackerProxy: new TrackerProxy(CliqzAttrack.qs_whitelist),
         redirectTagger: new RedirectTagger(),
       };
 
@@ -315,7 +316,6 @@ var CliqzAttrack = {
         steps.domChecker.checkDomLinks.bind(steps.domChecker),
         steps.domChecker.parseCookies.bind(steps.domChecker),
         steps.tokenChecker.findBadTokens.bind(steps.tokenChecker),
-        steps.trackerProxy.checkShouldProxy.bind(steps.trackerProxy),
         function checkHasBadTokens(state) {
           return (state.badTokens.length > 0)
         },
@@ -355,7 +355,7 @@ var CliqzAttrack = {
         },
         function overrideUserAgent(state, response) {
           if (utils.getPref('attrackOverrideUserAgent', false) === true) {
-            const domainHash = md5(getGeneralDomain(state.urlParts.hostname)).substring(0, 16);
+            const domainHash = state.urlParts.generalDomainHash;
             if (CliqzAttrack.qs_whitelist.isTrackerDomain(domainHash)) {
               response.requestHeaders = response.requestHeaders || [];
               response.requestHeaders.push({name: 'User-Agent', value: 'CLIQZ'});
@@ -490,7 +490,6 @@ var CliqzAttrack = {
 
         pacemaker.stop();
 
-        this._trackerLoader.stop();
         this._cookieWhitelistLoader.stop();
 
         CliqzAttrack.unloadPipeline();
@@ -498,6 +497,7 @@ var CliqzAttrack = {
         events.clean_channel("attrack:safekeys_updated");
     },
     checkInstalledAddons: function() {
+      if (typeof System !== 'undefined') {
         System.import('platform/antitracking/addon-check').then( (addons) => {
             addons.checkInstalledAddons().then((adds) => {
               CliqzAttrack.similarAddon = adds;
@@ -505,6 +505,7 @@ var CliqzAttrack = {
         }).catch( (e) => {
             utils.log("Error loading addon checker", "attrack");
         });
+      }
     },
     generateAttrackPayload: function(data, ts) {
         const extraAttrs = CliqzAttrack.qs_whitelist.getVersion();
@@ -632,11 +633,11 @@ var CliqzAttrack = {
       }
 
       var tabData = CliqzAttrack.tp_events._active[tabId],
-        trackers = Object.keys(tabData.tps).filter(function(domain) {
-          return CliqzAttrack.qs_whitelist.isTrackerDomain(md5(getGeneralDomain(domain)).substring(0, 16));
-        }),
         plain_data = tabData.asPlainObject(),
-        firstPartyCompany = CliqzAttrack.tracker_companies[getGeneralDomain(tabData.hostname)];
+        trackers = Object.keys(tabData.tps).filter(function(domain) {
+          return CliqzAttrack.qs_whitelist.isTrackerDomain(md5(getGeneralDomain(domain)).substring(0, 16)) || plain_data.tps[domain].adblock_block > 0;
+        }),
+        firstPartyCompany = domainInfo.domainOwners[getGeneralDomain(tabData.hostname)];
       result.hostname = tabData.hostname;
       result.path = tabData.path;
 
@@ -662,8 +663,8 @@ var CliqzAttrack = {
           company = tld;
         // find the company behind this tracker. I
         // If the first party is from a tracker company, then do not add the company so that the actual tlds will be shown in the list
-        if (tld in CliqzAttrack.tracker_companies && CliqzAttrack.tracker_companies[tld] !== firstPartyCompany) {
-          company = CliqzAttrack.tracker_companies[tld];
+        if (tld in domainInfo.domainOwners && domainInfo.domainOwners[tld] !== firstPartyCompany) {
+          company = domainInfo.domainOwners[tld];
         }
         if (!(company in result.companies)) {
           result.companies[company] = [];
@@ -685,17 +686,22 @@ var CliqzAttrack = {
       }
       return CliqzAttrack.getTabBlockingInfo(tabId, urlForTab);
     },
-    tracker_companies: {},
-    /** Parse tracker owners list {Company: [list, of, domains]}, into lookup table {domain: Company}
-     */
-    _parseTrackerCompanies: function(company_list) {
-      var rev_list = {};
-      for (var company in company_list) {
-        company_list[company].forEach(function(d) {
-          rev_list[d] = company;
+    getTrackerListForTab: function(tabId) {
+      const info = CliqzAttrack.getTabBlockingInfo(tabId);
+      const revComp = {};
+      Object.keys(info.companies).forEach(comp => {
+        info.companies[comp].forEach(domain => {
+          revComp[domain] = comp;
         });
-      }
-      CliqzAttrack.tracker_companies = rev_list;
+      });
+      return Object.keys(info.trackers).map(domain => {
+        const name = revComp[domain] || getGeneralDomain(domain);
+        const count = info.trackers[domain].tokens_removed || 0
+        return {name, count};
+      }).reduce((acc, val) => {
+        acc[val.name] = (acc[val.name] || 0) + val.count;
+        return acc
+      }, {});
     },
     /** Enables Attrack module with cookie, QS and referrer protection enabled.
      *  if module_only is set to true, will not set preferences for cookie, QS and referrer protection (for selective loading in AB tests)

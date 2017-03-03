@@ -10,7 +10,8 @@ import background from './base/background';
 import { Window, mapWindows, getLang } from '../platform/browser';
 import loadLogoDb from "../platform/load-logo-db";
 import { isMobile } from "./platform";
-import Storage from 'core/storage';
+import Storage from './storage';
+import resourceManager from './resource-manager';
 
 var lastRequestId = 0;
 var callbacks = {};
@@ -35,17 +36,22 @@ export default background({
 
     this.mm = new ProcessScriptManager(this.dispatchMessage);
     this.mm.init();
+
     // @TODO: mobile doesn't use utils.app
     if (utils.app) {
       this.report = utils.setTimeout(this.reportStartupTime.bind(this), 1000 * 60);
     }
+    resourceManager.init();
   },
 
   unload() {
     utils.clearTimeout(this.report);
-    language.unload();
-    HistoryManager.unload();
+    if (!isMobile) {
+      language.unload();
+      HistoryManager.unload();
+    }
     this.mm.unload();
+    resourceManager.unload();
   },
 
   reportStartupTime() {
