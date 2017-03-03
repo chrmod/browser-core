@@ -1160,6 +1160,7 @@ var CliqzUtils = {
     CLIQZEnvironment.Result = o.Result;
   },
   lastRenderedResults: [],
+  lastSelection: -1,
   onRenderComplete: function(query, box){
     if (!CLIQZEnvironment.onRenderComplete)
       return;
@@ -1173,13 +1174,14 @@ var CliqzUtils = {
     CLIQZEnvironment.onRenderComplete(query, urls);
   },
   onSelectionChange: function(url){
-    if(CLIQZEnvironment.onResultSelectionChange){
-      CLIQZEnvironment.onResultSelectionChange(
-        CliqzUtils.lastRenderedResults.indexOf(url),
-        url,
-        CliqzUtils.lastRenderedResults
-      );
-    }
+    if (!CLIQZEnvironment.onResultSelectionChange)
+      return;
+
+    var current = CliqzUtils.lastRenderedResults.indexOf(url);
+    if (CliqzUtils.lastSelection == current)
+      return;
+    CliqzUtils.lastSelection = current;
+    CLIQZEnvironment.onResultSelectionChange(current);
   }
 };
 
