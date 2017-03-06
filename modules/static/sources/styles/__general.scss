@@ -228,8 +228,10 @@
 
 .cqz-popup a:visited,
 .cqz-results .cqz-result-title:visited,
-.cqz-results .cliqz-pattern-element-title {
-    color: #8c275f !important;
+.cqz-results div[local-source*="switchtab"] .cliqz-pattern-element-title,
+.cqz-results div[local-source*="bookmark"] .cliqz-pattern-element-title,
+.cqz-results div[local-source*="favicon"] .cliqz-pattern-element-title {
+    color: #8c275f;
     &:hover {
         text-decoration: underline;
     }
