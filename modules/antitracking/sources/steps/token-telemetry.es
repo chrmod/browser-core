@@ -45,7 +45,7 @@ function anonymizeTrackerTokens(trackerData) {
 
   for (let originalKey in trackerData) {
     const newRandomKey = leftpad(index.toString().substr(0, 16), '0', 16);
-    index = randId + 1;
+    index = index + 1;
     anonymizedTrackerData[newRandomKey] = trackerData[originalKey];
   }
 
