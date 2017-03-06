@@ -296,11 +296,11 @@ var CLIQZEnvironment = {
       return searchEngines.filter(function (se) { return se.default; })[0];
     },
     //TODO: cache this
-    getSearchEngines: function(){
+    getSearchEngines: function(blackListed = []){
         var defEngineName = Services.search.defaultEngine.name;
         return Services.search.getEngines()
                 .filter(function(e){
-                    return !e.hidden && e.iconURI != null;
+                    return !e.hidden && e.iconURI != null && blackListed.indexOf(e.name) < 0;
                 })
                 .map(function(e){
                     var r = {
@@ -316,6 +316,15 @@ var CLIQZEnvironment = {
                     }
                     return r;
                 });
+    },
+    blackListedEngines: function(scope) {
+      const engines = {
+        'freshtab': [
+          'Google Images',
+          'Google Maps'
+        ]
+      };
+      return engines[scope];
     },
     updateAlias: function(name, newAlias) {
       Services.search.getEngineByName(name).alias = newAlias;

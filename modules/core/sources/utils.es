@@ -1126,6 +1126,7 @@ var CliqzUtils = {
   addEngineWithDetails: CLIQZEnvironment.addEngineWithDetails,
   getEngineByAlias: CLIQZEnvironment.getEngineByAlias,
   getSearchEngines: CLIQZEnvironment.getSearchEngines,
+  blackListedEngines: CLIQZEnvironment.blackListedEngines,
   updateAlias: CLIQZEnvironment.updateAlias,
   openLink: CLIQZEnvironment.openLink,
   getCliqzPrefs() {
