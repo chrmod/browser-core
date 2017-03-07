@@ -4422,6 +4422,9 @@ var CliqzHumanWeb = {
         /*
         Sanitize result telemetry before sending to the backend.
         */
+        // If there is a problem in initializing human-web, we should return.
+        if(CliqzHumanWeb && CliqzHumanWeb.counter === 0) return;
+
         const msg = data.msg;
         const msgType = data.type;
 
@@ -4466,6 +4469,9 @@ var CliqzHumanWeb = {
         // case we need to check whether it's a URL or not.
         if (hostName.length > 0 && url && url.length > 0) {
             // Check if the URL is marked as already private.
+
+            // If there is a problem in initializing human-web bloom-filter, we should return.
+            if(!CliqzHumanWeb.bloomFilter) return;
             const urlPrivate = CliqzHumanWeb.bloomFilter.testSingle(md5(url));
             if (urlPrivate) {
                 _log("Url is already marked private");
