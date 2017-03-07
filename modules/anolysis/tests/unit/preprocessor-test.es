@@ -4,8 +4,8 @@
 /* global require */
 
 
-const UAParser = require('ua-parser-js');
-const moment = require('moment');
+const UAParser = System._nodeRequire('ua-parser-js');
+const moment = System._nodeRequire('moment');
 
 
 const ABTESTS_TESTS = [

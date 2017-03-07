@@ -2,11 +2,10 @@ import FSBuilder from 'tests/hm/unit/utils/fs';
 
 /* global chai */
 /* global describeModule */
-/* global require */
 
 const expect = chai.expect;
-const crypto = require('crypto');
-const _fs = FSBuilder(require('path'));
+const crypto = System._nodeRequire('crypto');
+const _fs = FSBuilder(System._nodeRequire('path'));
 
 export default describeModule('hm/simple-storage',
   () => ({

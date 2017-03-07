@@ -46,6 +46,7 @@
     "broccoli-source-map": "0.2.4",
     "broccoli-sourcemap-concat": "cliqz-oss/broccoli-sourcemap-concat#processing-files",
     "broccoli-string-replace": "0.1.1",
+    "broccoli-system-builder": "^1.0.4",
     "broccoli-uglify-sourcemap": "1.4.2",
     "broccoli-watchify": "^1.0.1",
     "chai": "3.5.0",

@@ -55,7 +55,7 @@ if (cliqzConfig.environment !== 'production') {
     include: ['tests/*/content/**/*']
   });
   var contentTests = concat(contentTestsTree, {
-    header: ";System = { register: function () {arguments[2]().execute(); }};",
+    header: ";System = { register: function () {arguments[1]().execute(); }};",
     inputFiles: "**/*.js",
     outputFile: 'tests/tests.js',
     allowNone: true

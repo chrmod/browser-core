@@ -87,7 +87,7 @@ class ProviderAutoCompleteResultCliqz {
 }
 
 export default class Search {
-  constructor() {
+  constructor({ successCode } = {}) {
     this.TIMEOUT = 1000;
     this.HISTORY_TIMEOUT = 400;
 
@@ -95,6 +95,7 @@ export default class Search {
       smartCliqzCache: new SmartCliqzCache(),
       triggerUrlCache: new TriggerUrlCache()
     } : {};
+    this.successCode = successCode;
     this.mixer = new Mixer(mixerArgs);
     this.spellCheck = new SpellCheck();
     this.resultsTimer = null;
@@ -194,7 +195,7 @@ export default class Search {
       const defaultIndex = utils.dropDownStyle == 'ff' ? 0 : -2; // -2 blocks default FF autocomplete
       this.mixedResults = new ProviderAutoCompleteResultCliqz(
               this.searchString,
-              Components.interfaces.nsIAutoCompleteResult.RESULT_SUCCESS,
+              this.successCode,
               defaultIndex, // blocks autocomplete
               '');
 

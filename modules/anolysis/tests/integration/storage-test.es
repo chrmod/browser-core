@@ -1,10 +1,7 @@
 /* global chai */
 /* global describeModule */
-/* global require */
 
-
-const PouchDB = require('pouchdb');
-
+const PouchDB = System._nodeRequire('pouchdb');
 
 export default describeModule('anolysis/storage',
   () => ({
@@ -16,7 +13,7 @@ export default describeModule('anolysis/storage',
     let database;
     let storage;
     beforeEach(function initDatabase() {
-      database = new PouchDB('cliqz-test-anolysis-integration-storage', { db: require('memdown') });
+      database = new PouchDB('cliqz-test-anolysis-integration-storage', { db: System._nodeRequire('memdown') });
       const Storage = this.module().default;
       storage = new Storage(database);
     });

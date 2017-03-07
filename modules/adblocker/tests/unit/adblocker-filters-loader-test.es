@@ -1,9 +1,8 @@
 /* global chai */
 /* global describeModule */
-/* global require */
 
 
-const fs = require('fs');
+const fs = System._nodeRequire('fs');
 
 
 function readFile(path) {

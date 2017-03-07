@@ -3,11 +3,10 @@
  *   - uses handlebars templates
  *   - attaches all the needed listners (keyboard/mouse)
  */
-
-import DelayedImageLoader from 'mobile-ui/DelayedImageLoader';
-import window from "platform/window";
-import utils from 'core/utils';
-import ViewPager from 'viewpager';
+import ViewPager from "specific/js/libs/viewpager.js"
+import DelayedImageLoader from './DelayedImageLoader';
+import window from "../platform/window";
+import utils from '../core/utils';
 
 const ErrorHandlerReranker = {
   name: 'error-handler-reranker',
@@ -15,9 +14,9 @@ const ErrorHandlerReranker = {
   afterResults: function (myResults, backendResults) {
     if (backendResults.isInvalid && myResults.query.length === utils._queryLastLength) {
       setTimeout(utils.search, 500, myResults.query, true);
-      reconnectingDiv.innerHTML = '<h3>'+utils.getLocalizedString('mobile_reconnecting_msg')+'</h3>'
+      reconnectingDiv().innerHTML = '<h3>'+utils.getLocalizedString('mobile_reconnecting_msg')+'</h3>'
     } else {
-      reconnectingDiv.innerHTML = '';
+      reconnectingDiv().innerHTML = '';
     }
     return Promise.resolve(backendResults);
   }
@@ -25,7 +24,7 @@ const ErrorHandlerReranker = {
 
 
 var resultsBox = null,
-    reconnectingDiv = window.document.getElementById('reconnecting'),
+    reconnectingDiv = () => window.document.getElementById('reconnecting'),
     currentResults = null,
     imgLoader = null,
     progressBarInterval = null,

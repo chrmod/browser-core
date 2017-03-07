@@ -15,6 +15,12 @@ export default describeModule("core/utils",
       "core/storage": {
         default: {}
       },
+      'core/gzip': {
+        default: {}
+      },
+      'core/language': {
+        default: {}
+      },
       'core/events': {
         default: {}
       },

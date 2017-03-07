@@ -16,7 +16,7 @@ class ResultFactory {
 
     if (rawResult.data.template === 'calculator') {
       if (rawResult.data.extra.ez_type) {
-        return;
+        throw new Error('ignore');
       }
       Constructor = CalculatorResult;
     }

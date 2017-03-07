@@ -44,7 +44,7 @@ node('ubuntu && docker && !gpu') {
   if (helpers.hasWipLabel()) {
     error "Branch is wip"
   }
-  
+
   gitCommit = helpers.getGitCommit()
 
   // stash dockerfile for use on other nodes without checkout
@@ -66,7 +66,7 @@ node('ubuntu && docker && !gpu') {
           }
 
           // mobile build and stash
-          withEnv(['CLIQZ_CONFIG_PATH=./configs/mobile-dev.json']) {
+          withEnv(['CLIQZ_CONFIG_PATH=./configs/mobile.json']) {
             stage('fern build mobile') {
               sh './fern.js build > /dev/null'
               // stage built files for mobile testem test

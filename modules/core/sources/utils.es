@@ -1,4 +1,3 @@
-import System from "system";
 import CLIQZEnvironment from "../platform/environment";
 import console from "./console";
 import prefs from "./prefs";
@@ -6,9 +5,9 @@ import Storage from "./storage";
 import CliqzEvents from './events';
 import { TLDs } from "./tlds";
 import { httpHandler, promiseHttpHandler } from './http';
+import gzip from './gzip';
+import CliqzLanguage from './language';
 import { isUrl } from './url';
-
-var CliqzLanguage;
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
@@ -30,6 +29,7 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 
 
 var CliqzUtils = {
+  environment: CLIQZEnvironment,
   RESULTS_PROVIDER:               CLIQZEnvironment.RESULTS_PROVIDER,
   RICH_HEADER:                    CLIQZEnvironment.RICH_HEADER,
   RESULTS_PROVIDER_LOG:           'https://api.cliqz.com/api/v1/logging?q=',
@@ -84,20 +84,14 @@ var CliqzUtils = {
     if (!options.lang) {
       return Promise.reject("lang missing");
     }
-    CliqzUtils.importModule('core/gzip').then(function(gzip) {
-      CLIQZEnvironment.gzip = gzip;
-    }).catch(function () {
-      //no gzip, do nothing
-    });
+
+    CLIQZEnvironment.gzip = gzip;
 
     // cutting cyclic dependency
     CLIQZEnvironment.getLogoDetails = CliqzUtils.getLogoDetails.bind(CliqzUtils);
     CLIQZEnvironment.getDetailsFromUrl = CliqzUtils.getDetailsFromUrl.bind(CliqzUtils);
     CLIQZEnvironment.getLocalizedString = CliqzUtils.getLocalizedString.bind(CliqzUtils);
     CLIQZEnvironment.app = CliqzUtils.app;
-    System.import('platform/language').then((module) => {
-      CliqzLanguage = module.default;
-    })
     CliqzUtils.log('Initialized', 'CliqzUtils');
 
     CliqzUtils.setLang(options.lang);

@@ -1,4 +1,4 @@
-import LocalView from 'mobile-ui/views/local-data-sc';
+import LocalView from './local-data-sc';
 
 export class GenericResult {
 

@@ -13,6 +13,7 @@ var osAPI = {
     } else {
       osAPI.OS.postMessage = MockOS.postMessage;
     }
+    osAPI.isReady();
   },
   /**
     function: searchHistory

@@ -12,25 +12,16 @@ describe('Search View', function() {
     this.timeout(timeout);
     testBox = document.createElement("iframe");
     testBox.setAttribute("class", "testFrame");
-    testBox.src = 	"/build/index.html";
+    testBox.src =	"/build/index.html";
 
     return new Promise(function (resolve, reject) {
-      const rejectTimeout = setTimeout(reject.bind(null, "iframe contentWindow not loaded"), timeout);
-      testBox.addEventListener("load", () => {
-        clearTimeout(rejectTimeout);
-        resolve();
+      window.addEventListener('message', function (ev) {
+        if (ev.data === 'cliqz-ready') {
+          contentWindow = testBox.contentWindow;
+          resolve();
+        }
       });
       document.body.appendChild(testBox);
-    }).then(function () {
-      contentWindow = testBox.contentWindow;
-      const promise = new Promise(function (resolve) {
-        testBox.contentWindow.addEventListener('message', function (ev) {
-          if (ev.data === 'cliqz-ready') {
-            resolve();
-          }
-        });
-      });
-      return promise;
     }).then(() => {
       return injectSinon(testBox.contentWindow);
     }).then(done);
