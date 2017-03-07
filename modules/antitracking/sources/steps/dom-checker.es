@@ -1,7 +1,7 @@
 import pacemaker from '../pacemaker';
 import core from '../../core/background';
 import { dURIC } from '../url';
-import { isTabURL } from '../platform/browser';
+import { isTabURL } from '../../platform/browser';
 
 const DOM_CHECK_PERIOD = 1000;
 

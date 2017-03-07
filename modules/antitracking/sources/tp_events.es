@@ -15,8 +15,8 @@ class PageLoadData {
     this.scheme = url.protocol;
     this.private = isPrivate;
     this.c = 1;
-    this.s = (new Date()).getTime();
-    this.e = null;
+    this.s = Date.now()
+    this.e = this.s;
     this.tps = {};
     this.redirects = [];
     this.ra = reloaded;
@@ -85,6 +85,12 @@ class PageLoadData {
       }
       this.triggeringTree[triggerDomain].add(host);
     }
+    this._plainObject = null;
+  }
+
+  setAsStaged() {
+    this.e = Date.now();
+    this._plainObject = null;
   }
 
   _buildPlainObject() {
@@ -238,7 +244,7 @@ class PageEventTracker {
   // returns the staged PageLoadData object
   stage(windowID) {
       if(windowID in this._active) {
-          this._active[windowID]['e'] = (new Date()).getTime();
+          this._active[windowID].setAsStaged()
           // push object to staging and save its id
           this._old_tab_idx[windowID] = this._staged.push(this._active[windowID]) - 1;
           delete this._active[windowID];
