@@ -1,4 +1,5 @@
 import { fetch, Request } from '../core/http';
+import { utils } from '../core/cliqz';
 
 import CliqzPeer from '../p2p/cliqz-peer';
 import { createHiddenWindow, destroyHiddenWindow } from '../p2p/utils';
@@ -10,6 +11,56 @@ import RTCRelay from './rtc-relay';
 import RTCToNet from './rtc-to-net';
 import SocksToRTC from './socks-to-rtc';
 import { decryptPayload } from './rtc-onion';
+
+
+/**
+ * Wrap a MessageQueue into a multiplexer. It exposes a different `push`
+ * function, with an extra argument `key`. For each different value of key,
+ * a different queue is created.
+ *
+ * It also implements a mechanism to garbage collect un-used queues.
+ */
+function MultiplexedQueue(name, callback) {
+  const queues = Object.create(null);
+  const push = (key, msg) => {
+    let messageQueue = queues[key];
+
+    if (messageQueue === undefined) {
+      const subName = `${name}_${key}`;
+      messageQueue = {
+        queue: MessageQueue(subName, callback),
+        lastActivity: Date.now(),
+      };
+      queues[key] = messageQueue;
+    } else {
+      // Refresh last activity
+      messageQueue.lastActivity = Date.now();
+    }
+
+    messageQueue.queue.push(msg);
+  };
+
+  // Clean-up unused queues
+  const closeDeadConnections = utils.setInterval(
+    () => {
+      const timestamp = Date.now();
+      Object.keys(queues).forEach((key) => {
+        const { lastActivity } = queues[key];
+        if (lastActivity < (timestamp - (1000 * 30))) {
+          console.debug(`proxyPeer ${name}_${key} garbage collect`);
+          delete queues[key];
+        }
+      });
+    },
+    10 * 1000);
+
+  return {
+    push,
+    unload() {
+      utils.clearInterval(closeDeadConnections);
+    }
+  };
+}
 
 
 function post(url, payload) {
@@ -39,6 +90,8 @@ export default class {
     this.socksToRTC = null;
     this.rtcRelay = null;
     this.rtcToNet = null;
+
+    this.signalingURL = 'p2p-signaling-102182689.us-east-1.elb.amazonaws.com:9666';
   }
 
   createPeer(window) {
@@ -47,7 +100,7 @@ export default class {
       .then(() => {
         this.peer = new CliqzPeer(window, this.ppk, {
           ordered: true,
-          brokerUrl: 'ws://p2p-signaling-102182689.us-east-1.elb.amazonaws.com:9666',
+          brokerUrl: `ws://${this.signalingURL}`,
           maxReconnections: 0,
           maxMessageRetries: 0,
         });
@@ -75,14 +128,14 @@ export default class {
       .then(() => {
         // Client
         this.socksToRTC = new SocksToRTC(this.peer, this.socksProxy);
-        this.clientQueue = MessageQueue(
+        this.clientQueue = MultiplexedQueue(
           'client',
           ({ msg }) => this.socksToRTC.handleClientMessage(msg),
         );
 
         // Relay
         this.rtcRelay = new RTCRelay();
-        this.relayQueue = MessageQueue(
+        this.relayQueue = MultiplexedQueue(
           'relay',
           ({ msg, message, peer }) =>
           this.rtcRelay.handleRelayMessage(
@@ -94,7 +147,7 @@ export default class {
 
         // Exit
         this.rtcToNet = new RTCToNet();
-        this.exitQueue = MessageQueue(
+        this.exitQueue = MultiplexedQueue(
           'exit',
           ({ msg, peer }) =>
           this.rtcToNet.handleExitMessage(
@@ -121,12 +174,12 @@ export default class {
 
             // Push in corresponding message queue
             if (role === 'exit') {
-              this.exitQueue.push(data);
+              this.exitQueue.push(connectionID, data);
             } else if (role === 'relay') {
               if (msg.nextPeer || this.rtcRelay.isOpenedConnection(connectionID, peer)) {
-                this.relayQueue.push(data);
+                this.relayQueue.push(connectionID, data);
               } else {
-                this.clientQueue.push(data);
+                this.clientQueue.push(connectionID, data);
               }
             }
           })
@@ -144,6 +197,13 @@ export default class {
   }
 
   unload() {
+    // Unload multiplexed message queues
+    [this.socksToRTC, this.rtcRelay, this.rtcToNet].forEach((queue) => {
+      if (queue !== null) {
+        queue.unload();
+      }
+    });
+
     this.socksProxy.unload();
     this.peer.disableSignaling();
     this.peer.destroy();

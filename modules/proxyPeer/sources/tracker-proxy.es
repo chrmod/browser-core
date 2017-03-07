@@ -93,12 +93,35 @@ export default class {
       // and 'unblock/sources/request-listener.es' is in position 0.
       this.pps.registerFilter(this, 2);
 
+      // Here we need to register two steps in the antitracking pipeline:
+      // 1. The first one will check if the flag `shouldProxyAll` is set, and if
+      // so, will register the url to be proxied later. It will also ignore
+      // traffic that is not coming from a tab, and WebRTC signaling
+      // communications.
+      // 2. The second step is evaluated later in the pipeline, when the
+      // information `isTracker` is available.
+      //
+      // Both are needed because the second step will not be evaluated for URLs
+      // that are third-parties.
       return this.antitracking.action('addPipelineStep', {
+        name: 'checkShouldProxyAll',
+        stages: ['open'],
+        after: ['determineContext'],
+        fn: (state) => {
+          const isSignalingServer = state.url.indexOf(this.proxyPeer.signalingURL) !== -1;
+          if (state.tabId !== -1 && !isSignalingServer) {
+            this.checkShouldProxyURL(state.url, false);
+          }
+
+          // We will never interrupt the antitracking pipeline from this step.
+          return true;
+        },
+      }).then(() => this.antitracking.action('addPipelineStep', {
         name: 'checkShouldProxyRequest',
         stages: ['open'],
         after: ['findBadTokens'],
         fn: this.checkShouldProxyRequest.bind(this),
-      });
+      }));
     }
 
     return Promise.resolve();
@@ -108,7 +131,8 @@ export default class {
     if (this.firefoxProxy !== null) {
       this.pps.unregisterFilter(this);
       this.firefoxProxy = null;
-      return this.antitracking.action('removePipelineStep', 'checkShouldProxyRequest');
+      return this.antitracking.action('removePipelineStep', 'checkShouldProxyRequest')
+        .then(() => this.antitracking.action('removePipelineStep', 'checkShouldProxyAll'));
     }
 
     return Promise.resolve();

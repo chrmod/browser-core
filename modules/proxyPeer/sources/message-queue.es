@@ -82,5 +82,8 @@ export default function (name, callback) {
   // The only interface for this entity is the `push` function,
   // that will add a message in the queue, processed async by
   // the callback.
-  return { push };
+  return {
+    push,
+    getSize() { return queue.length; },
+  };
 }
