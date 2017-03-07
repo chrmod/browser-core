@@ -1,4 +1,4 @@
-import console from 'core/console';
+import console from './console';
 
 
 /**

@@ -1,6 +1,6 @@
 // import md5 from 'core/helpers/md5';
-import { utils } from 'core/cliqz';
-import console from 'core/console';
+import { utils } from '../core/cliqz';
+import console from './console';
 
 
 function hashConnectionID(connectionID /* , peerID */) {

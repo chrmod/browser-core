@@ -1,18 +1,30 @@
-import { utils, events } from 'core/cliqz';
-import ProxyPeer from 'proxyPeer/proxy-peer';
+import { utils, events } from '../core/cliqz';
+import console from './console';
+import ProxyPeer from './proxy-peer';
 
 
-const ENABLE_PREF = 'attrackProxyTrackers';
-const ENABLE_ALL_PROXY = 'attrackProxyAll';
+const PROXY_PEER_PREF = 'proxyPeer';
+const PROXY_TRACKERS_PREF = 'proxyTrackers';
+const PROXY_ALL_PREF = 'proxyAll';
 
 
 function shouldProxyTrackers() {
-  return utils.getPref(ENABLE_PREF, false);
+  return utils.getPref(PROXY_TRACKERS_PREF, false);
 }
 
 
 function shouldProxyAll() {
-  return utils.getPref(ENABLE_ALL_PROXY, false);
+  return utils.getPref(PROXY_ALL_PREF, false);
+}
+
+
+function shouldRunProxy() {
+  return shouldProxyAll() || shouldProxyTrackers();
+}
+
+
+function shouldRunPeer() {
+  return utils.getPref(PROXY_PEER_PREF, false) || shouldRunProxy();
 }
 
 
@@ -25,98 +37,132 @@ export default class {
     this.pps = Components.classes['@mozilla.org/network/protocol-proxy-service;1']
       .getService(Components.interfaces.nsIProtocolProxyService);
 
+    // Internal state
     this.proxyPeer = null;
-    this.proxy = null;
-    this.initialised = false;
+    this.firefoxProxy = null;
+    this.prefListener = null;
 
+    // Store current prefs
+    this.shouldProxyAll = shouldProxyAll();
+    this.shouldProxyTrackers = shouldProxyTrackers();
+    this.shouldRunPeer = shouldRunPeer();
+
+    // Proxy state
     this.urlsToProxy = new Set();
-
-    this.proxyAll = shouldProxyAll();
-    this.proxyTrackers = shouldProxyTrackers();
-
     this.proxyStats = new Map();
-
     this.antitracking = antitracking;
   }
 
-  init() {
-    if (this.isEnabled()) {
-      // Check if we should instantiate a new proxy
-      if (this.proxyPeer === null) {
-        // Run local socks proxy
-        this.proxyPeer = new ProxyPeer();
+  isProxyEnabled() {
+    return this.shouldProxyTrackers || this.shouldProxyAll;
+  }
 
-        // Inform Firefox to use our local proxy
-        this.proxy = this.pps.newProxyInfo(
-          'socks',                              // aType = socks5
-          this.proxyPeer.getSocksProxyHost(),   // aHost
-          this.proxyPeer.getSocksProxyPort(),   // aPort
-          null,                                 // aFlags
-          5000,                                 // aFailoverTimeout
-          null);                                // aFailoverProxy
+  isPeerEnabled() {
+    return this.shouldRunPeer || this.isProxyEnabled();
+  }
 
-        // Filter used to determine which requests are to be proxied.
-        // Position 2 since 'unblock/sources/proxy.es' is in position 1
-        // and 'unblock/sources/request-listener.es' is in position 0.
-        this.pps.registerFilter(this, 2);
-      }
-      this.antitracking.action('addPipelineStep', {
-        name: 'checkShouldProxy',
+  initPeer() {
+    if (this.isPeerEnabled() && this.proxyPeer === null) {
+      this.proxyPeer = new ProxyPeer();
+      return this.proxyPeer.init();
+    }
+
+    return Promise.resolve();
+  }
+
+  unloadPeer() {
+    if (!this.isPeerEnabled() && this.proxyPeer !== null) {
+      this.proxyPeer.unload();
+      this.proxyPeer = null;
+    }
+  }
+
+  initProxy() {
+    if (this.isProxyEnabled() && this.firefoxProxy === null) {
+      // Inform Firefox to use our local proxy
+      this.firefoxProxy = this.pps.newProxyInfo(
+        'socks',                              // aType = socks5
+        this.proxyPeer.getSocksProxyHost(),   // aHost
+        this.proxyPeer.getSocksProxyPort(),   // aPort
+        null,                                 // aFlags
+        5000,                                 // aFailoverTimeout
+        null);                                // aFailoverProxy
+
+      // Filter used to determine which requests are to be proxied.
+      // Position 2 since 'unblock/sources/proxy.es' is in position 1
+      // and 'unblock/sources/request-listener.es' is in position 0.
+      this.pps.registerFilter(this, 2);
+
+      return this.antitracking.action('addPipelineStep', {
+        name: 'checkShouldProxyRequest',
         stages: ['open'],
         after: ['findBadTokens'],
-        fn: this.checkShouldProxy.bind(this),
+        fn: this.checkShouldProxyRequest.bind(this),
       });
     }
 
-    if (!this.initialised) {
+    return Promise.resolve();
+  }
+
+  unloadProxy() {
+    if (this.firefoxProxy !== null) {
+      this.pps.unregisterFilter(this);
+      this.firefoxProxy = null;
+      return this.antitracking.action('removePipelineStep', 'checkShouldProxyRequest');
+    }
+
+    return Promise.resolve();
+  }
+
+  initPrefListener() {
+    if (this.prefListener === null) {
       this.prefListener = this.onPrefChange.bind(this);
       events.sub('prefchange', this.prefListener);
     }
 
-    this.initialised = true;
+    return Promise.resolve();
+  }
+
+  init() {
+    this.initPrefListener();
+    return this.initPeer()
+      .then(() => {
+        this.initProxy();
+      });
   }
 
   unload() {
-    if (this.initialised) {
-      if (this.proxyPeer !== null) {
-        this.pps.unregisterFilter(this);
-        this.proxyPeer.unload();
-        this.proxyPeer = null;
-        this.proxy = null;
-      }
-      this.antitracking.action('removePipelineStep', 'checkShouldProxy');
-
+    if (this.prefListener !== null) {
       events.un_sub('prefchange', this.prefListener);
-      this.initialised = false;
     }
-  }
 
-  isEnabled() {
-    return this.proxyTrackers || this.proxyAll;
+    return this.unloadProxy()
+      .then(() => this.unloadPeer());
   }
 
   onPrefChange(pref) {
-    if (pref === ENABLE_PREF || pref === ENABLE_ALL_PROXY) {
-      if (this.isEnabled() && !this.initialised) {
-        this.init();
-      } else if (!this.isEnabled() && this.initialised) {
-        this.unload();
-      }
-    }
+    if ([PROXY_ALL_PREF, PROXY_TRACKERS_PREF, PROXY_PEER_PREF].indexOf(pref) !== -1) {
+      // Update prefs with new values
+      this.shouldProxyTrackers = shouldProxyTrackers();
+      this.shouldProxyAll = shouldProxyAll();
+      this.shouldRunPeer = shouldRunPeer();
 
-    if (pref === ENABLE_PREF) {
-      this.proxyTrackers = !this.proxyTrackers;
-    } else if (pref === ENABLE_ALL_PROXY) {
-      this.proxyAll = !this.proxyAll;
+      // Load/Unload if any pref changed
+      // This works because unload and init are no-ops if the
+      // preferences did not change.
+      this.unloadProxy()
+        .then(() => this.unloadPeer())
+        .then(() => this.initPeer())
+        .then(() => this.initProxy());
     }
   }
 
-  checkShouldProxy(state) {
+  checkShouldProxyRequest(state) {
     const hostname = state.urlParts.hostname;
     const hostGD = state.urlParts.generalDomain;
     const isTrackerDomain = state.isTracker; // from token-checker step
 
-    if (this.shouldProxy(state.url, isTrackerDomain)) {
+    if (this.checkShouldProxyURL(state.url, isTrackerDomain)) {
       state.incrementStat('proxy');
 
       // Counter number of requests proxied per GD
@@ -132,20 +178,30 @@ export default class {
     return true;
   }
 
-  shouldProxy(url, isTrackerDomain) {
-    // Check if a url should be proxied. We have to do two lookups in the
-    // set of domains `trackerDomains`, one for the full hostname, and one
-    // for the general domain (the list contains several general domains for
-    // which we shall proxy every queries).
-    if (this.initialised) {
-      // If everything should be proxied
-      if (this.proxyAll || (this.proxyTrackers && isTrackerDomain)) {
-        dump(`PROXY ${url}\n`);
-        this.proxyOnce(url);
-        return true;
-      }
+  checkShouldProxyURL(url, isTrackerDomain) {
+    if (this.firefoxProxy === null) {
+      console.error('proxyPeer cannot proxy: tracker-proxy not yet initialized');
+      return false;
     }
-    dump(`DO NOT PROXY ${url}\n`);
+
+    if (this.proxyPeer === null || this.proxyPeer.socksToRTC === null) {
+      console.error('proxyPeer cannot proxy: proxyPeer not yet initialized');
+      return false;
+    }
+
+    const availablePeers = this.proxyPeer.socksToRTC.availablePeers.length;
+    if (availablePeers < 2) {
+      console.error(`proxyPeer cannot proxy: not enough peers available (${availablePeers})`);
+      return false;
+    }
+
+    if (this.shouldProxyAll || (this.shouldProxyTrackers && isTrackerDomain)) {
+      console.debug(`proxyPeer proxy: ${url}`);
+      this.proxyOnce(url);
+      return true;
+    }
+
+    console.debug(`proxyPeer do *not* proxy: ${url}`);
 
     return false;
   }
@@ -157,7 +213,7 @@ export default class {
   applyFilter(pps, url, defaultProxy) {
     if (this.urlsToProxy.has(url.asciiSpec)) {
       this.urlsToProxy.delete(url.asciiSpec);
-      return this.proxy;
+      return this.firefoxProxy;
     }
     return defaultProxy;
   }

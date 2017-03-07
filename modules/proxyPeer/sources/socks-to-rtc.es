@@ -1,14 +1,14 @@
-import { utils } from 'core/cliqz';
-import console from 'core/console';
+import { utils } from '../core/cliqz';
 
+import console from './console';
 import { AUTH_METHOD
        , SOCKS5
-       , parseHandshake } from 'proxyPeer/socks-protocol';
+       , parseHandshake } from './socks-protocol';
 import { wrapOnionRequest
        , sendOnionRequest
-       , decryptResponseFromExitNode } from 'proxyPeer/rtc-onion';
-import { generateAESKey, generateAESIv, packAESKeyAndIv } from 'proxyPeer/rtc-crypto';
-import MessageQueue from 'proxyPeer/message-queue';
+       , decryptResponseFromExitNode } from './rtc-onion';
+import { generateAESKey, generateAESIv, packAESKeyAndIv } from './rtc-crypto';
+import MessageQueue from './message-queue';
 
 
 // From:  http://stackoverflow.com/a/6274381
@@ -56,7 +56,7 @@ function getPubKey(peer) {
 function fetchRemotePeers(peerID) {
   return new Promise((resolve, reject) => {
     utils.httpGet(
-      'http://hpn-ds.cliqz.com/listpeers/',
+      'https://hpn-sign.cliqz.com/listpeers',
       (res) => {
         // Extract remote peer ids
         const remotePeers = JSON.parse(res.response).peers.up.filter(peer => peer !== peerID);

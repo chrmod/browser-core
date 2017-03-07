@@ -41,11 +41,11 @@ function leftpad(str, char, size) {
 function anonymizeTrackerTokens(trackerData) {
   let index = 1
   // Anonymize the given tracker data
-  let anonymizedTrackerData = {};
+  const anonymizedTrackerData = {};
 
   for (let originalKey in trackerData) {
     const newRandomKey = leftpad(index.toString().substr(0, 16), '0', 16);
-    index = index + 1;
+    index += 1;
     anonymizedTrackerData[newRandomKey] = trackerData[originalKey];
   }
 

@@ -1,14 +1,14 @@
 
-import { utils } from 'core/cliqz';
-import console from 'core/console';
+import { utils } from '../core/cliqz';
 // import md5 from 'core/helpers/md5';
 
-import { openSocket } from 'proxyPeer/tcp-socket';
+import console from './console';
+import { openSocket } from './tcp-socket';
 import { SERVER_REPLY
-       , parseRequest } from 'proxyPeer/socks-protocol';
-import { unpackAESKeyAndIv } from 'proxyPeer/rtc-crypto';
-import { createResponseFromExitNode } from 'proxyPeer/rtc-onion';
-import MessageQueue from 'proxyPeer/message-queue';
+       , parseRequest } from './socks-protocol';
+import { unpackAESKeyAndIv } from './rtc-crypto';
+import { createResponseFromExitNode } from './rtc-onion';
+import MessageQueue from './message-queue';
 
 
 function hashConnectionID(connectionID /* , peerID */) {

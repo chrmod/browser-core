@@ -1,10 +1,10 @@
-import console from 'core/console';
+import console from './console';
 import { generateAESKey
        , encryptRSA
        , decryptRSA
        , encryptAES
        , decryptAES
-       , fromArrayBuffer } from 'proxyPeer/rtc-crypto';
+       , fromArrayBuffer } from './rtc-crypto';
 
 
 /*
