@@ -51,7 +51,8 @@ var __CliqzHumanWeb = function() { // (_export) {
             falsePositive = 0.01;
             bloomFilterNHashes = 7;
             CliqzHumanWeb = {
-                VERSION: '3.0',
+                CHANNEL: channel,
+                VERSION: '2.5',
                 WAIT_TIME: 2000,
                 LOG_KEY: 'humanweb',
                 debug: false,
@@ -155,6 +156,19 @@ var __CliqzHumanWeb = function() { // (_export) {
                         return masked_url;
                     }
                     return url;
+                },
+                maskURLStrict: function maskURLStrict(url) {
+                    var url_parts = null;
+                    var masked_url = null;
+
+
+                    url_parts = CliqzHumanWeb.parseURL(url);
+
+
+                    if (!url_parts) return '';
+
+                    masked_url = url_parts.protocol + "://" + url_parts.hostname + "/ (PROTECTED)";
+                    return masked_url;
                 },
                 isShortenerURL: function isShortenerURL(url) {
                     try {
@@ -388,7 +402,15 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 getHeaders: function getHeaders(strData) {
                     var o = {};
-                    o['status'] = strData.split(" ")[1];
+                    var _status = strData.split(" ")[1];
+
+                    if (parseInt(_status)) {
+                        _status = parseInt(_status);
+                    } else {
+                        _status = null;
+                    }
+
+                    o['status'] = _status;
 
                     var l = strData.split("\n");
                     for (var i = 0; i < l.length; i++) {
@@ -424,9 +446,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 //console.log('REFZZZ 4', url,  { 's': '' + refU, 'time': CliqzHumanWeb.counter });
 
                             }
-                            if (status == '301' || status == '302') {
+                            if (status === 301 || status === 302) {
                                 CliqzHumanWeb.httpCache[url] = { 'status': status, 'time': CliqzHumanWeb.counter, 'location': loc };
-                            } else if (status == '401') {
+                            } else if (status === 401) {
                                 CliqzHumanWeb.httpCache401[url] = { 'time': CliqzHumanWeb.counter };
                             } else if (status) {
                                 CliqzHumanWeb.httpCache[url] = { 'status': status, 'time': CliqzHumanWeb.counter };
@@ -473,7 +495,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     try {
                         for (var key in CliqzHumanWeb.httpCache) {
                             if (CliqzHumanWeb.httpCache[key]) {
-                                if (CliqzHumanWeb.httpCache[key]['location'] != null && (CliqzHumanWeb.httpCache[key]['status'] == '301' || CliqzHumanWeb.httpCache[key]['status'] == '302')) {
+                                if (CliqzHumanWeb.httpCache[key]['location'] != null && (CliqzHumanWeb.httpCache[key]['status'] === 301 || CliqzHumanWeb.httpCache[key]['status'] === 302)) {
                                     if (CliqzHumanWeb.httpCache[key]['location'] == url || decodeURIComponent(CliqzHumanWeb.httpCache[key]['location']) == url) {
                                         res.unshift(key);
                                         CliqzHumanWeb.getRedirects(key, res);
@@ -566,45 +588,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 auxIsAlive: function auxIsAlive() {
                     return true;
-                },
-                // FIXME: this function is only for testing
-                testReqAno: function(url) {
-                    console.log("Trying", url);
-                    fetch(url //,{headers: new Headers({'Content-Type': 'text/html'})}
-                        ).then(
-                        function(response) {
-                            if (response.status !== 200) {
-                                console.log('>>>>', 'Looks like there was a problem. Status Code: ' + response.status);
-                                return;
-                            }
-                            //var r = new FileReader();
-                            //console.log('>>>', response, r.readAsText(response.body));
-
-                            response.text().then(function (body) {
-                                var parser = new DOMParser();
-                                var doc =  parser.parseFromString(body, "text/html");
-                                //console.log('>>>>>', body);
-                                //console.log('>>>>>', {'time': CliqzHumanWeb.counter, 'doc': doc });
-                            }).catch(function(err) {
-                                _log('Error reading body? ', err);
-
-                            });
-
-
-                            //var doc = document.implementation.createHTMLDocument("example");
-                            //doc.documentElement.innerHTML = response.body;
-                            //console.log('>>>>>', {'time': CliqzHumanWeb.counter, 'doc': doc });
-                            //console.log('>>>>>', CliqzHumanWeb.getPageData(url, doc));
-
-                          // Examine the text in the response
-                          //response.json().then(function(data) {
-                          //  console.log('>>>>', data);
-                          //});
-                        }
-                      ).catch(function(err) {
-                        console.log('>>>>', 'ERROR', err);
-                      });
-
                 },
                 auxGetPageData: function auxGetPageData(url, page_data, original_url, onsuccess, onerror) {
 
@@ -1254,19 +1237,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     return redURL;
                  },
                 */
-                eventDoorWayPage: function eventDoorWayPage(cd) {
-                    var payload = {};
-                    var url = cd.location.href;
-                    var doorwayURL = cd.getElementsByTagName('a')[0].href;
-                    try {
-                        var location = CliqzUtils.getPref('config_location', null);
-                    } catch (ee) {};
-                    var orignalDomain = CliqzHumanWeb.parseURL(url).hostname;
-                    var dDomain = CliqzHumanWeb.parseURL(doorwayURL).hostname;
-                    if (orignalDomain == dDomain) return;
-                    payload = { "url": url, "durl": doorwayURL, "ctry": location };
-                    CliqzHumanWeb.telemetry({ 'type': CliqzHumanWeb.msgType, 'action': 'doorwaypage', 'payload': payload });
-                },
                 getPageData: function getPageData(url, cd) {
 
                     var len_html = null;
@@ -1312,12 +1282,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                         forms = cd.getElementsByTagName('form');
                     } catch (ee) {}
 
-                    //Detect doorway pages
-                    // TBF : Need to make detecting of doorway page more strong. Currently lot of noise getting through.
-                    if (numlinks == 1 && cd.location) {
-                        CliqzHumanWeb.eventDoorWayPage(cd);
-                    }
-
                     var metas = cd.getElementsByTagName('meta');
 
                     // extract the language of th
@@ -1332,17 +1296,28 @@ var __CliqzHumanWeb = function() { // (_export) {
                             tag_html = cd.getElementsByTagName('html');
                             pg_l = tag_html[0].getAttribute("lang");
                         };
-                    } catch (ee) {}
 
-                    // extract if indexable, no noindex on robots meta tag
-                    try {
-                        for (var _i2 = 0; _i2 < metas.length; _i2++) {
-                            var cnt = metas[_i2].getAttribute('content');
-                            if (cnt != null && cnt.indexOf('noindex') > -1) {
-                                iall = false;
+
+                        if (pg_l) {
+                            if (pg_l.length > 10) {
+                                pg_l = null;
                             }
                         }
                     } catch (ee) {}
+
+                    // extract if indexable, no noindex on robots meta tag
+                    var headTag = '';
+                    try {
+                        headTag = cd.querySelector('head');
+                        if (headTag) {
+                            var headContent = headTag.innerHTML.toLowerCase();
+                            if (headContent && headContent.indexOf('noindex') > -1) {
+                                iall = false;
+                            }
+                        }
+                    } catch (ee) {
+                        _log("no-index check failed " + ee);
+                    }
 
                     // extract the canonical url if available
                     var link_tag = cd.getElementsByTagName('link');
@@ -1368,7 +1343,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     // extract the location of the user (country level)
                     try {
-                        var location = CliqzUtils.getPref('config_location', null);
+                        var location = CliqzHumanWeb.getCountryCode();;
                     } catch (ee) {}
 
                     var x = { 'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel': pg_l, 'ctry': location, 'iall': iall, 'canonical_url': canonical_url };
@@ -1440,7 +1415,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     if (aRequest && aRequest.referrer) {
                         var refU = aRequest.referrer.asciiSpec;
                         var newURL = aURI.spec;
-                        if (refU.indexOf('t.co/') > -1) CliqzHumanWeb.httpCache[refU] = { 'status': '301', 'time': CliqzHumanWeb.counter, 'location': aURI.spec };
+                        if (refU.indexOf('t.co/') > -1) CliqzHumanWeb.httpCache[refU] = { 'status': 301, 'time': CliqzHumanWeb.counter, 'location': aURI.spec };
 
                         //Get first redirection.. for yahoo and stuff
                         var refyahoo = /\.search.yahoo\..*RU=/;
@@ -1847,6 +1822,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             _log('Load ts config');
                         }
                         CliqzHumanWeb.fetchAndStoreConfig();
+                        CliqzUtils.fetchAndStoreConfig();
                     }
 
                     /*
@@ -1892,7 +1868,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             //
                             if (CliqzHumanWeb.userTransitions['search'][query]['data'].length > 1) {
                                 try {
-                                    var location = CliqzUtils.getPref('config_location', null);
+                                    var location = CliqzHumanWeb.getCountryCode();
                                 } catch (ee) {};
                                 var doc = { 'q': query, 'sources': CliqzHumanWeb.userTransitions['search'][query]['data'], 'ctry': location };
                                 if (CliqzHumanWeb.debug) {
@@ -2102,7 +2078,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                             var linkURL = targetURL;
                             if (CliqzHumanWeb.httpCache[targetURL]) {
-                                if (CliqzHumanWeb.httpCache[targetURL]['status'] == '301') {
+                                if (CliqzHumanWeb.httpCache[targetURL]['status'] === 301) {
                                     linkURL = CliqzHumanWeb.httpCache[targetURL]['location'];
                                 }
                             }
@@ -2262,9 +2238,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     // Load strictQueries list.
                     CliqzHumanWeb.loadStrictQueries();
 
-                    // Load config from the backend
-                    CliqzHumanWeb.fetchSafeQuorumConfig();
-
                     // Load quorum bloom filter
                     CliqzHumanWeb.loadQuorumBloomFilter();
                 },
@@ -2290,9 +2263,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         return null;
                     }
 
-                    // Adding anti-duplicate key, so to detect duplicate messages on the backend.
-                    msg['anti-duplicates'] = Math.floor(Math.random() * 10000000);
-                    msg['channel'] = {{MSGCHANNEL}};
+                    msg['channel'] = CliqzHumanWeb.CHANNEL;
 
                     if (msg.action == 'page') {
                         if (msg.payload.tend && msg.payload.tin) {
@@ -2383,7 +2354,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                         if (msg.payload.red) {
                             var cleanRed = [];
                             msg.payload.red.forEach(function (e) {
-                                cleanRed.push(CliqzHumanWeb.maskURL(e));
+                                if (!CliqzHumanWeb.isSuspiciousURL(e)) {
+                                    cleanRed.push(CliqzHumanWeb.maskURL(e));
+                                }
                             });
                             msg.payload.red = cleanRed;
                         }
@@ -2444,6 +2417,31 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 return null;
                             }
                         }
+
+                        // We need to check the URLs for suspicious patterns,
+                        // Remove the suspicious URLs and limit them to 8 results.
+                        // Ensure reordering is done.
+                        if (msg.payload.r) {
+                            let cleanR = [];
+                            let newR = {};
+
+                            Object.keys(msg.payload.r).forEach( eachResult => {
+                                if (!CliqzHumanWeb.isSuspiciousURL(msg.payload.r[eachResult].u)) {
+                                    cleanR.push(msg.payload.r[eachResult]);
+                                }
+                            });
+                            // If after the check, the number of results is less than 8,
+                            // drop the message.
+
+                            if (cleanR.length < 8) return null;
+                            cleanR.slice(0,8).forEach( (each, idx) => {
+                                newR[idx] = each;
+                            });
+
+                            _log("Original: " + JSON.stringify(msg.payload.r));
+                            _log("New: " + JSON.stringify(newR));
+                            msg.payload.r = newR;
+                        }
                     }
 
                     return msg;
@@ -2455,7 +2453,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 trkTimer: null,
                 notification: function notification(payload) {
                     try {
-                        var location = CliqzUtils.getPref('config_location', null);
+                        var location = CliqzHumanWeb.getCountryCode();
                     } catch (ee) {};
                     if (payload && typeof payload === 'object') {
                         payload['ctry'] = location;
@@ -2468,37 +2466,45 @@ var __CliqzHumanWeb = function() { // (_export) {
                     //_log("Telemetry: >> " + JSON.stringify(msg));
                     //if (!CliqzHumanWeb || //might be called after the module gets unloaded
                     //CliqzUtils.getPref('dnt', false) || CliqzUtils.isPrivate(CliqzUtils.getWindow())) return;
+                    msg.ver = CliqzHumanWeb.VERSION;
+                    msg = CliqzHumanWeb.msgSanitize(msg);
+                    _log("Message sanitized");
 
-                    CliqzHumanWeb.isPublicDomain(msg).then(function (success) {
-                        return CliqzHumanWeb.safeQuorumCheck(msg);
-                    }, function (fail) {
-                        return Promise.reject("localcheck");
-                    }).then(function (isSafe) {
-                        _log("Quorum consent ?" + isSafe);
-                        if (isSafe) {
-                            msg.ver = CliqzHumanWeb.VERSION;
-                            msg = CliqzHumanWeb.msgSanitize(msg);
-                            _log("Message sanitized");
+                    if (msg) {
 
-                            if (msg) CliqzHumanWeb.incrActionStats(msg.action);
-                            if (msg) CliqzHumanWeb.trk.push(msg);
-                            _log("Added to the queue");
+                        CliqzHumanWeb.isPublicDomain(msg).then(function (success) {
+                            return CliqzHumanWeb.safeQuorumCheck(msg);
+                        }, function (fail) {
+                            return Promise.reject("localcheck");
+                        }).then(function (isSafe) {
+                            _log("Quorum consent ?" + isSafe);
+                            if (isSafe) {
+                                CliqzHumanWeb.quorumCheckOtherUrls(msg).then(function (msg) {
+                                    CliqzHumanWeb.incrActionStats(msg.action);
+                                    CliqzHumanWeb.trk.push(msg);
+                                    _log("Added to the queue");
 
-                            clearTimeout(CliqzHumanWeb.trkTimer);
-                            if (instantPush || CliqzHumanWeb.trk.length % 100 == 0) {
-                                CliqzHumanWeb.pushTelemetry();
+                                    clearTimeout(CliqzHumanWeb.trkTimer);
+                                    if (instantPush || CliqzHumanWeb.trk.length % 100 == 0) {
+                                        CliqzHumanWeb.pushTelemetry();
+                                    } else {
+                                        CliqzHumanWeb.trkTimer = setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
+                                    }
+                                })["catch"](function (err) {
+                                    return _log("Error while checking other urls for quorum.: " + err);
+                                });
                             } else {
-                                CliqzHumanWeb.trkTimer = setTimeout(CliqzHumanWeb.pushTelemetry, 10000);
-                            }
-                        } else {
 
-                            _log("Dropping data as quorum check failed");
-                            CliqzHumanWeb.incrActionStats("droppedQC");
-                        }
-                    })["catch"](function (err) {
-                        _log("Error while safe quorum check: " + err);
-                        CliqzHumanWeb.incrActionStats("dropped-" + err);
-                    });
+                                _log("Dropping data as quorum check failed");
+                                CliqzHumanWeb.incrActionStats("droppedQC");
+                            }
+                        })["catch"](function (err) {
+                            _log("Error while safe quorum check: " + err);
+                            CliqzHumanWeb.incrActionStats("dropped-" + err);
+                        });
+                    } else {
+                        _log("Message failed sanitization step");
+                    }
                 },
                 _telemetry_req: null,
                 _telemetry_sending: [],
@@ -3310,7 +3316,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 fetchAndStoreConfig: function fetchAndStoreConfig() {
                     //Load latest config.
-                    CliqzUtils.httpGet(CliqzHumanWeb.configURL, function success(req) {
+                    var url = CliqzHumanWeb.configURL + "?rnd=" + Math.floor(Math.random() * 10000000);
+                    CliqzUtils.httpGet(url, function success(req) {
                         if (!CliqzHumanWeb) return;
                         try {
                             var config = JSON.parse(req.response);
@@ -3436,7 +3443,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                                 if (rules[key][each_key]['etype'] == 'ctry') {
                                     try {
-                                        var location = "de";//CliqzUtils.getPref('config_location', null);
+                                        var location = CliqzHumanWeb.getCountryCode();
                                     } catch (ee) {};
                                     innerDict[each_key] = [location];
                                 }
@@ -3518,7 +3525,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         if (payloadRules['type'] == 'single' && payloadRules['results'] == 'single') {
                             scrapeResults[key].forEach(function (e) {
                                 try {
-                                    var location = CliqzUtils.getPref('config_location', null);
+                                    var location = CliqzHumanWeb.getCountryCode();
                                 } catch (ee) {};
                                 e['ctry'] = location;
                                 CliqzHumanWeb.sendMessage(payloadRules, e);
@@ -3677,13 +3684,32 @@ var __CliqzHumanWeb = function() { // (_export) {
                     // 2. Title should should not contain number greater than 8.
                     // 3. Title should not contain html.
 
+                    if (title.length > 500) return true;
                     var vt = title.split(' ');
                     for (var i = 0; i < vt.length; i++) {
                         if (vt[i].length > CliqzHumanWeb.rel_segment_len) {
                             var cstr = vt[i].replace(/[^A-Za-z0-9]/g, '');
                             if (cstr.length > CliqzHumanWeb.rel_segment_len) {
                                 if (CliqzHumanWeb.isHash(cstr)) return true;
+
+                                var pp = CliqzHumanWeb.isHashProb(cstr.toLowerCase());
+                                if (pp < CliqzHumanWeb.probHashThreshold * 1.5) {
+                                    return true;
+                                }
                             }
+                        }
+
+                        var cstr = vt[i].replace(/[^A-Za-z0-9]/g, '');
+                        if (CliqzHumanWeb.checkForLongNumber(cstr, 8) != null) {
+                            return true;
+                        }
+
+                        if (CliqzHumanWeb.checkForEmail(cstr)) {
+                            return true;
+                        }
+
+                        if (/<[^<]+>/.test(cstr)) {
+                            return true;
                         }
                     }
 
@@ -3864,7 +3890,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         payload['status'] = true;
                         payload['t'] = CliqzHumanWeb.getTime();
                         try {
-                            var location = CliqzUtils.getPref('config_location', null);
+                            var location = CliqzHumanWeb.getCountryCode();
                         } catch (ee) {};
                         payload['ctry'] = location;
                         CliqzHumanWeb.telemetry({ 'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload': payload });
@@ -4372,9 +4398,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                         var parse_url = CliqzHumanWeb.parseURL(msg.payload.url);
 
                         if (msg.payload.qr && (msg.payload.qr.t === "cl" || msg.payload.qr.t === "othr")) {
-                            if (parse_url && parse_url.path.length > 1) return true;
+                            if (parse_url && parse_url.path.length > 1 || parse_url.query_string && parse_url.path.length == 1 && parse_url.query_string.length > 1) return true;
                         } else if (!msg.payload.qr) {
-                            if (parse_url && parse_url.path.length > 1) return true;
+                            if (parse_url && parse_url.path.length > 1 || parse_url.query_string && parse_url.path.length == 1 && parse_url.query_string.length > 1) return true;
                         }
                     }
                     return false;
@@ -4408,6 +4434,10 @@ var __CliqzHumanWeb = function() { // (_export) {
                 sha1: function sha1(s) {
                     // Pass the message to the web-worker for SHA-1.
                     var promise = new Promise(function (resolve, reject) {
+                      crypto.subtle.digest("SHA-1", stringToByteArray(s)).then( hash => {
+                        resolve(byteArrayToHexString(new Uint8Array(hash)));
+                      });
+                        /*
                         var wCrypto = new Worker(hpnWorkerPath);
 
                         wCrypto.onmessage = function (e) {
@@ -4421,6 +4451,31 @@ var __CliqzHumanWeb = function() { // (_export) {
                             "msg": s,
                             "type": "hw-sha1"
                         });
+                        */
+                    });
+                    return promise;
+                },
+                sha256: function sha256(s) {
+                    // Pass the message to the web-worker for SHA-1.
+                    var promise = new Promise(function (resolve, reject) {
+                      crypto.subtle.digest("SHA-256", stringToByteArray(s)).then( hash => {
+                        resolve(byteArrayToHexString(new Uint8Array(hash)));
+                      });
+                        /*
+                        var wCrypto = new Worker(hpnWorkerPath);
+
+                        wCrypto.onmessage = function (e) {
+                            var result = e.data.result;
+                            wCrypto.terminate();
+                            _log("Got result for sha1:" + result);
+                            resolve(result);
+                        };
+
+                        wCrypto.postMessage({
+                            "msg": s,
+                            "type": "hw-sha1"
+                        });
+                        */
                     });
                     return promise;
                 },
@@ -4579,6 +4634,110 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }, function error(res) {
                         _log('Error loading config. ');
                     }, 5000);
+                },
+                getCountryCode: function getCountryCode() {
+                    var ctryCode = null;
+
+                    try {
+                        ctryCode = CliqzUtils.getPref('config_location', null);
+                    } catch (ee) {
+                        _log("Could not get config_location");
+                    };
+
+                    return CliqzHumanWeb.sanitizeCounrtyCode(ctryCode);
+                },
+                sanitizeCounrtyCode: function sanitizeCounrtyCode(ctryCode) {
+                    var _countryCode = ctryCode;
+                    if (allowedCountryCodes.indexOf(_countryCode) === -1) {
+                        _countryCode = '--';
+                    }
+                    return _countryCode;
+                },
+                getQuorumCheckOtherUrls: function getQuorumCheckOtherUrls(msg) {
+                    var urls = [];
+                    var urlPos = {};
+                    if (msg.payload.x.canonical_url) {
+                        var canURL = msg.payload.x.canonical_url;
+                        var parse_url = CliqzHumanWeb.parseURL(canURL);
+
+                        if (parse_url && parse_url.path.length > 1 || parse_url.query_string && parse_url.path.length == 1 && parse_url.query_string.length > 1) {
+
+                            urlPos[urls.length] = { t: "canonical", url: canURL };
+                            urls.push(canURL);
+                        }
+                    }
+                    if (msg.payload.ref) {
+                        var refURL = msg.payload.ref;
+                        var parse_url = CliqzHumanWeb.parseURL(refURL);
+
+                        if (parse_url && parse_url.path.length > 1 || parse_url.query_string && parse_url.path.length == 1 && parse_url.query_string.length > 1) {
+
+                            urlPos[urls.length] = { t: "ref", url: refURL };
+                            urls.push(refURL);
+                        }
+                    }
+
+                    if (msg.payload.red) {
+                        msg.payload.red.forEach(function (_redURL, idx) {
+                            var redURL = _redURL;
+                            var parse_url = CliqzHumanWeb.parseURL(redURL);
+
+                            if (parse_url && parse_url.path.length > 1 || parse_url.query_string && parse_url.path.length == 1 && parse_url.query_string.length > 1) {
+
+                                urlPos[urls.length] = { t: "red:" + idx, url: redURL };
+                                urls.push(redURL);
+                            }
+                        });
+                    }
+
+                    return { u: urls, up: urlPos };
+                },
+                quorumCheckOtherUrls: function quorumCheckOtherUrls(msg) {
+
+                    var promise = new Promise(function (resolve, reject) {
+                        if (msg.action === "page") {
+
+                            var urls;
+                            var urlPos;
+                            var allURLS = CliqzHumanWeb.getQuorumCheckOtherUrls(msg);
+                            urls = allURLS.u;
+                            urlPos = allURLS.up;
+                            _log("All urls in the message:" + JSON.stringify(urls));
+                            _log("All urls in the message:" + JSON.stringify(urlPos));
+
+                            Promise.all(urls.map(CliqzHumanWeb.sha1)).then(function (hashes) {
+                                _log(JSON.stringify(hashes));
+                                Promise.all(hashes.map(CliqzHumanWeb.getQuorumConsent)).then(function (results) {
+                                    _log(JSON.stringify(results));
+                                    results.forEach(function (r, idx) {
+                                        var original = urlPos[idx];
+                                        if (original.t === 'canonical') {
+                                            if (!r) msg.payload.x.canonical_url = CliqzHumanWeb.maskURLStrict(original.url);
+                                        }
+
+                                        if (original.t === 'ref') {
+                                            if (!r) msg.payload.ref = CliqzHumanWeb.maskURLStrict(original.url);
+                                        }
+
+                                        if (original.t.startsWith('red')) {
+                                            var redPos = original.t.split(':')[1];
+                                            if (!r) msg.payload.red[redPos] = maskURLStrict(original.url);
+                                        }
+                                    });
+                                    _log("All urls in the message:" + JSON.stringify(msg));
+                                    resolve(msg);
+                                })["catch"](function (err) {
+                                    return reject("Error in getQuorumConsent");
+                                });
+                            })["catch"](function (err) {
+                                return reject("Error in sha1");
+                            });
+                        } else {
+                            resolve(msg);
+                        }
+                    });
+
+                    return promise;
                 }
             };
 

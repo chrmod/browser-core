@@ -59,11 +59,29 @@ var __CliqzChromeDB = function() { // (_export) {
                     }
                 },
                 size: function(callback) {
-                    chrome.storage.local.getBytesInUse(null, function(a) {
-                        var res = [a, a/chrome.storage.local.QUOTA_BYTES];
-                        console.log('Current size: ', res[0], res[1]);
-                        if (callback) callback(res);
-                    });
+                    if (typeof(chrome.storage.local.getBytesInUse) != 'undefined' &&
+                        typeof(chrome.storage.local.QUOTA_BYTES) != 'undefined'
+                        ) {
+                            chrome.storage.local.getBytesInUse(null, function(a) {
+                                var res = [a, a/chrome.storage.local.QUOTA_BYTES];
+                                console.log('Current size: ', res[0], res[1]);
+                                if (callback) callback(res);
+
+                            });
+                        }
+                    else {
+                        const QUOTA_BYTES = 5000000;
+                        chrome.storage.local.get(null, data => {
+                            let size = 0;
+                            Object.keys(data).forEach(key => {
+                                size += (key + JSON.stringify(data[key])).length;
+                            });
+                            console.log("POLIFILL SIZE:", size);
+                            let res = [size, size / QUOTA_BYTES];
+                            console.log('Current size: ', res[0], res[1]);
+                            if (callback) callback(res);
+                        });
+                    }
                 },
                 removeEverything: function() {
                     chrome.storage.local.clear();

@@ -112,6 +112,10 @@ module.exports = {
         {
           match: /\{\{HW_CHANNEL\}\}/g,
           replacement: config => config.settings.HW_CHANNEL || ''
+        },
+        {
+          match: /\{\{CONFIG_PROVIDER\}\}/g,
+          replacement: config => config.settings.CONFIG_PROVIDER || ''
         }
       ]
     });

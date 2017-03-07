@@ -1,11 +1,25 @@
 var manifest = chrome.runtime.getManifest();
-var contentScriptPath = "content.js";
-var hpnWorkerPath = "hpn-worker.js";
+
+// For packaging with Ghostery
+var contentScriptPath = "modules/human-web/content.js";
+var hpnWorkerPath = "modules/human-web/hpn-worker.js";
+
+// For packaging with chromium + cliqz.
 if(manifest.version_name === "packaged"){
   contentScriptPath = "js/hw/content.js";
   hpnWorkerPath = "js/hw/hpn-worker.js";
 }
 
+
+// For packaging as a standalone web extension.
+if(manifest.version_name === "standalone"){
+  contentScriptPath = "content.js";
+  hpnWorkerPath = "hpn-worker.js";
+}
+
+const channel = manifest.name.toLowerCase();
+
+const allowedCountryCodes = ['de', 'at', 'ch', 'es', 'us', 'fr', 'nl', 'gb', 'it', 'se'];
 function observeRequest(requestDetails){
     for (var i = 0; i < requestDetails.requestHeaders.length; ++i) {
       if (requestDetails.requestHeaders[i].name === 'Referer') {
@@ -14,9 +28,11 @@ function observeRequest(requestDetails){
             }
            break;
       }
+
     }
     return {requestHeaders: requestDetails.requestHeaders}
 }
+
 
 function observeResponse(requestDetails){
     for (var i = 0; i < requestDetails.responseHeaders.length; ++i) {
@@ -24,7 +40,8 @@ function observeResponse(requestDetails){
         CliqzHumanWeb.httpCache401[requestDetails.url] = {'time': CliqzHumanWeb.counter};
       }
     }
-    CliqzHumanWeb.httpCache[requestDetails.url] = {'status': requestDetails.statusCode, 'time': CliqzHumanWeb.counter}
+    CliqzHumanWeb.httpCache[requestDetails.url] = {'status': requestDetails.statusCode, 'time': CliqzHumanWeb.counter};
+    domain2IP(requestDetails);
 }
 
 function observeRedirect(requestDetails){
@@ -55,7 +72,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(observeRequest, {urls:["http:/
 chrome.webRequest.onBeforeRedirect.addListener(observeRedirect, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
 chrome.webRequest.onResponseStarted.addListener(observeResponse, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
 // chrome.webRequest.onAuthRequired.addListener(observeAuth, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
-chrome.webRequest.onCompleted.addListener(domain2IP, {urls:["http://*/*", "https://*/*"],tabId:-1},["responseHeaders"])
+// chrome.webRequest.onCompleted.addListener(domain2IP, {urls:["http://*/*", "https://*/*"],tabId:-1});
 
 
 var eventList = ['onDOMContentLoaded'];

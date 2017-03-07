@@ -89,7 +89,7 @@ function hexStringToByteArray(hexString) {
     return byteArray;
 }
 function stringToByteArray(s){
-    if(TextEncoder){
+    if (typeof(TextEncoder) != 'undefined'){
        var encoder = new TextEncoder;
        return encoder.encode(s);
     }
@@ -102,7 +102,7 @@ function stringToByteArray(s){
     return result;
 }
 function byteArrayToString(byteArray){
-    if(TextDecoder){
+    if(typeof(TextEncoder) != 'undefined'){
         var decoder = new TextDecoder;
         return decoder.decode(byteArray);
     }

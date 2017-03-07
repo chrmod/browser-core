@@ -7,6 +7,7 @@ var __CliqzUtils = function() { // (_export) {
             CliqzUtils = {
                 VERSION: '0.1',
                 prefs : {},
+                CONFIG_PROVIDER: '{{CONFIG_PROVIDER}}',
                 log: function(msg, key) {
                     console.log(msg, key);
                 },
@@ -93,6 +94,20 @@ var __CliqzUtils = function() { // (_export) {
                         temp[key] = CliqzUtils.cloneObject(obj[key]);
                     }
                     return temp;
+                },
+                fetchAndStoreConfig: function() {
+                    //Load latest config.
+                    CliqzUtils.httpGet(CliqzUtils.CONFIG_PROVIDER, function success(req) {
+                        if (!CliqzHumanWeb) return;
+                        try {
+                            let config = JSON.parse(req.response);
+                            if (config && config['location']) {
+                                CliqzUtils.setPref('config_location', config['location'])
+                            }
+                        } catch (e) {};
+                    }, function error(res) {
+                        _log('Error loading config. ');
+                    }, 5000);
                 },
 
             }

@@ -40,7 +40,8 @@ console.log(cliqzConfig);
 var configTree = util.injectConfig(outputTree, config, 'cliqz.json', [
 	'human-web/hpn.js',
 	'human-web/human-web.js',
-	'human-web/hpn-worker.js'
+	'human-web/hpn-worker.js',
+	'human-web/cl-utils.js'
 ]);
 
 outputTree = new MergeTrees([
