@@ -1559,6 +1559,14 @@ function clearResultSelection(){
 }
 
 function smooth_scroll_to(element, target, duration) {
+    function scrollStarted() {
+      UI._scrolling = true;
+    }
+
+    function scrollFinished() {
+      UI._scrolling = false;
+    }
+
     target = Math.round(target);
     duration = Math.round(duration);
     if (duration < 0) return
@@ -1584,28 +1592,37 @@ function smooth_scroll_to(element, target, duration) {
 
     // This is like a think function from a game loop
     var scroll_frame = function() {
-        if(element.scrollTop != previous_top) return;
+        var now = Date.now();
+
+        if (element.scrollTop != previous_top ||
+            now >= end_time) {
+          scrollFinished();
+          return;
+        }
 
         // set the scrollTop for this frame
-        var now = Date.now();
         var point = smooth_step(start_time, end_time, now);
         var frameTop = Math.round(start_top + (distance * point));
         element.scrollTop = frameTop;
 
-        // check if we're done!
-        if(now >= end_time) return;
-
         // If we were supposed to scroll but didn't, then we
         // probably hit the limit, so consider it done; not
         // interrupted.
-        if(element.scrollTop === previous_top && element.scrollTop !== frameTop) return;
+        if (element.scrollTop === previous_top &&
+            element.scrollTop !== frameTop) {
+          scrollFinished();
+          return;
+        }
         previous_top = element.scrollTop;
 
         // schedule next frame for execution
         setTimeout(function(){ scroll_frame(); }, 0);
     }
     // boostrap the animation process
-    setTimeout(function(){ scroll_frame(); }, 0);
+    setTimeout(function() {
+      scrollStarted();
+      scroll_frame();
+    }, 0);
 }
 
 function selectNextResult(pos, allArrowable) {
@@ -1683,7 +1700,7 @@ function setResultSelection(el, scrollTop, changeUrl, mouseOver){
         if (!mouseOver)
           UI.keyboardSelection = target;
 
-        CliqzUtils.onSelectionChange(el.getAttribute("url"));
+        CliqzUtils.onSelectionChange(el);
     } else if (changeUrl && UI.lastInput != "") {
         urlbar.value = UI.lastInput;
         UI.lastSelectedUrl = "";
@@ -1711,17 +1728,18 @@ function getStatus(ev, el){
 
 var lastMoveTime = Date.now();
 function resultMove(ev){
-    if (Date.now() - lastMoveTime > 50) {
-        var el = ev.target;
-        while (el && !el.classList.contains(IC) && !el.hasAttribute('arrow')) {
-            el = el.parentElement;
-        }
-        setResultSelection(el, false, false, true);
-        lastMoveTime = Date.now();
+  if (UI._scrolling || (Date.now() - lastMoveTime) < 50)
+    return;
+  lastMoveTime = Date.now();
 
-        if(!el) return;
-        XULBrowserWindow.setOverLink(getStatus(ev, el) || '');
-    }
+  var el = ev.target;
+  while (el && !el.classList.contains(IC) && !el.hasAttribute('arrow')) {
+      el = el.parentElement;
+  }
+  setResultSelection(el, false, false, true);
+
+  if (el)
+    XULBrowserWindow.setOverLink(getStatus(ev, el) || '');
 }
 
 function onEnter(ev, item){

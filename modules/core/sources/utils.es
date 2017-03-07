@@ -1160,27 +1160,35 @@ var CliqzUtils = {
     CLIQZEnvironment.Result = o.Result;
   },
   lastRenderedResults: [],
+  lastRenderedURLs: [],
   lastSelection: -1,
-  onRenderComplete: function(query, box){
-    if (!CLIQZEnvironment.onRenderComplete)
-      return;
+  onRenderComplete: function onRenderComplete(query, box) {
+    if (!CLIQZEnvironment.onRenderComplete) return;
 
-    var linkNodes = this.extractSelectableElements(box);
-    var urls = linkNodes
-        .map(node => node.getAttribute("url") || node.getAttribute("href"))
-        .filter(url => !!url);
+    CliqzUtils.lastRenderedResults = this.extractSelectableElements(box).filter(function (node) {
+      return !!(node.getAttribute("url") || node.getAttribute("href"));
+    });
+    CliqzUtils.lastRenderedURLs = CliqzUtils.lastRenderedResults
+      .map(function (node) {
+        return node.getAttribute("url") || node.getAttribute("href");
+      });
 
-    CliqzUtils.lastRenderedResults = urls;
-    CLIQZEnvironment.onRenderComplete(query, urls);
+    CLIQZEnvironment.onRenderComplete(query, CliqzUtils.lastRenderedURLs);
   },
-  onSelectionChange: function(url){
-    if (!CLIQZEnvironment.onResultSelectionChange)
-      return;
+  onSelectionChange: function onSelectionChange(element) {
+    if (!element) return;
 
-    var current = CliqzUtils.lastRenderedResults.indexOf(url);
+    var current = CliqzUtils.lastRenderedResults.indexOf(element);
+    if (current == -1) {
+      current = CliqzUtils.lastRenderedURLs.indexOf(
+          element.getAttribute("url"));
+    }
+
     if (CliqzUtils.lastSelection == current)
       return;
     CliqzUtils.lastSelection = current;
+
+    if (!CLIQZEnvironment.onResultSelectionChange) return;
     CLIQZEnvironment.onResultSelectionChange(current);
   }
 };
