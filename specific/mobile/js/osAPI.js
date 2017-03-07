@@ -228,6 +228,22 @@ var osAPI = {
       target: 'share'
     });
   },
+  /**
+    function: pushJavascriptResult
+    description: sends result to native
+    @param: {int} handler - hashcode of callback function
+    @param: {Object} result - result
+  */
+  pushJavascriptResult: function(handler, result) {
+    var message = {
+      action: "pushJavascriptResult",
+      data: {
+        ref: handler,
+        data: result
+      }
+    };
+    osAPI.OS.postMessage(message);
+  },
 
   /**
     function: notifyYoutubeVideoUrls
