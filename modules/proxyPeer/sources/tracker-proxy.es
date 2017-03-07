@@ -3,6 +3,7 @@ import console from './console';
 import ProxyPeer from './proxy-peer';
 
 
+const PROXY_INSECURE_CONNECTIONS_PREF = 'proxyInsecureConnections';
 const PROXY_PEER_PREF = 'proxyPeer';
 const PROXY_TRACKERS_PREF = 'proxyTrackers';
 const PROXY_ALL_PREF = 'proxyAll';
@@ -28,9 +29,17 @@ function shouldRunPeer() {
 }
 
 
+function shouldProxyInsecureConnections() {
+  return utils.getPref(PROXY_INSECURE_CONNECTIONS_PREF, false);
+}
+
+
 export default class {
 
-  constructor(antitracking) {
+  constructor(antitracking, humanWeb) {
+    // Kord to humanweb, used to keep track of proxied URLs
+    this.humanWeb = humanWeb;
+
     // Use a local socks proxy to be able to 'hack' the HTTP lifecycle
     // inside Firefox. This allows us to proxy some requests in a peer
     // to peer fashion using WebRTC.
@@ -46,6 +55,7 @@ export default class {
     this.shouldProxyAll = shouldProxyAll();
     this.shouldProxyTrackers = shouldProxyTrackers();
     this.shouldRunPeer = shouldRunPeer();
+    this.shouldProxyInsecureConnections = shouldProxyInsecureConnections();
 
     // Proxy state
     this.urlsToProxy = new Set();
@@ -78,6 +88,7 @@ export default class {
   }
 
   initProxy() {
+    // Check if we need to create a firefox proxy interface.
     if (this.isProxyEnabled() && this.firefoxProxy === null) {
       // Inform Firefox to use our local proxy
       this.firefoxProxy = this.pps.newProxyInfo(
@@ -92,36 +103,51 @@ export default class {
       // Position 2 since 'unblock/sources/proxy.es' is in position 1
       // and 'unblock/sources/request-listener.es' is in position 0.
       this.pps.registerFilter(this, 2);
+    }
 
-      // Here we need to register two steps in the antitracking pipeline:
-      // 1. The first one will check if the flag `shouldProxyAll` is set, and if
-      // so, will register the url to be proxied later. It will also ignore
-      // traffic that is not coming from a tab, and WebRTC signaling
-      // communications.
-      // 2. The second step is evaluated later in the pipeline, when the
-      // information `isTracker` is available.
-      //
-      // Both are needed because the second step will not be evaluated for URLs
-      // that are third-parties.
+    // Depending on if we want to proxyAll or proxyTrackers, the step should be
+    // inserted at a different position in the antitracking pipeline.
+    //
+    // *proxyAll* it should be inserted as early as possible, so that we see all
+    // the requests, including the ones from first-parties.
+    //
+    // *proxyTrackers* it should be inserted as soon as the `isTracker`
+    // information is available in the state.
+    //
+    // In any case, only one step is required at any point of time.
+
+    // Insert step as soon as context (urlParts) is available
+    if (this.shouldProxyAll) {
       return this.antitracking.action('addPipelineStep', {
         name: 'checkShouldProxyAll',
         stages: ['open'],
         after: ['determineContext'],
         fn: (state) => {
+          // Here we must perform some additional checks so that the proxying
+          // does not interfere with the signaling and WebRTC infrastructure.
+          // In particular, we must check that calls to the signaling server
+          // or https://hpn-sign.cliqz.com/ are not proxied.
           const isSignalingServer = state.url.indexOf(this.proxyPeer.signalingURL) !== -1;
-          if (state.tabId !== -1 && !isSignalingServer) {
-            this.checkShouldProxyURL(state.url, false);
+          const isHpnPeersEnpoint = state.url.indexOf('https://hpn-sign.cliqz.com/') === 0;
+
+          if (!(isSignalingServer || isHpnPeersEnpoint)) {
+            this.checkShouldProxyRequest(state);
           }
 
           // We will never interrupt the antitracking pipeline from this step.
           return true;
         },
-      }).then(() => this.antitracking.action('addPipelineStep', {
-        name: 'checkShouldProxyRequest',
+      });
+    }
+
+    // Insert step immediately after `isTrack` information is available.
+    if (this.shouldProxyTrackers) {
+      return this.antitracking.action('addPipelineStep', {
+        name: 'checkShouldProxyTrackers',
         stages: ['open'],
         after: ['findBadTokens'],
         fn: this.checkShouldProxyRequest.bind(this),
-      }));
+      });
     }
 
     return Promise.resolve();
@@ -131,11 +157,13 @@ export default class {
     if (this.firefoxProxy !== null) {
       this.pps.unregisterFilter(this);
       this.firefoxProxy = null;
-      return this.antitracking.action('removePipelineStep', 'checkShouldProxyRequest')
-        .then(() => this.antitracking.action('removePipelineStep', 'checkShouldProxyAll'));
     }
 
-    return Promise.resolve();
+    // If steps were not present in the pipeline, this will just be ignored
+    return Promise.all([
+      this.antitracking.action('removePipelineStep', 'checkShouldProxyTrackers'),
+      this.antitracking.action('removePipelineStep', 'checkShouldProxyAll'),
+    ]);
   }
 
   initPrefListener() {
@@ -165,6 +193,10 @@ export default class {
   }
 
   onPrefChange(pref) {
+    if (pref === PROXY_INSECURE_CONNECTIONS_PREF) {
+      this.shouldProxyInsecureConnections = shouldProxyInsecureConnections();
+    }
+
     if ([PROXY_ALL_PREF, PROXY_TRACKERS_PREF, PROXY_PEER_PREF].indexOf(pref) !== -1) {
       // Update prefs with new values
       this.shouldProxyTrackers = shouldProxyTrackers();
@@ -184,10 +216,12 @@ export default class {
   checkShouldProxyRequest(state) {
     const hostname = state.urlParts.hostname;
     const hostGD = state.urlParts.generalDomain;
+    const url = state.url;
     const isTrackerDomain = state.isTracker; // from token-checker step
 
     if (this.checkShouldProxyURL(state.url, isTrackerDomain)) {
-      state.incrementStat('proxy');
+      // Keep track of proxied URLs
+      this.humanWeb.action('addDataToUrl', url, 'proxyPeer_proxy', { proxy: true });
 
       // Counter number of requests proxied per GD
       let hostStats = this.proxyStats.get(hostGD);
@@ -195,7 +229,6 @@ export default class {
         hostStats = new Map();
         this.proxyStats.set(hostGD, hostStats);
       }
-
       hostStats.set(hostname, (hostStats.get(hostname) || 0) + 1);
     }
 
@@ -220,6 +253,12 @@ export default class {
     }
 
     if (this.shouldProxyAll || (this.shouldProxyTrackers && isTrackerDomain)) {
+      // Ignore https if proxyHttp is false
+      if (url.indexOf('https://') !== 0 && !this.shouldProxyInsecureConnections) {
+        console.error(`proxyPeer do not proxy non-https ${url}`);
+        return false;
+      }
+
       console.debug(`proxyPeer proxy: ${url}`);
       this.proxyOnce(url);
       return true;

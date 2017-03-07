@@ -23,7 +23,8 @@
   "default_prefs" : {
     "modules.context-search.enabled": false,
     "modules.type-filter.enabled": false,
-    "proxyPeer": true
+    "proxyPeer": true,
+    "showConsoleLogs": true
   },
   "priority": [
     "core",

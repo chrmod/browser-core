@@ -67,7 +67,7 @@ export function wrapOnionRequest(data, peers, connectionID, aesKey, messageNumbe
           nextPeer: peerName,
           data: encrypted,
         },
-        i - 1)).catch((e) => { console.debug(`proxyPeer PEER ERROR ${e}`); });
+        i - 1)).catch((e) => { console.error(`proxyPeer PEER ERROR ${e} ${e.stack}`); });
     }
 
     return encryptPayload(layer, peers[0].pubKey);
@@ -84,7 +84,7 @@ export function sendOnionRequest(onionRequest, peers, peer) {
     onionRequest,
     'antitracking',
   ).catch((e) => {
-    console.debug(`proxyPeer CLIENT ERROR: could not send message ${e}`);
+    console.error(`proxyPeer CLIENT ERROR: could not send message ${e} ${e.stack}`);
   });
 }
 

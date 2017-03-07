@@ -119,7 +119,7 @@ function decodeChunk(buffer) {
 
 class OutMessage {
   constructor(data, label, peer, resolve, reject, cliqzPeer) {
-    this.msgTimeout = 5000; // TODO: make configurable
+    this.msgTimeout = 15000; // TODO: make configurable
     this.retries = 0;
     this.maxRetries = cliqzPeer.maxMessageRetries;
     this.peer = peer;
@@ -179,10 +179,10 @@ class OutMessage {
             ++this.retries;
             this.send();
           })
-          .catch(() => {
+          .catch((ex) => {
             this.log('Killing outcoming message', this.msgId, 'to peer', this.peer);
             delete this.cliqzPeer.outMessages[this.msgId];
-            this.reject('killing outcoming message');
+            this.reject(`killing outcoming message: ${ex}`);
           });
     } else {
       delete this.cliqzPeer.outMessages[this.msgId];

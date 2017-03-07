@@ -149,7 +149,7 @@ export default class {
             this.dataOut += response.length;
             return peer.send(sender, response, 'antitracking')
               .catch((e) => {
-                console.debug(`proxyPeer EXIT ${connectionID} ${currentMessageNumber} ` +
+                console.error(`proxyPeer EXIT ${connectionID} ${currentMessageNumber} ` +
                     `ERROR: could not send message ${e}`);
               });
           });
@@ -187,7 +187,7 @@ export default class {
         this.dataOut += acknowledgement.length;
         return peer.send(sender, acknowledgement, 'antitracking')
           .catch((e) => {
-            console.debug(`proxyPeer EXIT ${connectionHash} ${message.messageNumber} ` +
+            console.error(`proxyPeer EXIT ${connectionHash} ${message.messageNumber} ` +
                 `ERROR: could not send message ${e}`);
           });
       });
@@ -196,7 +196,7 @@ export default class {
       // perspective, but then client sends a request again through the
       // same channel. Then it's ok to make this fail as we don't really
       // want to have long-lived connection through proxy network.
-      console.debug(`proxyPeer EXIT ${connectionHash} exception while unpacking ` +
+      console.error(`proxyPeer EXIT ${connectionHash} exception while unpacking ` +
           `AES keys ${ex} ${JSON.stringify(message)}`);
     });
   }

@@ -93,7 +93,7 @@ export default class {
       this.dataOut += data.length;
       return peer.send(previousPeer.sender, data, 'antitracking')
         .catch((e) => {
-          console.debug(`proxyPeer RELAY ${connectionID} ${messageNumber} ERROR: could not send message ${e}`);
+          console.error(`proxyPeer RELAY ${connectionID} ${messageNumber} ERROR: could not send message ${e}`);
         });
     }
 
@@ -122,7 +122,7 @@ export default class {
     this.dataOut += nextData.length;
     return peer.send(nextPeer, nextData, 'antitracking')
       .catch((e) => {
-        console.debug(`proxyPeer RELAY ${connectionID} ${message.messageNumber} ERROR: could not send message ${e}`);
+        console.error(`proxyPeer RELAY ${connectionID} ${message.messageNumber} ERROR: could not send message ${e}`);
       });
   }
 }

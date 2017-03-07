@@ -154,7 +154,7 @@ class SocksConnection {
     console.debug(`proxyPeer CLIENT ${this.id} initiate handshake`);
 
     if (handshake.VER !== SOCKS5) {
-      console.debug(`proxyPeer CLIENT ${this.id} socks version error ${handshake.VER}`);
+      console.error(`proxyPeer CLIENT ${this.id} socks version error ${handshake.VER}`);
       // TODO: Check if we should return an error code
       // End socket clientConnection
       this.close();
@@ -212,7 +212,7 @@ class SocksConnection {
     } catch (ex) {
       // TODO: set REP with error code and send it to client before closing.
       // this.clientConnection.sendData(data, data.length);
-      console.debug(`proxyPeer CLIENT ${this.id} error while establishing connection ${ex}`);
+      console.error(`proxyPeer CLIENT ${this.id} error while establishing connection ${ex}`);
       this.close();
       return Promise.reject(ex);
     }

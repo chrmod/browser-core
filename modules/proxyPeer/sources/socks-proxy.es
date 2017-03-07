@@ -49,7 +49,7 @@ export default class SocksProxy {
         // TODO: Exception or logging?
       }
     } catch (ex) {
-      console.debug(`proxyPeer SOCKS PROXY error on socket accept ${ex}`);
+      console.error(`proxyPeer SOCKS PROXY error on socket accept ${ex}`);
     }
   }
 

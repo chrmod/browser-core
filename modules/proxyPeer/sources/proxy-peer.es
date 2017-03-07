@@ -183,7 +183,7 @@ export default class {
               }
             }
           })
-          .catch(ex => console.debug(`proxyPeer ProxyPeer error: ${ex}`)),
+          .catch(ex => console.error(`proxyPeer ProxyPeer error: ${ex} ${ex.stack}`)),
         );
       });
   }
