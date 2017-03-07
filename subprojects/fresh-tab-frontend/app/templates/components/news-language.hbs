@@ -1,5 +1,5 @@
 <select onchange={{action "selectLanguage" value="target.value"}}>
-  <option selected= {{eq newsLanguage "en" }} value="en">English</option>
-  <option selected={{eq newsLanguage "de"}} value="de">German</option>
-  <option selected={{eq newsLanguage "fr"}} value="fr">French</option>
+  <option selected= {{equal newsLanguage "en" }} value="en">English</option>
+  <option selected={{equal newsLanguage "de"}} value="de">German</option>
+  <option selected={{equal newsLanguage "fr"}} value="fr">French</option>
 </select>

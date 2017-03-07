@@ -1,6 +1,7 @@
 import Ember from 'ember'
 
 export default Ember.Component.extend({
+  cliqz: Ember.inject.service('cliqz'),
   store: Ember.inject.service(),
   notifications: Ember.inject.service(),
 
@@ -14,13 +15,18 @@ export default Ember.Component.extend({
       const isActive = this.get('isActive');
       const store = this.get('store');
       let gmail = store.peekRecord('speed-dial', 'mail.google.com');
-      console.log(gmail)
       if(isActive) {
         this.get('notifications').disableNotifications(gmail);
       } else {
         this.get('notifications').enableNotifications(gmail);
       }
       this.toggleProperty('isActive');
+      this.get('cliqz').sendTelemetry({
+        type: 'home_settings',
+        action: 'click',
+        target: 'email_notifications',
+        state: this.get('isActive') ? 'on' : 'off'
+      });
     }
   }
 });

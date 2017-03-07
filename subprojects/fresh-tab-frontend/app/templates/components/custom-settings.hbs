@@ -9,7 +9,7 @@
         <h2>{{t 'settings.hdr-customize'}}</h2>
       </div>
 
-      <div class="settings-panel-item">
+      <div class="settings-panel-item hidden">
         <h3>
           {{t 'settings.hdr-top-sites'}}
         </h3>
@@ -74,7 +74,8 @@
 
     <div id="settings-bottom-part">
       <span class="feedback-icon"></span>
-      <a href="#" class="feedback-link" target="_blank">{{t 'settings.send-us-feedback'}}</a>
+
+      <a href="#" {{action "openFeedbackPage"}} class="feedback-link" target="_blank">{{t 'settings.send-us-feedback'}}</a>
     </div>
   </div>
 </div>

@@ -10,6 +10,12 @@ export default Ember.Component.extend({
   actions: {
     selectLanguage(language) {
       this.get('cliqz').setNewsLanguage(language);
+      this.get('cliqz').sendTelemetry({
+        type: 'home_settings',
+        action: 'click',
+        target: 'top_news_language',
+        state: language
+      });
     }
   }
 });

@@ -8,7 +8,7 @@
     height: 22px;
     background: url("./images/settings-icon.svg") no-repeat;
     position: absolute;
-    top: 10px;
+    top: 20px;
     right: 17px;
     z-index: 101px;
     cursor: pointer;
@@ -39,7 +39,7 @@
 
   #settings-panel {
     z-index: 9999;
-    margin-top: 46px;
+    margin-top: 56px;
     min-width: 270px;
     position: absolute;
     top: 100%;
@@ -79,6 +79,10 @@
 
     .settings-panel-row {
       position: relative;
+
+      select {
+        margin: 5px 0 0 20px;
+      }
     }
   }
 
