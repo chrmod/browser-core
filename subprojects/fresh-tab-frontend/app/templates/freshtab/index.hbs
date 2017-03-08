@@ -42,19 +42,6 @@
       </div>
     </div>
   </div>
-
-
-  <div id="onboarding">
-    {{#if model.config.miniOnboarding}}
-      {{mini-onboarding isBrowser=model.config.isBrowser freshTabLearnMoreAction="freshTabLearnMore" revertBackAction="revertBack"}}
-    {{else}}
-      {{#if model.config.showHelp}}
-        <div id="learnMore">
-          <a href="https://cliqz.com/aboutus/blog/new-startpage" title="Learn more" target="_blank" class="learnBtn">Learn more</a>
-        </div>
-      {{/if}}
-    {{/if}}
-  </div>
 </div>
 
 </div>

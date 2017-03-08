@@ -26,9 +26,7 @@ export default Ember.Route.extend({
   model: function() {
     const config = this.get('config');
     return Ember.Object.create({
-      miniOnboarding: config.miniOnboarding,
       isBrowser: config.isBrowser,
-      showHelp: config.showHelp,
       showNewBrandAlert: config.showNewBrandAlert,
       messageCenter: this.get('messageCenter'),
       newsLanguage: config.newsLanguage,

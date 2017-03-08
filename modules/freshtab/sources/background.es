@@ -12,18 +12,6 @@ import { forEachWindow } from '../core/browser';
 
 const DIALUPS = 'extensions.cliqzLocal.freshtab.speedDials';
 const DISMISSED_ALERTS = 'dismissedAlerts';
-const ONE_DAY = 24 * 60 * 60 * 1000;
-const FIVE_DAYS = 5 * ONE_DAY;
-const PREF_ONBOARDING = 'freshtabOnboarding';
-
-const getInstallationDate = function() {
-  return parseInt(utils.getPref(PREF_ONBOARDING, '0'));
-}
-
-const isWithinNDaysAfterInstallation = function(days) {
-  return getInstallationDate() + ONE_DAY * days > Date.now();
-}
-
 /**
 * @namespace freshtab
 * @class Background
@@ -78,17 +66,6 @@ export default background({
           }
         });
       }
-    },
-
-    _showHelp: isWithinNDaysAfterInstallation.bind(null, 5),
-
-    _showMiniOnboarding() {
-
-      if (getInstallationDate() === 0) {
-        utils.setPref(PREF_ONBOARDING, '' + Date.now());
-      }
-
-      return isWithinNDaysAfterInstallation(1);
     },
 
     _isBrowser() {
@@ -370,8 +347,6 @@ export default background({
       var config = {
         locale: utils.PREFERRED_LANGUAGE,
         showOnboarding: self.actions._showOnboarding(),
-        miniOnboarding: self.actions._showMiniOnboarding(),
-        showHelp: self.actions._showHelp(),
         isBrowser: self.actions._isBrowser(),
         showNewBrandAlert: self.actions._showNewBrandAlert(),
         messages: this.messages,
