@@ -74,7 +74,8 @@
     "offers-v2",
     "video-downloader",
     "p2p",
-    "proxyPeer"
+    "proxyPeer",
+    "pairing"
   ],
   "subprojects": [
     "fresh-tab-frontend"

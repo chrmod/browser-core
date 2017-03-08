@@ -72,6 +72,7 @@ export default class CliqzPeer {
       window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
     this.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
     this.WebSocket = window.WebSocket;
+    this.logError = console.error.bind(console);
     if (_options.DEBUG) {
       this.log = this.logDebug = console.log.bind(console);
     } else if (_options.LOGLEVEL) {
@@ -117,13 +118,13 @@ export default class CliqzPeer {
         },
       ],
     };
-    this.maxReconnections = has(_options, 'maxReconnections') ? _options.maxReconnections : 3;
+    this.maxReconnections = has(_options, 'maxReconnections') ? _options.maxReconnections : 0;
     this.maxSocketConnectionTime = has(_options, 'maxSocketConnectionTime') ?
       _options.maxSocketConnectionTime : 5;
     this.lastSocketTime = 0;
     this.pingInterval = Math.round(has(_options, 'pingInterval') ? _options.pingInterval : 0);
-    this.maxMessageRetries = has(_options, 'maxMessageRetries') ? _options.maxMessageRetries : 1;
-    this.ordered = has(_options, 'ordered') ? _options.ordered : false;
+    this.maxMessageRetries = has(_options, 'maxMessageRetries') ? _options.maxMessageRetries : 0;
+    this.ordered = has(_options, 'ordered') ? _options.ordered : true;
     this._setInitialState();
 
     this.outMessages = {};
@@ -135,6 +136,12 @@ export default class CliqzPeer {
     if (signalingEnabled) {
       this.enableSignaling();
     }
+    this.healthCheckTimeout = options.healthCheckTimeout;
+    this.newConnectionTimeout = options.newConnectionTimeout;
+  }
+
+  isPeerConnected(peerID) {
+    return has(this.connections, peerID);
   }
 
   /**
@@ -257,8 +264,7 @@ export default class CliqzPeer {
   }
 
   applySignalingMessage(data) {
-    const message = data.data;
-    const type = message.type;
+    const _message = data.data;
     const from = data.from;
     const id = data.id;
 
@@ -266,62 +272,68 @@ export default class CliqzPeer {
       this.log('Dropping signaling message from peer not in whitelist:', from);
       return;
     }
-    if (type === 'ice') { // Receive ICE candidates
-      const candidate = JSON.parse(message.candidate);
-      if (candidate) {
+    const pr = this.decryptSignaling ?
+      this.decryptSignaling(_message, from) : Promise.resolve(_message);
+    pr.then((message) => {
+      const type = message.type;
+      if (type === 'ice') { // Receive ICE candidates
+        const candidate = JSON.parse(message.candidate);
+        if (candidate) {
+          const conn = this._getPendingConnection(from);
+          if (!conn) {
+            this.log('WARNING: setting ICE candidates for unexisting pending connection');
+          } else if (conn.status === 'initial' || conn.status === 'signaling') {
+            conn.status = 'signaling';
+            if (conn.connection.signalingState !== 'have-remote-offer' && conn.connection.signalingState !== 'stable') {
+              this.log(conn.connection.iceConnectionState, conn.connection.signalingState, 'ERROR: setting ICE candidates with signalingState != have-remote-offer');
+            } else {
+              conn.receiveICECandidate(candidate, id);
+            }
+          } else {
+            this.log('Received ICE for connection with status', conn.status);
+          }
+        }
+      } else if (type === 'offer') { // Receive offer description
+        let conn = this._createConnection(from, false);
+        if (!conn) {
+          // Connection already exists: we need to handle the case where both peers want
+          // to initiate the connection with each other at the same time. Solution: the peer
+          // with biggest ID wins.
+          conn = this._getPendingConnection(from);
+          if (!conn.isLocal || from > this.peerID) {
+            this.log('INFO: connection collision -> I lose', this.peerID);
+            conn.close(true); // Close without propagating onclose event
+            delete this.pendingConnections[from];
+            this.connectionRetries[from] = 0;
+            conn = this._createConnection(from, false); // Replace with new non-local connection
+          } else {
+            this.log('INFO: connection collision -> I win', this.peerID);
+            conn = null;
+          }
+        }
+        if (conn) {
+          if (conn.status === 'initial' || conn.status === 'signaling') {
+            conn.status = 'signaling';
+            conn.receiveOffer(message, id);
+          } else {
+            this.log('Received offer for connection with status', conn.status);
+          }
+        }
+      } else if (type === 'answer') {
         const conn = this._getPendingConnection(from);
         if (!conn) {
-          this.log('WARNING: setting ICE candidates for unexisting pending connection');
+          this.log('ERROR: received answer for unexisting pending connection');
         } else if (conn.status === 'initial' || conn.status === 'signaling') {
           conn.status = 'signaling';
-          if (conn.connection.signalingState !== 'have-remote-offer' && conn.connection.signalingState !== 'stable') {
-            this.log(conn.connection.iceConnectionState, conn.connection.signalingState, 'ERROR: setting ICE candidates with signalingState != have-remote-offer');
-          } else {
-            conn.receiveICECandidate(candidate, id);
-          }
+          conn.receiveAnswer(message, id);
         } else {
-          this.log('Received ICE for connection with status', conn.status);
+          this.log('Received answer for connection with status', conn.status);
         }
-      }
-    } else if (type === 'offer') { // Receive offer description
-      let conn = this._createConnection(from, false);
-      if (!conn) {
-        // Connection already exists: we need to handle the case where both peers want
-        // to initiate the connection with each other at the same time. Solution: the peer
-        // with biggest ID wins.
-        conn = this._getPendingConnection(from);
-        if (!conn.isLocal || from > this.peerID) {
-          this.log('INFO: connection collision -> I lose', this.peerID);
-          conn.close(true); // Close without propagating onclose event
-          delete this.pendingConnections[from];
-          this.connectionRetries[from] = 0;
-          conn = this._createConnection(from, false); // Replace with new non-local connection
-        } else {
-          this.log('INFO: connection collision -> I win', this.peerID);
-          conn = null;
-        }
-      }
-      if (conn) {
-        if (conn.status === 'initial' || conn.status === 'signaling') {
-          conn.status = 'signaling';
-          conn.receiveOffer(message, id);
-        } else {
-          this.log('Received offer for connection with status', conn.status);
-        }
-      }
-    } else if (type === 'answer') {
-      const conn = this._getPendingConnection(from);
-      if (!conn) {
-        this.log('ERROR: received answer for unexisting pending connection');
-      } else if (conn.status === 'initial' || conn.status === 'signaling') {
-        conn.status = 'signaling';
-        conn.receiveAnswer(message, id);
       } else {
-        this.log('Received answer for connection with status', conn.status);
+        this.log(message, 'Unknown message');
       }
-    } else {
-      this.log(message, 'Unknown message');
-    }
+    })
+    .catch(e => this.logError('Error decrypting signaling', e));
   }
 
   enableSignaling() {
@@ -748,6 +760,9 @@ export default class CliqzPeer {
           if (isRelayed) {
             this.stats.relayedconn += 1;
           }
+        })
+        .catch(() => {
+          this.log('Could not retrieve candidates info');
         });
         // TODO: this is a potential memory leak
         if (!has(this.stats._peers, peer)) {
@@ -998,16 +1013,20 @@ export default class CliqzPeer {
     }
   }
 
-  _sendSignaling(to, data, id) {
-    if (this.onsignaling) {
-      this.onsignaling(to, { data, id, from: this.peerID });
-    }
-    if (this.signalingEnabled) {
-      this._sendSocket('send', {
-        to,
-        data,
-        id,
-      });
-    }
+  _sendSignaling(to, _data, id) {
+    const pr = this.encryptSignaling ? this.encryptSignaling(_data, to) : Promise.resolve(_data);
+    pr.then((data) => {
+      if (this.onsignaling) {
+        this.onsignaling(to, { data, id, from: this.peerID });
+      }
+      if (this.signalingEnabled) {
+        this._sendSocket('send', {
+          to,
+          data,
+          id,
+        });
+      }
+    })
+    .catch(e => this.logError('Error encrypting signaling', e));
   }
 }

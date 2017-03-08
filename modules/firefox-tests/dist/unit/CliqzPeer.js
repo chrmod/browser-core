@@ -111,7 +111,7 @@ function doTests() {
               }
               return true;
             }
-            var numBytes = 1024*1024;
+            var numBytes = 100*1024;
             var bytes1 = new Uint8Array(numBytes);
             var bytes2 = new Uint8Array(numBytes);
             fillRandom(bytes1);

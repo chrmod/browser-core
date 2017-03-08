@@ -1,4 +1,4 @@
-import FSBuilder from 'tests/hm/unit/utils/fs';
+import FSBuilder from 'tests/core/unit/utils/fs';
 
 /* global chai */
 /* global describeModule */
@@ -7,7 +7,7 @@ const expect = chai.expect;
 const crypto = System._nodeRequire('crypto');
 const _fs = FSBuilder(System._nodeRequire('path'));
 
-export default describeModule('hm/incremental-storage',
+export default describeModule('core/incremental-storage',
   () => ({
     'core/utils': {
       default: {
@@ -20,6 +20,11 @@ export default describeModule('hm/incremental-storage',
       default: data => crypto.createHash('md5').update(data).digest('hex'),
     },
     'core/fs': _fs,
+    'platform/shutdown-blocker': {
+      addShutdownBlocker: () => {},
+      removeShutdownBlocker: () => {},
+    },
+    'core/console': console,
   }),
   () => {
     describe('IncrementalStorageTest', function () {
@@ -40,7 +45,7 @@ export default describeModule('hm/incremental-storage',
         } else if (event.type === 'subtract') {
           obj.value -= event.value;
         }
-        if (obj.value === Infinity || obj.value === NaN) {
+        if (obj.value === -Infinity || obj.value === Infinity || isNaN(obj.value)) {
           obj.value = 0;
         }
       }

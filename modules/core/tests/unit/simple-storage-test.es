@@ -1,4 +1,4 @@
-import FSBuilder from 'tests/hm/unit/utils/fs';
+import FSBuilder from 'tests/core/unit/utils/fs';
 
 /* global chai */
 /* global describeModule */
@@ -7,7 +7,7 @@ const expect = chai.expect;
 const crypto = System._nodeRequire('crypto');
 const _fs = FSBuilder(System._nodeRequire('path'));
 
-export default describeModule('hm/simple-storage',
+export default describeModule('core/simple-storage',
   () => ({
     'core/utils': {
       default: {
@@ -20,6 +20,11 @@ export default describeModule('hm/simple-storage',
       default: data => crypto.createHash('md5').update(data).digest('hex'),
     },
     'core/fs': _fs,
+    'platform/shutdown-blocker': {
+      addShutdownBlocker: () => {},
+      removeShutdownBlocker: () => {},
+    },
+    'core/console': console,
   }),
   () => {
     describe('SimpleStorageTest', function () {

@@ -1547,5 +1547,59 @@
     "transparency_activity_buttons": {
       "message": "Aucune activité n'a été saisie"
     },
+    "pairing-title": {
+      "message": "Connect"
+    },
+    "pairing-description": {
+      "message": "Connect CLIQZ on your computer with CLIQZ on your mobile device. This allows you to send open websites or YouTube videos from your desktop to your smartphone or tablet - without any user account."
+    },
+    "pairing-android-app": {
+      "message": "<a id=\"playstore-btn\" target=\"_blank\" href=\"https://play.google.com/store/apps/details?hl=en&id=com.cliqz.browser\">Cliqz for Android</a>"
+    },
+    "pairing-video-title": {
+      "message": "Video Downloader"
+    },
+    "pairing-video-tip": {
+      "message": "Go to any YouTube video.\nClick on the video download icon.\nSelect \"Send to mobile device\"."
+    },
+    "pairing-tab-title": {
+      "message": "Send Tab"
+    },
+    "pairing-tab-tip": {
+      "message": "Right-click on the websites or tab you'd like to share.\nSelect \"Send to mobile device\"."
+    },
+    "pairing-browser-pair-with": {
+      "message": "This browser is now connected with:"
+    },
+    "pairing-on-disconnected-tip": {
+      "message": "In order to be able to use this function, your mobile device needs to be active and connected to the Internet."
+    },
+    "pairing-contact-support": {
+      "message": "If you have questions or difficulties, please contact our"
+    },
+    "pairing-scan-title": {
+      "message": "Scan the QR code"
+    },
+    "pairing-step1-title": {
+      "message": "Open the CLIQZ app on your mobile device. Go into the menu and select \"Connect\"."
+    },
+    "pairing-step2-title": {
+      "message": "Click on (+) to start the QR code reader."
+    },
+    "pairing-online": {
+      "message": "ONLINE"
+    },
+    "pairing-offline": {
+      "message": "OFFLINE"
+    },
+    "pairing-unpair": {
+      "message": "Remove connection"
+    },
+    "pairing-send-tab-to-mobile": {
+      "message": "Send to mobile"
+    },
+    "pairing-send-video-to-mobile-retry": {
+      "message": "Send again"
+    },
     "TEST": "OK"
 }

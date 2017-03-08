@@ -2,6 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-plusplus */
 
+import random from 'core/crypto/random';
 import constants from './constants';
 import * as utils from './utils';
 
@@ -40,7 +41,7 @@ function decodeMessage(buffer) {
   if (type & constants.JSON_MSG_FLAG) {
     data = JSON.parse(UTF8ArrToStr(data.subarray(2 + labelSize)));
   } else {
-    data = data.buffer.slice(2 + labelSize);
+    data = data.slice(2 + labelSize);
   }
   return {
     data,
@@ -130,7 +131,7 @@ class OutMessage {
     this.logDebug = cliqzPeer.logDebug;
     this.chunkSize = cliqzPeer.chunkSize;
     do {
-      this.msgId = Math.round(Math.random() * 2000000000);
+      this.msgId = Math.round(random() * 2000000000);
     } while (cliqzPeer.outMessages[this.msgId]);
     // TODO: not very nice, might be a good idea to rethink it...
     cliqzPeer.outMessages[this.msgId] = this;

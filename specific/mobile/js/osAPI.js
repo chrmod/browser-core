@@ -257,5 +257,46 @@ var osAPI = {
       data: urls
     };
     osAPI.OS.postMessage(message);
-  }
+  },
+
+  // DT-mobile pairing messages (uses a different bridge, need to refactor this)
+  downloadVideo: function(url) {
+    var message = {
+      action: 'downloadVideo',
+      data: url,
+    };
+    osAPI.OS.postMessage(message);
+  },
+
+  openTab: function(url) {
+    var message = {
+      action: 'openTab',
+      data: url,
+    };
+    osAPI.OS.postMessage(message);
+  },
+
+  pushPairingData: function(data) {
+    var message = {
+      action: 'pushPairingData',
+      data: data,
+    };
+    osAPI.OS.postMessage(message);
+  },
+
+  deviceARN: function(callback) {
+    var message = {
+      action: 'deviceARN',
+      data: '',
+      callback: callback,
+    };
+    osAPI.OS.postMessage(message);
+  },
+  notifyPairingError: function(data) {
+    var message = {
+      action: 'notifyPairingError',
+      data: data,
+    };
+    osAPI.OS.postMessage(message);
+  },
 };

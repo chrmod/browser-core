@@ -1,13 +1,25 @@
+import random from 'core/crypto/random';
 import constants from './constants';
 
 // CliqzPeerConnection: encapsulates a RTCDataChannel and RTCPeerConnection
 // TODO: everything that changes CliqzPeerConnection state should be done
 // here (adding ice candidates, offers, etc)
 export default class CliqzPeerConnection {
+  // Maximum wait time for receiving a 'pong' from another peer when we
+  // send it a 'ping', in health check.
+  get healthCheckTimeout() {
+    return (this.cliqzPeer && this.cliqzPeer.healthCheckTimeout) || 1000;
+  }
+
+  // Maximum wait time for a connection to be established
+  get newConnectionTimeout() {
+    return (this.cliqzPeer && this.cliqzPeer.newConnectionTimeout) || 5000;
+  }
+
   constructor(cliqzPeer, peerOptions, peer, isLocal) {
     this.log = cliqzPeer.log;
     this.logDebug = cliqzPeer.logDebug;
-    this.id = Math.round(Math.random() * 2000000000);
+    this.id = Math.round(random() * 2000000000);
     this.remoteId = null;
     this.cliqzPeer = cliqzPeer;
     this.peerOptions = peerOptions;
@@ -63,12 +75,21 @@ export default class CliqzPeerConnection {
       }
     };
 
-    this.ticks = 0;
-    cliqzPeer.setTimeout(() => { // 5 seconds timeout for establishing connection
+    // this.connection.oniceconnectionstatechange = () => {
+    //   if (connection === this.connection) {
+    //     const state = this.connection.iceconnectionstate;
+    //     if (state === 'failed' || state === 'closed') {
+    //       this.log('Failed ice connection');
+    //       this.close();
+    //     }
+    //   }
+    // };
+
+    cliqzPeer.setTimeout(() => {
       if (this.status !== 'open') {
         this.close();
       }
-    }, 5000); // TODO: configurable?
+    }, this.newConnectionTimeout);
 
     this.pongPromises = [];
 
@@ -282,10 +303,6 @@ export default class CliqzPeerConnection {
       this.status = 'closed';
       this.closeChannel();
       this.closeConnection();
-      if (this.scheduledPacemaker) {
-        this.cliqzPeer.clearInterval(this.scheduledPacemaker);
-        this.scheduledPacemaker = null;
-      }
       if (this.onclose && !noPropagate) {
         try {
           this.onclose(oldStatus);
@@ -300,14 +317,6 @@ export default class CliqzPeerConnection {
       this.onmessage = null;
     }
   }
-
-  pacemaker() {
-    this.ticks += 1;
-    if (this.cliqzPeer.pingInterval && this.ticks % this.cliqzPeer.pingInterval === 0) {
-      this.healthCheck();
-    }
-  }
-
 
   send(data) {
     // TODO: check other possible channel states where we cannot send
@@ -340,7 +349,7 @@ export default class CliqzPeerConnection {
           this.close();
           reject('connection not healthy, closing...');
         }
-      }, 3000); // TODO: make configurable
+      }, this.healthCheckTimeout);
     });
   }
 
@@ -349,7 +358,6 @@ export default class CliqzPeerConnection {
     channel.binaryType = 'arraybuffer';
     channel.onopen = () => {
       this.status = 'open';
-      this.scheduledPacemaker = this.cliqzPeer.setInterval(() => this.pacemaker(), 1000);
       if (this.onopen) {
         try {
           this.onopen();

@@ -71,7 +71,8 @@
     "video-downloader",
     "p2p",
     "proxyPeer",
-    "antispy"
+    "antispy",
+    "pairing"
   ],
   "subprojects": [
     "fresh-tab-frontend"
