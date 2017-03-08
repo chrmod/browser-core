@@ -703,19 +703,6 @@ var CliqzUtils = {
 
               // we only set the prefered backend once at first start
               if (CliqzUtils.getPref('backend_country', '') === '') {
-                if(CliqzUtils.getPref('config_location', 'de') === 'de' &&
-                   Date.now() < 1487073600000 /* 14.02.2017 */){
-                  var rand = Math.random();
-
-                  if (rand < 0.33) {
-                    CliqzUtils.setPref('dropDownABCGroup', 'simple');
-                  } else if (rand > 0.66) {
-                    CliqzUtils.setPref('dropDownABCGroup', 'ff');
-                  } else {
-                    CliqzUtils.setPref('dropDownABCGroup', 'cliqz');
-                  }
-                }
-
                 // waiting a bit to be sure first initialization is complete
                 CliqzUtils.setTimeout(function(){
                   CliqzUtils.setDefaultIndexCountry(CliqzUtils.getPref('config_location', 'de'), true);
@@ -740,17 +727,7 @@ var CliqzUtils = {
       // simple UI for outside germany
       CliqzUtils.setPref('dropDownStyle', 'simple');
     } else {
-      var group = CliqzUtils.getPref('dropDownABCGroup');
-      if (group === 'simple') {
-        CliqzUtils.setPref('dropDownStyle', 'simple');
-      } else if (group === 'ff') {
-        CliqzUtils.setPref('dropDownStyle', 'ff');
-      } else if (group === 'cliqz') {
-        CliqzUtils.clearPref('dropDownStyle');
-      } else {
-        // old german users outside of the drop down style AB test
-        CliqzUtils.clearPref('dropDownStyle');
-      }
+      CliqzUtils.clearPref('dropDownStyle');
     }
 
     if(restart){
