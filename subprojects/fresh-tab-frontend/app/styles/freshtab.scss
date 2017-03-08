@@ -894,6 +894,13 @@ body.freshTabContainer {
   #freshTabPage #topVisited {
     height: auto;
 
+    li {
+      width: 23%;
+      &:nth-child(5n) {
+        display:none;
+      }
+    }
+
     .delete {
       left: 15%;
     }
@@ -909,7 +916,8 @@ body.freshTabContainer {
   }
 
   #freshTabPage .wrap {
-    padding: 20px;
+    padding-left: 40px;
+    padding-right: 30px;
   }
 
   #freshTabPage #topVisited {
@@ -954,6 +962,7 @@ body.freshTabContainer {
 
   #freshTabPage #topVisited ul {
     max-height: 95px;
+    margin-left: 20px;
   }
 
   #freshTabPage .undoOptions {
@@ -992,8 +1001,9 @@ body.freshTabContainer {
   }*/
 
   #freshTabPage #topVisited li {
-    width: 23.6%;
+    width: 30%;
 
+    &:nth-child(4n),
     &:nth-child(5n) {
       display:none;
     }
