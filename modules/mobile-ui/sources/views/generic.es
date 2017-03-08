@@ -53,7 +53,7 @@ export default class Generic {
 
     // specific
     specificTypes.forEach(partial => {
-      console.log('data.template', data.template)
+
       if (data.template === partial || data.extra.superTemplate === partial) {
         partials.push({type: partial, data: data.extra})
       }
