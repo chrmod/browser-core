@@ -50,6 +50,22 @@ module.exports = {
           }
         },
         {
+          match: /\{\{rdfUpdateURLbeta\}\}/g,
+          replacement: config => {
+            if (config.settings.updateURLbeta) {
+              var url = config.settings.updateURLbeta;
+              url = injectVars(url, config);
+              return [
+                "<em:updateURL>",
+                url,
+                "</em:updateURL>",
+              ].join("");
+            } else {
+              return "";
+            }
+          }
+        },
+        {
           match: /\{\{rdfHomepageURL\}\}/g,
           replacement: config => config.settings.homepageURL || ''
         },

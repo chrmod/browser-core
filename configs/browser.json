@@ -9,6 +9,7 @@
     "channel": "40",
     "homepageURL": "http://cliqz.com/",
     "updateURL": "https://s3.amazonaws.com/cdncliqz/update/browser/latest.rdf",
+    "updateURLbeta": "https://s3.amazonaws.com/cdncliqz/update/browser_beta/latest.rdf",
     "freshTabButton": false,
     "freshTabNews": true,
     "freshTabInitialState": true,
