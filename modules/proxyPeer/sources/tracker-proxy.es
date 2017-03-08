@@ -36,10 +36,7 @@ function shouldProxyInsecureConnections() {
 
 export default class {
 
-  constructor(antitracking, humanWeb) {
-    // Kord to humanweb, used to keep track of proxied URLs
-    this.humanWeb = humanWeb;
-
+  constructor(antitracking) {
     // Use a local socks proxy to be able to 'hack' the HTTP lifecycle
     // inside Firefox. This allows us to proxy some requests in a peer
     // to peer fashion using WebRTC.
@@ -128,9 +125,9 @@ export default class {
           // In particular, we must check that calls to the signaling server
           // or https://hpn-sign.cliqz.com/ are not proxied.
           const isSignalingServer = state.url.indexOf(this.proxyPeer.signalingURL) !== -1;
-          const isHpnPeersEnpoint = state.url.indexOf('https://hpn-sign.cliqz.com/') === 0;
+          const isHpnPeerEndpoint = state.url.indexOf('https://hpn-sign.cliqz.com/') === 0;
 
-          if (!(isSignalingServer || isHpnPeersEnpoint)) {
+          if (!(isSignalingServer || isHpnPeerEndpoint)) {
             this.checkShouldProxyRequest(state);
           }
 
@@ -216,12 +213,15 @@ export default class {
   checkShouldProxyRequest(state) {
     const hostname = state.urlParts.hostname;
     const hostGD = state.urlParts.generalDomain;
-    const url = state.url;
     const isTrackerDomain = state.isTracker; // from token-checker step
 
     if (this.checkShouldProxyURL(state.url, isTrackerDomain)) {
-      // Keep track of proxied URLs
-      this.humanWeb.action('addDataToUrl', url, 'proxyPeer_proxy', { proxy: true });
+      // Only keep track of proxied third-parties requests. We won't keep track
+      // of all requests proxied in `proxyAll` mode, but this should only be
+      // used for testing purposes.
+      if (state.incrementStat) {
+        state.incrementStat('proxy');
+      }
 
       // Counter number of requests proxied per GD
       let hostStats = this.proxyStats.get(hostGD);
