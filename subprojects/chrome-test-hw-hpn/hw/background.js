@@ -20,6 +20,11 @@ if(manifest.version_name === "standalone"){
 const channel = manifest.name.toLowerCase();
 
 const allowedCountryCodes = ['de', 'at', 'ch', 'es', 'us', 'fr', 'nl', 'gb', 'it', 'se'];
+
+const dbPrefixes = ['usafe', 'telemetry', 'hpn', 'prefs'];
+const prefs = ['config_location','humanWeb','hpnTelemetry','config_ts', 'config_activeUsageCount', 'config_activeUsage'];
+
+
 function observeRequest(requestDetails){
     for (var i = 0; i < requestDetails.requestHeaders.length; ++i) {
       if (requestDetails.requestHeaders[i].name === 'Referer') {
@@ -41,7 +46,7 @@ function observeResponse(requestDetails){
       }
     }
     CliqzHumanWeb.httpCache[requestDetails.url] = {'status': requestDetails.statusCode, 'time': CliqzHumanWeb.counter};
-    domain2IP(requestDetails);
+    // domain2IP(requestDetails);
 }
 
 function observeRedirect(requestDetails){
@@ -68,12 +73,6 @@ function domain2IP(requestDetails) {
   }
 }
 
-chrome.webRequest.onBeforeSendHeaders.addListener(observeRequest, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["requestHeaders"]);
-chrome.webRequest.onBeforeRedirect.addListener(observeRedirect, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
-chrome.webRequest.onResponseStarted.addListener(observeResponse, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
-// chrome.webRequest.onAuthRequired.addListener(observeAuth, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
-// chrome.webRequest.onCompleted.addListener(domain2IP, {urls:["http://*/*", "https://*/*"],tabId:-1});
-
 
 var eventList = ['onDOMContentLoaded'];
 
@@ -89,10 +88,9 @@ var aProgress = {};
 var aRequest = {};
 var aURI = {};
 
-CliqzHumanWeb.init();
-CliqzSecureMessage.init();
 
-
+/*
+TBR: Legacy.
 function focusOrCreateTab(url) {
   chrome.windows.getAll({"populate":true}, function(windows) {
     var existing_tab = null;
@@ -113,18 +111,11 @@ function focusOrCreateTab(url) {
     }
   });
 }
-
+*/
 
 // chrome.history.onVisitRemoved.addListener(CliqzHumanWeb.onHistoryVisitRemoved);
 // chrome.browsingData.removeHistory({}, e => {console.log(e)});
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined) {
-        if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
-            chrome.tabs.executeScript(tabId, {file: contentScriptPath});
-        }
-    }
-});
 
 /*
 Replacing this in favour of chrome.runtime.onMessage.
@@ -225,41 +216,93 @@ if (chrome.runtime && chrome.runtime.onConnect) {
   });
 }
 
+function initOnMessage() {
+    chrome.runtime.onMessage.addListener( (info, sender, sendResponse) => {
+    var tab = sender.tab;
+    // This will get called by the content script we execute in
+    // the tab as a result of the user pressing the browser action.
+    if(info.type == "dom"){
+      CliqzHumanWeb.tempCurrentURL = tab.url;
 
-chrome.runtime.onMessage.addListener( (info, sender, sendResponse) => {
-  var tab = sender.tab;
-  // This will get called by the content script we execute in
-  // the tab as a result of the user pressing the browser action.
-  if(info.type == "dom"){
-    CliqzHumanWeb.tempCurrentURL = tab.url;
-
-    aProgress["isLoadingDocument"] = tab.status;
-    aRequest["isChannelPrivate"] = tab.incognito;
-    aURI["spec"] = tab.url;
-    CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = {"doc":info.html,'time': CliqzHumanWeb.counter};
-    CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
-  }
-  else if(info.type == "event_listener"){
-    var ev = {};
-    ev["target"] = {"baseURI": info.baseURI,"href": null,"parentNode": {"href": null}};
-
-    if(info.action == "keypress"){
-      CliqzHumanWeb.captureKeyPressPage(ev);
+      aProgress["isLoadingDocument"] = tab.status;
+      aRequest["isChannelPrivate"] = tab.incognito;
+      aURI["spec"] = tab.url;
+      CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = {"doc":info.html,'time': CliqzHumanWeb.counter};
+      CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
     }
-    else if(info.action == "mousemove"){
-      CliqzHumanWeb.captureMouseMovePage(ev);
-    }
-    else if(info.action == "mousedown"){
-      if(info.targetHref){
-        ev["target"] = {"href": info.targetHref};
+    else if(info.type == "event_listener"){
+      var ev = {};
+      ev["target"] = {"baseURI": info.baseURI,"href": null,"parentNode": {"href": null}};
+
+      if(info.action == "keypress"){
+        CliqzHumanWeb.captureKeyPressPage(ev);
       }
-      CliqzHumanWeb.captureMouseClickPage(ev);
+      else if(info.action == "mousemove"){
+        CliqzHumanWeb.captureMouseMovePage(ev);
+      }
+      else if(info.action == "mousedown"){
+        if(info.targetHref){
+          ev["target"] = {"href": info.targetHref};
+        }
+        CliqzHumanWeb.captureMouseClickPage(ev);
+      }
+      else if(info.action == "scroll"){
+        CliqzHumanWeb.captureScrollPage(ev);
+      }
+      else if(info.action == "copy"){
+        CliqzHumanWeb.captureCopyPage(ev);
+      }
     }
-    else if(info.action == "scroll"){
-      CliqzHumanWeb.captureScrollPage(ev);
-    }
-    else if(info.action == "copy"){
-      CliqzHumanWeb.captureCopyPage(ev);
-    }
+  });
+}
+
+function initWebRequestListeners() {
+  chrome.webRequest.onBeforeSendHeaders.addListener(observeRequest, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["requestHeaders"]);
+  chrome.webRequest.onBeforeRedirect.addListener(observeRedirect, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
+  chrome.webRequest.onResponseStarted.addListener(observeResponse, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
+  chrome.webRequest.onCompleted.addListener(domain2IP, {urls:["http://*/*", "https://*/*"],tabId:-1});
+}
+
+function initTabListener() {
+  chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+      if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined) {
+          if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
+              chrome.tabs.executeScript(tabId, {file: contentScriptPath});
+          }
+      }
+  });
+}
+
+function initModules() {
+  CliqzHumanWeb.init();
+  CliqzSecureMessage.init();
+}
+
+function initHumanWeb() {
+
+  initWebRequestListeners();
+  initOnMessage();
+  initWebRequestListeners();
+  initTabListener();
+  initModules();
+
+}
+
+function enableHumanWeb() {
+  if (navigator &&
+      navigator.appVersion.indexOf('Edge') === -1 &&
+      CliqzUtils.getPref('humanWeb', true) === true
+    ) {
+    return true;
+  } else {
+    return false;
   }
-});
+}
+
+CliqzUtils.loadPrefs()
+  .then( () => {
+    if (enableHumanWeb()) {
+      initHumanWeb();
+    }
+  })
+  .catch( err => console.log("Error while loading prefs: " + err));

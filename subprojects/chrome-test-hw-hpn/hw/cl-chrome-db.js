@@ -84,31 +84,38 @@ var __CliqzChromeDB = function() { // (_export) {
                     }
                 },
                 removeEverything: function() {
-                    chrome.storage.local.clear();
-                    CliqzChromeDB.size();
+                    // Looks like the DB size breached the threshold, we should remove only human-web / hpn
+                    // specific information. running .clear() would clear everything even ghostery settings.
+                    let toBeRemoved = [];
+                    chrome.storage.local.get(null, items => {
+                        Object.keys(items).forEach( value => {
+                            let keyPrefix = value.split(':')[0];
+                            if (dbPrefixes.indexOf(keyPrefix) > -1) {
+                                toBeRemoved.push(value);
+                            }
+                        });
+
+                        if (toBeRemoved.length > 0) {
+                            CliqzUtils.log("Keys to be removed " + JSON.stringify(toBeRemoved));
+                            chrome.storage.local.remove(toBeRemoved);
+                        }
+                    });
                 },
                 init: function() {
-                    console.log(">> Check size of DB is commented until fixed.");
-                    /*
                     CliqzChromeDB.size(function(sv) {
                         if (sv && sv[1] > 0.90) {
                             // more than 90% utilization,
                             // drop everything
 
                             CliqzChromeDB.removeEverything();
-                            // FIXME
+
                             // we should send a telemetry signal for when it
                             // happens
                             var payload = {};
                             payload['cleared'] = true;
-                            try {
-                                var location = CliqzUtils.getPref('config_location', null);
-                            } catch (ee) {};
-                            payload['ctry'] = location;
-                            CliqzHumanWeb.telemetry({ 'type': CliqzHumanWeb.msgType, 'action': 'dbcleared', 'payload': payload });
+                            CliqzHumanWeb.telemetry({ 'type': 'humanweb', 'action': 'dbcleared', 'payload': payload });
                         }
                     })
-                    */
                 },
                 __test_sets: function() {
 

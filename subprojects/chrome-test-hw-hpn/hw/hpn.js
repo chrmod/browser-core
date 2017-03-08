@@ -42,28 +42,6 @@ var CliqzSecureMessage = {
 
 	  	}
 
-	  	/* Konark : Need to get the event from extension, to switch the proxyIP
-	  	if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % 5 == 0) {
-	  		var currentTime = Date.now();
-
-
-	  		if(!CliqzUtils.getWindow() || !CliqzUtils.getWindow().CLIQZ || !CliqzUtils.getWindow().CLIQZ.UI) return;
-	  		var tDiff = currentTime - CliqzUtils.getWindow().CLIQZ.UI.lastInputTime;
-
-	  		if(tDiff > 0 && tDiff > (1000 * 2 * 1)){
-	  			CliqzSecureMessage.proxyIP();
-	  		}
-
-	  		if(!CliqzSecureMessage.sourceMap){
-	  			fetchSourceMapping();
-	  		}
-
-	  		if(!CliqzSecureMessage.routeTable){
-	  			CliqzSecureMessage.fetchRouteTable();
-	  		}
-	  	}
-		*/
-
 	    //Fetch sourceMap
 	    if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % (60 * 1 * 1) == 0) {
 	    	if (CliqzSecureMessage.debug) {
