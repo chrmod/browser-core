@@ -94,10 +94,6 @@ export default background({
     _isBrowser() {
       return FreshTab.isBrowser;
     },
-    _showFeedback() {
-      const showFeedback = utils.getPref('freshtabFeedback', false);
-      return showFeedback;
-    },
     _showNewBrandAlert() {
       const isInABTest = utils.getPref('freshtabNewBrand', false);
       const isDismissed = utils.getPref('freshtabNewBrandDismissed', false);
@@ -377,7 +373,6 @@ export default background({
         miniOnboarding: self.actions._showMiniOnboarding(),
         showHelp: self.actions._showHelp(),
         isBrowser: self.actions._isBrowser(),
-        showFeedback: self.actions._showFeedback(),
         showNewBrandAlert: self.actions._showNewBrandAlert(),
         messages: this.messages,
         newsLanguage: self.actions._getNewsLanguage(),

@@ -29,7 +29,6 @@ export default Ember.Route.extend({
       miniOnboarding: config.miniOnboarding,
       isBrowser: config.isBrowser,
       showHelp: config.showHelp,
-      showFeedback: config.showFeedback,
       showNewBrandAlert: config.showNewBrandAlert,
       messageCenter: this.get('messageCenter'),
       newsLanguage: config.newsLanguage,
