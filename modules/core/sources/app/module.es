@@ -66,6 +66,9 @@ export default class Module {
    * return window module
    */
   loadWindow(window) {
+    if (!this.isEnabled) {
+      return Promise.reject('cannot load window of disabled module');
+    }
     let resolver;
     let rejecter;
     const loadingPromise = new Promise((resolve, reject) => {
@@ -78,6 +81,7 @@ export default class Module {
       console.log('Module window:', `"${this.name}"`, 'already loaded');
       return Promise.resolve();
     }
+    window.CLIQZ.Core.windowModules[this.name] = true;
 
     this.windows[win.id] = {
       loadingPromise,
