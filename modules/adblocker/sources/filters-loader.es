@@ -120,7 +120,9 @@ export default class extends UpdateCallbackHandler {
   }
 
   remoteURL() {
-    return `https://cdn.cliqz.com/adblocking/${platformName}/allowed-lists.json?t=${parseInt(Date.now() / 60 / 60 / 1000, 10)}`;
+    // mobile has been moved to a non-standard path
+    const path = platformName === 'mobile' ? 'mobile-new' : platformName;
+    return `https://cdn.cliqz.com/adblocking/${path}/allowed-lists.json?t=${parseInt(Date.now() / 60 / 60 / 1000, 10)}`;
   }
 
   stop() {
