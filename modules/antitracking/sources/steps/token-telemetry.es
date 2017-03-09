@@ -106,13 +106,12 @@ class LastSentDb {
    * @param  {String} key
    * @return {Promise}        Resolves on success, rejects on failure
    */
-  touchKey(key, name) {
+  touchKey(key) {
     return this.lastSentLog.get(key).catch((err) => {
       if (err.name === 'not_found') {
         this.lastSentLog.put({
           _id: key,
           lastSent: this.timestampFn(),
-          name: name,
         });
       } else {
         throw err;
@@ -152,6 +151,7 @@ class TokenDb {
 
   /**
    * Get an object for the given token tuple from the database
+   * @param  {String} options.prefix Prefix used in database ID - used for sending constraints
    * @param  {String} options.domain
    * @param  {String} options.firstParty
    * @param  {String} options.key
@@ -160,8 +160,8 @@ class TokenDb {
    * @param  {Integer} options.valueLen
    * @return {Object}
    */
-  getToken({domain, firstParty, k, v, k_len, v_len}) {
-    const id = domain + firstParty + k + v;
+  getToken({prefix, domain, firstParty, k, v, k_len, v_len}) {
+    const id = prefix + domain + firstParty + k + v;
     // get the document, or create a new one if it doesn't exist
     return this.db.get(id).catch((err) => {
       if (err.name === 'not_found') {
@@ -183,15 +183,17 @@ class TokenDb {
 
   /**
    * Insert the tokens from keyTokens into the token db.
+   * @param  {String} prefix
    * @param  {String} domain
    * @param  {String} firstParty
    * @param  {Array} keyTokens   Array of objects with k, v, k_len and v_len properties
    * @return {Promise}           Resolves once insert is completed
    */
-  insertTokens(domain, firstParty, keyTokens) {
+  insertTokens(prefix, domain, firstParty, keyTokens) {
     // get docs and increment counts
     const upserts = keyTokens.map((kv) => {
       return this.getToken({
+        prefix,
         domain,
         firstParty,
         k: kv.k,
@@ -229,6 +231,16 @@ class TokenDb {
 
   deleteAll(documentBatches) {
     return Promise.all(documentBatches.map(d => d.delete()));
+  }
+
+  /**
+   * Return the number of entries in the table
+   * @return {[type]} [description]
+   */
+  count() {
+    return this.db.info().then((stats) => {
+      return stats.doc_count;
+    });
   }
 }
 
@@ -276,25 +288,29 @@ export default class {
     pacemaker.deregister(this._pmsend);
   }
 
+  _makeHash(s) {
+    return md5(s).substr(0, 16);
+  }
+
   extractKeyTokens(state) {
     // ignore private requests
     if(state.requestContext.isChannelPrivate()) return true;
 
     const keyTokens = state.urlParts.getKeyValuesMD5();
     if (keyTokens.length > 0) {
-      const domain = state.urlParts
-      const firstParty = md5(state.sourceUrlParts.hostname).substr(0, 16);
-      this._saveKeyTokens(domain, keyTokens, firstParty);
+      const domain = this._makeHash(state.urlParts.hostname);
+      const firstParty = this._makeHash(state.sourceUrlParts.hostname);
+      const generalDomain = state.urlParts.generalDomainHash;
+      this._saveKeyTokens(generalDomain, domain, keyTokens, firstParty);
     }
     return true;
   }
 
-  _saveKeyTokens(domainParts, keyTokens, firstParty) {
-    const domain = md5(domainParts.hostname).substr(0, 16);
+  _saveKeyTokens(generalDomain, domain, keyTokens, firstParty) {
     // touch this domain with the current hour if it is new
-    return this.lastSentLog.touchKey(domain, domainParts.hostname).then(() => {
+    return this.lastSentLog.touchKey(generalDomain).then(() => {
       // insert all the tokens into the token db
-      return this.tokenDb.insertTokens(domain, firstParty, keyTokens);
+      return this.tokenDb.insertTokens(generalDomain, domain, firstParty, keyTokens);
     });
   }
 
@@ -304,10 +320,11 @@ export default class {
     const hourFormat = "YYYYMMDDHH"
     const prevHour = moment(hour, hourFormat).subtract(1, 'hours').format(hourFormat);
 
-    console.log('xxx', 'sendTokens');
-    return this.lastSentLog.count().then((count) => {
+    return Promise.all([this.lastSentLog.count(), this.tokenDb.count()]).then((counts) => {
+      console.log('have', counts[1], 'tokens for', counts[0], 'domains in the db');
       // calculate number of elements to send
-      const limit = Math.ceil(count / 12);
+      const domainCount = counts[0];
+      const limit = Math.ceil(domainCount / 12);
 
       // get domains with last update before the current hour
       return this.lastSentLog.take({
