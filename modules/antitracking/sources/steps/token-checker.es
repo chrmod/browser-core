@@ -10,6 +10,26 @@ const STAT_KEYS = ['cookie', 'private', 'cookie_b64', 'private_b64', 'safekey', 
   'short_no_hash', 'cookie_b64_newToken', 'cookie_b64_countThreshold', 'private_b64_newToken',
   'private_b64_countThreshold', 'qs_newToken', 'qs_countThreshold'];
 
+
+function decodeToken(token) {
+  let decodedToken = dURIC(token);
+  let doubleDecoded = dURIC(decodedToken);
+  while (decodedToken !== doubleDecoded) {
+    decodedToken = doubleDecoded;
+    doubleDecoded = dURIC(decodedToken);
+  }
+  return decodedToken
+}
+
+function b64Encode(token) {
+  var b64 = null;
+  try {
+      b64 = atob(token);
+  } catch(e) {
+  }
+  return b64;
+}
+
 export default class {
 
   constructor(qsWhitelist, blockLog, privateValues, hashProb, config) {
@@ -47,143 +67,90 @@ export default class {
   }
 
   checkTokens(url_parts, source_url, cookievalue, stats, source_url_parts, tracker) {
-    const self = this;
-    // bad tokens will still be returned in the same format
-    const s = url_parts.generalDomainHash;
-    // If it's a rare 3rd party, we don't do the rest
-    if (!tracker) return [];
-
-    var sourceD = md5(source_url_parts.hostname).substr(0, 16);
-    var today = datetime.getTime().substr(0, 8);
-
-    if (url_parts['query'].length == 0 && url_parts['parameters'].length == 0) return [];
-    var tok;
-
-    var badTokens = [];
-
-    // stats keys
-    STAT_KEYS.forEach(function(k) {stats[k] = 0;});
-
-    var _countCheck = function(tok) {
-        // for token length < 12 and may be not a hash, we let it pass
-        if (tok.length < 12) {
-          if(isMostlyNumeric(tok)) {
-            stats.short_numeric++;
-          } else if (self.hashProb.isHash(tok)) {
-            stats.short_hash++;
-          } else {
-            return 0;
-          }
-        }
-        // update tokenDomain
-        tok = md5(tok);
-        self.blockLog.tokenDomain.addTokenOnFirstParty(tok, sourceD);
-        return self.blockLog.tokenDomain.getNFirstPartiesForToken(tok);
-    };
-
-    var _incrStats = function(cc, prefix, tok, key, val) {
-        if (cc == 0)
-            stats['short_no_hash']++;
-        else if (cc < self.config.tokenDomainCountThreshold)
-            stats[prefix+'_newToken']++;
-        else {
-            _addBlockLog(s, key, val, prefix);
-            badTokens.push(val);
-            if (cc == self.config.tokenDomainCountThreshold)
-                stats[prefix + '_countThreshold']++;
-            stats[prefix]++;
-            return true;
-        }
-        return false;
-    };
-
-    var _addBlockLog = (s, key, val, prefix) => {
-        self.blockLog.blockLog.add(source_url, s, key, val, prefix);
+    // This check is only done for trackers
+    if (!tracker) {
+      return [];
     }
 
-    var _checkTokens = function(key, val) {
-        self.blockLog.incrementCheckedTokens();
+    // if there are no query parameters, there is nothing to check
+    if (url_parts.query.length == 0 && url_parts.parameters.length == 0) {
+      return [];
+    }
 
-        var tok = dURIC(val);
-        while (tok != dURIC(tok)) {
-            tok = dURIC(tok);
-        }
+    const trackerDomain = url_parts.generalDomainHash;
+    const sourceDomain = source_url.generalDomainHash
+    var badTokens = [];
 
-        if (tok.length < self.config.shortTokenLength || source_url.indexOf(tok) > -1) return;
+    const longCookies = Object.keys(cookievalue).filter((c) => c.length >= this.config.shortTokenLength)
 
-        // Bad values (cookies)
-        for (var c in cookievalue) {
-            if ((tok.indexOf(c) > -1 && c.length >= self.config.shortTokenLength) || c.indexOf(tok) > -1) {
-                if (self.debug) CliqzUtils.log('same value as cookie ' + val, 'tokk');
-                var cc = _countCheck(tok);
-                if (c != tok) {
-                    cc = Math.max(cc, _countCheck(c));
-                }
-                if (_incrStats(cc, 'cookie', tok, key, val))
-                    return;
-            }
-        }
+    // check for each kv in the url
+    const tokenStatus = url_parts.getKeyValues().map((kv) => {
+      const key = kv.k;
+      const tok = kv.v;
 
-        // private value (from js function returns)
-        for (var c in self.privateValues) {
-            if ((tok.indexOf(c) > -1 && c.length >= self.config.shortTokenLength) || c.indexOf(tok) > -1) {
-                if (self.debug) CliqzUtils.log('same private values ' + val, 'tokk');
-                var cc = _countCheck(tok);
-                if (c != tok) {
-                    cc = Math.max(cc, _countCheck(c));
-                }
-                if (_incrStats(cc, 'private', tok, key, val))
-                    return;
-            }
-        }
-        var b64 = null;
-        try {
-            b64 = atob(tok);
-        } catch(e) {
-        }
-        if (b64 != null) {
-            for (var c in cookievalue) {
-                if ((b64.indexOf(c) > -1 && c.length >= self.config.shortTokenLength) || c.indexOf(b64) > -1) {
-                    if (self.debug) CliqzUtils.log('same value as cookie ' + b64, 'tokk-b64');
-                    var cc = _countCheck(tok);
-                    if (c != tok) {
-                        cc = Math.max(cc, _countCheck(c));
-                    }
-                    if (_incrStats(cc, 'cookie_b64', tok, key, val))
-                        return;
-                }
-            }
-            for (var c in self.privateValues) {
-                if (b64.indexOf(c) > -1 && c.length >= self.config.shortTokenLength) {
-                    if (self.debug) CliqzUtils.log('same private values ' + b64, 'tokk-b64');
-                    var cc = _countCheck(tok);
-                    if (c != tok) {
-                        cc = Math.max(cc, _countCheck(c));
-                    }
-                    if (_incrStats(cc, 'private_b64', tok, key, val))
-                        return;
-                }
-            }
-        }
+      // ignore short values
+      if (tok.length < this.config.shortTokenLength) {
+        return 'short';
+      }
 
+      // if the value is in the main url, ignore
+      if (source_url.toString().indexOf(tok) > -1) {
+        return 'source_url';
+      }
 
-        // Good keys.
-        if (self.qsWhitelist.isSafeKey(s, md5(key))) {
-            stats['safekey']++;
-            return;
-        }
+      // make different possible encodings of the token
+      const decodedToken = decodeToken(tok);
+      const tokenVariants = [tok, decodedToken, b64Encode(tok), b64Encode(decodedToken)].filter(t => t && t.length > 0)
 
-        if (source_url.indexOf(tok) == -1) {
-            if (!self.qsWhitelist.isSafeToken(s, md5(tok))) {
-                var cc = _countCheck(tok);
-                _incrStats(cc, 'qs', tok, key, val);
-            } else
-                stats['whitelisted']++;
-        }
-    };
+      function tokenMatches(val) {
+        // check if the value is in the cookie or the value is in the token
+        return tokenVariants.some(t => t.indexOf(val) > -1 || val.indexOf(t) > -1);
+      }
 
-    url_parts.getKeyValues().forEach(function (kv) {
-      _checkTokens(kv.k, kv.v);
+      // check for cookie or private values - presence of these override the global
+      // safe key and token lists
+      const cookieMatch = longCookies.some(tokenMatches);
+      const privateMatch = Object.keys(this.privateValues).some(tokenMatches);
+      const overrideGlobalLists = cookieMatch || privateMatch;
+
+      if (!overrideGlobalLists && this.qsWhitelist.isSafeKey(trackerDomain, md5(key))) {
+        return 'safekey';
+      }
+
+      if (!overrideGlobalLists && this.qsWhitelist.isSafeToken(trackerDomain, md5(tok))) {
+        return 'whitelisted'
+      }
+
+      // check for short non-hashes
+      if (decodedToken.length < 12 && !isMostlyNumeric(decodedToken)
+        && !this.hashProb.isHash(decodedToken)) {
+        return 'short_no_hash';
+      }
+
+      const tokenType = cookieMatch ? 'cookie' : (privateMatch ? 'private' : 'qs');
+
+      // increment that this token has been seen on this site
+      this.blockLog.tokenDomain.addTokenOnFirstParty(md5(tok), sourceDomain);
+      // check if the threshold for cross-domain tokens has been reached
+      if (this.blockLog.tokenDomain.getNFirstPartiesForToken(md5(tok)) < this.config.tokenDomainCountThreshold) {
+        return `${tokenType}_newToken`;
+      }
+
+      // TODO: add block report log
+      badTokens.push(tok);
+      return `${tokenType}_countThreshold`;
+    });
+    if (this.debug) {
+      // debug message: labeled key values
+      const tokenReport = url_parts.getKeyValues().map((kv, i) => Object.assign(kv, {'class': tokenStatus[i]}));
+      console.log('tokens', url_parts.hostname, tokenReport);
+    }
+
+    tokenStatus.forEach((s) => {
+      if (!stats[s]) {
+        stats[s] = 0;
+      }
+      stats[s] += 1;
     });
 
     // update blockedToken
