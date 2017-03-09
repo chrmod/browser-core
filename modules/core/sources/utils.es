@@ -8,6 +8,8 @@ import { httpHandler, promiseHttpHandler } from './http';
 import gzip from './gzip';
 import CliqzLanguage from './language';
 import { isUrl } from './url';
+import System from 'system';
+
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
@@ -113,7 +115,7 @@ var CliqzUtils = {
   },
 
   importModule: function(moduleName) {
-    return System.import(moduleName)
+    return System.import(moduleName);
   },
 
   isNumber: function(n){

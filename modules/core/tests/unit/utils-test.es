@@ -1,45 +1,42 @@
 export default describeModule("core/utils",
   function () {
     return {
-      "system": {
+      '../platform/environment': {
         default: {},
       },
-      "core/console": {
+      system: {
+        default: {},
+      },
+      './url': {
+        isUrl() {},
+      },
+      './console': {
         default: {}
       },
-      "core/prefs": {
+      './prefs': {
         default: {
           get() {}
         }
       },
-      "core/storage": {
+      './storage': {
         default: {}
       },
-      'core/gzip': {
+      './gzip': {
         default: {}
       },
-      'core/language': {
+      './language': {
         default: {}
       },
-      'core/events': {
+      './events': {
         default: {}
       },
-      "core/tlds": {
+      './tlds': {
         TLDs: {}
       },
-      'core/http': {
+      './http': {
         httpHandler: {},
         promiseHttpHandler: {}
       },
-      "autocomplete/autocomplete": {
-        default: {}
-      },
-      "core/http": {
-        promiseHttpHandler: {}
-      },
-      "platform/environment": {
-        default: {}
-      }
     };
   },
   function () {
@@ -47,6 +44,7 @@ export default describeModule("core/utils",
       let subject;
       beforeEach(function () {
         const utils = this.module().default;
+        utils.importModule = () => {};
         subject = utils.getCliqzPrefs.bind(utils);
       })
 

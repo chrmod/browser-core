@@ -6,6 +6,7 @@ import HistoryManager from '../core/history-manager';
 import { Services } from '../platform/globals';
 import { Window } from '../core/browser';
 
+
 export default class {
   constructor(settings) {
     this.window = settings.window;

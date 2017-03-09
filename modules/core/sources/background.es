@@ -13,6 +13,7 @@ import { isMobile } from "./platform";
 import Storage from './storage';
 import resourceManager from './resource-manager';
 
+
 var lastRequestId = 0;
 var callbacks = {};
 

@@ -1,7 +1,7 @@
 import { utils } from 'core/cliqz';
-import { addStylesheet, removeStylesheet } from "../core/helpers/stylesheet";
+import { addStylesheet, removeStylesheet } from '../core/helpers/stylesheet';
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+const { utils: Cu } = Components;
 const CustomizableUI = Cu.import('resource:///modules/CustomizableUI.jsm', null).CustomizableUI;
 const STYLESHEET_URL = 'chrome://cliqz/content/pairing/css/burger_menu.css';
 

@@ -8,7 +8,7 @@
   "dependencies": {
     "handlebars": "4.0.5",
     "loader.js": "ember-cli/loader.js#3.2.1",
-    "pouchdb": "6.0.5",
+    "pouchdb": "6.1.2",
     "bigint": "https://cdn.cliqz.com/cliqz-crypto/bigint.js",
     "patterns": "https://cdn.cliqz.com/human-web/patterns",
     "anonpatterns": "https://cdn.cliqz.com/human-web/patterns-anon",
