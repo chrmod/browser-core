@@ -424,8 +424,7 @@ var CLIQZEnvironment = {
 
                         if(result.getStyleAt(i).indexOf('switchtab') != -1){
                           try {
-                            let [mozAction, mozActionVal] = utils.cleanMozillaActions(result.getValueAt(i));
-                            let cleanURL = decodeURIComponent(JSON.parse(mozActionVal).url);
+                            let [mozAction, cleanURL] = CliqzUtils.cleanMozillaActions(result.getValueAt(i));
                             let label;
 
                             try {

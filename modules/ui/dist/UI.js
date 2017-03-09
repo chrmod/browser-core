@@ -194,7 +194,7 @@ var UI = {
 
         if(firstResult.url){
           setTimeout(function () {
-            CLIQZ.UI.autocompleteQuery(CliqzUtils.cleanMozillaActions(firstResult.url)[1], firstResult.title);
+            CLIQZ.UI.autocompleteQuery(firstResult.url, firstResult.title);
           }, 0);
         }
 
