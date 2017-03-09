@@ -87,6 +87,8 @@ var CLIQZEnvironment = {
       return;
     }
 
+    e = decodeURIComponent(e);
+
     CLIQZEnvironment.setCurrentQuery(e);
 
     e = e.toLowerCase().trim();
@@ -187,8 +189,6 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
   }
 
   var recentItems = storage.getObject('recentQueries', []);
-
-  query = decodeURIComponent(query);
 
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];

@@ -50,6 +50,7 @@ var UI = {
 
       let box = window.document.getElementById('results');
       box.innerHTML = CLIQZ.templates.main();
+      box.style.marginLeft = PEEK + 'px';
 
       resultsBox = window.document.getElementById('cliqz-results', box);
 
@@ -414,7 +415,6 @@ function setResultNavigation(resultCount) {
   const showGooglethis = 1;
 
   resultsBox.style.width = window.innerWidth + 'px';
-  resultsBox.style.marginLeft = PEEK + 'px';
 
   // get number of pages according to number of cards per page
   UI.nPages = Math.ceil((currentResultsCount + showGooglethis) / UI.nCardsPerPage);
