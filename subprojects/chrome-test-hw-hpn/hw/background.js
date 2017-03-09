@@ -22,8 +22,7 @@ const channel = manifest.name.toLowerCase();
 const allowedCountryCodes = ['de', 'at', 'ch', 'es', 'us', 'fr', 'nl', 'gb', 'it', 'se'];
 
 const dbPrefixes = ['usafe', 'telemetry', 'hpn', 'prefs'];
-const prefs = ['config_location','humanWeb','hpnTelemetry','config_ts', 'config_activeUsageCount', 'config_activeUsage'];
-
+const prefs = ['config_location','humanWeb','hpnTelemetry','config_ts', 'config_activeUsageCount', 'config_activeUsage', 'enable_human_web'];
 
 function observeRequest(requestDetails){
     for (var i = 0; i < requestDetails.requestHeaders.length; ++i) {
@@ -287,11 +286,22 @@ function initHumanWeb() {
   initModules();
 
 }
+function listenPrefChange(){
+  chrome.runtime.onMessage.addListener( (info, sender, sendResponse) => {
+    if (info && info.origin && info.origin === 'settings') {
+      if (info.message && info.message.conf) {
+        console.log(">>>> Value: " + info.message.conf.enable_human_web)
+        CliqzUtils.setPref('enable_human_web', info.message.conf.enable_human_web);
+      }
+    }
+  });
+}
+
 
 function enableHumanWeb() {
   if (navigator &&
       navigator.appVersion.indexOf('Edge') === -1 &&
-      CliqzUtils.getPref('humanWeb', true) === true
+      CliqzUtils.getPref('enable_human_web', true)
     ) {
     return true;
   } else {
@@ -301,6 +311,9 @@ function enableHumanWeb() {
 
 CliqzUtils.loadPrefs()
   .then( () => {
+    // Need to have the pref change listener even when human-web is disabled.
+    listenPrefChange();
+
     if (enableHumanWeb()) {
       initHumanWeb();
     }

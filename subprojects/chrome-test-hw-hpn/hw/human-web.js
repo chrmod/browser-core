@@ -2285,7 +2285,14 @@ var __CliqzHumanWeb = function() { // (_export) {
                     //_log("Telemetry: >> " + JSON.stringify(msg));
                     //if (!CliqzHumanWeb || //might be called after the module gets unloaded
 
-                    if (!CliqzUtils.getPref('humanWeb', true)) return;
+                    // This check is kept, to prevent messages being sent , if the user has human-web enabled,
+                    // then disabled , and the extension has not yet reloaded.
+
+                    if (!CliqzUtils.getPref('enable_human_web', true)) {
+                        _log("Human-web disabled hence not sending the message.");
+                        return;
+                    }
+
                     msg.ver = CliqzHumanWeb.VERSION;
                     msg = CliqzHumanWeb.msgSanitize(msg);
                     _log("Message sanitized");
