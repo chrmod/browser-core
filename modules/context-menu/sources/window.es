@@ -137,7 +137,7 @@ export default class {
         this.window.gContextMenu.target.href : this.window.gBrowser.currentURI.spec;
       let PeerComm = System.get('pairing/main');
       PeerComm = PeerComm && PeerComm.default;
-      const beforeElem = this.window.document.getElementById('page-menu-separator');
+      const beforeElem = this.window.document.getElementById('context-bookmarklink');
       const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired && isValidURL(url);
       const onclick = isEnabled ? () => {
         sendTab(PeerComm, url);

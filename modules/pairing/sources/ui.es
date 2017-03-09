@@ -112,7 +112,9 @@ export default class PairingUI {
           colorLight: '#ffffff',
           correctLevel: this.window.QRCode.CorrectLevel.Q,
         });
-        $('<div class="icon-logo"></div>').insertAfter('#qrcode > canvas');
+        // Temporarily remove the CLIQZ icon in the center of QR code until
+        // the mobile team fixes the issue
+        // $('<div class="icon-logo"></div>').insertAfter('#qrcode > canvas');
       } else {
         this.qr.makeCode(token);
       }

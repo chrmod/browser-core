@@ -333,6 +333,12 @@ var CliqzABTests = {
             case "1094_B":
               CliqzUtils.setPref("ff-experiment", true);
               break;
+            case "1095_A":
+              CliqzUtils.setPref("connect", false);
+              break;
+            case "1095_B":
+              CliqzUtils.setPref("connect", true);
+              break;
             default:
                 rule_executed = false;
         }
@@ -541,6 +547,10 @@ var CliqzABTests = {
             case "1094_A":
             case "1094_B":
               CliqzUtils.clearPref('ff-experiment');
+              break;
+            case "1095_A":
+            case "1095_B":
+              CliqzUtils.clearPref('connect');
               break;
             default:
                 rule_executed = false;
