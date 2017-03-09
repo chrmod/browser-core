@@ -3,6 +3,9 @@ import * as datetime from '../time';
 import * as persist from '../persistent-state';
 import { splitTelemetryData } from '../utils';
 import pacemaker from '../pacemaker';
+import Database from '../../core/database';
+import console from '../../core/console';
+import moment from '../../platform/moment';
 
 /**
  * Add padding characters to the left of the given string.
@@ -57,8 +60,17 @@ export default class {
 
   constructor(telemetry) {
     this.telemetry = telemetry;
-    this.tokens = {};
-    this._tokens = new persist.AutoPersistentObject("tokens", (v) => this.tokens = v, 60000);
+    this.lastSentLog = new Database('cliqz-attrack-tokens-lastsent', {auto_compaction: true});
+    var ddoc = {
+      _id: '_design/lastSent',
+      views: {
+        ascending: {
+          map: function (doc) { emit(doc.lastSent); }.toString()
+        }
+      }
+    };
+    this.lastSentLog.put(ddoc);
+    this.tokenDb = new Database('cliqz-attrack-tokens', {auto_compaction: true});
   }
 
   init() {
@@ -66,7 +78,6 @@ export default class {
   }
 
   unload() {
-    this._tokens.save();
     pacemaker.deregister(this._pmsend);
   }
 
@@ -84,66 +95,134 @@ export default class {
   }
 
   _saveKeyTokens(domain, keyTokens, firstParty) {
-    // anything here should already be hash
-    if (this.tokens[domain] == null) this.tokens[domain] = {lastSent: datetime.getTime()};
-    if (this.tokens[domain][firstParty] == null) this.tokens[domain][firstParty] = {'c': 0, 'kv': {}};
+    // look for domain document and insert if it doesn't exist
+    this.lastSentLog.get(domain).catch((err) => {
+      if (err.name === 'not_found') {
+        this.lastSentLog.put({
+          _id: domain,
+          lastSent: datetime.getTime(),
+        });
+      } else {
+        throw err;
+      }
+    });
+    // get token/firstparty tuple if it exists
+    const tuplePrefix = domain + firstParty;
+    const upserts = keyTokens.map((kv) => {
+      const tok = kv.v;
+      const k = kv.k;
+      const id = tuplePrefix + k + tok;
 
-    this.tokens[domain][firstParty]['c'] =  (this.tokens[domain][firstParty]['c'] || 0) + 1;
-    for (var kv of keyTokens) {
-        var tok = kv.v,
-            k = kv.k;
-        if (this.tokens[domain][firstParty]['kv'][k] == null) this.tokens[domain][firstParty]['kv'][k] = {};
-        if (this.tokens[domain][firstParty]['kv'][k][tok] == null) {
-            this.tokens[domain][firstParty]['kv'][k][tok] = {
-                c: 0,
-                k_len: kv.k_len,
-                v_len: kv.v_len
-            };
+      return this.tokenDb.get(id).catch(err => {
+        if (err.name === 'not_found') {
+          return {
+            _id: id,
+            domain: domain,
+            fp: firstParty,
+            k: k,
+            v: tok,
+            k_len: kv.k_len,
+            v_len: kv.v_len,
+            c: 0,
+          }
+        } else {
+          throw err;
         }
-        this.tokens[domain][firstParty]['kv'][k][tok].c += 1;
-    }
-    this._tokens.setDirty();
+      }).then((doc) => {
+        doc.c += 1;
+        return doc;
+      });
+    });
+    // when we have docs to insert, send a bulk put
+    Promise.all(upserts).then((docs) => {
+      this.tokenDb.bulkDocs(docs);
+    });
   }
 
   sendTokens() {
-    // send tokens every 5 minutes
-    let data = {},
-        hour = datetime.getTime(),
-        limit = Object.keys(this.tokens).length / 12;
+    //send tokens every 5 minutes
+    const hour = datetime.getTime();
+    const hourFormat = "YYYYMMDDHH"
+    const prevHour = moment(hour, hourFormat).subtract(1, 'hours').format(hourFormat);
 
-    // sort tracker keys by lastSent, i.e. send oldest data first
-    let sortedTrackers = Object.keys(this.tokens).sort((a, b) => {
-        return parseInt(this.tokens[a].lastSent || 0) - parseInt(this.tokens[b].lastSent || 0)
-    });
+    this.lastSentLog.info().then((stats) => {
+      // calculate number of elements to send
+      const limit = Math.ceil(stats.doc_count / 12);
 
-    for (let i in sortedTrackers) {
-        let tracker = sortedTrackers[i];
+      // get domains with last update before the current hour
+      this.lastSentLog.query('lastSent/ascending', {
+        endkey: prevHour,
+        limit,
+        include_docs: true,
+      }).then((lastSentResults) => {
+        console.log('sending', lastSentResults.rows.length, 'of', lastSentResults.total_rows, 'queued domains');
+        const gatherData = lastSentResults.rows.map((domain) => {
+          const key = domain.id;
+          // prefix search for the domain hash
+          return this.tokenDb.allDocs({
+            include_docs: true,
+            startkey: key,
+            endkey: key + '\uffff',
+          }).then((tokenResult) => {
+            // collect docs into an object if expected sending format
+            const docs = tokenResult.rows.map((r) => r.doc);
+            // console.log('docs', key, docs);
+            const domainData = {}
+            docs.forEach((doc) => {
+              if (!domainData[doc.fp]) {
+                domainData[doc.fp] = {};
+              }
+              if (!domainData[doc.fp][doc.k]) {
+                domainData[doc.fp][doc.k] = {}
+              }
+              domainData[doc.fp][doc.k][doc.v] = {
+                c: doc.c,
+                k_len: doc.k_len,
+                v_len: doc.v_len,
+              }
+            });
+            // console.log('docs', key, domainData);
+            return { domain: key, docs, data: domainData };
+          });
+        });
 
-        if (limit > 0 && Object.keys(data).length > limit) {
-            break;
-        }
+        Promise.all(gatherData).then((dataParts) => {
+          const data = {}
+          const docsForDeletion = [].concat.apply([], dataParts.map((domainTokens) => {
+            data[domainTokens.domain] = domainTokens.data;
+            return domainTokens.docs;
+          }));
 
-        let tokenData = this.tokens[tracker];
-        if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
-            delete(tokenData.lastSent);
-            data[tracker] = anonymizeTrackerTokens(tokenData);
-            delete(this.tokens[tracker]);
-        }
-    }
-
-    if (Object.keys(data).length > 0) {
-        splitTelemetryData(data, 20000).map((d) => {
-            const msg = {
+          if (Object.keys(data).length > 0) {
+            splitTelemetryData(data, 20000).map((d) => {
+              const msg = {
                 'type': this.telemetry.msgType,
                 'action': 'attrack.tokens',
                 'payload': d
-            };
-            this.telemetry({
-              message: msg,
-              compress: true,
+              };
+              this.telemetry({
+                message: msg,
+                compress: true,
+              });
             });
+
+            // delete token data
+            this.tokenDb.bulkDocs(docsForDeletion.map((doc) => {
+              doc._deleted = true;
+              return doc;
+            })).then(() => {
+              // delete last sent
+              return this.lastSentLog.bulkDocs(lastSentResults.rows.map((res) => {
+                const doc = res.doc;
+                doc._deleted = true;
+                return doc;
+              }));
+            });
+
+          }
         });
-    }
-    this._tokens.setDirty();
+      });
+    });
+
   }
 }
