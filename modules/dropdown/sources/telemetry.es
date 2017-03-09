@@ -35,29 +35,28 @@ export function enterSignal({ dropdown, newTab }) {
   const clickedResult = dropdown.results.get(index);
   const result = dropdown.results.find(clickedResult.url);
   const isAutocompleted = result.isAutocompleted;
+  const commonParts = common({ results, result, clickedResult, url: clickedResult.url });
+  const enterSpecificParts = {
+    action: 'result_enter',
+    new_tab: newTab,
+  };
 
-  let positionType;
   if (result instanceof SupplementarySearchResult) {
     // TODO: use result.kind
-    positionType = ['inbar_query'];
+    enterSpecificParts.position_type = ['inbar_query'];
   } else if (result instanceof NavigateToResult) {
     // TODO: use result.kind
-    positionType = ['inbar_url'];
+    enterSpecificParts.position_type = ['inbar_url'];
   }
 
   if (isAutocompleted) {
-    positionType = ['inbar_url'];
+    enterSpecificParts.position_type = ['inbar_url'];
+    enterSpecificParts.source = commonParts.position_type;
+    enterSpecificParts.autocompleted = true;
+    enterSpecificParts.autocompleted_length = result.url.length;
   }
 
-  const commonPart = common({ results, result, clickedResult, url: clickedResult.url });
-  const signal = Object.assign({}, commonPart, {
-    action: 'result_enter',
-    new_tab: newTab,
-  });
-
-  if (positionType) {
-    signal.position_type = positionType;
-  }
+  const signal = Object.assign({}, commonParts, enterSpecificParts);
 
   utils.telemetry(signal);
 }
