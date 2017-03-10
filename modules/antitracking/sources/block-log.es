@@ -1,31 +1,25 @@
 import * as persist from './persistent-state';
-import pacemaker from './pacemaker';
 import md5 from './md5';
 import { events } from '../core/cliqz';
 import * as datetime from './time';
-import ResourceLoader from '../core/resource-loader';
 
 
 export default class {
 
-  constructor(telemetry) {
+  constructor(telemetry, config) {
     this.telemetry = telemetry;
-    this.URL_BLOCK_REPORT_LIST = 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-report-list.json';
-    this.blockReportList = {};
+    this.config = config;
     this.blocked = new persist.LazyPersistentObject('blocked');
     this.localBlocked = new persist.LazyPersistentObject('localBlocked');
-    this._blockReportListLoader = new ResourceLoader(
-      ['antitracking', 'anti-tracking-report-list.json'], {
-        remoteURL: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-report-list.json',
-        cron: 24 * 60 * 60 * 1000,
-      });
+  }
+
+  get blockReportList() {
+    return this.config.reportList || {};
   }
 
   init() {
     this.blocked.load();
     this.localBlocked.load();
-    this._blockReportListLoader.load().then(this._loadReportList.bind(this));
-    this._blockReportListLoader.onUpdate(this._loadReportList.bind(this));
 
     this.onHourChanged = () => {
       const delay = 24;
@@ -41,7 +35,6 @@ export default class {
 
   unload() {
     events.un_sub('attrack:hour_changed', this.onHourChanged);
-    this._blockReportListLoader.stop();
   }
 
   // blocked + localBlocked
@@ -60,7 +53,6 @@ export default class {
   }
 
   clear() {
-    this.blockReportList = {};
     this.blocked.clear();
     this.localBlocked.clear();
   }
@@ -133,10 +125,6 @@ export default class {
     }
     this.localBlocked.setDirty(true);
     this.localBlocked.save();
-  }
-
-  _loadReportList(list) {
-    this.blockReportList = list;
   }
 
   isInBlockReportList(s, k, v) {

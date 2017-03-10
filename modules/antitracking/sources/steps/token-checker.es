@@ -41,7 +41,7 @@ export default class {
     this.privateValues = privateValues;
     this.hashProb = hashProb;
     this.tokenDomain = new TokenDomain();
-    this.blockLog = new BlockLog(telemetry);
+    this.blockLog = new BlockLog(telemetry, config);
   }
 
   init() {

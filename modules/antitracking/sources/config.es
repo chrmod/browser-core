@@ -1,9 +1,11 @@
 import * as persist from './persistent-state';
 import events from '../core/events';
 import ResourceLoader from '../core/resource-loader';
+import resourceManager from '../core/resource-manager';
 import { utils, Promise } from '../core/cliqz';
 
 const VERSIONCHECK_URL = 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json';
+const CONFIG_URL = 'https://cdn.cliqz.com/anti-tracking/config.json';
 
 export const DEFAULTS = {
   safekeyValuesThreshold: 4,
@@ -26,6 +28,12 @@ export const PREFS = {
   forceBlockEnabled: 'attrackForceBlock',
   overrideUserAgent: 'attrackOverrideUserAgent',
 };
+
+/**
+ * These are attributes which are loaded from the remote CONFIG_URL
+ * @type {Array}
+ */
+const REMOTELY_CONFIGURED = ['blockRules', 'reportList', 'cookieWhitelist'];
 
 export default class {
 
@@ -69,19 +77,21 @@ export default class {
   }
 
   init() {
-    this._versioncheckLoader = new ResourceLoader(['antitracking', 'versioncheck.json'], {
+    const versionCheckLoader = new ResourceLoader(['antitracking', 'versioncheck.json'], {
       remoteURL: this.versionCheckUrl,
       cron: 1000 * 60 * 60 * 12,
     });
-    this._versioncheckLoader.load().then(this._updateVersionCheck.bind(this));
-    this._versioncheckLoader.onUpdate(this._updateVersionCheck.bind(this));
+    resourceManager.addResourceLoader(versionCheckLoader, this._updateVersionCheck.bind(this));
+
+    const configLoader = new ResourceLoader(['antitracking', 'config.json'], {
+      remoteURL: CONFIG_URL,
+      cron: 1000 * 60 * 60 * 12,
+    });
+    resourceManager.addResourceLoader(configLoader, this._updateConfig.bind(this));
     return Promise.resolve();
   }
 
   unload() {
-    if (this._versioncheckLoader) {
-      this._versioncheckLoader.stop();
-    }
   }
 
   _updateVersionCheck(versioncheck) {
@@ -109,6 +119,12 @@ export default class {
 
     // fire events for list update
     events.pub('attrack:updated_config', versioncheck);
+  }
+
+  _updateConfig(config) {
+    REMOTELY_CONFIGURED.forEach((key) => {
+      this[key] = config[key];
+    });
   }
 
 }

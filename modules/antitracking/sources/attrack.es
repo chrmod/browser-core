@@ -53,7 +53,6 @@ var CliqzAttrack = {
     LOG_KEY: 'attrack',
     debug: false,
     msgType:'attrack',
-    whitelist: null,
     similarAddon: false,
     tp_events: null,
     recentlyModified: new TempSet(),
@@ -209,14 +208,6 @@ var CliqzAttrack = {
             }
         });
 
-        // load cookie whitelist
-        this._cookieWhitelistLoader = new ResourceLoader( ['antitracking', 'cookie_whitelist.json'], {
-            remoteURL: 'https://cdn.cliqz.com/anti-tracking/whitelist/cookie_whitelist.json',
-            cron: 24 * 60 * 60 * 1000
-        });
-        var updateCookieWhitelist = (data) => { CliqzAttrack.whitelist = data }
-        this._cookieWhitelistLoader.load().then(updateCookieWhitelist);
-        this._cookieWhitelistLoader.onUpdate(updateCookieWhitelist);
 
         CliqzAttrack.checkInstalledAddons();
 
@@ -273,7 +264,7 @@ var CliqzAttrack = {
         tokenTelemetry: new TokenTelemetry(CliqzAttrack.telemetry),
         domChecker: new DomChecker(),
         tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, {}, CliqzAttrack.hashProb, CliqzAttrack.config, CliqzAttrack.telemetry),
-        blockRules: new BlockRules(),
+        blockRules: new BlockRules(CliqzAttrack.config),
         cookieContext: new CookieContext(),
         redirectTagger: new RedirectTagger(),
       };
@@ -500,8 +491,8 @@ var CliqzAttrack = {
         events.pub("attrack:hour_changed");
     },
     isInWhitelist: function(domain) {
-        if(!CliqzAttrack.whitelist) return false;
-        var keys = CliqzAttrack.whitelist;
+        if(!CliqzAttrack.config.cookieWhitelist) return false;
+        var keys = CliqzAttrack.config.cookieWhitelist;
         for(var i=0;i<keys.length;i++) {
             var ind = domain.indexOf(keys[i]);
             if (ind>=0) {
