@@ -14,7 +14,6 @@ import { TrackerTXT, getDefaultTrackerTxtRule } from './tracker-txt';
 import { AttrackBloomFilter } from './bloom-filter';
 import * as datetime from './time';
 import QSWhitelist from './qs-whitelists';
-import BlockLog from './block-log';
 import { utils, events } from '../core/cliqz';
 import ResourceLoader from '../core/resource-loader';
 import { compressionAvailable, compressJSONToBase64, generatePayload } from './utils';
@@ -203,8 +202,6 @@ var CliqzAttrack = {
         CliqzAttrack.qs_whitelist = CliqzAttrack.isBloomFilterEnabled() ? new AttrackBloomFilter() : new QSWhitelist();
         const initPromises = [];
         initPromises.push(CliqzAttrack.qs_whitelist.init());
-        CliqzAttrack.blockLog = new BlockLog(CliqzAttrack.qs_whitelist, CliqzAttrack.telemetry);
-        CliqzAttrack.blockLog.init();
 
         // force clean requestKeyValue
         events.sub("attrack:safekeys_updated", (version, forceClean) => {
@@ -272,11 +269,11 @@ var CliqzAttrack = {
 
       // initialise classes which are used as steps in listeners
       const steps = {
-        pageLogger: new PageLogger(CliqzAttrack.tp_events, CliqzAttrack.blockLog),
+        pageLogger: new PageLogger(CliqzAttrack.tp_events),
         tokenExaminer: new TokenExaminer(CliqzAttrack.qs_whitelist, this.config),
         tokenTelemetry: new TokenTelemetry(CliqzAttrack.telemetry),
         domChecker: new DomChecker(),
-        tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, {}, CliqzAttrack.hashProb, CliqzAttrack.config),
+        tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, {}, CliqzAttrack.hashProb, CliqzAttrack.config, CliqzAttrack.telemetry),
         blockRules: new BlockRules(),
         cookieContext: new CookieContext(),
         redirectTagger: new RedirectTagger(),
@@ -472,7 +469,6 @@ var CliqzAttrack = {
         CliqzAttrack.tp_events.commit(true, true);
         CliqzAttrack.tp_events.push(true);
 
-        CliqzAttrack.blockLog.destroy();
         CliqzAttrack.qs_whitelist.destroy();
 
         WebRequest.onBeforeRequest.removeListener(CliqzAttrack.httpopenObserver);
@@ -743,7 +739,6 @@ var CliqzAttrack = {
       }
       if (CliqzAttrack.pipelineSteps.tokenChecker) {
         CliqzAttrack.pipelineSteps.tokenChecker.tokenDomain.clear();
-        // CliqzAttrack.pipelineSteps.tokenChecker.blockLog.clear();
       }
     },
 };

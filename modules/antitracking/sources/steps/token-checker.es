@@ -5,6 +5,7 @@ import { HashProb, isMostlyNumeric } from '../hash';
 import { dURIC } from '../url';
 import CliqzUtils from '../../core/utils';
 import TokenDomain from '../token-domain';
+import BlockLog from '../block-log';
 
 const STAT_KEYS = ['cookie', 'private', 'cookie_b64', 'private_b64', 'safekey', 'whitelisted',
   'cookie_newToken', 'cookie_countThreshold', 'private_newToken', 'private_countThreshold',
@@ -33,17 +34,24 @@ function b64Encode(token) {
 
 export default class {
 
-  constructor(qsWhitelist, privateValues, hashProb, config) {
+  constructor(qsWhitelist, privateValues, hashProb, config, telemetry) {
     this.qsWhitelist = qsWhitelist;
     this.config = config;
     this.debug = true;
     this.privateValues = privateValues;
     this.hashProb = hashProb;
     this.tokenDomain = new TokenDomain();
+    this.blockLog = new BlockLog(telemetry);
   }
 
   init() {
     this.tokenDomain.init();
+    this.blockLog.init();
+  }
+
+  unload() {
+    this.tokenDomain.unload();
+    this.blockLog.unload();
   }
 
   findBadTokens(state) {
@@ -138,6 +146,7 @@ export default class {
       }
 
       // TODO: add block report log
+      this.blockLog.add(sourceDomain, trackerDomain, key, tok, tokenType);
       badTokens.push(tok);
       return `${tokenType}_countThreshold`;
     });
@@ -155,8 +164,6 @@ export default class {
       stats[s] += 1;
     });
 
-    // update blockedToken
-    // this.blockLog.incrementBlockedTokens(badTokens.length);
     return badTokens;
   }
 }

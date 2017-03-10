@@ -9,6 +9,7 @@ export default class {
 
   constructor() {
     this._tokenDomain = new persist.LazyPersistentObject('tokenDomain');
+    this.currentDay = datetime.getTime().substr(0, 8);
   }
 
   init() {
@@ -18,6 +19,7 @@ export default class {
     this._pmTask = pacemaker.register(this._tokenDomain.save.bind(this._tokenDomain), 1000 * 60 * 5);
 
     this.onHourChanged = () => {
+      this.currentDay = datetime.getTime().substr(0, 8);
       this.clean();
     };
     events.sub('attrack:hour_changed', this.onHourChanged);
@@ -32,7 +34,7 @@ export default class {
     if (!this._tokenDomain.value[token]) {
       this._tokenDomain.value[token] = {};
     }
-    this._tokenDomain.value[token][firstParty] = datetime.getTime().substr(0, 8);
+    this._tokenDomain.value[token][firstParty] = this.currentDay;
     this._tokenDomain.setDirty();
   }
 
