@@ -5,55 +5,9 @@ import { events } from '../core/cliqz';
 import * as datetime from './time';
 import ResourceLoader from '../core/resource-loader';
 
-const DAYS_EXPIRE = 7;
-
-class TokenDomain {
-
-  constructor() {
-    this._tokenDomain = new persist.LazyPersistentObject('tokenDomain');
-  }
-
-  init() {
-    this._tokenDomain.load();
-  }
-
-  addTokenOnFirstParty(token, firstParty) {
-    if (!this._tokenDomain.value[token]) {
-      this._tokenDomain.value[token] = {};
-    }
-    this._tokenDomain.value[token][firstParty] = datetime.getTime().substr(0, 8);
-    this._tokenDomain.setDirty();
-  }
-
-  getNFirstPartiesForToken(token) {
-    return Object.keys(this._tokenDomain.value[token] || {}).length;
-  }
-
-  clean() {
-    const day = datetime.newUTCDate();
-    day.setDate(day.getDate() - DAYS_EXPIRE);
-    const dayCutoff = datetime.dateString(day);
-    const td = this._tokenDomain.value;
-    for (const tok in td) {
-      for (const s in td[tok]) {
-        if (td[tok][s] < dayCutoff) {
-          delete td[tok][s];
-        }
-      }
-      if (Object.keys(td[tok]).length === 0) {
-        delete td[tok];
-      }
-    }
-    this._tokenDomain.setDirty();
-    this._tokenDomain.save();
-  }
-
-  clear() {
-    this._tokenDomain.clear();
-  }
-}
 
 class BlockLog {
+
   constructor(telemetry) {
     this.telemetry = telemetry;
     this.URL_BLOCK_REPORT_LIST = 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-report-list.json';
@@ -210,7 +164,7 @@ export default class {
   constructor(qsWhitelist, telemetry) {
     this.telemetry = telemetry;
     this.blockLog = new BlockLog(telemetry);
-    this.tokenDomain = new TokenDomain();
+    // this.tokenDomain = new TokenDomain();
     this.checkedToken = new persist.LazyPersistentObject('checkedToken');
     this.blockedToken = new persist.LazyPersistentObject('blockedToken');
     this.loadedPage = new persist.LazyPersistentObject('loadedPage');
@@ -221,7 +175,7 @@ export default class {
 
   init() {
     this.blockLog.init();
-    this.tokenDomain.init();
+    // this.tokenDomain.init();
 
     this.onHourChanged = () => {
       this.currentHour = datetime.getTime();
@@ -246,7 +200,7 @@ export default class {
       this.checkedToken.save();
       this.blockedToken.save();
       this.loadedPage.save();
-      this.tokenDomain._tokenDomain.save();
+      // this.tokenDomain._tokenDomain.save();
       this.blockLog.blocked.save();
       this.blockLog.localBlocked.save();
     };
@@ -361,7 +315,7 @@ export default class {
 
   clear() {
     this.blockLog.clear();
-    this.tokenDomain.clear();
+    // this.tokenDomain.clear();
     this.checkedToken.clear();
     this.blockedToken.clear();
     this.loadedPage.clear();
@@ -389,7 +343,7 @@ export default class {
     this.checkedToken.setDirty();
     this.loadedPage.setDirty();
 
-    this.tokenDomain.clean();
+    // this.tokenDomain.clean();
   }
 
 }

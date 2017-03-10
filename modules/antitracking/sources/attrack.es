@@ -276,7 +276,7 @@ var CliqzAttrack = {
         tokenExaminer: new TokenExaminer(CliqzAttrack.qs_whitelist, this.config),
         tokenTelemetry: new TokenTelemetry(CliqzAttrack.telemetry),
         domChecker: new DomChecker(),
-        tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, CliqzAttrack.blockLog, {}, CliqzAttrack.hashProb, CliqzAttrack.config),
+        tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, {}, CliqzAttrack.hashProb, CliqzAttrack.config),
         blockRules: new BlockRules(),
         cookieContext: new CookieContext(),
         redirectTagger: new RedirectTagger(),
@@ -742,7 +742,8 @@ var CliqzAttrack = {
         CliqzAttrack.pipelineSteps.tokenExaminer.clearCache();
       }
       if (CliqzAttrack.pipelineSteps.tokenChecker) {
-        CliqzAttrack.pipelineSteps.tokenChecker.blockLog.clear();
+        CliqzAttrack.pipelineSteps.tokenChecker.tokenDomain.clear();
+        // CliqzAttrack.pipelineSteps.tokenChecker.blockLog.clear();
       }
     },
 };

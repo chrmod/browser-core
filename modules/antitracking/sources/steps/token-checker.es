@@ -4,6 +4,7 @@ import * as datetime from '../time';
 import { HashProb, isMostlyNumeric } from '../hash';
 import { dURIC } from '../url';
 import CliqzUtils from '../../core/utils';
+import TokenDomain from '../token-domain';
 
 const STAT_KEYS = ['cookie', 'private', 'cookie_b64', 'private_b64', 'safekey', 'whitelisted',
   'cookie_newToken', 'cookie_countThreshold', 'private_newToken', 'private_countThreshold',
@@ -32,17 +33,17 @@ function b64Encode(token) {
 
 export default class {
 
-  constructor(qsWhitelist, blockLog, privateValues, hashProb, config) {
+  constructor(qsWhitelist, privateValues, hashProb, config) {
     this.qsWhitelist = qsWhitelist;
-    this.blockLog = blockLog;
     this.config = config;
-    this.debug = false;
+    this.debug = true;
     this.privateValues = privateValues;
     this.hashProb = hashProb;
+    this.tokenDomain = new TokenDomain();
   }
 
   init() {
-
+    this.tokenDomain.init();
   }
 
   findBadTokens(state) {
@@ -130,9 +131,9 @@ export default class {
       const tokenType = cookieMatch ? 'cookie' : (privateMatch ? 'private' : 'qs');
 
       // increment that this token has been seen on this site
-      this.blockLog.tokenDomain.addTokenOnFirstParty(md5(tok), sourceDomain);
+      this.tokenDomain.addTokenOnFirstParty(md5(tok), sourceDomain);
       // check if the threshold for cross-domain tokens has been reached
-      if (this.blockLog.tokenDomain.getNFirstPartiesForToken(md5(tok)) < this.config.tokenDomainCountThreshold) {
+      if (this.tokenDomain.getNFirstPartiesForToken(md5(tok)) < this.config.tokenDomainCountThreshold) {
         return `${tokenType}_newToken`;
       }
 
@@ -140,6 +141,7 @@ export default class {
       badTokens.push(tok);
       return `${tokenType}_countThreshold`;
     });
+
     if (this.debug) {
       // debug message: labeled key values
       const tokenReport = url_parts.getKeyValues().map((kv, i) => Object.assign(kv, {'class': tokenStatus[i]}));
@@ -154,7 +156,7 @@ export default class {
     });
 
     // update blockedToken
-    this.blockLog.incrementBlockedTokens(badTokens.length);
+    // this.blockLog.incrementBlockedTokens(badTokens.length);
     return badTokens;
   }
 }
