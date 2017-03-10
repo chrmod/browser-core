@@ -253,15 +253,20 @@ export default class {
     }
 
     if (this.shouldProxyAll || (this.shouldProxyTrackers && isTrackerDomain)) {
+      const isHttps = url.indexOf('https://') === 0;
+      const isHttp = url.indexOf('http://') === 0;
+
       // Ignore https if proxyHttp is false
-      if (url.indexOf('https://') !== 0 && !this.shouldProxyInsecureConnections) {
+      if (isHttp && !this.shouldProxyInsecureConnections) {
         console.error(`proxyPeer do not proxy non-https ${url}`);
         return false;
       }
 
-      console.debug(`proxyPeer proxy: ${url}`);
-      this.proxyOnce(url);
-      return true;
+      if (isHttp || isHttps) {
+        console.debug(`proxyPeer proxy: ${url}`);
+        this.proxyOnce(url);
+        return true;
+      }
     }
 
     console.debug(`proxyPeer do *not* proxy: ${url}`);
