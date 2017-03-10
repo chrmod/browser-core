@@ -37,7 +37,7 @@ export default class {
   constructor(qsWhitelist, privateValues, hashProb, config, telemetry) {
     this.qsWhitelist = qsWhitelist;
     this.config = config;
-    this.debug = true;
+    this.debug = false;
     this.privateValues = privateValues;
     this.hashProb = hashProb;
     this.tokenDomain = new TokenDomain();

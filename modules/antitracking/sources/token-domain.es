@@ -16,7 +16,8 @@ export default class {
     this._tokenDomain.load();
 
     // save list to disk every 5 mins
-    this._pmTask = pacemaker.register(this._tokenDomain.save.bind(this._tokenDomain), 1000 * 60 * 5);
+    this._pmTask = pacemaker.register(this._tokenDomain.save.bind(this._tokenDomain),
+      1000 * 60 * 5);
 
     this.onHourChanged = () => {
       this.currentDay = datetime.getTime().substr(0, 8);
@@ -47,16 +48,16 @@ export default class {
     day.setDate(day.getDate() - DAYS_EXPIRE);
     const dayCutoff = datetime.dateString(day);
     const td = this._tokenDomain.value;
-    for (const tok in td) {
-      for (const s in td[tok]) {
+    Object.keys(td).forEach((tok) => {
+      Object.keys(td[tok]).forEach((s) => {
         if (td[tok][s] < dayCutoff) {
           delete td[tok][s];
         }
-      }
+      });
       if (Object.keys(td[tok]).length === 0) {
         delete td[tok];
       }
-    }
+    });
     this._tokenDomain.setDirty();
     this._tokenDomain.save();
   }
