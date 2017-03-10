@@ -9,6 +9,7 @@ import { utils, events } from '../core/cliqz';
 import telemetry from './telemetry';
 import Config from './config';
 import inject from '../core/kord/inject';
+import { updateTimestamp } from './time';
 
 /**
 * @namespace antitracking
@@ -210,6 +211,9 @@ export default background({
     "prefchange": function onPrefChange(pref) {
       if (pref === DEFAULT_ACTION_PREF) {
         updateDefaultTrackerTxtRule();
+      } else if (pref === 'config_ts') {
+        // update date timestamp set in humanweb
+        updateTimestamp(utils.getPref('config_ts', null));
       }
       this.config.onPrefChange(pref);
     },
