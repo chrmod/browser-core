@@ -145,7 +145,7 @@ export default class {
         return `${tokenType}_newToken`;
       }
 
-      // TODO: add block report log
+      // push to block log and bad tokens list
       this.blockLog.add(source_url_parts.generalDomain, url_parts.hostname, key, tok, tokenType);
       badTokens.push(tok);
       return `${tokenType}_countThreshold`;

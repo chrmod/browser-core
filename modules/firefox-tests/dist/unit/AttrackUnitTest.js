@@ -51,7 +51,8 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
         attrack = System.get('antitracking/attrack').default,
         QSWhitelist = System.get('antitracking/qs-whitelists').default,
         md5 = System.get('antitracking/md5').default,
-        datetime = System.get('antitracking/time');
+        datetime = System.get('antitracking/time'),
+        config = attrack.config;
 
     var initialCookie = true,
         initialQS = true;
@@ -64,8 +65,8 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
 
       initialCookie = CliqzUtils.getPref('attrackBlockCookieTracking');
       initialQS = CliqzUtils.getPref('attrackRemoveQueryStringTracking');
-      CliqzUtils.setPref('attrackBlockCookieTracking', false);
-      CliqzUtils.setPref('attrackRemoveQueryStringTracking', false);
+      config.cookieEnabled = false;
+      config.qsEnabled = false;
 
       attrack.recentlyModified.clear();
 
@@ -108,7 +109,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
 
           describe('cookie blocking disabled', function() {
             beforeEach(function() {
-              CliqzUtils.setPref('attrackBlockCookieTracking', false);
+              config.cookieEnabled = false;
             });
 
             it('allows all cookies', function() {
@@ -120,7 +121,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
 
           describe('cookie blocking enabled', function() {
             beforeEach(function() {
-              CliqzUtils.setPref('attrackBlockCookieTracking', true);
+              config.cookieEnabled = true;
             });
 
             it('blocks third party cookies', function() {
@@ -185,7 +186,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
         context('QS blocking', function() {
 
           beforeEach(function() {
-            CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
+            config.qsEnabled = true;
           });
 
           it('allows query strings on domains not in the tracker list', function() {
@@ -202,7 +203,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
             beforeEach(function() {
               attrack.qs_whitelist.addSafeToken(tracker_hash, "");
               attrack.config.tokenDomainCountThreshold = 2;
-              attrack.blockLog.clear();
+              attrack.pipelineSteps.tokenChecker.tokenDomain.clear();
               attrack.initPipeline();
             });
 
@@ -300,7 +301,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
       var uid = '04C2EAD03BAB7F5E-2E85855CF4C75134';
 
       beforeEach(function() {
-        CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
+        config.qsEnabled = true;
         attrack.qs_whitelist.addSafeToken(md5('tracker.com').substring(0, 16), '');
         attrack.config.tokenDomainCountThreshold = 0; // block first time
         attrack.initPipeline();
