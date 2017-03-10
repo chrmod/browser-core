@@ -429,7 +429,7 @@ var CliqzUtils = {
     var urlDetails = {
               scheme: scheme,
               name: name,
-              domain: host,
+              domain: tld ? name + '.' + tld : '',
               tld: tld,
               subdomains: subdomains,
               path: path,
