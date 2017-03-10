@@ -39,17 +39,12 @@ export default class {
 
   // blocked + localBlocked
   add(sourceUrl, tracker, key, value, type) {
-    const s = tracker;
-    const k = md5(key);
-    const v = md5(value);
     const hour = datetime.getTime();
-    const source = md5(sourceUrl);
 
-    if (this.isInBlockReportList(s, k, v)) {
-      this._addBlocked(s, k, v, type);
-    }
+    this.offerToReporter(sourceUrl, tracker, key, value, type);
+
     // local logging of blocked tokens
-    this._addLocalBlocked(source, tracker, key, value, hour);
+    this._addLocalBlocked(sourceUrl, tracker, key, value, hour);
   }
 
   clear() {
@@ -127,18 +122,22 @@ export default class {
     this.localBlocked.save();
   }
 
-  isInBlockReportList(s, k, v) {
-    if ('*' in this.blockReportList) {
-      return true;
-    } else if (s in this.blockReportList) {
-      const keyList = this.blockReportList[s];
+  offerToReporter(sourceUrl, tracker, key, value, type) {
+    if (this.isInBlockReportList(tracker, key, value)) {
+      this._addBlocked(tracker, key, md5(value), type);
+    }
+  }
+
+  isInBlockReportList(tracker, key, value) {
+    if (tracker in this.blockReportList) {
+      const keyList = this.blockReportList[tracker];
       if (keyList === '*') {
         return true;
-      } else if (k in keyList) {
-        const valueList = keyList[k];
+      } else if (key in keyList || md5(key) in keyList) {
+        const valueList = keyList[k] || keyList[md5(key)];
         if (valueList === '*') {
           return true;
-        } else if (v in valueList) {
+        } else if (value in valueList || md5(value) in valueList) {
           return true;
         }
       }

@@ -87,7 +87,7 @@ export default class {
     }
 
     const trackerDomain = url_parts.generalDomainHash;
-    const sourceDomain = source_url.generalDomainHash
+    const sourceDomain = source_url_parts.generalDomainHash
     var badTokens = [];
 
     const longCookies = Object.keys(cookievalue).filter((c) => c.length >= this.config.shortTokenLength)
@@ -103,7 +103,7 @@ export default class {
       }
 
       // if the value is in the main url, ignore
-      if (source_url.toString().indexOf(tok) > -1) {
+      if (source_url.indexOf(tok) > -1) {
         return 'source_url';
       }
 
@@ -146,7 +146,7 @@ export default class {
       }
 
       // TODO: add block report log
-      this.blockLog.add(sourceDomain, trackerDomain, key, tok, tokenType);
+      this.blockLog.add(source_url_parts.generalDomain, url_parts.hostname, key, tok, tokenType);
       badTokens.push(tok);
       return `${tokenType}_countThreshold`;
     });
