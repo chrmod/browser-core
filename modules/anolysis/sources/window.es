@@ -3,12 +3,16 @@ import background from './background';
 
 
 export default class {
-  init(settings) {
+  constructor(settings) {
+    this.window = settings.window;
+  }
+
+  init() {
     if (!background.enabled()) {
       return;
     }
 
-    this.generateDemographicsSignal(settings.window);
+    this.generateDemographicsSignal(this.window);
   }
 
   generateDemographicsSignal(window) {
