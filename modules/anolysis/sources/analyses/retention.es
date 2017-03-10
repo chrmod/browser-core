@@ -98,7 +98,7 @@ export function generateMonthlyRetention(state, formattedDate) {
       getPreviousUnit: (d, offset) => d.subtract(offset, 'months').format(MONTH_FORMAT),
       initialOffset: 1,
     });
-  } else if (!state[currentMonth].includes(currentWeek)) {
+  } else if (state[currentMonth].indexOf(currentWeek) === -1) {
     state[currentMonth].push(currentWeek);
   }
 
