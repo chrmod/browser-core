@@ -1,15 +1,30 @@
 import * as persist from './persistent-state';
 import events from '../core/events';
 import ResourceLoader from '../core/resource-loader';
-import { Promise } from '../core/cliqz';
+import { utils, Promise } from '../core/cliqz';
 
 const VERSIONCHECK_URL = 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json';
 
-const DEFAULTS = {
+export const DEFAULTS = {
   safekeyValuesThreshold: 4,
   shortTokenLength: 6,
   placeHolder: 'cliqz.com/tracking',
   cliqzHeader: 'CLIQZ-AntiTracking',
+  cookieEnabled: true,
+  qsEnabled: true,
+  bloomFilterEnabled: true,
+};
+
+export const PREFS = {
+  enabled: 'modules.antitracking.enabled',
+  cookieEnabled: 'attrackBlockCookieTracking',
+  qsEnabled: 'attrackRemoveQueryStringTracking',
+  fingerprintEnabled: 'attrackCanvasFingerprintTracking',
+  referrerEnabled: 'attrackRefererTracking',
+  trackerTxtEnabled: 'trackerTxt',
+  bloomFilterEnabled: 'attrackBloomFilter',
+  forceBlockEnabled: 'attrackForceBlock',
+  overrideUserAgent: 'attrackOverrideUserAgent',
 };
 
 export default class {
@@ -22,12 +37,35 @@ export default class {
     this.safeKeyExpire = 7;
     this.localBlockExpire = 24;
 
+    Object.assign(this, defaults);
+
     this.safekeyValuesThreshold = parseInt(persist.getValue('safekeyValuesThreshold'), 10) ||
-                                  defaults.safekeyValuesThreshold;
+                                  this.safekeyValuesThreshold;
     this.shortTokenLength = parseInt(persist.getValue('shortTokenLength'), 10) ||
-                            defaults.shortTokenLength;
-    this.placeHolder = persist.getValue('placeHolder') || defaults.placeHolder;
-    this.cliqzHeader = persist.getValue('cliqzHeader') || defaults.cliqzHeader;
+                            this.shortTokenLength;
+    this.placeHolder = persist.getValue('placeHolder') || this.placeHolder;
+    this.cliqzHeader = persist.getValue('cliqzHeader') || this.cliqzHeader;
+
+    this.loadPrefs();
+  }
+
+  loadPrefs() {
+    Object.keys(PREFS).forEach((conf) => {
+      this[conf] = utils.getPref(PREFS[conf], this.conf || false);
+    });
+  }
+
+  setPref(name, value) {
+    if (!PREFS[name]) {
+      throw new Error(`pref ${name} not known`);
+    }
+    utils.setPref(PREFS[name], value);
+  }
+
+  onPrefChange(pref) {
+    if (Object.values(PREFS).indexOf(pref) > -1) {
+      this.loadPrefs();
+    }
   }
 
   init() {

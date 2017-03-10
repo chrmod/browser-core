@@ -211,6 +211,7 @@ export default background({
       if (pref === DEFAULT_ACTION_PREF) {
         updateDefaultTrackerTxtRule();
       }
+      this.config.onPrefChange(pref);
     },
     "core:urlbar_focus": CliqzAttrack.onUrlbarFocus,
     "content:dom-ready": function onDomReady(url) {

@@ -51,7 +51,6 @@ var CliqzAttrack = {
     VERSION: '0.98',
     MIN_BROWSER_VERSION: 35,
     LOG_KEY: 'attrack',
-    ENABLE_PREF: 'modules.antitracking.enabled',
     debug: false,
     msgType:'attrack',
     whitelist: null,
@@ -112,31 +111,31 @@ var CliqzAttrack = {
         }
     },
     isEnabled: function() {
-        return utils.getPref(CliqzAttrack.ENABLE_PREF, false);
+        return CliqzAttrack.config.enabled;
     },
     isCookieEnabled: function(source_hostname) {
         if (source_hostname != undefined && CliqzAttrack.isSourceWhitelisted(source_hostname)) {
             return false;
         }
-        return utils.getPref('attrackBlockCookieTracking', true);
+        return CliqzAttrack.config.cookieEnabled;
     },
     isQSEnabled: function() {
-        return utils.getPref('attrackRemoveQueryStringTracking', true);
+        return CliqzAttrack.config.qsEnabled;
     },
     isFingerprintingEnabled: function() {
-        return utils.getPref('attrackCanvasFingerprintTracking', false);
+        return CliqzAttrack.config.fingerprintEnabled;
     },
     isReferrerEnabled: function() {
-        return utils.getPref('attrackRefererTracking', false);
+        return CliqzAttrack.config.referrerEnabled;
     },
     isTrackerTxtEnabled: function() {
-        return utils.getPref('trackerTxt', false);
+        return CliqzAttrack.config.trackerTxtEnabled;
     },
     isBloomFilterEnabled: function() {
-        return utils.getPref('attrackBloomFilter', true);
+        return CliqzAttrack.config.bloomFilterEnabled;
     },
     isForceBlockEnabled: function() {
-        return utils.getPref('attrackForceBlock', false);
+        return CliqzAttrack.config.forceBlockEnabled;
     },
     initPacemaker: function() {
         const two_mins = 2 * 60 * 1000;
@@ -342,7 +341,7 @@ var CliqzAttrack = {
           return true;
         },
         function overrideUserAgent(state, response) {
-          if (utils.getPref('attrackOverrideUserAgent', false) === true) {
+          if (CliqzAttrack.config.overrideUserAgent === true) {
             const domainHash = state.urlParts.generalDomainHash;
             if (CliqzAttrack.qs_whitelist.isTrackerDomain(domainHash)) {
               response.requestHeaders = response.requestHeaders || [];
@@ -693,16 +692,16 @@ var CliqzAttrack = {
       if (CliqzAttrack.isEnabled()) {
           return;
       }
-      utils.setPref(CliqzAttrack.ENABLE_PREF, true);
+      CliqzAttrack.config.setPref('enabled', true);
       if (!module_only) {
-        utils.setPref('attrackBlockCookieTracking', true);
-        utils.setPref('attrackRemoveQueryStringTracking', true);
+        CliqzAttrack.config.setPref('cookieEnabled', true);
+        CliqzAttrack.config.setPref('qsEnabled', true);
       }
     },
     /** Disables anti-tracking immediately.
      */
     disableModule: function() {
-      utils.setPref(CliqzAttrack.ENABLE_PREF, false);
+      utils.setPref(CliqzAttrack.config.PREFS.enabled, false);
     },
     disabled_sites: new Set(),
     DISABLED_SITES_PREF: "attrackSourceDomainWhitelist",
