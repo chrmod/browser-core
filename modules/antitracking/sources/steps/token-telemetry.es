@@ -278,14 +278,17 @@ export default class {
     this.telemetry = telemetry;
     this.lastSentLog = new LastSentDb('cliqz-attrack-tokens-lastsent', datetime.getTime);
     this.tokenDb = new TokenDb();
+    this._staged = {};
   }
 
   init() {
     this._pmsend = pacemaker.register(this.sendTokens.bind(this), 5 * 60 * 1000);
+    this._pmcommit = pacemaker.register(this.commit.bind(this), 1 * 60 * 1000);
   }
 
   unload() {
     pacemaker.deregister(this._pmsend);
+    pacemaker.deregister(this._pmcommit);
   }
 
   _makeHash(s) {
@@ -307,11 +310,31 @@ export default class {
   }
 
   _saveKeyTokens(generalDomain, domain, keyTokens, firstParty) {
-    // touch this domain with the current hour if it is new
-    return this.lastSentLog.touchKey(generalDomain).then(() => {
-      // insert all the tokens into the token db
-      return this.tokenDb.insertTokens(generalDomain, domain, firstParty, keyTokens);
+    if (!this._staged[generalDomain]) {
+      this._staged[generalDomain] = [];
+    }
+    // just push the data into an array at this point. This data will be committed later.
+    this._staged[generalDomain].push({
+      domain,
+      firstParty,
+      keyTokens,
     });
+  }
+
+  commit() {
+    const queue = this._staged;
+    this._staged = {};
+    return Promise.all(Object.keys(queue).map((generalDomain) => {
+      // touch this domain with the current hour if it is new
+      return this.lastSentLog.touchKey(generalDomain).then(() => {
+        const batches = queue[generalDomain];
+        // insert all the tokens into the token db
+        // chain all the batches serially in a Promise
+        return batches.reduce((acc, item) => {
+          return acc.then(() => this.tokenDb.insertTokens(generalDomain, item.domain, item.firstParty, item.keyTokens))
+        }, Promise.resolve());
+      });
+    }));
   }
 
   sendTokens() {
