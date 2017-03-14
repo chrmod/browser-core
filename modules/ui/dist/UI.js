@@ -1558,73 +1558,6 @@ function clearResultSelection(){
     arrow && arrow.removeAttribute('active');
 }
 
-function smooth_scroll_to(element, target, duration) {
-    function scrollStarted() {
-      UI._scrolling = true;
-    }
-
-    function scrollFinished() {
-      UI._scrolling = false;
-    }
-
-    target = Math.round(target);
-    duration = Math.round(duration);
-    if (duration < 0) return
-    if (duration === 0) {
-        element.scrollTop = target;
-        return
-    }
-
-    var start_time = Date.now();
-    var end_time = start_time + duration;
-    var start_top = element.scrollTop;
-    var distance = target - start_top;
-
-    // based on http://en.wikipedia.org/wiki/Smoothstep
-    var smooth_step = function(start, end, point) {
-        if(point <= start) { return 0; }
-        if(point >= end) { return 1; }
-        var x = (point - start) / (end - start); // interpolation
-        return x*x*x*(x*(x*6 - 15) + 10);//x*x*(3 - 2*x);
-    }
-
-    var previous_top = element.scrollTop;
-
-    // This is like a think function from a game loop
-    var scroll_frame = function() {
-        var now = Date.now();
-
-        if (element.scrollTop != previous_top ||
-            now >= end_time) {
-          scrollFinished();
-          return;
-        }
-
-        // set the scrollTop for this frame
-        var point = smooth_step(start_time, end_time, now);
-        var frameTop = Math.round(start_top + (distance * point));
-        element.scrollTop = frameTop;
-
-        // If we were supposed to scroll but didn't, then we
-        // probably hit the limit, so consider it done; not
-        // interrupted.
-        if (element.scrollTop === previous_top &&
-            element.scrollTop !== frameTop) {
-          scrollFinished();
-          return;
-        }
-        previous_top = element.scrollTop;
-
-        // schedule next frame for execution
-        setTimeout(function(){ scroll_frame(); }, 0);
-    }
-    // boostrap the animation process
-    setTimeout(function() {
-      scrollStarted();
-      scroll_frame();
-    }, 0);
-}
-
 function selectNextResult(pos, allArrowable) {
     if (pos != allArrowable.length - 1) {
         var nextEl = allArrowable[pos + 1];
@@ -1678,8 +1611,11 @@ function setResultSelection(el, scrollTop, changeUrl, mouseOver){
           var context = $('.cqz-result-pattern', gCliqzBox);
           if(context) offset += context.parentElement.offsetTop;
         }
-        var scroll = parseInt(offset/UI.DROPDOWN_HEIGHT) * UI.DROPDOWN_HEIGHT;
-        if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
+
+        if (!mouseOver) {
+          const targetElement = target.parentElement.parentElement.parentElement;
+          targetElement.scrollIntoView({block: "end", behavior: "smooth"});
+        }
 
         target.setAttribute('arrow', 'true');
         arrow.style.top = (offset + target.offsetHeight/2 - 7) + 'px';
