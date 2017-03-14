@@ -642,7 +642,6 @@ export default class {
     CliqzEvents.un_sub('ui:popup_hide', this.hidePopup);
 
     if (utils.dropDownStyle !== 'ff') {
-      this.window.CLIQZ.UI.unload();
       this.urlbar.setAttribute('autocompletepopup', this._autocompletepopup);
 
       this.popup.removeEventListener('popuphiding', this.popupEventHandlers.popupClose);
