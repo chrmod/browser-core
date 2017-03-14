@@ -6,8 +6,35 @@
 * @returns string with payload created.
 */
 
-var messageContext = class messageContext {
+import { md5 } from 'md5';
+// FIXME: remove circular dependency
+import CliqzSecureMessage, { localTemporalUniq } from './index';
+import userPK from './user-pk';
+import {
+  base64_decode,
+  base64_encode,
+  padMessage,
+  sha1,
+  isJson,
+  stringToByteArray,
+  byteArrayToHexString,
+  byteArrayToString,
+  hexStringToByteArray,
+  hexToBinary,
+} from './crypto-utils';
+import {
+  createPayloadBlindSignature,
+  createPayloadProxy,
+  getRouteHash,
+  createHttpUrl
+} from './utils';
+import { unBlindMessage, blindSignContext } from './blind-signature';
+import _http from './http-worker';
+
+export default class {
   constructor(msg) {
+    // FIXME: isJson is called 3 times on same object
+    // TODO: don't use isJSON - try / catch should be sufficient
   	if(!msg || !isJson(msg)) return;
     this.orgMessage = isJson(msg) ? JSON.stringify(msg) : msg;
     this.jMessage = isJson(msg) ? msg : JSON.parse(msg);

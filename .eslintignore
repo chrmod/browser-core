@@ -414,3 +414,11 @@ platforms/mobile/storage.es
 platforms/mobile/window.es
 platforms/mobile/xmlhttprequest.es
 modules/dropdown/helpers.es
+modules/hpn/worker/message-context.es
+modules/hpn/worker/http-worker.es
+modules/hpn/worker/crypto-utils.es
+modules/hpn/worker/blind-signature.es
+modules/hpn/worker/index.es
+modules/hpn/worker/pkcs-conversion.es
+modules/hpn/worker/user-pk.es
+modules/hpn/worker/utils.es

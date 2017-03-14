@@ -1,12 +1,14 @@
-// START crypto-worker.js
+import messageContext from './message-context';
+import { sha1 } from './crypto-utils';
+import userPK from './user-pk';
+import { parseDSKey } from './blind-signature';
+import config from '../../core/config';
 
 // Global variables
-if (!CliqzSecureMessage) {
-  var CliqzSecureMessage = {};
-}
-let localTemporalUniq = {};
-CliqzSecureMessage.BLIND_SIGNER = {{ENDPOINT_BLIND_SIGNER}};
-CliqzSecureMessage.USER_REG = {{ENDPOINT_USER_REG}};
+const CliqzSecureMessage = {};
+export let localTemporalUniq = {};
+CliqzSecureMessage.BLIND_SIGNER = config.settings.ENDPOINT_BLIND_SIGNER;
+CliqzSecureMessage.USER_REG = config.settings.ENDPOINT_USER_REG;
 
 self.onmessage = function(e) {
   const msgType = e.data.type;
@@ -131,4 +133,5 @@ self.onmessage = function(e) {
       });
   }
 };
-// END crypto-worker.js
+
+export default CliqzSecureMessage;

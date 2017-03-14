@@ -1,13 +1,15 @@
-import { utils } from "core/cliqz";
-import background from "core/base/background";
-import HumanWeb from "human-web/human-web";
-import hs from "core/history-service";
+import utils from "../core/utils";
+import background from "../core/base/background";
+import HumanWeb from "./human-web";
+import hs from "../core/history-service";
+import inject from "../core/kord/inject";
 
 /**
 * @namespace human-web
 * @class Background
 */
 export default background({
+  hpn: inject.module('hpn'),
   /**
   * @method enabled
   * @return pref
@@ -36,6 +38,7 @@ export default background({
     if (FF48_OR_ABOVE) {
       this.enabled = true;
       HumanWeb.initAtBrowser();
+      HumanWeb.hpn = this.hpn;
       utils.bindObjectFunctions(this.actions, this);
       hs.addObserver(HumanWeb.historyObserver, false);
     } else {

@@ -5,7 +5,7 @@
   "description" : "Test",
   "permissions": [ "webRequest", "webNavigation", "storage", "cookies", "http://*/*", "https://*/*","tabs"],
   "background": {
-    "scripts": ["md5.min.js", "cl-chrome-db.js","cl-utils.js", "bloom-filter.js", "human-web.js", "content.js","send-message.js","hpn.js","background.js","hpn-worker.js"]
+    "scripts": ["md5.min.js", "cl-chrome-db.js","cl-utils.js", "bloom-filter.js", "human-web.js", "content.js","background.js"]
   },
   "manifest_version": 2
 }

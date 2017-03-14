@@ -1,4 +1,14 @@
-function parseDSKey(){
+import { randBigInt } from 'bigint';
+import CliqzSecureMessage from './index';
+import {
+  base64_decode,
+  base64UrlDecode,
+  byteArrayToHexString,
+  stringToByteArray,
+  h2d
+} from './crypto-utils';
+
+export function parseDSKey(){
     // Parse key contents.
     var _this = this;
     return new Promise(function(resolve, reject){
@@ -28,7 +38,7 @@ function parseDSKey(){
     });
 }
 
-function unBlindMessage(blindSignedMessage, unBlinder){
+export function unBlindMessage(blindSignedMessage, unBlinder){
   // Unblind the message before sending it for verification.
   // s = u*(bs) mod n
   var _us = multMod(unBlinder, str2bigInt(blindSignedMessage, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
@@ -51,7 +61,7 @@ function verifyBlindSignature(signedMessage, hashedOriginalMessage){
     }
 }
 // Set the context for blind signatures right.
-var blindSignContext = function (msg) {
+export let blindSignContext = function (msg) {
     /*
     Initialize it with the following:
     1. Signer Public Key

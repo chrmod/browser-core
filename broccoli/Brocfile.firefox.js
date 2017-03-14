@@ -42,6 +42,7 @@ var firefoxTree = new MergeTrees([
   src,
   new Funnel(modules.static,      { destDir: 'chrome/content' }),
   new Funnel(modules.styleTests,  { destDir: 'chrome/content' }),
+  new Funnel(modules.bundles,     { destDir: 'chrome/content' }),
 ], { overwrite: true } );
 
 var firefoxOutputTrees = [

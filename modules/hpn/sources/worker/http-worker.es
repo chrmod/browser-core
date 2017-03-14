@@ -1,4 +1,4 @@
-function _http(url){
+export default function (url) {
 
 	var core = {
 

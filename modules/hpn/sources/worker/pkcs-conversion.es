@@ -1,3 +1,5 @@
+import { base64_decode, base64_encode } from './crypto-utils';
+
 // This is blatant rip-off of conversion function in cliqz-p2p crytpo.
 function ByteBuffer(length) {
     this.buffer = new Uint8Array(length);
@@ -158,7 +160,7 @@ function padIfSigned(array) {
     modulus           INTEGER,  -- n
     publicExponent    INTEGER   -- e
 }*/
-function exportPrivateKey(key) {
+export function exportPrivateKey(key) {
     var orig_values = ['AA==', key.n, key.e, key.d, key.p, key.q, key.dp, key.dq, key.qi];
     var values = orig_values.map(x => padIfSigned(base64_decode(fromBase64url(x))));
     var buffer = new ByteBuffer(2000);
@@ -188,7 +190,7 @@ function exportPrivateKey(key) {
         // SEQUENCE(2 elem)
             // INTEGER(2048 bit) n
             // INTEGER e
-function exportPublicKey(key) {
+export function exportPublicKey(key) {
     var orig_values = [key.n, key.e];
     var values = orig_values.map(x => padIfSigned(base64_decode(fromBase64url(x))));
     var numBytes = values.reduce((a, x) => a + bytesToEncode(x.length), 0);
@@ -325,7 +327,7 @@ function importPrivateKey(data) {
     return res;
 };
 
-function privateKeytoKeypair(privateKey) {
+export function privateKeytoKeypair(privateKey) {
     var key = importPrivateKey(privateKey);
     return [exportPublicKeySPKI(key), exportPrivateKeyPKCS8(key)];
 };

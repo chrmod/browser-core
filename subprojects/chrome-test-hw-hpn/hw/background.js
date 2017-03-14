@@ -2,19 +2,15 @@ var manifest = chrome.runtime.getManifest();
 
 // For packaging with Ghostery
 var contentScriptPath = "modules/human-web/content.js";
-var hpnWorkerPath = "modules/human-web/hpn-worker.js";
 
 // For packaging with chromium + cliqz.
 if(manifest.version_name === "packaged"){
   contentScriptPath = "js/hw/content.js";
-  hpnWorkerPath = "js/hw/hpn-worker.js";
 }
 
-
 // For packaging as a standalone web extension.
-if(manifest.version_name === "standalone"){
-  contentScriptPath = "content.js";
-  hpnWorkerPath = "hpn-worker.js";
+if(manifest.name === "CLIQZ search" || manifest.version_name === "standalone"){
+  contentScriptPath = "human-web/content.js";
 }
 
 const channel = manifest.name.toLowerCase();
@@ -86,7 +82,6 @@ var CliqzUtils = __CliqzUtils().execute();
 var aProgress = {};
 var aRequest = {};
 var aURI = {};
-
 
 /*
 TBR: Legacy.

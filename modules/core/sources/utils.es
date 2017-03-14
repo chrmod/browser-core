@@ -8,7 +8,6 @@ import { httpHandler, promiseHttpHandler } from './http';
 import gzip from './gzip';
 import CliqzLanguage from './language';
 import { isUrl } from './url';
-import System from 'system';
 
 
 var VERTICAL_ENCODINGS = {

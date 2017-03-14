@@ -10,7 +10,7 @@ var decoding_table_hex = [,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0,1,2,
 var mod_table = [0, 2, 1];
 
 // Returns base64 encoded string, expects Uint8Array
-function base64_encode(data) {
+export function base64_encode(data) {
     if (!data.buffer) {
         data = new Uint8Array(data);
     }
@@ -39,7 +39,7 @@ function base64_encode(data) {
 }
 
 //Returns Uint8Array, expects base64 encoded string
-function base64_decode(data) {
+export function base64_decode(data) {
     var input_length = data.length;
     if (input_length % 4 !== 0) return;
 
@@ -65,7 +65,7 @@ function base64_decode(data) {
     return decoded_data;
 }
 
-function byteArrayToHexString(byteArray) {
+export function byteArrayToHexString(byteArray) {
     var hexString = '';
     var nextHexByte;
     for (var i=0; i<byteArray.byteLength; i++) {
@@ -77,7 +77,7 @@ function byteArrayToHexString(byteArray) {
     }
     return hexString;
 }
-function hexStringToByteArray(hexString) {
+export function hexStringToByteArray(hexString) {
     if (hexString.length % 2 !== 0) {
         throw "Must have an even number of hex digits to convert to bytes";
     }
@@ -88,7 +88,7 @@ function hexStringToByteArray(hexString) {
     }
     return byteArray;
 }
-function stringToByteArray(s){
+export function stringToByteArray(s){
     if (typeof(TextEncoder) != 'undefined'){
        var encoder = new TextEncoder;
        return encoder.encode(s);
@@ -101,7 +101,7 @@ function stringToByteArray(s){
     }
     return result;
 }
-function byteArrayToString(byteArray){
+export function byteArrayToString(byteArray){
     if(typeof(TextEncoder) != 'undefined'){
         var decoder = new TextDecoder;
         return decoder.decode(byteArray);
@@ -116,7 +116,7 @@ function byteArrayToString(byteArray){
 }
 /* This method will ensure that we have the same length for all the mesages
 */
-function padMessage(msg){
+export function padMessage(msg){
 	const mxLen = 14000;
 	var padLen = (mxLen - msg.length) + 1;
 	if (padLen < 0) {
@@ -125,7 +125,7 @@ function padMessage(msg){
 	return msg + new Array(padLen).join("\n");
 }
 
-function isJson(str) {
+export function isJson(str) {
 // If can be parsed that means it's a str.
 // If cannot be parsed and is an object then it's a JSON.
   try {
@@ -137,7 +137,7 @@ function isJson(str) {
   return false;
 }
 
-function hexToBinary(s) {
+export function hexToBinary(s) {
     var i, k, part, ret = '';
     // lookup table for easier conversion. '0' characters are padded for '1' to '7'
     var lookupTable = {
@@ -158,7 +158,7 @@ function hexToBinary(s) {
     return { valid: true, result: ret };
 }
 
-function base64ToByteArray(base64String){
+export function base64ToByteArray(base64String){
     var binaryString = atob(base64String);
     var byteArray = new Uint8Array(binaryString.length);
     for (var i=0; i<binaryString.length; i++){
@@ -176,7 +176,7 @@ function byteArrayToBase64(byteArray){
     return base64String;
 }
 
-function base64UrlDecode(str) {
+export function base64UrlDecode(str) {
   str = atob(str.replace(/-/g, '+').replace(/_/g, '/'));
   var buffer = new Uint8Array(str.length);
   for(var i = 0; i < str.length; ++i) {
@@ -184,7 +184,7 @@ function base64UrlDecode(str) {
   }
   return buffer;
 }
-function h2d(s) {
+export function h2d(s) {
 
     function add(x, y) {
         var c = 0, r = [];
@@ -210,7 +210,7 @@ function h2d(s) {
     return dec;
 }
 
-function sha1(msg) {
+export function sha1(msg) {
     let promise = new Promise(function(resolve, reject){
       crypto.subtle.digest("SHA-1", stringToByteArray(msg)).then( hash => {
         resolve(byteArrayToHexString(new Uint8Array(hash)));

@@ -254,7 +254,7 @@ function getBrowserifyTree() {
 
 function getSourceTree() {
   let sources = getSourceFunnel();
-  const config = writeFile('core/config.es', 'export default '+JSON.stringify(cliqzConfig));
+  const config = writeFile('core/config.es', 'export default '+JSON.stringify(cliqzConfig, null, 2));
 
   sources = new MergeTrees([
     sources,

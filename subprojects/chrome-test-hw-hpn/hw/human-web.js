@@ -76,9 +76,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                 anonPayloads: {}, //Variable for content extraction fw.
                 messageTemplate: {},
                 anonIdMappings: {},
-                patternsURL: {{ENDPOINT_PATTERNSURL}},
-                anonPatternsURL: {{ENDPOINT_ANONPATTERNSURL}},
-                configURL: {{ENDPOINT_CONFIGURL}},
+                patternsURL: '{{ENDPOINT_PATTERNSURL}}',
+                anonPatternsURL: '{{ENDPOINT_ANONPATTERNSURL}}',
+                configURL: '{{ENDPOINT_CONFIGURL}}',
                 searchCache: {},
                 ts: "",
                 mRefresh: {},
@@ -114,8 +114,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                 strictQueries: [],
                 domain2IP: {},
                 oc: null,
-                SAFE_QUORUM_ENDPOINT: {{ENDPOINT_SAFE_QUORUM_ENDPOINT}},
-                SAFE_QUORUM_PROVIDER: {{ENDPOINT_SAFE_QUORUM_PROVIDER}},
+                SAFE_QUORUM_ENDPOINT: '{{ENDPOINT_SAFE_QUORUM_ENDPOINT}}',
+                SAFE_QUORUM_PROVIDER: '{{ENDPOINT_SAFE_QUORUM_PROVIDER}}',
                 quorumBloomFilters: {},
                 safeQuorumProvider: null,
                 maskURL: function maskURL(url) {
@@ -3787,7 +3787,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             _log("Perform QC: true");
                             var url = msg.payload.url;
 
-                            return CliqzHumanWeb.sha1(url)
+                            return CliqzSecureMessage.sha1(url)
                                 .then(CliqzHumanWeb.sendQuorumIncrement)
                                 .then(CliqzHumanWeb.getQuorumConsent)
                                 .then(function (result) {
@@ -3803,54 +3803,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     });
                     return promise;
                 },
-                sha1: function sha1(s) {
-                    // Pass the message to the web-worker for SHA-1.
-                    var promise = new Promise(function (resolve, reject) {
-                      crypto.subtle.digest("SHA-1", stringToByteArray(s)).then( hash => {
-                        resolve(byteArrayToHexString(new Uint8Array(hash)));
-                      });
-                        /*
-                        var wCrypto = new Worker(hpnWorkerPath);
-
-                        wCrypto.onmessage = function (e) {
-                            var result = e.data.result;
-                            wCrypto.terminate();
-                            _log("Got result for sha1:" + result);
-                            resolve(result);
-                        };
-
-                        wCrypto.postMessage({
-                            "msg": s,
-                            "type": "hw-sha1"
-                        });
-                        */
-                    });
-                    return promise;
-                },
-                sha256: function sha256(s) {
-                    // Pass the message to the web-worker for SHA-1.
-                    var promise = new Promise(function (resolve, reject) {
-                      crypto.subtle.digest("SHA-256", stringToByteArray(s)).then( hash => {
-                        resolve(byteArrayToHexString(new Uint8Array(hash)));
-                      });
-                        /*
-                        var wCrypto = new Worker(hpnWorkerPath);
-
-                        wCrypto.onmessage = function (e) {
-                            var result = e.data.result;
-                            wCrypto.terminate();
-                            _log("Got result for sha1:" + result);
-                            resolve(result);
-                        };
-
-                        wCrypto.postMessage({
-                            "msg": s,
-                            "type": "hw-sha1"
-                        });
-                        */
-                    });
-                    return promise;
-                },
                 sendQuorumIncrement: function sendQuorumIncrement(hashedUrl) {
                     var promise = new Promise(function (resolve, reject) {
                         // Check for hashed URL in quorum bloom filter;
@@ -3861,7 +3813,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             } else {
                                 var payload = "?hu=" + hashedUrl + "&oc=" + CliqzHumanWeb.oc;
                                 var _rp = CliqzHumanWeb.SAFE_QUORUM_ENDPOINT + "incrquorum";
-                                return CliqzHumanWeb.sendInstantMessage(_rp, payload);
+                                return CliqzSecureMessage.sendInstantMessage(_rp, payload);
                             }
                         }).then(CliqzHumanWeb.setPageVisitQuorumBloomFilter(hashedUrl)).then(function () {
                             return resolve(hashedUrl);
@@ -3876,45 +3828,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     var payload = "?hu=" + hashedUrl;
                     var _rp = CliqzHumanWeb.SAFE_QUORUM_ENDPOINT + "checkquorum";
 
-                    return new Promise(function (resolve, reject) {
-                        CliqzHumanWeb.sendInstantMessage(_rp, payload).then(function (result) {
-                            return resolve(result);
-                        })["catch"](function (err) {
-                            return reject("quorumconsent");
-                        });
-                    });
-                },
-                sendInstantMessage: function sendInstantMessage(_rp, payload) {
-                    CliqzSecureMessage.proxyIP();
-                    var promise = new Promise(function (resolve, reject) {
-                        var wCrypto = new Worker(hpnWorkerPath);
-
-                        wCrypto.onmessage = function (e) {
-                            var _result = JSON.parse(e.data.res).result;
-                            wCrypto.terminate();
-                            _log("Got result for: " + _rp + " : " + _result);
-                            resolve(_result);
-                        };
-
-                        wCrypto.postMessage({
-                            msg: { action: 'instant',
-                                type: 'cliqz',
-                                ts: '',
-                                ver: '1.5',
-                                payload: payload,
-                                rp: _rp
-                            },
-                            uid: "",
-                            type: 'instant',
-                            sourcemap: CliqzSecureMessage.sourceMap,
-                            upk: CliqzSecureMessage.uPK,
-                            dspk: CliqzSecureMessage.dsPK,
-                            sspk: CliqzSecureMessage.secureLogger,
-                            queryproxyip: CliqzSecureMessage.queryProxyIP
-                        });
-                        // CliqzUtils.httpGet(_rp + payload, result => {onHistoryVisitRemovedonHistoryVisitRemoved(JSON.parse(result.response).result)}, e => {console.log(e)}, t => {console.log(t)});
-                    });
-                    return promise;
+                  return CliqzSecureMessage.sendInstantMessage(_rp, payload);
                 },
                 registerQuorumBloomFilters: function registerQuorumBloomFilters() {
                     var promise = new Promise(function (resolve, reject) {
@@ -4077,7 +3991,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             _log("All urls in the message:" + JSON.stringify(urls));
                             _log("All urls in the message:" + JSON.stringify(urlPos));
 
-                            Promise.all(urls.map(CliqzHumanWeb.sha1)).then(function (hashes) {
+                            Promise.all(urls.map(CliqzSecureMessage.sha1)).then(function (hashes) {
                                 _log(JSON.stringify(hashes));
                                 Promise.all(hashes.map(CliqzHumanWeb.getQuorumConsent)).then(function (results) {
                                     _log(JSON.stringify(results));

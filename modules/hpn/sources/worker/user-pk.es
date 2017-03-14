@@ -1,4 +1,18 @@
-var userPK = class userPK {
+import CliqzSecureMessage from './index';
+import {
+  privateKeytoKeypair,
+  exportPrivateKey,
+  exportPublicKey,
+} from './pkcs-conversion';
+import {
+  stringToByteArray,
+  byteArrayToHexString,
+  hexStringToByteArray,
+  base64ToByteArray,
+} from './crypto-utils';
+import _http from './http-worker';
+
+export default class {
   constructor(msg) {
     this.privateKey = "";
     this.publicKey = "";
@@ -29,8 +43,8 @@ var userPK = class userPK {
           var signatureBytes = new Uint8Array(signatureBuffer);
           var signatureHex = byteArrayToHexString(signatureBytes);
           resolve(signatureHex);
-        }).catch( err => console.log(err));
-      });
+        }).catch( err => reject(err));
+      }).catch(err => reject(err));
     });
     return promise;
   }
@@ -86,7 +100,7 @@ var userPK = class userPK {
       }).then( keys => {
          return _http(CliqzSecureMessage.USER_REG).post(JSON.stringify({"pk":keys["publicKeyB64"]}));
       }).then( e => resolve({"status":true,"privateKey":_this.privateKey,"publicKey":_this.publicKey}))
-      .catch( e => reject({"status":false}));
+      .catch( e => reject({"status": e.message}));
     });
     return promise;
   }

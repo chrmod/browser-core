@@ -1,3 +1,6 @@
+// FIXME: remove cirtular dependency
+import CliqzSecureMessage from './index';
+
 /*
 Function to clean string for calculating route hash
 */
@@ -73,16 +76,18 @@ function getRouteHashStr(obj, sourceMap) {
   return res.join('');
 }
 
+
+// TODO: remove this function - it has almost not value and a misleading name
 /*
 Function to create http url
 */
-function createHttpUrl(host){
+export function createHttpUrl(host){
 	return "http://" + host + "/verify";
 }
 
 /* This method will return the string based on mapping of which keys to use to hash for routing.
 */
-function getRouteHash(msg){
+export function getRouteHash(msg){
 	return getRouteHashStr(msg, CliqzSecureMessage.sourceMap);
 }
 
@@ -122,7 +127,7 @@ function trkGen(trk) {
  * @returns string with payload created.
 */
 
-function createPayloadBlindSignature(uPK, bm1, bm2, bm3, sig){
+export function createPayloadBlindSignature(uPK, bm1, bm2, bm3, sig){
     var payload = {};
     payload["uPK"] = uPK;
     payload["bm1"] = bm1;
@@ -144,7 +149,7 @@ function createPayloadBlindSignature(uPK, bm1, bm2, bm3, sig){
  * @returns string with payload created.
  */
 
-function createPayloadProxy(uPK, suPK, mP, dmC, bs1, bs2, bs3, sig){
+export function createPayloadProxy(uPK, suPK, mP, dmC, bs1, bs2, bs3, sig){
     var payload = {};
     payload["uPK"] = uPK;
     payload["suPK"] = suPK;
