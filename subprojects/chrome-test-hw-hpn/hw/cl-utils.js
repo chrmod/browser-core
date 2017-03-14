@@ -114,7 +114,9 @@ var __CliqzUtils = function() { // (_export) {
                         _log('Error loading config. ');
                     }, 5000);
                 },
-
+                getWindow: function() {
+                    return "";
+                }
             }
 
             return CliqzUtils;
