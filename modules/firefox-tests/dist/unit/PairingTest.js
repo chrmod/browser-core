@@ -24,6 +24,7 @@ DEPS.PairingTest = ["core/utils"];
 TESTS.PairingTest = function(CliqzUtils) {
   var expect = chai.expect;
   var PeerMaster, CliqzPeer, PeerSlave, SimpleStorage;
+  var System = CliqzUtils.getWindow().CLIQZ.System;
   var modules = [
     'p2p/cliqz-peer',
     'pairing/peer-master',
@@ -32,7 +33,7 @@ TESTS.PairingTest = function(CliqzUtils) {
   ];
 
   before(function() {
-    return Promise.all(modules.map(x => CliqzUtils.importModule(x)))
+    return Promise.all(modules.map(x => System.import(x)))
       .then(modules => {
         CliqzPeer = modules[0].CliqzPeer;
         PeerMaster = modules[1].default;

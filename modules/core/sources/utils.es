@@ -9,7 +9,6 @@ import gzip from './gzip';
 import CliqzLanguage from './language';
 import { isUrl } from './url';
 
-
 var VERTICAL_ENCODINGS = {
     'people':'p',
     'news':'n',
@@ -111,10 +110,6 @@ var CliqzUtils = {
     const supportedLang = CliqzUtils.getSupportedLanguage(lang);
     CliqzUtils.PREFERRED_LANGUAGE = locale;
     CliqzUtils.getLocaleFile(supportedLang);
-  },
-
-  importModule: function(moduleName) {
-    return System.import(moduleName);
   },
 
   isNumber: function(n){

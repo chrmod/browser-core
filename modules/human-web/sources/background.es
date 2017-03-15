@@ -143,5 +143,9 @@ export default background({
       }
       return Promise.reject();
     },
+
+    telemetry(payload, instantPush) {
+      HumanWeb.telemetry(payload, instantPush);
+    }
   }
 })

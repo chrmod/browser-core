@@ -85,7 +85,7 @@ function injectTestHelpers(CliqzUtils) {
       return popup && popup.mPopupOpen === true;
     }).then(function () {
       return new Promise(function (resolve) {
-        CliqzUtils.setTimeout(resolve, 200);
+        CliqzUtils.setTimeout(resolve, 400);
       });
     });
   };

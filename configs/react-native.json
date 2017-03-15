@@ -3,7 +3,7 @@
   "format": "common",
   "settings": {
     "antitrackingButton": false,
-    "telemetryProvider": "platform/telemetry"
+    "telemetryProvider": "platform"
   },
   "default_prefs" : {
     "attrackBloomFilter": true,

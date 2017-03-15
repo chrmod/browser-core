@@ -229,7 +229,13 @@ export default class {
     this.setupPrefs();
     const backgroundPromises = this.modules()
       .map(module => {
-
+        // prepare modules to be loaded
+        // if this isn't set, we might think a module will never be loaded when we do
+        // an extension restart
+        module.isLoading = true;
+        return module;
+      })
+      .map(module => {
         if (shouldEnableModule(module.name)) {
           try {
             if (module.isEnabled) {

@@ -24,6 +24,7 @@ import telemetry from './telemetry';
 import console from '../core/console';
 import domainInfo from '../core/domain-info';
 import Pipeline from './pipeline';
+import { checkInstalledPrivacyAddons } from '../platform/addon-check';
 
 import { determineContext, skipInternalProtocols, checkSameGeneralDomain } from './steps/context';
 import PageLogger from './steps/page-logger';
@@ -58,6 +59,7 @@ var CliqzAttrack = {
     similarAddon: false,
     tp_events: null,
     recentlyModified: new TempSet(),
+    pipelineSteps: {},
     obfuscate: function(s, method) {
         // used when action != 'block'
         // default is a placeholder
@@ -486,15 +488,11 @@ var CliqzAttrack = {
         events.clean_channel("attrack:safekeys_updated");
     },
     checkInstalledAddons: function() {
-      if (typeof System !== 'undefined') {
-        System.import('platform/antitracking/addon-check').then( (addons) => {
-            addons.checkInstalledAddons().then((adds) => {
-              CliqzAttrack.similarAddon = adds;
-            });
-        }).catch( (e) => {
-            utils.log("Error loading addon checker", "attrack");
-        });
-      }
+      checkInstalledPrivacyAddons().then((adds) => {
+        CliqzAttrack.similarAddon = adds;
+      }).catch((e) => {
+        // rejection expected on platforms which do not support addon check
+      });
     },
     generateAttrackPayload: function(data, ts) {
         const extraAttrs = CliqzAttrack.qs_whitelist.getVersion();

@@ -37,7 +37,7 @@ export default background({
     utils.bindObjectFunctions( this.popupActions, this );
 
     // inject configured telemetry module
-    telemetry.loadFromProvider(settings.telemetryProvider || 'human-web/human-web');
+    telemetry.loadFromProvider(settings.telemetryProvider || 'human-web');
 
     // load config
     this.config = new Config({});

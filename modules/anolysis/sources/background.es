@@ -91,7 +91,7 @@ export default background({
     utils.log('stopped', 'anon');
   },
 
-  unload({ quick }) {
+  unload(quick) {
     if (quick === undefined) {
       // Generate uninstall signal
       // TODO: Find a way to do this, as it's hard to do it fast.
@@ -143,6 +143,9 @@ export default background({
     },
 
     handleTelemetrySignal(signal, schemaName) {
+      if (!this.anolysis) {
+        return null;
+      }
       return this.anolysis.handleTelemetrySignal(signal, schemaName);
     },
   },

@@ -154,7 +154,7 @@ TESTS.CliqzPeerTest = function(CliqzUtils) {
 
   before(function() {
     return Promise.all(modules.map(function(x) {
-      return CliqzUtils.importModule(x);
+      return CliqzUtils.getWindow().CLIQZ.System.import(x);
     }))
     .then(function(modules) {
       CliqzPeer = modules[0].default;

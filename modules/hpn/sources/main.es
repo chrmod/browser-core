@@ -31,7 +31,6 @@ const CliqzSecureMessage = {
   eventID: {},
   sourceMap: null,
   sourceMapLoader: null,
-  secureKeysLoader: null,
   tmult: 4,
   tpace: 250,
   SOURCE_MAP_PROVIDER: config.settings.ENDPOINT_SOURCE_MAP_PROVIDER,
@@ -50,6 +49,8 @@ const CliqzSecureMessage = {
   proxyInfoObj: {},
   queryProxyFilter: null,
   pacemaker: function () {
+    CliqzSecureMessage.counter += 1;
+
     if ((CliqzSecureMessage.counter / CliqzSecureMessage.tmult) % 10 === 0) {
       if (CliqzSecureMessage.debug) {
         CliqzUtils.log('Pacemaker: ' + CliqzSecureMessage.counter / CliqzSecureMessage.tmult, CliqzSecureMessage.LOG_KEY);
@@ -87,7 +88,7 @@ const CliqzSecureMessage = {
       this.storage.saveLocalCheckTable();
     }
 
-    CliqzSecureMessage.counter += 1;
+
   },
   // ****************************
   // telemetry, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though
@@ -212,7 +213,6 @@ const CliqzSecureMessage = {
     this.sourceMapLoader.stop();
     this.proxyListLoader.stop();
     this.routeTableLoader.stop();
-    this.secureKeysLoader.stop();
     CliqzUtils.clearTimeout(CliqzSecureMessage.pacemakerId);
     this.storage.close();
   },

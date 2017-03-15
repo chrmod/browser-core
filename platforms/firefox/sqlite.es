@@ -20,7 +20,9 @@ export function close(databaseName) {
     return;
   }
   const connection = connections.get(databaseName);
-  connection.close();
+  // according to docs we should not use close because we use async statements
+  // see https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/mozIStorageConnection#close()
+  connection.asyncClose();
 }
 
 // TODO: remove default export

@@ -1,9 +1,9 @@
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
-var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
+const genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefBranch);
 
-var similarAddonNames = {
+const similarAddonNames = {
   "Adblock Plus": true,
   "Ghostery": true,
   "Lightbeam": true,
@@ -35,12 +35,12 @@ export function checkInstalledPrivacyAddons() {
  * each with the id and name of an extension
  */
 export function auditInstalledAddons() {
-  return AddonManager.getAddonsByTypes(["extension"]).then((addons) => {
-    return addons.filter(addon => addon.isActive).map(addon => {
-      return {
-        id: addon.id,
-        name: addon.name,
-      }
-    });
+  return new Promise((resolve) => {
+    AddonManager.getAddonsByTypes(['extension'], (addons) => resolve(addons))
+  }).then((addons) => {
+    return addons.filter(addon => addon.isActive).map(addon => ({
+      id: addon.id,
+      name: addon.name,
+    }));
   });
 }

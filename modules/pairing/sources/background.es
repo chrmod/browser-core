@@ -48,4 +48,10 @@ export default {
     destroyHiddenWindow(this.window);
     this.window = null;
   },
+
+  actions: {
+    getPairingPeer() {
+      return PeerComm;
+    }
+  }
 };

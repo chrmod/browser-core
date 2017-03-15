@@ -1,4 +1,4 @@
-import System from 'system';
+import inject from '../core/kord/inject';
 import { utils } from 'core/cliqz';
 import ContextMenu from './context-menu';
 
@@ -46,6 +46,7 @@ export default class {
   constructor(config) {
     this.config = config;
     this.window = config.window;
+    this.pairing = inject.module('pairing');
   }
 
   /**
@@ -64,6 +65,10 @@ export default class {
   unload() {
     this.unloadPageMenu();
     this.unloadTabMenu();
+  }
+
+  getPeerComm() {
+    return this.pairing.action('getPairingPeer').catch((e) => undefined)
   }
 
   initPageMenu() {
@@ -135,27 +140,28 @@ export default class {
       // Pairing menu
       const url = isLink ?
         this.window.gContextMenu.target.href : this.window.gBrowser.currentURI.spec;
-      let PeerComm = System.get('pairing/main');
-      PeerComm = PeerComm && PeerComm.default;
-      const beforeElem = this.window.document.getElementById('context-bookmarklink');
-      const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired && isValidURL(url);
-      const onclick = isEnabled ? () => {
-        sendTab(PeerComm, url);
-        utils.telemetry({
-          type: 'context_menu',
-          version: 1,
-          view: 'web_page',
-          action: 'click',
-          target: 'send_to_mobile',
+
+      this.getPeerComm().then((PeerComm) => {
+        const beforeElem = this.window.document.getElementById('context-bookmarklink');
+        const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired && isValidURL(url);
+        const onclick = isEnabled ? () => {
+          sendTab(PeerComm, url);
+          utils.telemetry({
+            type: 'context_menu',
+            version: 1,
+            view: 'web_page',
+            action: 'click',
+            target: 'send_to_mobile',
+          });
+        } : undefined;
+        this.pageMenu.addMenuItem({
+          label: utils.getLocalizedString('pairing-send-tab-to-mobile'),
+          onclick,
+          beforeElem,
+          disabled: !isEnabled,
         });
-      } : undefined;
-      this.pageMenu.addMenuItem({
-        label: utils.getLocalizedString('pairing-send-tab-to-mobile'),
-        onclick,
-        beforeElem,
-        disabled: !isEnabled,
+        this.pageMenu.addSeparator({ beforeElem });
       });
-      this.pageMenu.addSeparator({ beforeElem });
     };
     this.pageMenu.init();
   }
@@ -174,25 +180,25 @@ export default class {
     this.tabMenu._onPopupShowing = () => {
       const tabPos = this.window.TabContextMenu.contextTab._tPos;
       const url = this.window.gBrowser.getBrowserAtIndex(tabPos).currentURI.spec;
-      let PeerComm = System.get('pairing/main');
-      PeerComm = PeerComm && PeerComm.default;
-      const beforeElem = this.window.document.getElementById('context_openTabInWindow');
-      const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired && isValidURL(url);
-      const onclick = isEnabled ? () => {
-        sendTab(PeerComm, url);
-        utils.telemetry({
-          type: 'context_menu',
-          version: 1,
-          view: 'tab_title',
-          action: 'click',
-          target: 'send_to_mobile',
+      this.getPeerComm().then((PeerComm) => {
+        const beforeElem = this.window.document.getElementById('context_openTabInWindow');
+        const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired && isValidURL(url);
+        const onclick = isEnabled ? () => {
+          sendTab(PeerComm, url);
+          utils.telemetry({
+            type: 'context_menu',
+            version: 1,
+            view: 'tab_title',
+            action: 'click',
+            target: 'send_to_mobile',
+          });
+        } : undefined;
+        this.tabMenu.addMenuItem({
+          label: utils.getLocalizedString('pairing-send-tab-to-mobile'),
+          onclick,
+          beforeElem,
+          disabled: !isEnabled,
         });
-      } : undefined;
-      this.tabMenu.addMenuItem({
-        label: utils.getLocalizedString('pairing-send-tab-to-mobile'),
-        onclick,
-        beforeElem,
-        disabled: !isEnabled,
       });
     };
     this.tabMenu.init();

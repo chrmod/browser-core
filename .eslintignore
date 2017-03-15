@@ -358,7 +358,7 @@ platforms/chromium/search-engines.es
 platforms/chromium/startup.es
 platforms/chromium/storage.es
 platforms/chromium/xmlhttprequest.es
-platforms/firefox/antitracking/addon-check.es
+platforms/firefox/addon-check.es
 platforms/firefox/antitracking/channel-listener.es
 platforms/firefox/antitracking/header-info-visitor.es
 platforms/firefox/antitracking/http-request-context.es
