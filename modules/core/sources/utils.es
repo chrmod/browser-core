@@ -427,7 +427,7 @@ var CliqzUtils = {
     }
 
     var urlDetails = {
-              scheme: scheme,
+              scheme: scheme ? scheme + ':' : '',
               name: name,
               domain: tld ? name + '.' + tld : '',
               tld: tld,
