@@ -3,9 +3,9 @@ import { URLInfo } from '../antitracking/url';
 import log from './utils';
 import parseList, { parseJSResource
                   , serializeFilter
-                  , deserializeFilter } from '../adblocker/filters-parsing';
+                  , deserializeFilter } from './filters-parsing';
 import { matchNetworkFilter
-       , matchCosmeticFilter } from '../adblocker/filters-matching';
+       , matchCosmeticFilter } from './filters-matching';
 import { TLDs } from '../core/tlds';
 
 

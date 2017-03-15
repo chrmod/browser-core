@@ -1,7 +1,7 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from '../core/resource-loader';
 import Language from '../core/language';
 import { platformName } from '../core/platform';
-import log from '../adblocker/utils';
+import log from './utils';
 import { ADB_USER_LANG, ADB_USER_LANG_OVERRIDE } from './adblocker';
 import { utils } from '../core/cliqz';
 

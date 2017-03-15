@@ -9,8 +9,14 @@ let load = () => {};
 let save = () => {};
 
 const MOCK = {
-  'core/utils': {
+  'core/console': {
     default: {
+      error() {
+      }
+    },
+  },
+  'core/cliqz': {
+    utils: {
       setInterval() {},
       getPref(pref, defaultValue) {
         return defaultValue;
@@ -23,7 +29,7 @@ const MOCK = {
   },
   'platform/resource-loader-storage': {
     default: class {
-      save() { return save() }
+      save() { return save(); }
       load() { return load(); }
     }
   }

@@ -1,5 +1,6 @@
 import config from './config';
-import utils from './utils';
+import console from './console';
+import { utils } from './cliqz';
 import Storage from '../platform/resource-loader-storage';
 
 // Common durations
@@ -100,11 +101,11 @@ export class Resource {
   }
 
   persist(data) {
-    return this.parseData(data).then((parsed) => {
-      return this.storage.save(data)
-        .catch(e => console.error('resource-loader error on persist: ', e))
-        .then(() => parsed);
-    });
+    return this.parseData(data).then(parsed =>
+      this.storage.save(data)
+      .catch(e => console.error('resource-loader error on persist: ', e))
+      .then(() => parsed)
+    );
   }
 
   parseData(data) {
