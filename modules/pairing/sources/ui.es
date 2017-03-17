@@ -202,15 +202,15 @@ export default class PairingUI {
   }
 
   unload() {
-    PeerComm.removeObserver(PairingUI.observerID, this.observer);
+    PeerComm.removeObserver(this.observerID, this.observer);
     utils.clearInterval(this.connectionChecker);
   }
 
-  static get observerID() {
-    // Only one observer, if this is open in more than one window,
-    // only the last one will be updated.
-    // So only should be open once at a time.
-    return '__PAIRING__DASHBOARD__';
+  get observerID() {
+    if (!this._observerID) {
+      this._observerID = `__PAIRING__DASHBOARD__${Math.random()}`;
+    }
+    return this._observerID;
   }
 
   init() {
@@ -219,7 +219,7 @@ export default class PairingUI {
 
     const observer = this.observer = new PairingObserver();
     this.compileTemplate().then(() => {
-      PeerComm.addObserver(PairingUI.observerID, observer);
+      PeerComm.addObserver(this.observerID, observer);
     });
 
     utils.telemetry({
@@ -256,7 +256,10 @@ export default class PairingUI {
     };
 
     observer.ondeviceadded = () => {
-      // When we show other paired devices we should update them here
+      // This is also called when mobile changes our device name
+      const masterName = PeerComm.masterName; // Mobile name
+      const isMasterConnected = PeerComm.isMasterConnected; // Is mobile connected?
+      this.renderPaired(masterName, isMasterConnected);
     };
 
     observer.ondeviceremoved = () => {
