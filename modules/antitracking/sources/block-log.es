@@ -37,7 +37,14 @@ export default class {
     events.un_sub('attrack:hour_changed', this.onHourChanged);
   }
 
-  // blocked + localBlocked
+  /**
+   * Add an entry to the block log
+   * @param {String} sourceUrl domain name of where this block happened
+   * @param {String} tracker   the 3rd party tracker hostname which was blocked
+   * @param {String} key       the key for the blocked value
+   * @param {String} value     the blocked value
+   * @param {String} type      the type of blocked value
+   */
   add(sourceUrl, tracker, key, value, type) {
     const hour = datetime.getTime();
 
@@ -122,6 +129,15 @@ export default class {
     this.localBlocked.save();
   }
 
+  /**
+   * Check if this block event should be reported via telemetry, and if so, add to the
+   * block log
+   * @param  {String} sourceUrl
+   * @param  {String} tracker
+   * @param  {String} key
+   * @param  {String} value
+   * @param  {String} type
+   */
   offerToReporter(sourceUrl, tracker, key, value, type) {
     if (this.isInBlockReportList(tracker, key, value)) {
       this._addBlocked(tracker, key, md5(value), type);

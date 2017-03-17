@@ -32,6 +32,12 @@ function b64Encode(token) {
   return b64;
 }
 
+/**
+ * This class checks url components for UIDs and exposes any 'badTokens' found.
+ *
+ * @class TokenChecker
+ * @namespace antitracking.steps
+ */
 export default class {
 
   constructor(qsWhitelist, privateValues, hashProb, config, telemetry) {
@@ -54,6 +60,12 @@ export default class {
     this.blockLog.unload();
   }
 
+  /**
+   * Checks for uids in the request url and adds them to the pipeline state `badTokens`
+   * attribute
+   * @param  {Object} state Pipeline state object
+   * @return {Boolean} true
+   */
   findBadTokens(state) {
     const stats = {};
     state.isTracker = this.qsWhitelist.isTrackerDomain(state.urlParts.generalDomainHash);
