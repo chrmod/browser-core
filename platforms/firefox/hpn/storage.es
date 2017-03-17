@@ -11,8 +11,10 @@ export default class {
       this.connection = open(this.dbName);
     } else {
       this.connection = open(this.dbName);
-      this.createTable();
     }
+
+    // Need to check for create table, even if the DB already exists.
+    this.createTable();
   }
 
   createTable() {
@@ -161,7 +163,6 @@ export default class {
 
   saveLocalCheckTable() {
     if (this.CliqzSecureMessage.localTemporalUniq) {
-      console.log('Saving local table');
       this.saveRecord('localTemporalUniq', JSON.stringify(this.CliqzSecureMessage.localTemporalUniq));
     }
   }

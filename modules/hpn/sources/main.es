@@ -73,22 +73,12 @@ const CliqzSecureMessage = {
       }
     }
 
-    if ((CliqzSecureMessage.counter / CliqzSecureMessage.tmult) % (60 * 3 * 1) === 0) {
+    if ((CliqzSecureMessage.counter / CliqzSecureMessage.tmult) % (60 * 15 * 1) === 0) {
       if (CliqzSecureMessage.debug) {
-        CliqzUtils.log('Load proxy list', CliqzSecureMessage.LOG_KEY);
+        CliqzUtils.log('Clean local temp queue', CliqzSecureMessage.LOG_KEY);
       }
       hpnUtils.prunelocalTemporalUniq();
     }
-
-
-    if ((CliqzSecureMessage.counter / CliqzSecureMessage.tmult) % (60 * 10 * 1) === 0) {
-      if (CliqzSecureMessage.debug) {
-        CliqzUtils.log('Save local temporalUniquness stats', CliqzSecureMessage.LOG_KEY);
-      }
-      this.storage.saveLocalCheckTable();
-    }
-
-
   },
   // ****************************
   // telemetry, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though

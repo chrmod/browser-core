@@ -1,7 +1,7 @@
 {
   "platform": "chromium",
   "brocfile": "Brocfile.webextensionhw.js",
-  "baseURL": "/",
+  "baseURL": "/modules/",
   "testsBasePath": "",
   "settings": {
     "CONFIG_PROVIDER": "https://api.cliqz.com/api/v1/config",

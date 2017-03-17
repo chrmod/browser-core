@@ -212,41 +212,50 @@ if (chrome.runtime && chrome.runtime.onConnect) {
 
 function initOnMessage() {
     chrome.runtime.onMessage.addListener( (info, sender, sendResponse) => {
-    var tab = sender.tab;
-    // This will get called by the content script we execute in
-    // the tab as a result of the user pressing the browser action.
-    if(info.type == "dom"){
-      CliqzHumanWeb.tempCurrentURL = tab.url;
 
-      aProgress["isLoadingDocument"] = tab.status;
-      aRequest["isChannelPrivate"] = tab.incognito;
-      aURI["spec"] = tab.url;
-      CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = {"doc":info.html,'time': CliqzHumanWeb.counter};
-      CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
-    }
-    else if(info.type == "event_listener"){
-      var ev = {};
-      ev["target"] = {"baseURI": info.baseURI,"href": null,"parentNode": {"href": null}};
-
-      if(info.action == "keypress"){
-        CliqzHumanWeb.captureKeyPressPage(ev);
-      }
-      else if(info.action == "mousemove"){
-        CliqzHumanWeb.captureMouseMovePage(ev);
-      }
-      else if(info.action == "mousedown"){
-        if(info.targetHref){
-          ev["target"] = {"href": info.targetHref};
+      // Listen for pref change from GH UI:
+      if (info && info.name && info.name === 'update_settings') {
+        if (info.message && info.message.conf) {
+          CliqzUtils.setPref('enable_human_web', info.message.conf.enable_human_web);
         }
-        CliqzHumanWeb.captureMouseClickPage(ev);
       }
-      else if(info.action == "scroll"){
-        CliqzHumanWeb.captureScrollPage(ev);
+
+      // Will only get executed, if human-web in enabled and content script loaded.
+      var tab = sender.tab;
+      // This will get called by the content script we execute in
+      // the tab as a result of the user pressing the browser action.
+      if(info.type == "dom"){
+        CliqzHumanWeb.tempCurrentURL = tab.url;
+
+        aProgress["isLoadingDocument"] = tab.status;
+        aRequest["isChannelPrivate"] = tab.incognito;
+        aURI["spec"] = tab.url;
+        CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = {"doc":info.html,'time': CliqzHumanWeb.counter};
+        CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
       }
-      else if(info.action == "copy"){
-        CliqzHumanWeb.captureCopyPage(ev);
+      else if(info.type == "event_listener"){
+        var ev = {};
+        ev["target"] = {"baseURI": info.baseURI,"href": null,"parentNode": {"href": null}};
+
+        if(info.action == "keypress"){
+          CliqzHumanWeb.captureKeyPressPage(ev);
+        }
+        else if(info.action == "mousemove"){
+          CliqzHumanWeb.captureMouseMovePage(ev);
+        }
+        else if(info.action == "mousedown"){
+          if(info.targetHref){
+            ev["target"] = {"href": info.targetHref};
+          }
+          CliqzHumanWeb.captureMouseClickPage(ev);
+        }
+        else if(info.action == "scroll"){
+          CliqzHumanWeb.captureScrollPage(ev);
+        }
+        else if(info.action == "copy"){
+          CliqzHumanWeb.captureCopyPage(ev);
+        }
       }
-    }
   });
 }
 
@@ -275,21 +284,10 @@ function initModules() {
 function initHumanWeb() {
 
   initWebRequestListeners();
-  initOnMessage();
   initWebRequestListeners();
   initTabListener();
   initModules();
 
-}
-function listenPrefChange(){
-  chrome.runtime.onMessage.addListener( (info, sender, sendResponse) => {
-    if (info && info.origin && info.origin === 'settings') {
-      if (info.message && info.message.conf) {
-        console.log(">>>> Value: " + info.message.conf.enable_human_web)
-        CliqzUtils.setPref('enable_human_web', info.message.conf.enable_human_web);
-      }
-    }
-  });
 }
 
 
@@ -307,8 +305,7 @@ function enableHumanWeb() {
 CliqzUtils.loadPrefs()
   .then( () => {
     // Need to have the pref change listener even when human-web is disabled.
-    listenPrefChange();
-
+    initOnMessage();
     if (enableHumanWeb()) {
       initHumanWeb();
     }

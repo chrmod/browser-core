@@ -34,7 +34,7 @@ export function trkGen(_trk) {
 
 
 export function prunelocalTemporalUniq() {
-  if (CliqzSecureMessage.localTemporalUniq) {
+  if (CliqzSecureMessage.localTemporalUniq && Object.keys(CliqzSecureMessage.localTemporalUniq).length > 0) {
     const currTime = Date.now();
     let pi = 0;
     Object.keys(CliqzSecureMessage.localTemporalUniq).forEach( e => {
