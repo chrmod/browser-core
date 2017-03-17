@@ -72,9 +72,13 @@ export default class {
       6000,
     );
 
+    // This can be run async since calling two times the same method will
+    // resolve to the same Promise object. It's not returned there to not
+    // delay the loading of the module.
+    this.gidManager.init();
+
     return Promise.all([
       this.removeOldDataFromDB(),
-      this.gidManager.init(),
       this.messageQueue.init(),
     ]);
   }

@@ -65,7 +65,7 @@ export default background({
     }, true /* force push */);
 
     return this.anolysis.init()
-      .then(() => this.actions.registerSchemas(telemetrySchemas))
+      .then(() => { this.actions.registerSchemas(telemetrySchemas); })
       .then(() => {
         this.isRunning = true;
         utils.log('started', 'anon');

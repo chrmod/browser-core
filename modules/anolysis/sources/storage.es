@@ -48,7 +48,7 @@ export default class {
   }
 
   remove(doc) {
-    this.database.remove(doc);
+    return this.database.remove(doc);
   }
 
   put(doc) {
