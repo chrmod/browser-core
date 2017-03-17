@@ -39,6 +39,7 @@ export default class {
 
   constructor({ defaults = DEFAULTS,
                 versionUrl = VERSIONCHECK_URL }) {
+    this.debugMode = false;
     this.versionCheckUrl = versionUrl;
 
     this.tokenDomainCountThreshold = 2;

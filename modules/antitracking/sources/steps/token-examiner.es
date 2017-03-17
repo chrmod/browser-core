@@ -102,7 +102,9 @@ export default class {
         // get docs over threshold which should be added to safekey list
         docs.filter((doc) => Object.keys(doc.tokens).length > this.config.safekeyValuesThreshold)
         .forEach((doc) => {
-          console.log('Add safekey', state.urlParts.generalDomain, doc.key, doc.tokens);
+          if (this.config.debugMode) {
+            console.log('Add safekey', state.urlParts.generalDomain, doc.key, doc.tokens);
+          }
           this.qsWhitelist.addSafeKey(tracker, md5(doc.key), Object.keys(doc.tokens).length);
         });
         // upsert into the db
