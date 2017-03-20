@@ -60,7 +60,7 @@ export default class {
 
   loadPrefs() {
     Object.keys(PREFS).forEach((conf) => {
-      this[conf] = utils.getPref(PREFS[conf], this.conf || false);
+      this[conf] = utils.getPref(PREFS[conf], this[conf] || false);
     });
   }
 

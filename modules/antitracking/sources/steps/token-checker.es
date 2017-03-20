@@ -87,6 +87,26 @@ export default class {
     return true;
   }
 
+  /**
+   * Check all tokens of the url for uids.
+   *
+   * A token is a uid one of the following apply:
+   *  - it matches the user's cookie for this page
+   *  - it matches a private value from JS (from this.privateValues)
+   *  - it is not on the global safe value list, and its key is not in local nor global
+   *  safe key lists
+   *
+   * It must also meet that condition that the same value has been seen on multiple first
+   * party domains (this.config.tokenDomainCountThreshold).
+   *
+   * @param  {Object} url_parts        Parts of the request url, as parsed by parseURL
+   * @param  {String} source_url       The first party url for this request
+   * @param  {Object} cookievalue      A map of cookie values in the first party page - keys are values
+   * @param  {Object} stats            An object to write stats to
+   * @param  {Object} source_url_parts Parts of the source url, as parsed by parseURL
+   * @param  {Boolean} tracker         True if the request host is a tracker
+   * @return {Array}                   Array of values which we think are uids and should be removed.
+   */
   checkTokens(url_parts, source_url, cookievalue, stats, source_url_parts, tracker) {
     // This check is only done for trackers
     if (!tracker) {

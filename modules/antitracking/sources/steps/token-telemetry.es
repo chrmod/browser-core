@@ -161,7 +161,7 @@ class TokenDb {
    * @return {Object}
    */
   getToken({prefix, domain, firstParty, k, v, k_len, v_len}) {
-    const id = prefix + domain + firstParty + k + v;
+    const id = `${prefix}${domain}${firstParty}${k}${v}`;
     // get the document, or create a new one if it doesn't exist
     return this.db.get(id).catch((err) => {
       if (err.name === 'not_found') {
