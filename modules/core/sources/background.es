@@ -117,7 +117,7 @@ export default background({
     }
 
     // inject the required module, then call the requested action
-    inject.module(moduleName).action(action, ...args)
+    inject.module(moduleName).action(action, ...(args || []))
 
     .then( response => {
       this.mm.broadcast(`window-${windowId}`, {
