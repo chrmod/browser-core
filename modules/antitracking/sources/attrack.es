@@ -24,6 +24,7 @@ import console from '../core/console';
 import domainInfo from '../core/domain-info';
 import Pipeline from './pipeline';
 import { checkInstalledPrivacyAddons } from '../platform/addon-check';
+import cleanLegacyDb from './legacy/database';
 
 import { determineContext, skipInternalProtocols, checkSameGeneralDomain } from './steps/context';
 import PageLogger from './steps/page-logger';
@@ -250,6 +251,9 @@ var CliqzAttrack = {
         });
 
         CliqzAttrack.initPipeline();
+
+        // cleanup legacy database
+        cleanLegacyDb();
 
         return Promise.all(initPromises);
     },
