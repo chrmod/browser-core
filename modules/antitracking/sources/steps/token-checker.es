@@ -46,7 +46,7 @@ export default class {
     this.debug = false;
     this.privateValues = privateValues;
     this.hashProb = hashProb;
-    this.tokenDomain = new TokenDomain();
+    this.tokenDomain = new TokenDomain(config);
     this.blockLog = new BlockLog(telemetry, config);
   }
 
@@ -173,7 +173,7 @@ export default class {
       // increment that this token has been seen on this site
       this.tokenDomain.addTokenOnFirstParty(md5(tok), sourceDomain);
       // check if the threshold for cross-domain tokens has been reached
-      if (this.tokenDomain.getNFirstPartiesForToken(md5(tok)) < this.config.tokenDomainCountThreshold) {
+      if (!this.tokenDomain.isTokenDomainThresholdReached(md5(tok))) {
         return `${tokenType}_newToken`;
       }
 
