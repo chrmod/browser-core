@@ -2,6 +2,7 @@ import * as datetime from './time';
 import { events } from '../core/cliqz';
 import Database from '../core/database';
 import console from '../core/console';
+import { migrateTokenDomain } from './legacy/database';
 
 const DAYS_EXPIRE = 7;
 const DB_NAME = 'cliqz-attrack-token-domain';
@@ -16,8 +17,25 @@ export default class {
   }
 
   init() {
+    // migrate from old db
+    const init = migrateTokenDomain(this);
     // load current tokens over threshold
-    this.db.allDocs({ include_docs: true }).then(docs => docs.rows
+    init.then(() => this.loadBlockedTokens());
+
+    this.onHourChanged = () => {
+      this.currentDay = datetime.getTime().substr(0, 8);
+      this.clean();
+    };
+    events.sub('attrack:hour_changed', this.onHourChanged);
+    return init;
+  }
+
+  unload() {
+    events.un_sub('attrack:hour_changed', this.onHourChanged);
+  }
+
+  loadBlockedTokens() {
+    return this.db.allDocs({ include_docs: true }).then(docs => docs.rows
       .filter(row => Object.keys(row.doc.fps).length >= this.config.tokenDomainCountThreshold)
       .map(doc => doc.id)
     )
@@ -27,20 +45,18 @@ export default class {
       }
       toks.forEach(tok => this.blockedTokens.add(tok));
     });
-
-    this.onHourChanged = () => {
-      this.currentDay = datetime.getTime().substr(0, 8);
-      this.clean();
-    };
-    events.sub('attrack:hour_changed', this.onHourChanged);
   }
 
-  unload() {
-    events.un_sub('attrack:hour_changed', this.onHourChanged);
-  }
-
-  addTokenOnFirstParty(token, firstParty) {
-    this.db.get(token).catch((err) => {
+  /**
+   * Mark that the given token was seen on this firstParty. Optionally specify a past day to insert
+   * for, otherwise the current day is used
+   * @param {String} token      token value
+   * @param {String} firstParty first party domain
+   * @param {String} day        (optional) day string (YYYYMMDD format)
+   */
+  addTokenOnFirstParty(token, firstParty, day) {
+    const tokenDay = day || this.currentDay;
+    return this.db.get(token).catch((err) => {
       if (err.name === 'not_found') {
         return {
           _id: token,
@@ -50,8 +66,8 @@ export default class {
       throw err;
     }).then((_doc) => {
       const doc = _doc;
-      doc.mtime = this.currentDay;
-      doc.fps[firstParty] = this.currentDay;
+      doc.mtime = this.currentDay > tokenDay ? this.currentDay : tokenDay;
+      doc.fps[firstParty] = tokenDay;
       if (Object.keys(doc.fps).length >= this.config.tokenDomainCountThreshold) {
         if (this.config.debugMode) {
           console.log('tokenDomain', 'will be blocked:', token);
