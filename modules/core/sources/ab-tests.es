@@ -339,6 +339,12 @@ var CliqzABTests = {
             case "1095_B":
               CliqzUtils.setPref("connect", true);
               break;
+            case "1096_A":
+              CliqzUtils.setPref("extOnboardCliqzConnect", false);
+              break;
+            case "1096_B":
+              CliqzUtils.setPref("extOnboardCliqzConnect", true);
+              break;
             default:
                 rule_executed = false;
         }
@@ -551,6 +557,10 @@ var CliqzABTests = {
             case "1095_A":
             case "1095_B":
               CliqzUtils.clearPref('connect');
+              break;
+            case "1096_A":
+            case "1096_B":
+              CliqzUtils.clearPref('extOnboardCliqzConnect');
               break;
             default:
                 rule_executed = false;
