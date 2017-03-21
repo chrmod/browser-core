@@ -209,7 +209,6 @@ var CliqzAttrack = {
             }
         });
 
-
         CliqzAttrack.checkInstalledAddons();
 
         CliqzAttrack.initPacemaker();
@@ -470,8 +469,6 @@ var CliqzAttrack = {
         WebRequest.onHeadersReceived.removeListener(CliqzAttrack.httpResponseObserver);
 
         pacemaker.stop();
-
-        this._cookieWhitelistLoader.stop();
 
         CliqzAttrack.unloadPipeline();
 

@@ -15,7 +15,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
   CliqzUtils.setPref('modules.antitracking.enabled', true);
 
   describe('CliqzAttrack_integration', function() {
-    this.retries(3);
+    this.retries(1);
 
     var echoed = [],
       md5 = CliqzHumanWeb._md5,
@@ -121,7 +121,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       CliqzAttrack.tp_events._active = {};
       CliqzAttrack.tp_events._staged = [];
       // clean up attrack caches
-      CliqzAttrack.requestKeyValue = {};
       CliqzAttrack.recentlyModified.clear();
       CliqzAttrack.disabled_sites.clear();
 
@@ -943,7 +942,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         testpage = 'localsafekey.html';
 
       beforeEach(function() {
-        CliqzAttrack.debug = true;
+        CliqzAttrack.config.qsEnabled = true;
         CliqzAttrack.config.safekeyValuesThreshold = 2;
         return waitFor(function() {
           return CliqzAttrack.qs_whitelist && CliqzAttrack.qs_whitelist.isReady();
@@ -954,14 +953,19 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
       it('adds local safekey if 3 different values seen', function(done) {
         this.timeout(20000);
+        var url_hash = md5('127.0.0.1').substring(0, 16),
+            callback_hash = md5('callback'),
+            uid_hash = md5('uid');
+        // make loopback a tracker domain
+        CliqzAttrack.qs_whitelist.addSafeToken(url_hash, '');
+
+        chai.expect(CliqzAttrack.qs_whitelist.isSafeKey(url_hash, callback_hash)).to.be.false;
+        chai.expect(CliqzAttrack.qs_whitelist.isSafeKey(url_hash, uid_hash)).to.be.false;
 
         openTestPage(testpage);
 
         expectNRequests(3).then(function(m) {
           try {
-            var url_hash = md5('127.0.0.1').substring(0, 16),
-              callback_hash = md5('callback'),
-              uid_hash = md5('uid');
             chai.expect(CliqzAttrack.qs_whitelist.isSafeKey(url_hash, callback_hash)).to.be.true;
             chai.expect(CliqzAttrack.qs_whitelist.isSafeKey(url_hash, uid_hash)).to.be.false;
             done();

@@ -105,7 +105,7 @@ export default class {
           if (this.config.debugMode) {
             console.log('Add safekey', state.urlParts.generalDomain, doc.key, doc.tokens);
           }
-          this.qsWhitelist.addSafeKey(tracker, md5(doc.key), Object.keys(doc.tokens).length);
+          this.qsWhitelist.addSafeKey(tracker, this.hashTokens ? doc.key : md5(doc.key), Object.keys(doc.tokens).length);
         });
         // upsert into the db
         return this.db.bulkDocs(docs);

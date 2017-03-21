@@ -203,8 +203,8 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
             beforeEach(function() {
               attrack.qs_whitelist.addSafeToken(tracker_hash, "");
               attrack.config.tokenDomainCountThreshold = 2;
-              attrack.pipelineSteps.tokenChecker.tokenDomain.clear();
               attrack.initPipeline();
+              attrack.pipelineSteps.tokenChecker.tokenDomain.clear();
             });
 
             it('allows QS first time on tracker', function() {
