@@ -36,6 +36,7 @@ export class UIFilterRulesEvaluator {
     // filter actions
     this.filterEvalFunMap = {
       not_closed_mt: this._notClosedMt.bind(this),
+      not_added_mt: this._notAddedMt.bind(this),
       not_created_last_secs: this._notCreatedLastSecs.bind(this),
       not_timedout_mt: this._notTimedoutMt.bind(this),
     }
@@ -97,6 +98,17 @@ export class UIFilterRulesEvaluator {
     if (timesClosed >= notClosedMt) {
       linfo('_notClosedMt: offer closed more than ' + notClosedMt +
             ' (' + timesClosed + ')');
+      return false;
+    }
+    return true;
+  }
+
+  _notAddedMt(offerID, notAddedMt) {
+    const timesAdded = this.offersHistory.getHistorySignal(offerID,
+                                                            HistorySignalID.HSIG_OFFER_ADDED);
+    if (timesAdded >= notAddedMt) {
+      linfo('_notAddedMt: offer added more than ' + notAddedMt +
+            ' (' + timesAdded + ')');
       return false;
     }
     return true;

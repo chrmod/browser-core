@@ -377,6 +377,7 @@ export class UIOfferProcessor {
     this.sigHandler.trackOfferSignal(campaignID, offerID, TrackSignalID.TSIG_OFFER_CLOSED);
     const displayID = this._getDisplayIDFromOfferID(offerID);
     this.offersHistory.incHistorySignal(displayID, HistorySignalID.HSIG_OFFER_CLOSED);
+	  //Should we just take one of them?
     this.offersHistory.incHistorySignal(offerID, HistorySignalID.HSIG_OFFER_CLOSED);
 
     // close the offer?
