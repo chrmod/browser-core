@@ -153,7 +153,7 @@ stage('tests') {
     def url = entry[1]
     stepsForParallel['Firefox ' + version] = {
       build(
-        job: 'cliqz/navigation-extension/nav-ext-browser-matrix-v3',
+        job: 'cliqz/navigation-extension/nav-ext-browser-matrix-v4',
         parameters: [
           string(name: 'FIREFOX_VERSION', value: version),
           string(name: 'TRIGGERING_BUILD_NUMBER', value: env.BUILD_NUMBER),
@@ -244,7 +244,7 @@ stage('tests') {
               }
             }
           }
-        }    
+        }
       }
     }
   }
