@@ -234,6 +234,7 @@ function initOnMessage() {
         CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
       }
       else if(info.type == "event_listener"){
+        CliqzHumanWeb.tempCurrentURL = tab.url;
         var ev = {};
         ev["target"] = {"baseURI": info.baseURI,"href": null,"parentNode": {"href": null}};
 
@@ -247,6 +248,7 @@ function initOnMessage() {
           if(info.targetHref){
             ev["target"] = {"href": info.targetHref};
           }
+          console.log("EVENT >>> " + JSON.stringify(ev));
           CliqzHumanWeb.captureMouseClickPage(ev);
         }
         else if(info.action == "scroll"){

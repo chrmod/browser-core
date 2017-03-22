@@ -4617,7 +4617,7 @@ var CliqzHumanWeb = {
         return promise;
     },
     sha1: function(s) {
-      return this.hpn.action('sha1', s);
+      return CliqzHumanWeb.hpn.action('sha1', s);
     },
     sendQuorumIncrement: function(hashedUrl){
         let promise = new Promise( (resolve, reject) => {

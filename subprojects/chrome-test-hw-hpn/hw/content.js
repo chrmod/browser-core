@@ -31,6 +31,5 @@ function get_dom(){
 	done = true;
 }
 
-
 window.addEventListener("load",get_dom);
 window.setTimeout(get_dom, 2000);

@@ -42,7 +42,7 @@ var __CliqzHumanWeb = function() { // (_export) {
             CliqzHumanWeb = {
                 CHANNEL: channel,
                 VERSION: '2.5',
-                WAIT_TIME: 2000,
+                WAIT_TIME: 3000,
                 LOG_KEY: 'humanweb',
                 debug: false,
                 httpCache: {},
@@ -1438,16 +1438,11 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                                         CliqzHumanWeb.getCD(url).then(function (doc) {
                                             CliqzHumanWeb.checkURL(doc, url, "normal");
-                                            CliqzHumanWeb.queryCache[url] = {
-                                                d: 0,
-                                                q: CliqzHumanWeb.searchCache[se]['q'],
-                                                t: CliqzHumanWeb.searchCache[se]['t']
-                                            };
 
                                             let anonSe = CliqzHumanWeb.checkAnonSearchURL(url);
                                             if(anonSe > -1){
                                                 let hostName = CliqzHumanWeb.parseURL(url)['hostname'];
-                                                let qurl = "https://" + hostName + "/search?q=" + CliqzHumanWeb.searchCache[se]['q'];
+                                                let qurl = "https://" + hostName + "/search?q=" + CliqzHumanWeb.queryCache[url]['q'];
                                                 let qObj = {};
                                                 qObj['qurl'] = qurl;
                                                 qObj['ts'] = Date.now();
@@ -1924,6 +1919,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         //var activeURL = CliqzHumanWeb.currentURL();
 
                         if (CliqzHumanWeb.state['v'][activeURL] != null) {
+                            _log(">>>>> active URL >>>>> " + activeURL);
                             CliqzHumanWeb.linkCache[targetURL] = { 's': '' + activeURL, 'time': CliqzHumanWeb.counter };
 
                             //console.log('REFZZZ 3', targetURL,  { 's': '' + activeURL, 'time': CliqzHumanWeb.counter });
@@ -2937,7 +2933,15 @@ var __CliqzHumanWeb = function() { // (_export) {
                             } else if (rules[key][each_key]['type'] == 'searchQuery') {
                                 urlArray = CliqzHumanWeb._getAttribute(cd, key, rules[key][each_key]['item'], rules[key][each_key]['etype'], rules[key][each_key]['keyName'], rules[key][each_key]['functionsApplied'] || null);
                                 innerDict[each_key] = urlArray;
-                                CliqzHumanWeb.searchCache[ind] = { 'q': urlArray[0], 't': CliqzHumanWeb.idMappings[ind] };
+                                if (ruleset === 'normal') {
+                                    CliqzHumanWeb.searchCache[ind] = { 'q': urlArray[0], 't': CliqzHumanWeb.idMappings[ind] };
+                                    _log("Populating query Cache <<<<  " + url + " >>>> " + urlArray[0]);
+                                    CliqzHumanWeb.queryCache[url] = {
+                                      d: 0,
+                                      q: urlArray[0],
+                                      t: CliqzHumanWeb.idMappings[ind]
+                                    };
+                                }
                             } else {
                                 urlArray = CliqzHumanWeb._getAttribute(cd, key, rules[key][each_key]['item'], rules[key][each_key]['etype'], rules[key][each_key]['keyName'], rules[key][each_key]['functionsApplied'] || null);
                                 innerDict[each_key] = urlArray;
@@ -3787,7 +3791,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             _log("Perform QC: true");
                             var url = msg.payload.url;
 
-                            return CliqzSecureMessage.sha1(url)
+                            return CliqzHumanWeb.sha1(url)
                                 .then(CliqzHumanWeb.sendQuorumIncrement)
                                 .then(CliqzHumanWeb.getQuorumConsent)
                                 .then(function (result) {
@@ -3939,6 +3943,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
                     return _countryCode;
                 },
+                sha1: function(s) {
+                  return CliqzSecureMessage.sha1(s);
+                },
                 getQuorumCheckOtherUrls: function getQuorumCheckOtherUrls(msg) {
                     var urls = [];
                     var urlPos = {};
@@ -3991,7 +3998,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             _log("All urls in the message:" + JSON.stringify(urls));
                             _log("All urls in the message:" + JSON.stringify(urlPos));
 
-                            Promise.all(urls.map(CliqzSecureMessage.sha1)).then(function (hashes) {
+                            Promise.all(urls.map(CliqzHumanWeb.sha1)).then(function (hashes) {
                                 _log(JSON.stringify(hashes));
                                 Promise.all(hashes.map(CliqzHumanWeb.getQuorumConsent)).then(function (results) {
                                     _log(JSON.stringify(results));

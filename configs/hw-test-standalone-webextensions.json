@@ -1,7 +1,7 @@
 {
   "platform": "chromium",
   "brocfile": "Brocfile.webextensionhw.js",
-  "baseURL": "/modules/",
+  "baseURL": "/",
   "testsBasePath": "",
   "settings": {
     "CONFIG_PROVIDER": "https://safe-browsing.ghostery.com/config",
