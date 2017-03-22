@@ -4,6 +4,8 @@ import * as persist from '../persistent-state';
 import { splitTelemetryData } from '../utils';
 import pacemaker from '../pacemaker';
 import Database from '../../core/database';
+import DocumentBatch from '../../core/persistence/document-batch';
+import OrderedQueue from '../../core/persistence/ordered-queue';
 import console from '../../core/console';
 import moment from '../../platform/moment';
 
@@ -54,94 +56,6 @@ function anonymizeTrackerTokens(trackerData) {
 
   return anonymizedTrackerData;
 }
-
-
-class DocumentBatch {
-
-  constructor(db, docs) {
-    this.db = db;
-    this.docs = docs;
-  }
-
-  getDocs() {
-    return this.docs.rows.map(row => row.doc);
-  }
-
-  getRows() {
-    return this.docs.rows;
-  }
-
-  delete() {
-    const deleteDocs = this.docs.rows.map((row) => ({
-      _id: row.doc._id,
-      _rev: row.doc._rev,
-      _deleted: true,
-    }));
-    return this.db.bulkDocs(deleteDocs);
-  }
-}
-
-
-class LastSentDb {
-
-  constructor(name, timestampFn) {
-    this.lastSentLog = new Database(name, {auto_compaction: true});
-    this.timestampFn = timestampFn;
-    // create index on last sent field
-    var ddoc = {
-      _id: '_design/lastSent',
-      views: {
-        ascending: {
-          map: function (doc) { emit(doc.lastSent); }.toString()
-        }
-      }
-    };
-    this.lastSentLog.put(ddoc);
-  }
-
-  /**
-   * Mark the last sent time for a key. If it isn't already in the database
-   * we add it using the timestampFn to set the lastSent time, otherwise this
-   * does nothing
-   * @param  {String} key
-   * @return {Promise}        Resolves on success, rejects on failure
-   */
-  touchKey(key) {
-    return this.lastSentLog.get(key).catch((err) => {
-      if (err.name === 'not_found') {
-        this.lastSentLog.put({
-          _id: key,
-          lastSent: this.timestampFn(),
-        });
-      } else {
-        throw err;
-      }
-    });
-  }
-
-  /**
-   * Return the number of entries in the table
-   * @return {[type]} [description]
-   */
-  count() {
-    return this.lastSentLog.info().then((stats) => {
-      return stats.doc_count;
-    });
-  }
-
-  /**
-   * Take items from the db, oldest first.
-   * @param  {Object} options Options passed to the pouch query (e.g. limit)
-   * @return {Promise}        Resolves to a {DocumentBatch} of the fetched documents
-   */
-  take(options) {
-    options.include_docs = true
-    return this.lastSentLog.query('lastSent/ascending', options).then((docs) => {
-      return new DocumentBatch(this.lastSentLog, docs)
-    });
-  }
-}
-
 
 class TokenDb {
 
@@ -276,7 +190,7 @@ export default class {
 
   constructor(telemetry) {
     this.telemetry = telemetry;
-    this.lastSentLog = new LastSentDb('cliqz-attrack-tokens-lastsent', datetime.getTime);
+    this.lastSentLog = new OrderedQueue('cliqz-attrack-tokens-lastsent');
     this.tokenDb = new TokenDb();
     this._staged = {};
   }
@@ -322,11 +236,12 @@ export default class {
   }
 
   commit() {
+    const ts = datetime.getTime();
     const queue = this._staged;
     this._staged = {};
     return Promise.all(Object.keys(queue).map((generalDomain) => {
       // touch this domain with the current hour if it is new
-      return this.lastSentLog.touchKey(generalDomain).then(() => {
+      return this.lastSentLog.offer(generalDomain, ts).then(() => {
         const batches = queue[generalDomain];
         // insert all the tokens into the token db
         // chain all the batches serially in a Promise
@@ -343,14 +258,14 @@ export default class {
     const hourFormat = "YYYYMMDDHH"
     const prevHour = moment(hour, hourFormat).subtract(1, 'hours').format(hourFormat);
 
-    return Promise.all([this.lastSentLog.count(), this.tokenDb.count()]).then((counts) => {
+    return Promise.all([this.lastSentLog.length(), this.tokenDb.count()]).then((counts) => {
       console.log('have', counts[1], 'tokens for', counts[0], 'domains in the db');
       // calculate number of elements to send
       const domainCount = counts[0];
       const limit = Math.ceil(domainCount / 12);
 
       // get domains with last update before the current hour
-      return this.lastSentLog.take({
+      return this.lastSentLog.peek({
         endkey: prevHour,
         limit,
       }).then((lastSentResults) => {
