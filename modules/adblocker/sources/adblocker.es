@@ -22,7 +22,7 @@ const SERIALIZED_ENGINE_PATH = ['adblocker', 'engine.json'];
 
 
 // adb version
-export const ADB_VERSION = 2;
+export const ADB_VERSION = 5;
 
 // Preferences
 export const ADB_DISK_CACHE = 'cliqz-adb-disk-cache';
