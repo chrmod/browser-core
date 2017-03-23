@@ -61,7 +61,7 @@ export default class {
     const isDismissed = (dismissed[messageType] && dismissed[messageType].count >= 1) || false;
     const messageCenter = inject.module('message-center');
 
-     if (isInABTest && (locale !== 'fr') && !isDismissed) {
+    if (isInABTest && (locale !== 'fr') && !isDismissed) {
       messageCenter.action(
         'showMessage',
         'MESSAGE_HANDLER_FRESHTAB',
@@ -71,7 +71,6 @@ export default class {
         },
       );
     }
-
   }
 
   status() {
