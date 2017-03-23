@@ -64,7 +64,7 @@
         </div>
     {{else if no_location}}
         <table class="no__location" extra="share-location"
-               cliqz-action="stop-click-event-propagation" onclick="osAPI.browserAction('shareLocation')">
+               cliqz-action="stop-click-event-propagation" onclick="osAPI.shareLocation()">
             <td>
                 <img class="pin__logo" src="skin/img/location_pin.svg"/>
                 <div class="share__once">{{local 'mobile_share_location'}}</div>

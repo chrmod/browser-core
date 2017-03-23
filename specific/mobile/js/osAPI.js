@@ -99,9 +99,6 @@ var osAPI = {
     message data: {data: as string, type: as string}
   */
   browserAction: function(type, data) {
-    if (type === 'shareLocation') {
-      Search && Search.clearResultCache();
-    }
     var message = {
       action: "browserAction",
       data: {
@@ -227,6 +224,17 @@ var osAPI = {
       action: 'click',
       target: 'share'
     });
+  },
+  /**
+    function: shareLocation
+    description: requests sharing of user location
+  */
+  shareLocation: function() {
+    Search && Search.clearResultCache();
+    var message = {
+      action: "shareLocation"
+    };
+    osAPI.OS.postMessage(message);
   },
   /**
     function: pushJavascriptResult

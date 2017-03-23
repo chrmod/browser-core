@@ -49,10 +49,7 @@ function openLink(url) {
 function getTopSites() {
   return mockedHistory;
 }
-function browserAction(data) {
-  if (data.type === 'shareLocation') {
-    jsAPI.search(CliqzAutocomplete.lastSearch, true, 48.1517832, 11.6200855);
-  }
+function browserAction() {
 }
 function autocomplete() {}
 function notifyQuery() {}
@@ -78,6 +75,9 @@ function setFavorites(data) {
   });
 }
 function shareCard() {}
+function shareLocation() {
+  jsAPI.search(CliqzAutocomplete.lastSearch, true, 48.1517832, 11.6200855);
+}
 
 const MockOS = {
   postMessage(message) {
@@ -126,6 +126,8 @@ const MockOS = {
       case 'shareCard':
         shareCard(message.data);
         break;
+      case 'shareLocation':
+        shareLocation();
       default:
         break;
 
