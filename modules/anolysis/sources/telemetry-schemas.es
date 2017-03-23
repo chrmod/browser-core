@@ -58,6 +58,19 @@ const SCHEMAS = {
       offset: 'number',
     },
   },
+  // abstraction of result_enter and result_click signals
+  result_selection: {
+    needs_gid: true,
+    instantPush: false,
+    schema: {
+      selection_type: 'string',
+      current_position: 'number',
+      query_length: 'number',
+      reaction_time: 'number',
+      display_time: 'number',
+      urlbar_time: 'number',
+    },
+  }
 };
 
 

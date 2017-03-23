@@ -2,6 +2,7 @@ import moment from 'platform/moment';
 import UAParser from 'platform/ua-parser';
 import log from 'anolysis/logging';
 import getSynchronizedDate from 'anolysis/synchronized-date';
+import legacyPreprocessor from 'anolysis/preprocessors/legacy';
 
 
 const ARCHITECTURE = new Set([
@@ -191,8 +192,13 @@ export default class {
     // Legacy behavior signal
     if (schema === undefined) {
       // This is a legacy signal that should be aggregated
-      const behavior = { type: this.getId(signal) };
+      const type = this.getId(signal);
 
+      if (Object.prototype.hasOwnProperty.call(legacyPreprocessor, type)) {
+        return Promise.resolve({ behavior: legacyPreprocessor[type](signal) });
+      }
+
+      const behavior = { type };
       Object.keys(signal)
         .filter(key => this.idComponents.indexOf(key) === -1)
         .filter(key => !this.isObject(signal[key]))
@@ -200,14 +206,14 @@ export default class {
           behavior[key] = signal[key];
         });
 
-      return Promise.resolve(behavior);
+      return Promise.resolve({ behavior });
     }
 
     // New signal, with a schema provided.
     // TODO: Build signal from `signal` and `schema`.
     // TODO: Check that the signal is well-formed.
     return Promise.resolve({
-      id: schemaName,
+      type: schemaName,
       behavior: signal,
       meta: {},
     });
