@@ -44,7 +44,7 @@ export default class {
     })
     .then((doc) => {
       if (overwrite || !doc._rev) {
-        return this.db.put(Object.assign({ sort: sortValue }, doc));
+        return this.db.put(Object.assign(doc, { sort: sortValue }));
       }
       return Promise.resolve(doc);
     });

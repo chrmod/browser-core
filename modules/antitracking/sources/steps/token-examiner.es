@@ -1,5 +1,3 @@
-import pacemaker from '../pacemaker';
-import * as persist from '../persistent-state';
 import * as datetime from '../time';
 import md5 from '../md5';
 import Database from '../../core/database';
@@ -27,8 +25,9 @@ export default class {
   constructor(qsWhitelist, config) {
     this.qsWhitelist = qsWhitelist;
     this.config = config;
-    this.db = new Database('cliqz-attrack-request-key-value', {auto_compaction: true});
-    this.hashTokens = true;
+    this.db = new Database('cliqz-attrack-request-key-value', { auto_compaction: true });
+    this.hashTokens = false;
+    this.transactionQueue = Promise.resolve();
   }
 
   init() {
@@ -52,9 +51,9 @@ export default class {
       const trackerHashLength = tracker.length;
 
       // create a Map of key => set(values) from the url data
-      const kvs = state.urlParts.getKeyValues().filter((kv) => {
-        return kv.v.length >= this.config.shortTokenLength;
-      }).reduce((hash, kv) => {
+      const kvs = state.urlParts.getKeyValues().filter(kv => (
+        kv.v.length >= this.config.shortTokenLength
+      )).reduce((hash, kv) => {
         const key = this.hashTokens ? md5(kv.k) : kv.k;
         const tok = this.hashTokens ? md5(kv.v) : kv.v;
         if (!hash.has(key)) {
@@ -63,54 +62,57 @@ export default class {
         hash.get(key).add(tok);
         return hash;
       }, new Map());
-      const unsafeKeysSeen = new Set(kvs.keys())
+      const unsafeKeysSeen = new Set(kvs.keys());
 
       // query the db for keys for this tracker domain
-      this.db.allDocs({
-        include_docs: true,
-        startkey: tracker,
-        endkey: tracker + '\uffff',
-      })
+      this.transactionQueue = this.transactionQueue.then(() => (
+        this.db.allDocs({
+          include_docs: true,
+          startkey: tracker,
+          endkey: `${tracker}\uffff`,
+        })
+        // get rows for the keys we saw in this request
+        .then((results) => {
+          console.log('xxx', 'found', results);
+          return results.rows.map((row) => row.doc)
+            .filter(row => unsafeKeysSeen.has(row._id.substring(trackerHashLength)))
+        })
+        // update rows with new data
+        .then((rows) => {
+          const existingRowKeys = new Set(rows.map((doc) => doc.key));
+          // create documents for keys which weren't already in db
+          const newDocs = Array.from(kvs.keys()).filter(key => !existingRowKeys.has(key))
+          .map(key => (
+            {
+              _id: `${tracker}${key}`,
+              key,
+              tokens: createTokenObject(kvs.get(key), today),
+            }
+          ));
+          // update existing documents with new tokens
+          const updatedDocs = rows.map((_doc) => {
+            const doc = _doc;
+            doc.tokens = Object.assign(doc.tokens, createTokenObject(kvs.get(doc.key), today));
+            // also prune while we're here
+            doc.tokens = this.pruneTokens(doc.tokens, pruneCutoff);
+            return doc;
+          });
 
-      // get rows for the keys we saw in this request
-      .then((results) => {
-        return results.rows.map((row) => row.doc)
-          .filter((row) => unsafeKeysSeen.has(row._id.substring(trackerHashLength)))
-      })
-      // update rows with new data
-      .then((rows) => {
-        const existingRowKeys = new Set(rows.map((doc) => doc.key));
-        // create documents for keys which weren't already in db
-        const newDocs = Array.from(kvs.keys()).filter((key) => !existingRowKeys.has(key)).map((key) => {
-          return {
-            _id: `${tracker}${key}`,
-            key,
-            tokens: createTokenObject(kvs.get(key), today),
-          }
-        });
-        // update existing documents with new tokens
-        const updatedDocs = rows.map((doc) => {
-          doc.tokens = Object.assign(doc.tokens, createTokenObject(kvs.get(doc.key), today));
-          // also prune while we're here
-          doc.tokens = this.pruneTokens(doc.tokens, pruneCutoff);
-          return doc;
-        });
-
-        return newDocs.concat(updatedDocs);
-      })
-      .then((docs) => {
-        // get docs over threshold which should be added to safekey list
-        docs.filter((doc) => Object.keys(doc.tokens).length > this.config.safekeyValuesThreshold)
-        .forEach((doc) => {
-          if (this.config.debugMode) {
-            console.log('Add safekey', state.urlParts.generalDomain, doc.key, doc.tokens);
-          }
-          this.qsWhitelist.addSafeKey(tracker, this.hashTokens ? doc.key : md5(doc.key), Object.keys(doc.tokens).length);
-        });
-        // upsert into the db
-        return this.db.bulkDocs(docs);
-      })
-      .catch((e) => console.error('requestKeyValue update error', e));
+          const docs = newDocs.concat(updatedDocs);
+          // get docs over threshold which should be added to safekey list
+          docs.filter(doc => Object.keys(doc.tokens).length > this.config.safekeyValuesThreshold)
+          .forEach((doc) => {
+            if (this.config.debugMode) {
+              console.log('Add safekey', state.urlParts.generalDomain, doc.key, doc.tokens);
+            }
+            this.qsWhitelist.addSafeKey(tracker, this.hashTokens ? doc.key : md5(doc.key),
+                                        Object.keys(doc.tokens).length);
+          });
+          // upsert into the db
+          return this.db.bulkDocs(docs);
+        })
+        .catch(e => console.error('xxx', 'requestKeyValue update error', e))
+      ));
     }
     return true;
   }

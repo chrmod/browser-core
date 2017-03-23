@@ -965,13 +965,23 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         openTestPage(testpage);
 
         expectNRequests(3).then(function(m) {
-          try {
-            chai.expect(CliqzAttrack.qs_whitelist.isSafeKey(url_hash, callback_hash)).to.be.true;
-            chai.expect(CliqzAttrack.qs_whitelist.isSafeKey(url_hash, uid_hash)).to.be.false;
-            done();
-          } catch(e) {
-            done(e);
-          }
+          // the condition should pass within 1s
+          var ctr = 0;
+          var test = function() {
+            try {
+              chai.expect(CliqzAttrack.qs_whitelist.isSafeKey(url_hash, callback_hash)).to.be.true;
+              chai.expect(CliqzAttrack.qs_whitelist.isSafeKey(url_hash, uid_hash)).to.be.false;
+              done();
+            } catch(e) {
+              ctr++;
+              if (ctr < 20) {
+                setTimeout(test, 50);
+              } else {
+                done(e);
+              }
+            }
+          };
+          test();
         });
       });
 
