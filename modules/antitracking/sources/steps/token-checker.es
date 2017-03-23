@@ -51,8 +51,7 @@ export default class {
   }
 
   init() {
-    this.tokenDomain.init();
-    this.blockLog.init();
+    return Promise.all([this.tokenDomain.init(), this.blockLog.init()]);
   }
 
   unload() {

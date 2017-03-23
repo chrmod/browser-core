@@ -30,11 +30,14 @@ export default class {
       this._cleanLocalBlocked(hourCutoff);
       this.sendTelemetry();
     };
-    events.sub('attrack:hour_changed', this.onHourChanged);
+    this._hourChangedListener = events.subscribe('attrack:hour_changed', this.onHourChanged);
   }
 
   unload() {
-    events.un_sub('attrack:hour_changed', this.onHourChanged);
+    if (this._hourChangedListener) {
+      this._hourChangedListener.unsubscribe();
+      this._hourChangedListener = null;
+    }
   }
 
   /**
