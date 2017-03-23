@@ -127,7 +127,7 @@ export default class {
     // check for each kv in the url
     const tokenStatus = url_parts.getKeyValues().map((kv) => {
       const key = kv.k;
-      const tok = kv.v;
+      const tok = String(kv.v);
 
       // ignore short values
       if (tok.length < this.config.shortTokenLength) {

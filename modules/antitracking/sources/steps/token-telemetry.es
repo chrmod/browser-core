@@ -282,7 +282,6 @@ export default class {
           });
           // merge all the parts together - there should be no key conflicts
           const payloadData = Object.assign({}, ...payloadParts);
-          console.log('xxx', 'payload', payloadData);
 
           // delete all sent data from the db
           return this.tokenDb.deleteAll(tokenBatches).then(() => lastSentResults.delete()).then(() => {

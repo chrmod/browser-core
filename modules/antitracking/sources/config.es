@@ -2,7 +2,7 @@ import * as persist from './persistent-state';
 import events from '../core/events';
 import ResourceLoader from '../core/resource-loader';
 import resourceManager from '../core/resource-manager';
-import { utils, Promise } from '../core/cliqz';
+import utils from '../core/utils';
 
 const VERSIONCHECK_URL = 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json';
 const CONFIG_URL = 'https://cdn.cliqz.com/anti-tracking/config.json';
