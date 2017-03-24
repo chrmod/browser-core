@@ -73,7 +73,6 @@ export default class {
         })
         // get rows for the keys we saw in this request
         .then((results) => {
-          console.log('xxx', 'found', results);
           return results.rows.map((row) => row.doc)
             .filter(row => unsafeKeysSeen.has(row._id.substring(trackerHashLength)))
         })
@@ -111,7 +110,7 @@ export default class {
           // upsert into the db
           return this.db.bulkDocs(docs);
         })
-        .catch(e => console.error('xxx', 'requestKeyValue update error', e))
+        .catch(e => console.error('requestKeyValue update error', e))
       ));
     }
     return true;
