@@ -20,15 +20,16 @@ const allowedCountryCodes = ['de', 'at', 'ch', 'es', 'us', 'fr', 'nl', 'gb', 'it
 const dbPrefixes = ['usafe', 'telemetry', 'hpn', 'prefs'];
 const prefs = ['config_location','humanWeb','hpnTelemetry','config_ts', 'config_activeUsageCount', 'config_activeUsage', 'enable_human_web'];
 
+
 function observeRequest(requestDetails){
     for (var i = 0; i < requestDetails.requestHeaders.length; ++i) {
       if (requestDetails.requestHeaders[i].name === 'Referer') {
            if (CliqzHumanWeb.gadurl.test(requestDetails.url)) {
                 CliqzHumanWeb.linkCache[requestDetails.url] = {'s': ''+requestDetails.requestHeaders[i].value, 'time': CliqzHumanWeb.counter};
             }
+
            break;
       }
-
     }
     return {requestHeaders: requestDetails.requestHeaders}
 }
@@ -214,10 +215,9 @@ function initOnMessage() {
     chrome.runtime.onMessage.addListener( (info, sender, sendResponse) => {
 
       // Listen for pref change from GH UI:
-      if (info && info.name && info.name === 'update_settings') {
-        if (info.message && info.message.conf) {
-          CliqzUtils.setPref('enable_human_web', info.message.conf.enable_human_web);
-        }
+      if(info && info.name === 'onHWSettingChanged') {
+        console.log("onHWSettingChanged RECEIVED", info.message);
+         CliqzUtils.setPref('enable_human_web', info.message);
       }
 
       // Will only get executed, if human-web in enabled and content script loaded.
@@ -229,8 +229,11 @@ function initOnMessage() {
 
         aProgress["isLoadingDocument"] = tab.status;
         aRequest["isChannelPrivate"] = tab.incognito;
+        aRequest["tabId"] = tab.id;
+
         aURI["spec"] = tab.url;
         CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = {"doc":info.html,'time': CliqzHumanWeb.counter};
+        console.log(">>>>> DOM RCVD >>> " + tab.url);
         CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
       }
       else if(info.type == "event_listener"){
@@ -248,7 +251,6 @@ function initOnMessage() {
           if(info.targetHref){
             ev["target"] = {"href": info.targetHref};
           }
-          console.log("EVENT >>> " + JSON.stringify(ev));
           CliqzHumanWeb.captureMouseClickPage(ev);
         }
         else if(info.action == "scroll"){
@@ -262,7 +264,7 @@ function initOnMessage() {
 }
 
 function initWebRequestListeners() {
-  chrome.webRequest.onBeforeSendHeaders.addListener(observeRequest, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["requestHeaders"]);
+  // chrome.webRequest.onBeforeSendHeaders.addListener(observeRequest, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["requestHeaders"]);
   chrome.webRequest.onBeforeRedirect.addListener(observeRedirect, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
   chrome.webRequest.onResponseStarted.addListener(observeResponse, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
   chrome.webRequest.onCompleted.addListener(domain2IP, {urls:["http://*/*", "https://*/*"],tabId:-1});
@@ -272,7 +274,8 @@ function initTabListener() {
   chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
       if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined) {
           if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
-              chrome.tabs.executeScript(tabId, {file: contentScriptPath});
+              // We should execute the content script, with runAt, instead of setting timeout in content script.
+              chrome.tabs.executeScript(tabId, {file: contentScriptPath, runAt: 'document_start'});
           }
       }
   });

@@ -42,7 +42,7 @@ var __CliqzHumanWeb = function() { // (_export) {
             CliqzHumanWeb = {
                 CHANNEL: channel,
                 VERSION: '2.5',
-                WAIT_TIME: 3000,
+                WAIT_TIME: 2000,
                 LOG_KEY: 'humanweb',
                 debug: false,
                 httpCache: {},
@@ -118,6 +118,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 SAFE_QUORUM_PROVIDER: '{{ENDPOINT_SAFE_QUORUM_PROVIDER}}',
                 quorumBloomFilters: {},
                 safeQuorumProvider: null,
+                queryMapping: {},
                 maskURL: function maskURL(url) {
                     var url_parts = null;
                     var masked_url = null;
@@ -429,12 +430,14 @@ var __CliqzHumanWeb = function() { // (_export) {
                             var loc = ho['loc'];
                             var httpauth = ho['auth'];
 
+                            /*
                             if (gadurl.test(url) && aChannel && aChannel.referrer) {
                                 var refU = aChannel.referrer.spec;
                                 CliqzHumanWeb.linkCache[url] = { 's': '' + refU, 'time': CliqzHumanWeb.counter };
                                 //console.log('REFZZZ 4', url,  { 's': '' + refU, 'time': CliqzHumanWeb.counter });
 
                             }
+                            */
                             if (status === 301 || status === 302) {
                                 CliqzHumanWeb.httpCache[url] = { 'status': status, 'time': CliqzHumanWeb.counter, 'location': loc };
                             } else if (status === 401) {
@@ -1371,34 +1374,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                             return;
                         }
 
-                        if (aProgress.isLoadingDocument) {
-                            CliqzHumanWeb.captureJSRefresh(aRequest, aURI);
-                        }
-
                         if (aURI.spec == this.tmpURL) return;
                         this.tmpURL = aURI.spec;
-
-                        // This code looks obselete now, will remove in 1+ release.
-                        if (CliqzHumanWeb.ismRefresh) {
-                            try {
-                                var tabID = CliqzHumanWeb.getTabID();
-                                if (tabID) {
-                                    var mrefreshUrl = CliqzHumanWeb.mRefresh[tabID];
-                                    var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s'];
-                                    CliqzHumanWeb.linkCache[decodeURIComponent(aURI.spec)] = { 's': '' + mrefreshUrl, 'time': CliqzHumanWeb.counter };
-                                    //console.log('REFZZZ 2', decodeURIComponent(aURI.spec),  { 's': '' + mrefreshUrl, 'time': CliqzHumanWeb.counter });
-
-
-                                    CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
-                                    if (CliqzHumanWeb.state['v'][mrefreshUrl]['qr']) {
-                                        //Change type to ad, else might create confusion.
-                                        CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';
-                                    }
-                                    CliqzHumanWeb.ismRefresh = false;
-                                    delete CliqzHumanWeb.mRefresh[tabID];
-                                }
-                            } catch (ee) {};
-                        }
 
                         // here we check if user ignored our results and went to google and landed on the same url
                         var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
@@ -1407,15 +1384,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                         var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
                         var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
 
-
-                        // This code looks obselete now, will remove in 1+ release.
-                        if (gadurl.test(aURI.spec)) {
-                            var tabID = CliqzHumanWeb.getTabID();
-                            if (tabID) {
-                                CliqzHumanWeb.ismRefresh = true; //{'status': '301', 'time': CliqzHumanWeb.counter, 'location': decodeURIComponent(CliqzHumanWeb.parseUri(aURI.spec)['queryKey']['adurl'])};
-                                CliqzHumanWeb.mRefresh[tabID] = decodeURIComponent(aURI.spec);
-                            }
-                        }
 
                         CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
                         CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
@@ -1431,14 +1399,16 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                                 var se = CliqzHumanWeb.checkSearchURL(activeURL);
                                 if (se > -1) {
-                                    setTimeout(function (url) {
+                                    let url = activeURL;
+
+                                    // setTimeout(function (url) {
                                         if (!CliqzHumanWeb) {
                                             return;
                                         }
 
                                         CliqzHumanWeb.getCD(url).then(function (doc) {
                                             CliqzHumanWeb.checkURL(doc, url, "normal");
-
+                                            CliqzHumanWeb.detectOwnKeyword(doc);
                                             let anonSe = CliqzHumanWeb.checkAnonSearchURL(url);
                                             if(anonSe > -1){
                                                 let hostName = CliqzHumanWeb.parseURL(url)['hostname'];
@@ -1452,7 +1422,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                             }
                                         });
 
-                                    }, CliqzHumanWeb.WAIT_TIME, activeURL);
+                                    // }, 500, activeURL);
                                 }
 
                                 var status = null;
@@ -1464,10 +1434,13 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 var referral = null;
                                 var qreferral = null;
 
+
+
                                 if (CliqzHumanWeb.linkCache[activeURL] != null) {
                                     //referral = CliqzHumanWeb.maskURL(CliqzHumanWeb.linkCache[activeURL]['s']);
                                     referral = CliqzHumanWeb.linkCache[activeURL]['s'];
                                 }
+
 
                                 //Get redirect chain
                                 var red = [];
@@ -1477,6 +1450,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 }
 
                                 //Set referral for the first redirect in the chain.
+
                                 if (red && referral == null) {
                                     var redURL = red[0];
                                     var refURL = CliqzHumanWeb.linkCache[redURL];
@@ -1515,16 +1489,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                                     }
                                 }
 
-                                // Change the type to gad if the it's coming from an ADV. else can give incorrect clicks on SERP results.
-                                if (red && red.length > 0) {
-                                    for (var i = 0; i < red.length; i++) {
-                                        if (gadurl.test(red[i]) && CliqzHumanWeb.state['v'][activeURL].hasOwnProperty('qr')) {
-                                            CliqzHumanWeb.state['v'][activeURL]['qr']['t'] = 'gad';
-                                        }
-                                    }
-                                }
-
-                                setTimeout(function (currWin, currURL) {
+                                let currWin = "";
+                                let currURL = activeURL;
+                                // setTimeout(function (currWin, currURL) {
 
                                     // Extract info about the page, title, length of the page, number of links, hash signature,
                                     // 404, soft-404, you name it
@@ -1577,7 +1544,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                     })["catch"](function (ee) {
                                         _log("Error fetching title and length of page: " + ee + " : " + currURL);
                                     });
-                                }, CliqzHumanWeb.WAIT_TIME, "", activeURL);
+                                //}, 0, "", activeURL); // Since onLocation is only triggered after the message is recieved from content-scripts, timeout is not needed.
                             } else {
                                 // wops, it exists on the active page, probably it comes from a back button or back
                                 // from tab navigation
@@ -1664,6 +1631,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzHumanWeb.cleanHttpCache();
                         CliqzHumanWeb.cleanDocCache();
                         CliqzHumanWeb.cleanLinkCache();
+                        CliqzHumanWeb.cleanQueryMapping();
+                        CliqzHumanWeb.cleanDomain2IP();
                     }
 
 
@@ -1840,7 +1809,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 getURLFromEvent: function getURLFromEvent(ev) {
 
-                    console.log("EVENT: ", ev);
+                    _log("EVENT: ", ev);
                     try {
                         if (ev.target.href != null || ev.target.href != undefined) {
                             return decodeURIComponent('' + ev.target.href);
@@ -1920,9 +1889,11 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                         if (CliqzHumanWeb.state['v'][activeURL] != null) {
                             _log(">>>>> active URL >>>>> " + activeURL);
+                            _log(">>>>> target URL >>>>> " + targetURL);
                             CliqzHumanWeb.linkCache[targetURL] = { 's': '' + activeURL, 'time': CliqzHumanWeb.counter };
+                            CliqzHumanWeb.detectClickType(targetURL, activeURL);
 
-                            //console.log('REFZZZ 3', targetURL,  { 's': '' + activeURL, 'time': CliqzHumanWeb.counter });
+                            _log('REFZZZ 3', JSON.stringify(CliqzHumanWeb.linkCache));
 
 
                             //Fix same link in 'l'
@@ -1938,6 +1909,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 }
                             }
 
+                            /* We are not adding Continuation links anymore
                             if (!CliqzHumanWeb.isSuspiciousURL(linkURL) && !CliqzHumanWeb.dropLongURL(linkURL)) {
                                 CliqzHumanWeb.getPageFromHashTable(linkURL, function (_res) {
                                     if (_res && _res['private'] == 0) {
@@ -1947,6 +1919,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                     }
                                 });
                             }
+                            */
                         }
                     }
 
@@ -2193,6 +2166,14 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                             // if the url is not replaces by canonical then also clear the csb key.
                             if (msg.payload['csb']) delete msg.payload.csb;
+                        }
+
+                        // Check if the page does not have a qr, then drop the desc and og tags.
+                        if (!msg.payload.qr) {
+                            let desc = null;
+                            let og = {type:null, t:null, site_name:null, desc:null};
+                            msg['payload']['x']['desc'] = desc;
+                            msg['payload']['x']['og'] = og;
                         }
                     }
 
@@ -4031,6 +4012,94 @@ var __CliqzHumanWeb = function() { // (_export) {
                     });
 
                     return promise;
+                },
+                detectOwnKeyword : function(doc){
+                    let qSelector = '#ires';
+                    let adSelector = '.ads-visurl cite';
+                    let organicSelector = '.rc .r a';
+
+                    // Check if the pages has query, organic result and ad.
+                    if(doc.querySelector(qSelector) && doc.querySelector(organicSelector) && doc.querySelector(adSelector)) {
+                        let query = decodeURIComponent(doc.querySelector(qSelector).getAttribute('data-async-context').replace('query:',''));
+                        let organicURL = doc.querySelector(organicSelector).href;
+                        let adURL = doc.querySelector(adSelector).textContent;
+
+                        CliqzHumanWeb.queryMapping[query] = {};
+
+                        CliqzHumanWeb.queryMapping[query]['ts'] = Date.now();
+                        CliqzHumanWeb.queryMapping[query]['organic'] = organicURL;
+                        CliqzHumanWeb.queryMapping[query]['ads'] = adURL;
+                        console.log(">>>>>> ad url? " + doc.querySelector('#tads .ads-ad'));
+                        CliqzHumanWeb.queryMapping[query]['ad_url'] = doc.querySelector('#tads .ads-ad a').href;
+                        CliqzHumanWeb.queryMapping[query]['organic_url'] = doc.querySelector('.rc .r a').href;
+                        CliqzHumanWeb.queryMapping[query]['click_organic'] = false;
+                        CliqzHumanWeb.queryMapping[query]['click_ads'] = false;
+                    }
+
+                },
+                detectClickType: function(targetURL, activeURL) {
+                    _log(">>> Active URL >>> ad click " + activeURL);
+                    _log(">>> Active URL >>> ad click " + JSON.stringify(CliqzHumanWeb.state.v[activeURL]));
+                    if (CliqzHumanWeb.state.v[activeURL] && CliqzHumanWeb.state.v[activeURL]['qr']) {
+                        let query = CliqzHumanWeb.state.v[activeURL]['qr']['q'];
+                        if (CliqzHumanWeb.queryMapping[query]) {
+                            _log(">>> Target URL >>> ad click " + targetURL);
+                            _log(">>> Target URL >>> ad click " + CliqzHumanWeb.queryMapping[query]['ad_url']);
+                            let adClicked = (targetURL === CliqzHumanWeb.queryMapping[query]['ad_url']);
+                            if (adClicked) CliqzHumanWeb.queryMapping[query]['click_ads'] = true;
+
+                            let organicClicked = (targetURL === CliqzHumanWeb.queryMapping[query]['organic_url']);
+                            if (organicClicked) CliqzHumanWeb.queryMapping[query]['click_organic'] = true;
+                        }
+                    }
+                },
+                experimentOwnKeyword: function(key) {
+                    _log("In experimentOwnKeyword: " + key);
+                    if (CliqzHumanWeb.queryMapping[key].click_ads ||
+                        CliqzHumanWeb.queryMapping[key].click_organic
+                        ) {
+
+                        let payload = {};
+                        payload.ad = CliqzHumanWeb.queryMapping[key].ads;
+                        payload.organic = CliqzHumanWeb.queryMapping[key].organic;
+                        payload.click_ads = CliqzHumanWeb.queryMapping[key].click_ads;
+                        payload.click_organic = CliqzHumanWeb.queryMapping[key].click_organic;
+
+                        _log(">>>experimentOwnKeyword payload " + JSON.stringify(payload));
+                        CliqzHumanWeb.telemetry({
+                            'type': CliqzHumanWeb.msgType,
+                            'action': 'experiment-sem-own-keyword',
+                            'ctry': CliqzHumanWeb.getCountryCode(),
+                            'anti-duplicates': Math.floor(CliqzHumanWeb.cryptoRandom() * 10000000),
+                            'payload': payload
+                        });
+                    }
+
+                    delete CliqzHumanWeb.queryMapping[key]
+                },
+                cleanQueryMapping: function() {
+                    let currentTime = Date.now();
+                    for (var key in CliqzHumanWeb.queryMapping) {
+                        let tDiff = currentTime - CliqzHumanWeb.queryMapping[key]['ts'];
+
+                        if ( tDiff > 1000 * 60 * 10) {
+                            CliqzHumanWeb.experimentOwnKeyword(key);
+                        }
+                    }
+                },
+                cryptoRandom: function() {
+                    let values = crypto.getRandomValues(new Uint32Array(2));
+                    return (Math.pow(2, 32) * (values[0] & 0x1FFFFF) + values[1]) / Math.pow(2, 53);
+                },
+                cleanDomain2IP: function() {
+                    let currentTime = Date.now();
+                    for (var key in CliqzHumanWeb.domain2IP) {
+                        let tDiff = currentTime - CliqzHumanWeb.domain2IP[key]['ts'];
+
+                        if ( tDiff > 1000 * 60 * 5) {
+                            delete CliqzHumanWeb.domain2IP[key];
+                        }
+                    }
                 }
             };
 
