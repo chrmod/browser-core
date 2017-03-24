@@ -174,6 +174,7 @@ export default class {
   */
   constructor(settings) {
     this.dropdown = inject.module('dropdown');
+    this.autocompleteModule = inject.module('autocomplete');
     this.elems = [];
     this.settings = settings.settings;
     this.window = settings.window;
@@ -197,7 +198,7 @@ export default class {
           this.window.CLIQZ.UI.main(this.popup.cliqzBox);
         }
       },
-      updateUrlBar: () => { this.reloadUrlbar(this.urlbar); }
+      updateUrlBar: () => { this.reloadUrlbar(); }
     },
     this.urlbarEventHandlers = {}
     Object.keys(urlbarEventHandlers).forEach( ev => {
@@ -228,26 +229,27 @@ export default class {
 
     addStylesheet(this.window.document, STYLESHEET_URL);
 
-    this.applyAdditionalThemeStyles(this.urlbar);
+    const autocompleteLoadingPromise = this.autocompleteModule.isReady().then( () => {
+      // Load autocompletesearch as soon as possible - it is compatible with
+      // default firefox and will work with any UI
+      this._autocompletesearch = this.urlbar.getAttribute('autocompletesearch');
+      this.urlbar.setAttribute('autocompletesearch', 'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
+    });
 
-    // Load autocompletesearch as soon as possible - it is compatible with
-    // default firefox and will work with any UI
-    this._autocompletesearch = this.urlbar.getAttribute('autocompletesearch');
-    this.urlbar.setAttribute('autocompletesearch', 'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
-
-    let loadingPromise;
-    //create a new panel for cliqz to avoid inconsistencies at FF startup
-    if (utils.dropDownStyle !== 'cliqzilla') {
-      Services.scriptloader.loadSubScript(System.baseURL + 'ui/UI.js', this.window);
-      this.window.CLIQZ.UI.preinit(autocomplete, CliqzHandlebars, CliqzEvents, System, placesUtils);
-      this.window.CLIQZ.UI.getPopupDimensions = getPopupDimensions;
-      Services.scriptloader.loadSubScript(System.baseURL + 'ui/ContextMenu.js', this.window);
-      loadingPromise = Promise.resolve();
-    } else {
-      loadingPromise = this.dropdown.windowAction(this.window, 'init');
-    }
-
-    loadingPromise.then(() => {
+    let uiLoadingPromise;
+    return autocompleteLoadingPromise.then(() => {
+      //create a new panel for cliqz to avoid inconsistencies at FF startup
+      if (utils.dropDownStyle !== 'cliqzilla') {
+        Services.scriptloader.loadSubScript(System.baseURL + 'ui/UI.js', this.window);
+        this.window.CLIQZ.UI.preinit(autocomplete, CliqzHandlebars, CliqzEvents, System, placesUtils);
+        this.window.CLIQZ.UI.getPopupDimensions = getPopupDimensions;
+        Services.scriptloader.loadSubScript(System.baseURL + 'ui/ContextMenu.js', this.window);
+        uiLoadingPromise = Promise.resolve();
+      } else {
+        uiLoadingPromise = this.dropdown.windowAction(this.window, 'init');
+      }
+      return uiLoadingPromise;
+    }).then(() => {
 
     this.window.CLIQZ.Core.urlbar = this.urlbar;
     this.window.CLIQZ.settings = this.settings;
@@ -303,14 +305,13 @@ export default class {
     this.window.gBrowser.tabContainer.addEventListener("TabClose",
       this.tabRemoved, false);
     this.actions.updatePopupStyle();
-    this.reloadUrlbar(this.urlbar);
     // Add search history dropdown
     var searchHistoryContainer = SearchHistory.insertBeforeElement(this.window);
     this.elems.push(searchHistoryContainer);
-
-    this.initialized = true;
-
-    });
+    }).then(() => {
+      this.reloadUrlbar();
+      this.initialized = true;
+    })
   }
 
   autocompleteQuery(firstResult, firstTitle) {
@@ -413,13 +414,14 @@ export default class {
   * triggers component reload at install/uninstall
   * @method reloadUrlbar
   */
-  reloadUrlbar (el) {
+  reloadUrlbar() {
+    const el = this.urlbar;
     var oldVal = el.value;
     if(el && el.parentNode) {
       el.parentNode.insertBefore(el, el.nextSibling);
       el.value = oldVal;
     }
-    this.applyAdditionalThemeStyles(el);
+    this.applyAdditionalThemeStyles();
   }
 
   applyAdditionalThemeStyles() {
@@ -532,7 +534,7 @@ export default class {
     if(this._searchContainer){
       searchContainer.setAttribute('class', this._searchContainer);
     }
-    this.reloadUrlbar(this.urlbar);
+    this.reloadUrlbar();
 
     delete this.window.CLIQZ.UI;
   }

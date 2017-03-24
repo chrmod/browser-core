@@ -228,21 +228,21 @@ TESTS.PairingTest = function(CliqzUtils) {
       var CliqzMasterComm = new PeerMaster();
       var CliqzSlave1 = new PeerSlave();
       var CliqzSlave2 = new PeerSlave();
-      const storage = new MockStorage();
+      var storage = new MockStorage();
       var simpleStorage1 = new SimpleStorage(true);
       var simpleStorage2 = new SimpleStorage(true);
 
-      let TestApp1 = {
+      var TestApp1 = {
         oninit: function(comm) {
           TestApp1.comm = comm;
         },
       };
-      let TestApp2 = {
+      var TestApp2 = {
         oninit: function(comm) {
           TestApp2.comm = comm;
         },
       };
-      let TestAppMaster = {
+      var TestAppMaster = {
         oninit: function(comm) {
           TestAppMaster.comm = comm;
         },
@@ -374,4 +374,4 @@ TESTS.PairingTest = function(CliqzUtils) {
 };
 
 // TODO: adjust version properly
-TESTS.PairingTest.MIN_BROWSER_VERSION = 35;
+TESTS.PairingTest.MIN_BROWSER_VERSION = 48;

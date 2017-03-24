@@ -13,11 +13,6 @@ TESTS.CliqzCalculatorTest = function() {
   }
 
   describe('Calculator and unit converter integration', function() {
-
-    afterEach(function() {
-      fillIn("");
-    });
-
     context("Calculator simple - 2*3333.2", function() {
       beforeEach(function() {
         respondWith({results: []});
@@ -38,26 +33,19 @@ TESTS.CliqzCalculatorTest = function() {
       beforeEach(function() {
         respondWith({results: []});
         fillIn("1m to mm");
+        return waitForPopup();
       });
 
       it('Results should have ID calc-answer, in localized format', function() {
-        waitForPopup().then(function() {
-          expect(getResultString()).to.equal(getLocaliseString({'de': '1.000 mm', 'default': '1,000 mm'}));
-        });
+        expect(getResultString()).to.equal(getLocaliseString({'de': '1.000 mm', 'default': '1,000 mm'}));
       });
 
       it('Should have base-unit conversion in localized format', function() {
-        waitForPopup().then(function() {
-          expect(getUnitBaseString()).to.equal(getLocaliseString({'de': '1 m = 1.000 mm', 'default': '1 m = 1,000 mm'}));
-        });
-
+        expect(getUnitBaseString()).to.equal(getLocaliseString({'de': '1 m = 1.000 mm', 'default': '1 m = 1,000 mm'}));
       });
 
       it('Should have copy message', function() {
-        waitForPopup().then(function() {
-          expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim()).to.exist;
-        });
-
+        expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim()).to.exist;
       });
     });
 
@@ -65,13 +53,12 @@ TESTS.CliqzCalculatorTest = function() {
       beforeEach(function() {
         respondWith({results: []});
         fillIn("1 mile to m");  // 1.609,34 m
+        return waitForPopup();
       });
 
 
       it('Unit base line should show 1 meile = ... in German browser, and 1 mile = ... in English browser', function() {
-        waitForPopup().then(function() {
-            expect(getUnitBaseString().split("=")[0].trim()).to.equal(getLocaliseString({'de': '1 meile', 'default': '1 mile'}))
-        });
+        expect(getUnitBaseString().split("=")[0].trim()).to.equal(getLocaliseString({'de': '1 meile', 'default': '1 mile'}))
       });
     });
 
@@ -79,15 +66,13 @@ TESTS.CliqzCalculatorTest = function() {
       beforeEach(function() {
         respondWith({results: []});
         fillIn("1 km to mile");
+        return waitForPopup();
       });
 
 
       it('Result should show 0,621 meilen in German browser, and 0.621 miles in English browser', function() {
-        waitForPopup().then(function() {
-          expect(getResultString()).to.equal(getLocaliseString({'de': '0,621 meilen', 'default': '0.621 miles'}));
-        });
+        expect(getResultString()).to.equal(getLocaliseString({'de': '0,621 meilen', 'default': '0.621 miles'}));
       });
-
     });
 
     context("Calculator simple DE format - 2*3222,2", function() {

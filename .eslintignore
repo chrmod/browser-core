@@ -79,8 +79,6 @@ modules/control-center/window.es
 modules/core/ab-tests.es
 modules/core/adult-domain.es
 modules/core/anacron.es
-modules/core/app.es
-modules/core/app/module.es
 modules/core/background.es
 modules/core/base/background.es
 modules/core/browser.es

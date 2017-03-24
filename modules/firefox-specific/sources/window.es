@@ -33,9 +33,10 @@ export default class {
     );
 
     // Demo rely on UI
-    utils.setTimeout(() => {
-      Demo.init(this.window);
-    }, 2000);
+    // This seems to be related with some tests (Calculator...) timing out
+    // utils.setTimeout(() => {
+    //   Demo.init(this.window);
+    // }, 2000);
 
     Redirect.addHttpObserver();
 

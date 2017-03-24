@@ -47,14 +47,17 @@ export default background({
   },
 
   unload() {
-    hs.removeObserver(HumanWeb.historyObserver);
-
-    HumanWeb.unloadAtBrowser();
-    HumanWeb.unload();
+    if (this.enabled) {
+      hs.removeObserver(HumanWeb.historyObserver);
+      HumanWeb.unloadAtBrowser();
+      HumanWeb.unload();
+    }
   },
 
   beforeBrowserShutdown() {
-    HumanWeb.unload();
+    if (this.enabled) {
+      HumanWeb.unload();
+    }
   },
 
   events: {
