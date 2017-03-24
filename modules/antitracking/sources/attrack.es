@@ -268,7 +268,7 @@ var CliqzAttrack = {
         domChecker: new DomChecker(),
         tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, {}, CliqzAttrack.hashProb, CliqzAttrack.config, CliqzAttrack.telemetry),
         blockRules: new BlockRules(CliqzAttrack.config),
-        cookieContext: new CookieContext(),
+        cookieContext: new CookieContext(CliqzAttrack.tp_events),
         redirectTagger: new RedirectTagger(),
       };
 
@@ -318,6 +318,7 @@ var CliqzAttrack = {
       // create pipeline for on modify request
       pipeline.addAll(['modify'], [
         determineContext,
+        steps.cookieContext.assignCookieTrust.bind(steps.cookieContext),
         function checkIsMainDocument(state) {
           return !state.requestContext.isFullPage();
         },
@@ -355,6 +356,7 @@ var CliqzAttrack = {
           }
         },
         CliqzAttrack.checkIsCookieWhitelisted.bind(CliqzAttrack),
+        steps.cookieContext.checkCookieTrust.bind(steps.cookieContext),
         steps.cookieContext.checkVisitCache.bind(steps.cookieContext),
         steps.cookieContext.checkContextFromEvent.bind(steps.cookieContext),
         function shouldBlockCookie(state) {
@@ -425,6 +427,7 @@ var CliqzAttrack = {
           return CliqzAttrack.isCookieEnabled(state.sourceUrlParts.hostname);
         },
         CliqzAttrack.checkIsCookieWhitelisted.bind(CliqzAttrack),
+        steps.cookieContext.checkCookieTrust.bind(steps.cookieContext),
         steps.cookieContext.checkVisitCache.bind(steps.cookieContext),
         steps.cookieContext.checkContextFromEvent.bind(steps.cookieContext),
         function blockSetCookie(state, response) {
