@@ -172,4 +172,4 @@ TESTS.CliqzPeerTest = function(CliqzUtils) {
   });
 };
 
-TESTS.CliqzPeerTest.MIN_BROWSER_VERSION = 37;
+TESTS.CliqzPeerTest.MIN_BROWSER_VERSION = 48;
