@@ -22,6 +22,7 @@
     "react": "~15.4.0",
     "react-native": "0.42.0-rc.3",
     "react-native-fs": "^2.1.0-rc.1",
+    "jsep": "0.3.0",
     "ytdl-core": "git+https://git@github.com/fent/node-ytdl-core.git#09c65610cc4f74b6bb7364618aff6b4dcbb84d4b",
     "yuidoc-bootstrap-theme": "1.0.6"
   },
