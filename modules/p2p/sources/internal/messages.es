@@ -120,7 +120,7 @@ function decodeChunk(buffer) {
 
 class OutMessage {
   constructor(data, label, peer, resolve, reject, cliqzPeer) {
-    this.msgTimeout = 15000; // TODO: make configurable
+    this.msgTimeout = cliqzPeer.msgTimeout;
     this.retries = 0;
     this.maxRetries = cliqzPeer.maxMessageRetries;
     this.peer = peer;
@@ -232,7 +232,7 @@ class OutMessage {
 
 class InMessage {
   constructor(firstChunk, peer, resolve, cliqzPeer) {
-    this.msgTimeout = 5000; // TODO: make configurable
+    this.msgTimeout = cliqzPeer.msgTimeout;
     this.cliqzPeer = cliqzPeer;
     this.log = cliqzPeer.log;
     this.logDebug = cliqzPeer.logDebug;

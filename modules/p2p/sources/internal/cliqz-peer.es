@@ -72,15 +72,16 @@ export default class CliqzPeer {
       window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
     this.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
     this.WebSocket = window.WebSocket;
-    this.logError = console.error.bind(console);
+    this.logError = console.error.bind(console, '[P2P]');
+    const myLog = console.log.bind(console, '[P2P]');
     if (_options.DEBUG) {
-      this.log = this.logDebug = console.log.bind(console);
+      this.log = this.logDebug = myLog;
     } else if (_options.LOGLEVEL) {
       if (_options.LOGLEVEL === 'info') {
         this.logDebug = () => {};
-        this.log = console.log.bind(console);
+        this.log = myLog;
       } else if (_options.LOGLEVEL === 'debug') {
-        this.log = this.logDebug = console.log.bind(console);
+        this.log = this.logDebug = myLog;
       } else {
         this.log = this.logDebug = () => {};
       }
@@ -109,6 +110,7 @@ export default class CliqzPeer {
 
     this.brokerUrl = has(_options, 'brokerUrl') ? _options.brokerUrl : 'wss://p2p-signaling.cliqz.com';
     this.chunkSize = has(_options, 'chunkSize') ? _options.chunkSize : 9000;
+    this.msgTimeout = has(_options, 'msgTimeout') ? _options.msgTimeout : 5000;
     this.peerOptions = has(_options, 'peerOptions') ? _options.peerOptions : {
       iceServers: [
         {
@@ -278,20 +280,14 @@ export default class CliqzPeer {
       const type = message.type;
       if (type === 'ice') { // Receive ICE candidates
         const candidate = JSON.parse(message.candidate);
-        if (candidate) {
-          const conn = this._getPendingConnection(from);
-          if (!conn) {
-            this.log('WARNING: setting ICE candidates for unexisting pending connection');
-          } else if (conn.status === 'initial' || conn.status === 'signaling') {
-            conn.status = 'signaling';
-            if (conn.connection.signalingState !== 'have-remote-offer' && conn.connection.signalingState !== 'stable') {
-              this.log(conn.connection.iceConnectionState, conn.connection.signalingState, 'ERROR: setting ICE candidates with signalingState != have-remote-offer');
-            } else {
-              conn.receiveICECandidate(candidate, id);
-            }
-          } else {
-            this.log('Received ICE for connection with status', conn.status);
-          }
+        const conn = this._getPendingConnection(from);
+        if (!conn) {
+          this.log('WARNING: setting ICE candidates for unexisting pending connection');
+        } else if (conn.status === 'initial' || conn.status === 'signaling') {
+          conn.status = 'signaling';
+          conn.receiveICECandidate(candidate, id);
+        } else {
+          this.log('Received ICE for connection with status', conn.status);
         }
       } else if (type === 'offer') { // Receive offer description
         let conn = this._createConnection(from, false);
@@ -689,7 +685,7 @@ export default class CliqzPeer {
   * @param {string} peerID - The trusted peerID to be removed.
   */
   removeTrustedPeer(peerID) {
-    if (has(this.peerWhitelist, peerID)) {
+    if (this.peerWhitelist && has(this.peerWhitelist, peerID)) {
       if (this.connections[peerID]) {
         this.connections[peerID].close();
       }

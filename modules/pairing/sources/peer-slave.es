@@ -65,7 +65,7 @@ export default class CliqzPairing {
       this.setPaired(this.masterID, this.devices);
       this.checkMasterConnection();
     } else {
-      this.status = CliqzPairing.STATUS_UNPAIRED;
+      this.setUnpaired(true);
     }
     // TODO: is this really a good idea? are we doing it too often?
     // this.connectionKeeper = CliqzUtils.setInterval(
@@ -389,7 +389,7 @@ export default class CliqzPairing {
     }
   }
 
-  setUnpaired() {
+  setUnpaired(noTrigger) {
     this.status = CliqzPairing.STATUS_UNPAIRED;
     if (this.peer) {
       this.peer.destroy();
@@ -409,7 +409,7 @@ export default class CliqzPairing {
     this.randomToken = null;
     this.cancelPairing = false;
     this.arn = null;
-    if (this.onunpaired) {
+    if (this.onunpaired && !noTrigger) {
       this.onunpaired();
     }
   }

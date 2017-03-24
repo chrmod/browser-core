@@ -19,6 +19,7 @@ export default class CliqzPeerConnection {
   constructor(cliqzPeer, peerOptions, peer, isLocal) {
     this.log = cliqzPeer.log;
     this.logDebug = cliqzPeer.logDebug;
+    this.logError = cliqzPeer.logError;
     this.id = Math.round(random() * 2000000000);
     this.remoteId = null;
     this.cliqzPeer = cliqzPeer;
@@ -29,7 +30,7 @@ export default class CliqzPeerConnection {
     try {
       connection = new this.cliqzPeer.RTCPeerConnection(this.peerOptions);
     } catch (e) {
-      this.log('Error creating RTCPeerConnection', e);
+      this.logError('Error creating RTCPeerConnection', e);
       this.close();
       return;
     }
@@ -40,7 +41,7 @@ export default class CliqzPeerConnection {
       try {
         this.channel = this.connection.createDataChannel('data', { ordered: cliqzPeer.ordered });
       } catch (e) {
-        this.log('Error creating data channel', e);
+        this.logError('Error creating data channel', e);
         this.close();
         return;
       }
@@ -52,7 +53,7 @@ export default class CliqzPeerConnection {
         // Tell other side about my candidate
         cliqzPeer._sendSignaling(this.peer, { type: 'ice', candidate: JSON.stringify(e.candidate) }, this.id);
       } else {
-        this.log('ERROR: received onicecandidate message from old PeerConnection');
+        this.logError('ERROR: received onicecandidate message from old PeerConnection');
       }
     };
     // TODO: if remote, should we send a initial message to indicate the remote channel is open?
@@ -62,7 +63,7 @@ export default class CliqzPeerConnection {
         this.channel = e.channel;
         this._configureChannel();
       } else {
-        this.log('ERROR: received ondatachannel message from old PeerConnection');
+        this.logError('ERROR: received ondatachannel message from old PeerConnection');
       }
     };
 
@@ -71,7 +72,7 @@ export default class CliqzPeerConnection {
         this.log(e, 'Connection error');
         this.close();
       } else {
-        this.log('ERROR: received onerror message from old PeerConnection');
+        this.logError('ERROR: received onerror message from old PeerConnection');
       }
     };
 
@@ -219,30 +220,40 @@ export default class CliqzPeerConnection {
       connection.setLocalDescription(new this.cliqzPeer.RTCSessionDescription(description), () => {
         this.cliqzPeer._sendSignaling(this.peer, { type: 'offer', description }, this.id);
       }, (error) => {
-        this.log(error, 'create offer error');
+        this.logError(error, 'create offer error');
         this.close();
       });
     }, (error) => {
-      this.log(error, 'offer error');
+      this.logError(error, 'offer error');
       this.close();
     });
   }
 
   receiveICECandidate(candidate, id) {
     const from = this.peer;
-    if (!this.remoteId || this.remoteId === id) {
-      this.logDebug('Received candidate', from, candidate, id, this.remoteId);
-      this.remoteId = id;
-          // TODO: handle errors, bad states
-      const connection = this.connection;
-          // TODO:handle state change?
-      connection.addIceCandidate(new this.cliqzPeer.RTCIceCandidate(candidate), () => {
-        this.logDebug('candidate ok');
-      }, (e) => {
-        this.log(e, 'candidate wrong');
-      });
+    const connection = this.connection;
+    if (connection && connection.remoteDescription) {
+      if (!this.remoteId || this.remoteId === id) {
+        if (candidate) {
+          this.logDebug('Received candidate', from, candidate, id, this.remoteId);
+          this.remoteId = id;
+          connection.addIceCandidate(new this.cliqzPeer.RTCIceCandidate(candidate), () => {
+            this.logDebug('candidate ok', candidate);
+          }, (e) => {
+            this.log(e, 'candidate wrong', candidate);
+          });
+        } else {
+          // TODO: should we do sth here? Chromium and Firefox seem to handle this differently...
+          this.logDebug('Received end of candidates', from, candidate, id, this.remoteId);
+        }
+      } else {
+        this.log('Warning: wrong ice candidate received', from, id, this.remoteId);
+      }
     } else {
-      this.log('Warning: wrong ice candidate received', from, id, this.remoteId);
+      if (!this.savedICECandidates) {
+        this.savedICECandidates = [];
+      }
+      this.savedICECandidates.push([candidate, id]);
     }
   }
 
@@ -255,17 +266,20 @@ export default class CliqzPeerConnection {
       const connection = this.connection;
       const description = new this.cliqzPeer.RTCSessionDescription(offer.description);
       connection.setRemoteDescription(description, () => {
+        (this.savedICECandidates || []).forEach(([candidate, _id]) => {
+          this.receiveICECandidate(candidate, _id);
+        });
         connection.createAnswer((answer) => {
           connection.setLocalDescription(answer, () => {
             this.cliqzPeer._sendSignaling(from, { type: 'answer', description: answer }, this.id);
           }, (error) => {
-            this.log(error, 'error setting receiver local description');
+            this.logError(error, 'error setting receiver local description');
           });
         }, (error) => {
-          this.log(error, 'error creating answer');
+          this.logError(error, 'error creating answer');
         });
       }, (error) => {
-        this.log(error, 'error setting receiver remote description');
+        this.logError(error, 'error setting receiver remote description');
       });
     } else {
       this.log('Warning: wrong offer received', from, id, this.remoteId);
@@ -280,9 +294,12 @@ export default class CliqzPeerConnection {
       const connection = this.connection;
       const description = new this.cliqzPeer.RTCSessionDescription(answer.description);
       connection.setRemoteDescription(description, () => {
+        (this.savedICECandidates || []).forEach(([candidate, _id]) => {
+          this.receiveICECandidate(candidate, _id);
+        });
         this.logDebug('set originator remote description');
       }, (error) => {
-        this.log(error, 'error setting originator remote description');
+        this.logError(error, 'error setting originator remote description');
       });
     }
   }
@@ -307,7 +324,7 @@ export default class CliqzPeerConnection {
         try {
           this.onclose(oldStatus);
         } catch (e) {
-          this.log(typeof e === 'string' ? e : e.message, 'error calling cliqzpeerconnection onclose');
+          this.logError(typeof e === 'string' ? e : e.message, 'error calling cliqzpeerconnection onclose');
         }
       }
 
@@ -324,11 +341,11 @@ export default class CliqzPeerConnection {
       try {
         this.channel.send(data);
       } catch (e) {
-        this.log(typeof e === 'string' ? e : e.message, 'error sending');
+        this.logError(typeof e === 'string' ? e : e.message, 'error sending');
         this.close();
       }
     } else {
-      this.log('cannot send: connection is not open', 'ERROR');
+      this.logError('cannot send: connection is not open', 'ERROR');
     }
   }
 
@@ -376,7 +393,7 @@ export default class CliqzPeerConnection {
       }
     };
     channel.onerror = (e) => {
-      this.log(e, 'channel error');
+      this.logError(e, 'channel error');
       this.close();
     };
   }
@@ -391,7 +408,7 @@ export default class CliqzPeerConnection {
       try {
         channel.close();
       } catch (e) {
-        this.log('Error closing channel', e);
+        this.logError('Error closing channel', e);
       }
       this.channel = null;
     }
@@ -406,7 +423,7 @@ export default class CliqzPeerConnection {
       try {
         connection.close();
       } catch (e) {
-        this.log('Error closing connection', e);
+        this.logError('Error closing connection', e);
       }
       this.connection = null;
     }

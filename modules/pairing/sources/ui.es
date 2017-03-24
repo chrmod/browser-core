@@ -23,7 +23,6 @@ export default class PairingUI {
   }
 
   startPairing() {
-    // TODO: need to add more info like OS, etc. Perhaps also translate.
     PeerComm.startPairing('CLIQZ Desktop Browser');
   }
 
@@ -203,21 +202,24 @@ export default class PairingUI {
   }
 
   unload() {
+    PeerComm.removeObserver(PairingUI.observerID, this.observer);
     utils.clearInterval(this.connectionChecker);
   }
 
-  init() {
+  static get observerID() {
     // Only one observer, if this is open in more than one window,
     // only the last one will be updated.
     // So only should be open once at a time.
-    const observerID = '__PAIRING__DASHBOARD__';
+    return '__PAIRING__DASHBOARD__';
+  }
 
+  init() {
     this.TEMPLATE_NAMES = ['template'];
     this.TEMPLATE_CACHE = {};
 
-    const observer = new PairingObserver();
+    const observer = this.observer = new PairingObserver();
     this.compileTemplate().then(() => {
-      PeerComm.addObserver(observerID, observer);
+      PeerComm.addObserver(PairingUI.observerID, observer);
     });
 
     utils.telemetry({
@@ -293,6 +295,10 @@ export default class PairingUI {
       if (PeerComm.isInit && PeerComm.isPaired) {
         PeerComm.checkMasterConnection();
       }
-    }, 10000);
+    }, PairingUI.checkInterval);
+  }
+
+  static get checkInterval() {
+    return 5000;
   }
 }
