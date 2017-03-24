@@ -425,28 +425,16 @@ export default class {
   }
 
   applyAdditionalThemeStyles() {
-    var fb = this.window.document.getElementById('forward-button'),
-        bb = this.window.document.getElementById('back-button'),
-        urlbar = this.urlbar;
+    const urlbar = this.urlbar;
     switch (utils.dropDownStyle) {
       case 'cliqzilla':
       case 'simple':
-        utils.log(utils.dropDownStyle, '========= dropDownStyle CASE ff simple ========');
         urlbar.style.maxWidth = '100%';
         urlbar.style.margin = '0px 0px';
-        fb.style.border = 'none';
-        fb.style.borderRight = '0px';
-        bb.style.border = 'none';
-        bb.style.border = '1px solid #e1e1e1';
         break;
       default:
-        utils.log(utils.dropDownStyle, '========= dropDownStyle CASE default ========');
         urlbar.style.maxWidth = '';
         urlbar.style.margin = '0 2.5em !important';
-        fb.style.border = 'none';
-        fb.style.borderRight = '1px solid #e1e1e1';
-        bb.style.border = 'none';
-        bb.style.border = '1px solid #e1e1e1';
         break;
     }
   }
