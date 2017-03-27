@@ -16,7 +16,8 @@ function currentGD() {
 }
 
 export default class {
-  constructor(pageMeta) {
+  constructor(config, pageMeta) {
+    this.config = config;
     this.pageMeta = pageMeta;
     this.visitCache = {};
     this.contextFromEvent = null;
@@ -87,7 +88,7 @@ export default class {
     const sourceHost = state.sourceUrlParts.hostname;
     const requestHost = state.urlParts.hostname;
     const key = `${sourceHost}:${requestHost}`;
-    if (this.trustedThirdParties.has(key)) {
+    if (this.config.cookieTrustReferers && this.trustedThirdParties.has(key)) {
       const trustCounter = this.trustedThirdParties.get(key);
       trustCounter.c += 1;
       trustCounter.ts = Date.now();

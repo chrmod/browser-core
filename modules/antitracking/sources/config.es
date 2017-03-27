@@ -27,6 +27,7 @@ export const PREFS = {
   bloomFilterEnabled: 'attrackBloomFilter',
   forceBlockEnabled: 'attrackForceBlock',
   overrideUserAgent: 'attrackOverrideUserAgent',
+  cookieTrustReferers: 'attrackCookieTrustReferers',
 };
 
 /**

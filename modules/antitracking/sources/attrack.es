@@ -268,7 +268,7 @@ var CliqzAttrack = {
         domChecker: new DomChecker(),
         tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, {}, CliqzAttrack.hashProb, CliqzAttrack.config, CliqzAttrack.telemetry),
         blockRules: new BlockRules(CliqzAttrack.config),
-        cookieContext: new CookieContext(CliqzAttrack.tp_events),
+        cookieContext: new CookieContext(CliqzAttrack.config, CliqzAttrack.tp_events),
         redirectTagger: new RedirectTagger(),
       };
 

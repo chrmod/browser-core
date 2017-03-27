@@ -351,6 +351,12 @@ var CliqzABTests = {
             case "1097_B":
               CliqzUtils.setPref("dropdownAdCampaignPosition", 'bottom');
               break;
+            case "1099_A":
+                CliqzUtils.setPref("attrackCookieTrustReferers", false);
+                break;
+            case "1099_B":
+                CliqzUtils.setPref("attrackCookieTrustReferers", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -571,6 +577,10 @@ var CliqzABTests = {
             case "1097_A":
             case "1097_B":
               CliqzUtils.clearPref('dropdownAdCampaignPosition');
+              break;
+            case "1099_A":
+            case "1099_B":
+              CliqzUtils.clearPref("attrackCookieTrustReferers");
               break;
             default:
                 rule_executed = false;
