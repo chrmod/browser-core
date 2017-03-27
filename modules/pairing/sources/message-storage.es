@@ -10,6 +10,15 @@ export default class MessageStorage {
     this.storage = storage;
     this._loadData();
   }
+  cleanMessages(peers) {
+    const myPeers = new Set(JSON.parse(this.storage.getItem(this.storagePeerListKey) || '[]'));
+    const yourPeers = new Set(peers || []);
+    myPeers.forEach((peerID) => {
+      if (!yourPeers.has(peerID)) {
+        this.removePeer(peerID);
+      }
+    });
+  }
   _has(obj, prop) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
   }

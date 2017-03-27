@@ -1,9 +1,11 @@
+/* eslint-disable camelcase */
 import CliqzUtils from 'core/utils';
 import Crypto from 'pairing/crypto';
 import console from 'core/console';
 import { encryptPairedMessage, decryptPairedMessage, ERRORS } from 'pairing/shared';
 import CliqzPeer from 'p2p/cliqz-peer';
 import fetch from 'platform/fetch';
+import { base64_decode } from 'p2p/internal/utils';
 
 // This class has the responsibility of handling the desktop-mobile pairing.
 // It should be agnostic of concrete features, just providing the infrastructure
@@ -48,7 +50,7 @@ export default class CliqzPairing {
   // CliqzPeer is the p2p client library constructor (passed to avoid dealing with
   // hidden window loading, etc)
   initComm(window, data) {
-    this.pairingTimeout = 30; // 30 seconds
+    this.pairingTimeout = 60; // seconds
     this.window = window;
     this.data = data;
 
@@ -153,13 +155,6 @@ export default class CliqzPairing {
       );
     }
     return Promise.reject();
-  }
-
-  retrieveMessages() {
-    if (this.status !== CliqzPairing.STATUS_PAIRED) {
-      throw new Error('Cannot retrieve messages if PeerComm status is unpaired');
-    }
-    return this.sendMessage({}, 'receive_messages', [this.masterID]);
   }
 
   get isMasterConnected() {
@@ -296,13 +291,35 @@ export default class CliqzPairing {
 
   onPairedMessage(data, label, peerID) {
     if (peerID === this.masterID) {
-      decryptPairedMessage(data, this.deviceID, this.peer.privateKey)
-      .then(({ msg, type, source }) => this.receiveMessage(msg, type, source))
-      .catch(() => {
-        this.log('Error receiving encrypted message, unpairing...');
+      const decMsg = d => decryptPairedMessage(d, this.deviceID, this.peer.privateKey);
+      const receiveMessage = (({ msg, type, source }) => {
+        try {
+          this.receiveMessage(msg, type, source);
+        } catch (e) {
+          this.logError('Error receiving message', e);
+        }
+      });
+      const errorDecrypting = (e) => {
+        this.logError('Error receiving encrypted message, unpairing...', e);
         this.setUnpaired();
         this.onerror(ERRORS.PAIRED_DECRYPTION_ERROR);
-      });
+      };
+      if (Array.isArray(data)) {
+        // This might cause out of order msgs (single msgs that are faster to decrypt)
+        Promise.all(data.map(base64_decode).map(decMsg))
+        .catch((e) => {
+          errorDecrypting(e);
+          throw e;
+        })
+        .then(msgs => msgs.forEach(receiveMessage));
+      } else {
+        decMsg(data)
+        .catch((e) => {
+          errorDecrypting(e);
+          throw e;
+        })
+        .then(receiveMessage);
+      }
     }
   }
 
@@ -526,37 +543,21 @@ export default class CliqzPairing {
     }
   }
 
-  // app is an object which can have several listeners, and will receive a 'comm' object, which
-  // will allow it to send messages to one or many devices through its channel (a different string
-  // for each app)
-  // TODO: document this
-  addApp(channel, app) {
+  addObserver(channel, app) {
     this.apps.set(channel, app);
     if (app.oninit && this.isInit) {
       app.oninit(...this.getOnInitArgs(channel));
     }
   }
 
-  addObserver(channel, observer) {
-    return this.addApp(channel, observer);
-  }
-
-  getApp(channel) {
+  getObserver(channel) {
     return this.apps.get(channel);
   }
 
-  getObserver(channel) {
-    return this.getApp(channel);
-  }
-
-  removeApp(channel, app) {
+  removeObserver(channel, app) {
     if (this.apps.get(channel) === app) {
       this.apps.delete(channel);
     }
-  }
-
-  removeObserver(channel, observer) {
-    return this.removeApp(channel, observer);
   }
 
   // Private -----
@@ -623,7 +624,7 @@ export default class CliqzPairing {
     const self = this;
     // This is the object each app will receive on init, and will be its interface to the
     // peer comm module. The app code itself has no dependency on us, but someone will need to
-    // create the app and call CliqzPeerComm.addApp(channel, app)
+    // create the app and call CliqzPeerComm.addObserver(channel, app)
     // TODO: this is just a proxy except for send!!!
     const comm = {
       send: (msg, targets) => self.send(msg, channel, targets),
@@ -682,9 +683,6 @@ export default class CliqzPairing {
     this.isUnloaded = true;
     this.initPromises = [];
     return Promise.resolve();
-  }
-  pullMessages() {
-    return this.retrieveMessages();
   }
 
   destroy() {

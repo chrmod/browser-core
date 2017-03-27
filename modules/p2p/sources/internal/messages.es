@@ -127,8 +127,8 @@ class OutMessage {
     this.resolve = resolve;
     this.reject = reject;
     this.cliqzPeer = cliqzPeer;
-    this.log = cliqzPeer.log;
-    this.logDebug = cliqzPeer.logDebug;
+    this.log = (...args) => cliqzPeer.log(`[${peer}]`, ...args);
+    this.logDebug = (...args) => cliqzPeer.logDebug(`[${peer}]`, ...args);
     this.chunkSize = cliqzPeer.chunkSize;
     do {
       this.msgId = Math.round(random() * 2000000000);
@@ -234,8 +234,8 @@ class InMessage {
   constructor(firstChunk, peer, resolve, cliqzPeer) {
     this.msgTimeout = cliqzPeer.msgTimeout;
     this.cliqzPeer = cliqzPeer;
-    this.log = cliqzPeer.log;
-    this.logDebug = cliqzPeer.logDebug;
+    this.log = (...args) => cliqzPeer.log(`[${peer}]`, ...args);
+    this.logDebug = (...args) => cliqzPeer.logDebug(`[${peer}]`, ...args);
     this.peer = peer;
     this.resolve = resolve;
     this.chunks = [];

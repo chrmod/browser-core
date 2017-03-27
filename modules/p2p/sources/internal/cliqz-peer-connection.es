@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: off */
+
 import random from 'core/crypto/random';
 import constants from './constants';
 
@@ -8,18 +10,18 @@ export default class CliqzPeerConnection {
   // Maximum wait time for receiving a 'pong' from another peer when we
   // send it a 'ping', in health check.
   get healthCheckTimeout() {
-    return (this.cliqzPeer && this.cliqzPeer.healthCheckTimeout) || 1000;
+    return this.cliqzPeer.healthCheckTimeout;
   }
 
   // Maximum wait time for a connection to be established
   get newConnectionTimeout() {
-    return (this.cliqzPeer && this.cliqzPeer.newConnectionTimeout) || 5000;
+    return this.cliqzPeer.newConnectionTimeout;
   }
 
   constructor(cliqzPeer, peerOptions, peer, isLocal) {
-    this.log = cliqzPeer.log;
-    this.logDebug = cliqzPeer.logDebug;
-    this.logError = cliqzPeer.logError;
+    this.log = (...args) => cliqzPeer.log(`[${peer}]`, ...args);
+    this.logDebug = (...args) => cliqzPeer.logDebug(`[${peer}]`, ...args);
+    this.logError = (...args) => cliqzPeer.logError(`[${peer}]`, ...args);
     this.id = Math.round(random() * 2000000000);
     this.remoteId = null;
     this.cliqzPeer = cliqzPeer;
@@ -31,7 +33,7 @@ export default class CliqzPeerConnection {
       connection = new this.cliqzPeer.RTCPeerConnection(this.peerOptions);
     } catch (e) {
       this.logError('Error creating RTCPeerConnection', e);
-      this.close();
+      this.close('error constructor');
       return;
     }
     this.connection = connection;
@@ -42,7 +44,7 @@ export default class CliqzPeerConnection {
         this.channel = this.connection.createDataChannel('data', { ordered: cliqzPeer.ordered });
       } catch (e) {
         this.logError('Error creating data channel', e);
-        this.close();
+        this.close('error create data channel');
         return;
       }
       this._configureChannel();
@@ -70,7 +72,7 @@ export default class CliqzPeerConnection {
     this.connection.onerror = (e) => {
       if (connection === this.connection) {
         this.log(e, 'Connection error');
-        this.close();
+        this.close('connection.onerror');
       } else {
         this.logError('ERROR: received onerror message from old PeerConnection');
       }
@@ -88,11 +90,9 @@ export default class CliqzPeerConnection {
 
     cliqzPeer.setTimeout(() => {
       if (this.status !== 'open') {
-        this.close();
+        this.close('timeout');
       }
     }, this.newConnectionTimeout);
-
-    this.pongPromises = [];
 
     // Events
     this.onopen = null;
@@ -221,11 +221,11 @@ export default class CliqzPeerConnection {
         this.cliqzPeer._sendSignaling(this.peer, { type: 'offer', description }, this.id);
       }, (error) => {
         this.logError(error, 'create offer error');
-        this.close();
+        this.close('create offer error');
       });
     }, (error) => {
       this.logError(error, 'offer error');
-      this.close();
+      this.close('offer error');
     });
   }
 
@@ -308,7 +308,7 @@ export default class CliqzPeerConnection {
     if (id === this.id) {
       this.logDebug('No such route', id, this.peer);
       this.status = 'nosuchroute';
-      this.close();
+      this.close('nosuchroute');
     } else {
       this.logDebug('Discarding no such route error', id, this.id);
     }
@@ -316,6 +316,13 @@ export default class CliqzPeerConnection {
 
   close(noPropagate) {
     if (this.status !== 'closed') {
+      if (typeof noPropagate === 'string') {
+        const why = noPropagate;
+        noPropagate = false;
+        this.logDebug('Closing:', why);
+      } else {
+        this.logDebug('Closing other:', noPropagate);
+      }
       const oldStatus = this.status;
       this.status = 'closed';
       this.closeChannel();
@@ -342,7 +349,7 @@ export default class CliqzPeerConnection {
         this.channel.send(data);
       } catch (e) {
         this.logError(typeof e === 'string' ? e : e.message, 'error sending');
-        this.close();
+        this.close('error send');
       }
     } else {
       this.logError('cannot send: connection is not open', 'ERROR');
@@ -352,22 +359,28 @@ export default class CliqzPeerConnection {
   // A health check for the connection, the returned promise will be resolve if healthy,
   // and reject (and close connection) otherwise.
   healthCheck() {
-    return new Promise((resolve, reject) => {
-      this.pongPromises.push(resolve);
-      try {
-        this.channel.send(new Uint8Array([constants.PING_MSG_TYPE]));
-      } catch (e) {
-        // Nothing
-      }
-      this.cliqzPeer.setTimeout(() => {
-        const idx = this.pongPromises.indexOf(resolve);
-        if (idx >= 0) {
-          this.pongPromises.splice(idx, 1);
-          this.close();
-          reject('connection not healthy, closing...');
+    if (!this.healthCheckPromise) {
+      this.healthCheckPromise = new Promise((resolve, reject) => {
+        this.healthCheckResolver = resolve;
+        try {
+          this.channel.send(new Uint8Array([constants.PING_MSG_TYPE]));
+        } catch (e) {
+          // Nothing
         }
-      }, this.healthCheckTimeout);
-    });
+        this.cliqzPeer.setTimeout(() => {
+          reject();
+        }, this.healthCheckTimeout);
+      });
+      this.healthCheckPromise
+      .catch(() => {
+        this.close('healthCheck');
+      })
+      .then(() => {
+        this.healthCheckPromise = null;
+        this.healthCheckResolver = null;
+      });
+    }
+    return this.healthCheckPromise;
   }
 
   _configureChannel() {
@@ -385,7 +398,7 @@ export default class CliqzPeerConnection {
     };
     channel.onclose = () => {
       this.logDebug('channel closed');
-      this.close();
+      this.close('channel.onclose');
     };
     channel.onmessage = (message) => {
       if (this.onmessage) {
@@ -394,7 +407,7 @@ export default class CliqzPeerConnection {
     };
     channel.onerror = (e) => {
       this.logError(e, 'channel error');
-      this.close();
+      this.close('channel error');
     };
   }
 

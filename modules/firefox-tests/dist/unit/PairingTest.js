@@ -1,8 +1,6 @@
 "use strict";
 
-function waitPromise(timeout) {
-  return new Promise(resolve => setTimeout(resolve, timeout));
-}
+// TODO: mock signaling as in CliqzPeer tests?
 
 function MockStorage() {
   this.obj = {};
@@ -42,7 +40,7 @@ TESTS.PairingTest = function(CliqzUtils) {
       });
   });
 
-  describe('Pairing_Integration', function() {
+  describe('Pairing', function() {
     this.timeout(15000);
     // it("Key generation and persistence", function () {
     //   var testprefix = 'test_' + Math.round(Math.random()*1000000);
@@ -103,7 +101,7 @@ TESTS.PairingTest = function(CliqzUtils) {
       ])
       .then(() => {
         return new Promise((resolve, reject) => {
-          CliqzSlaveComm.addApp('channel', {
+          CliqzSlaveComm.addObserver('channel', {
             oninit: function(comm) {
               comm.startPairing('deviceName');
             },
@@ -118,7 +116,7 @@ TESTS.PairingTest = function(CliqzUtils) {
       })
       .then(() => {
         return new Promise(resolve => {
-          CliqzSlaveComm.addApp('MYAPP', {
+          CliqzSlaveComm.addObserver('MYAPP', {
             oninit: function(comm) {
               this.comm = comm;
               if (this.comm.isPaired) {
@@ -131,7 +129,7 @@ TESTS.PairingTest = function(CliqzUtils) {
               }
             },
           });
-          CliqzMasterComm.addApp('MYAPP', {
+          CliqzMasterComm.addObserver('MYAPP', {
             oninit: function(comm) {
               this.comm = comm;
             },
@@ -145,7 +143,7 @@ TESTS.PairingTest = function(CliqzUtils) {
       })
       .then(() => {
         var p1 = new Promise(resolve => {
-          CliqzSlaveComm.addApp('CHECKUNPAIR', {
+          CliqzSlaveComm.addObserver('CHECKUNPAIR', {
             onunpaired: function() {
               resolve();
             },
@@ -153,7 +151,7 @@ TESTS.PairingTest = function(CliqzUtils) {
         });
         var p2 = new Promise(resolve => {
           var oldDeviceID = CliqzSlaveComm.deviceID;
-          CliqzMasterComm.addApp('CHECKUNPAIR', {
+          CliqzMasterComm.addObserver('CHECKUNPAIR', {
             ondeviceremoved: function(device) {
               if (device.id === oldDeviceID) {
                 resolve();
@@ -170,7 +168,7 @@ TESTS.PairingTest = function(CliqzUtils) {
       })
       .then(() => {
         return new Promise((resolve, reject) => {
-          CliqzSlaveComm.addApp('channel', {
+          CliqzSlaveComm.addObserver('channel', {
             oninit: function(comm) {
               comm.startPairing('deviceName');
             },
@@ -189,7 +187,7 @@ TESTS.PairingTest = function(CliqzUtils) {
       })
       .then(() => {
         return new Promise(resolve => {
-          CliqzSlaveComm.addApp('MYAPP', {
+          CliqzSlaveComm.addObserver('MYAPP', {
             oninit: function(comm) {
               this.comm = comm;
               if (this.comm.isPaired) {
@@ -202,7 +200,7 @@ TESTS.PairingTest = function(CliqzUtils) {
               }
             },
           });
-          CliqzMasterComm.addApp('MYAPP', {
+          CliqzMasterComm.addObserver('MYAPP', {
             oninit: function(comm) {
               this.comm = comm;
             },
@@ -214,8 +212,21 @@ TESTS.PairingTest = function(CliqzUtils) {
           });
         });
       })
-      .then(() => CliqzSlaveComm.unpair())
-      .then(() => waitPromise(200))
+      .then(() => {
+        const peerID = CliqzSlaveComm.deviceID;
+        return new Promise((resolve, reject) => {
+          CliqzMasterComm.addObserver('remove_peer', {
+            onmessage: (msg, source, type) => {
+              if (type === 'remove_peer' && source === peerID) {
+                resolve();
+              } else {
+                reject();
+              }
+            },
+          });
+          CliqzSlaveComm.unpair();
+        });
+      })
       .then(() => {
         expect(Object.keys(CliqzMasterComm.slaves).length).to.equal(0);
         expect(CliqzMasterComm.masterPeer).to.be.null;
@@ -247,9 +258,9 @@ TESTS.PairingTest = function(CliqzUtils) {
           TestAppMaster.comm = comm;
         },
       };
-      CliqzSlave1.addApp('TEST', TestApp1);
-      CliqzSlave2.addApp('TEST', TestApp2);
-      CliqzMasterComm.addApp('TEST', TestAppMaster);
+      CliqzSlave1.addObserver('TEST', TestApp1);
+      CliqzSlave2.addObserver('TEST', TestApp2);
+      CliqzMasterComm.addObserver('TEST', TestAppMaster);
       return Promise.all([
         CliqzMasterComm.init(storage, window),
         CliqzSlave1.init(simpleStorage1, window),
@@ -257,7 +268,7 @@ TESTS.PairingTest = function(CliqzUtils) {
       ])
       .then(() => {
         return new Promise(resolve => {
-          CliqzSlave1.addApp('channel', {
+          CliqzSlave1.addObserver('channel', {
             oninit: function(comm) {
               this.comm = comm;
               CliqzSlave1.startPairing('slave1');
@@ -274,14 +285,14 @@ TESTS.PairingTest = function(CliqzUtils) {
       // Device added event
       .then(() => {
         return new Promise(resolve => {
-          CliqzSlave1.addApp('ondeviceadded', {
+          CliqzSlave1.addObserver('ondeviceadded', {
             ondeviceadded: function(device) {
               if (device.id === CliqzSlave2.deviceID) {
                 resolve();
               }
             },
           });
-          CliqzSlave2.addApp('channel', {
+          CliqzSlave2.addObserver('channel', {
             oninit: function(comm) {
               this.comm = comm;
               CliqzSlave2.startPairing('slave2');
@@ -325,7 +336,7 @@ TESTS.PairingTest = function(CliqzUtils) {
           TestApp1.onmasterconnected = resolve;
         });
         var p2 = new Promise(resolve => {
-          CliqzSlave1.addApp('TEST', TestApp1);
+          CliqzSlave1.addObserver('TEST', TestApp1);
           TestApp1.onmessage = function(msg, source) {
             if (msg === 'HOLA2' && source === CliqzSlave2.deviceID) {
               resolve();
@@ -362,8 +373,21 @@ TESTS.PairingTest = function(CliqzUtils) {
         });
         return Promise.all([p1, p2]);
       })
-      .then(() => CliqzSlave2.unpair())
-      .then(() => waitPromise(300)) // decrypting messages on master takes little bit of time...
+      .then(() => {
+        return new Promise((resolve, reject) => {
+          const peerID = CliqzSlave2.deviceID;
+          CliqzMasterComm.addObserver('remove_peer', {
+            onmessage: (msg, source, type) => {
+              if (type === 'remove_peer' && source === peerID) {
+                resolve();
+              } else {
+                reject();
+              }
+            },
+          });
+          CliqzSlave2.unpair();
+        });
+      })
       .then(() => {
         expect(Object.keys(CliqzMasterComm.slaves).length).to.equal(0);
         expect(CliqzMasterComm.masterPeer).to.be.null;

@@ -28,42 +28,24 @@
           }
         }
         var peerBridge = {
-          /**
-            function: receiveQRValue
-            description: receives QR value from android bridge
-            params: data as string
-            format: deviceName:device_temporary_peerID:hashPubKey
-          */
+          checkConnections: function() {
+            System.import('mobile-pairing/cliqz-master-comm').then(x => {
+              var PeerMaster = x.default;
+              PeerMaster.checkConnections();
+            });
+          },
           receiveQRValue: function(data) {
             System.import('mobile-pairing/cliqz-master-comm').then(x => {
               var PeerMaster = x.default;
               PeerMaster.qrCodeValue(data);
             });
           },
-
           requestPairingData: function() {
             System.import('mobile-pairing/cliqz-master-comm').then(x => {
               var PeerMaster = x.default;
               osAPI.pushPairingData(PeerMaster.pairingData);
+              peerBridge.checkConnections();
             });
-          },
-
-          /**
-            function: deviceARN
-            description: requests for device ARN number
-            params: callbak as string
-            message callback data: arn: as string}
-          */
-          deviceARN: function(callback) {
-            console.log('deviceARN not implemented...');
-        /*    var message = {
-              action: "deviceARN",
-              data:"",
-              callback: callback
-            }
-            if (typeof peercomm !== 'undefined') {
-              peercomm.postMessage(JSON.stringify(message));
-            }*/
           },
           unpairDevice: function(deviceID) {
             System.import('mobile-pairing/cliqz-master-comm').then(x => {
@@ -71,6 +53,12 @@
               PeerMaster.unpair(deviceID);
             });
           },
+          renameDevice: function(peerId, newName) {
+            System.import('mobile-pairing/cliqz-master-comm').then(x => {
+              var PeerMaster = x.default;
+              PeerMaster.changeDeviceName(peerId, newName);
+            });
+          }
         };
       </script>
       <script src="app.js"></script>

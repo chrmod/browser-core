@@ -12,7 +12,7 @@ export default {
       (source) => CliqzUtils.log(`Received PING from ${source}`),
       (source) => CliqzUtils.log(`Received PONG from ${source}`)
     );
-    CliqzMasterComm.addApp('PINGPONG', pingpong);
+    CliqzMasterComm.addObserver('PINGPONG', pingpong);
 
     const youtube = new YoutubeApp(
       () => {},
@@ -20,7 +20,7 @@ export default {
         osAPI.downloadVideo({ url, filename: `${title || 'YouTube video'}.${format}` });
       }
     );
-    CliqzMasterComm.addApp('YTDOWNLOADER', youtube);
+    CliqzMasterComm.addObserver('YTDOWNLOADER', youtube);
 
     const tabsharing = new TabsharingApp(
       () => {},
@@ -29,7 +29,7 @@ export default {
         osAPI.openTab(tabs);
       }
     );
-    CliqzMasterComm.addApp('TABSHARING', tabsharing);
+    CliqzMasterComm.addObserver('TABSHARING', tabsharing);
 
     const observer = new PairingObserver(() => {
       osAPI.pushPairingData(CliqzMasterComm.pairingData);
@@ -37,18 +37,20 @@ export default {
     observer.onpairingerror = (error) => {
       osAPI.notifyPairingError({ error });
     };
-    CliqzMasterComm.addApp('__MOBILEUI', observer);
+    CliqzMasterComm.addObserver('__MOBILEUI', observer);
 
     this.arnChecker = CliqzUtils.setInterval(() => {
-      if (!CliqzMasterComm.arn) {
+      if (CliqzMasterComm.isInit) {
         osAPI.deviceARN('setDeviceARN');
       }
-    }, 10000); // TODO: probably this is not the best way to do it.
+    }, 1000 * 300);
 
     return CliqzMasterComm.init(window.localStorage, window)
-    .then(x => {
-      if (!CliqzMasterComm.arn) {
+    .then(() => {
+      try {
         osAPI.deviceARN('setDeviceARN');
+      } catch (e) {
+        CliqzUtils.log('Error setting device arn', e);
       }
     });
   },

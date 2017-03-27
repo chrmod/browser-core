@@ -10,7 +10,7 @@ import { createHiddenWindow, destroyHiddenWindow } from 'p2p/utils';
 export default {
   init() {
     const pingpong = new PingPongApp();
-    PeerComm.addApp('PINGPONG', pingpong);
+    PeerComm.addObserver('PINGPONG', pingpong);
 
     const youtube = new YoutubeApp(() => {}, (video) => {
       CliqzUtils.log(`Received video ${video}`);
@@ -27,13 +27,13 @@ export default {
         }
       });
     });
-    PeerComm.addApp('YTDOWNLOADER', youtube);
+    PeerComm.addObserver('YTDOWNLOADER', youtube);
 
     const tabsharing = new TabsharingApp(() => {}, (tab) => {
       CliqzUtils.log(`Received tab ${tab}`);
       CliqzUtils.getWindow().gBrowser.addTab(tab);
     });
-    PeerComm.addApp('TABSHARING', tabsharing);
+    PeerComm.addObserver('TABSHARING', tabsharing);
     this.storage = new SimpleStorage();
     const storagePromise = this.storage.open('data', 'cliqz/pairing', true, true);
     Promise.all([createHiddenWindow(), storagePromise])

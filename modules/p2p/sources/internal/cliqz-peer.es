@@ -133,17 +133,23 @@ export default class CliqzPeer {
     this.inMessages = {};
 
     this.resetStats();
+
+    this.healthCheckTimeout = has(_options, 'healthCheckTimeout') ? _options.healthCheckTimeout : 1000;
+    this.newConnectionTimeout = has(_options, 'newConnectionTimeout') ? _options.newConnectionTimeout : 5000;
+    this.socketTimeout = has(_options, 'socketTimeout') ? _options.socketTimeout : 5000;
     const signalingEnabled = has(_options, 'signalingEnabled') ? _options.signalingEnabled : true;
     this.signalingEnabled = false;
     if (signalingEnabled) {
       this.enableSignaling();
     }
-    this.healthCheckTimeout = options.healthCheckTimeout;
-    this.newConnectionTimeout = options.newConnectionTimeout;
   }
 
   isPeerConnected(peerID) {
     return has(this.connections, peerID);
+  }
+
+  getConnectedPeers() {
+    return Object.keys(this.connections);
   }
 
   /**
@@ -335,15 +341,32 @@ export default class CliqzPeer {
   enableSignaling() {
     if (!this.signalingEnabled) {
       this.signalingEnabled = true;
-      this._createSocket();
-      this.signalingConnector = this.setInterval(() => {
-        this.signalingConnectorTicks = (this.signalingConnectorTicks || 0) + 1;
-        if (!this.socket && this.signalingConnectorTicks > Math.min(60, this.socketRetrials)) {
-          this.signalingConnectorTicks = 0;
-          this._createSocket();
-        }
-      }, 1000);
+      const tryCreateSocket = () => {
+        this.isNetworkUp()
+        .then((up) => {
+          this.signalingConnectorTicks = (this.signalingConnectorTicks || 0) + 1;
+          // TODO: Set limit higher when isNetworkUp works properly
+          const retrials = Math.min(5, this.socketRetrials);
+          if (up && !this.socket && this.signalingConnectorTicks > retrials) {
+            this.signalingConnectorTicks = 0;
+            try {
+              this._createSocket();
+            } catch (e) {
+              this.logError('Error creating socket', e);
+            }
+          }
+        });
+      };
+      tryCreateSocket();
+      this.signalingConnector = this.setInterval(tryCreateSocket, 1000);
     }
+  }
+
+  isNetworkUp() {
+    if (this.window && this.window.navigator) {
+      return Promise.resolve(this.window.navigator.onLine);
+    }
+    return Promise.resolve(true);
   }
 
   disableSignaling() {
@@ -424,19 +447,17 @@ export default class CliqzPeer {
     // negotiated (not yet open)
     this.pendingConnections = {};
 
-    // Functions to be called when a message is received (deprecated)
-    this.messageListeners = [];
-      /**
-        @callback module:global#CliqzPeer~onMessageCallback
-        @param {?(number|string|boolean|Object|ArrayBuffer)} data - The data which was passed to
-          {@link module:global#CliqzPeer#send} of the sending peer.
-        @param {string} [label] - Label as specified in {@link module:global#CliqzPeer#send}.
-        @param {string} peerID - The sender peerID.
-       */
-      /**
-       * Function which will be called whenever a message from other peer is received.
-       * @type {module:global#CliqzPeer~onMessageCallback}
-       */
+    /**
+      @callback module:global#CliqzPeer~onMessageCallback
+      @param {?(number|string|boolean|Object|ArrayBuffer)} data - The data which was passed to
+        {@link module:global#CliqzPeer#send} of the sending peer.
+      @param {string} [label] - Label as specified in {@link module:global#CliqzPeer#send}.
+      @param {string} peerID - The sender peerID.
+     */
+    /**
+     * Function which will be called whenever a message from other peer is received.
+     * @type {module:global#CliqzPeer~onMessageCallback}
+     */
     this.onmessage = null; // Function to be called when a message is received
       /**
         @callback module:global#CliqzPeer~onConnectCallback
@@ -473,25 +494,48 @@ export default class CliqzPeer {
       this.clearInterval(this.signalingConnector);
       this.signalingConnector = null;
       this.destroyed = true;
-      Object.keys(this.connections).forEach((key) => {
-        const conn = this.connections[key];
-        if (conn) {
-          conn.close();
-        }
-      });
-      Object.keys(this.pendingConnections).forEach((key) => {
-        const conn = this.pendingConnections[key];
-        if (conn) {
-          conn.close();
-        }
-      });
-      Object.keys(this.outMessages).forEach((key) => {
-        this.outMessages[key].kill(true); // Close with success..
-      });
-      Object.keys(this.inMessages).forEach((key) => {
-        this.inMessages[key].kill(true); // Close with success
-      });
-      this.closeSocket();
+      try {
+        Object.keys(this.connections).forEach((key) => {
+          const conn = this.connections[key];
+          if (conn) {
+            conn.close('destroy');
+          }
+        });
+      } catch (e) {
+        this.logError('Error closing connections', e);
+      }
+
+      try {
+        Object.keys(this.pendingConnections).forEach((key) => {
+          const conn = this.pendingConnections[key];
+          if (conn) {
+            conn.close('destroy');
+          }
+        });
+      } catch (e) {
+        this.logError('Error closing pending connections', e);
+      }
+
+      try {
+        Object.keys(this.outMessages).forEach((key) => {
+          this.outMessages[key].kill(true); // Close with success..
+        });
+      } catch (e) {
+        this.logError('Error killing outcoming messages', e);
+      }
+
+      try {
+        Object.keys(this.inMessages).forEach((key) => {
+          this.inMessages[key].kill(true); // Close with success
+        });
+      } catch (e) {
+        this.logError('Error killing incoming messages', e);
+      }
+      try {
+        this.closeSocket();
+      } catch (e) {
+        this.logError('Error closing socket', e);
+      }
       this._setInitialState();
     }
   }
@@ -514,25 +558,26 @@ export default class CliqzPeer {
 
   _createSocket() {
     if (!this.socket && this.signalingEnabled) {
+      this.logDebug('Creating socket...');
       if (!this.lastSocketTime) {
         this.lastSocketTime = Date.now();
       }
-          // TODO: add socket killer with timeout
       try {
         const socket = new this.WebSocket(this.brokerUrl);
+        this.socket = socket;
         this.socketKiller = this.setTimeout(() => {
           if (this.socket === socket) {
             this.closeSocket();
           } else {
             _closeSocket(socket);
           }
-        }, 5000); // TODO: make configurable
-        this.socket = socket;
+        }, this.socketTimeout);
+
         this.socket.onopen = () => {
           if (this.socket === socket) {
             this._onSocketOpen();
           } else {
-            this.log('ERROR: received onopen message from old socket');
+            this.logError('ERROR: received onopen message from old socket');
             _closeSocket(socket);
           }
         };
@@ -540,7 +585,7 @@ export default class CliqzPeer {
           if (this.socket === socket) {
             this._onSocketClose();
           } else {
-            this.log('ERROR: received onclose message from old socket');
+            this.logError('ERROR: received onclose message from old socket');
             _closeSocket(socket);
           }
         };
@@ -548,7 +593,7 @@ export default class CliqzPeer {
           if (this.socket === socket) {
             this._onSocketError(error);
           } else {
-            this.log('ERROR: received onerror message from old socket');
+            this.logError('ERROR: received onerror message from old socket');
             _closeSocket(socket);
           }
         };
@@ -556,12 +601,12 @@ export default class CliqzPeer {
           if (this.socket === socket) {
             this._onSocketMessage(event);
           } else {
-            this.log('ERROR: received onmessage message from old socket');
+            this.logError('ERROR: received onmessage message from old socket');
             _closeSocket(socket);
           }
         };
       } catch (e) {
-        this.log('ERROR in _createSocket:', e);
+        this.logError('ERROR in _createSocket:', e);
       }
     }
   }
@@ -575,11 +620,6 @@ export default class CliqzPeer {
       _closeSocket(this.socket);
       this._onSocketClose();
     }
-  }
-
-  addMessageListener(cb) {
-    this.log('DEPRECATED: addMessageListener, setting peer.onmessage = listener is prefered');
-    this.messageListeners.push(cb);
   }
 
   /**
@@ -610,7 +650,6 @@ export default class CliqzPeer {
     if (has(this.connections, requestedPeer)) {
       return Promise.resolve();
     }
-    // TODO: do we need to wait to create signaling connection?
     return Promise.resolve().then(() => (this.signalingEnabled ? this.createConnection() : null))
     .then(() => new Promise((resolve, reject) => {
       this.log('Trying to connect to peer', requestedPeer);
@@ -622,15 +661,6 @@ export default class CliqzPeer {
         this._createConnection(requestedPeer, true);
       }
     }));
-  }
-  sendStringMsg(peer, msg, label) {
-    this.log('DEPRECATED: sendStringMsg, send is prefered');
-    return this.send(peer, msg, label);
-  }
-
-  sendMsg(peer, msg, label) {
-    this.log('DEPRECATED: sendMsg, send is prefered');
-    return this.send(peer, msg, label);
   }
 
   /**
@@ -672,7 +702,7 @@ export default class CliqzPeer {
       this.peerWhitelist = {};
       Object.keys(this.connections).forEach((peer) => {
         if (peer !== peerID) {
-          this.connections[peer].close();
+          this.connections[peer].close('addTrustedPeer');
         }
       });
     }
@@ -687,7 +717,7 @@ export default class CliqzPeer {
   removeTrustedPeer(peerID) {
     if (this.peerWhitelist && has(this.peerWhitelist, peerID)) {
       if (this.connections[peerID]) {
-        this.connections[peerID].close();
+        this.connections[peerID].close('removeTrustedPeer');
       }
       delete this.peerWhitelist[peerID];
     }
@@ -722,7 +752,7 @@ export default class CliqzPeer {
       connection.onopen = () => {
         this.log('Connected to', peer);
         if (has(this.connections, peer)) {
-          this.connections[peer].close();
+          this.connections[peer].close('replaced');
         }
         this.connections[peer] = this.pendingConnections[peer];
         delete this.pendingConnections[peer];
@@ -734,36 +764,35 @@ export default class CliqzPeer {
         }
         if (this.peerWhitelist && !has(this.peerWhitelist, peer)) {
           this.log('ERROR: Closing connection with peer not in whitelist:', peer);
-          this.connections[peer].close();
+          this.connections[peer].close('not in whitelist');
         }
         if (isLocal) {
           this.stats.outconn += 1;
         } else {
           this.stats.inconn += 1;
         }
-        connection.getCandidatesInfo()
-        .then((x) => {
-          this.stats.localcandidatedist[x.localCandidateType] =
-            (this.stats.localcandidatedist[x.localCandidateType] || 0) + 1;
+        try {
+          connection.getCandidatesInfo()
+          .then((x) => {
+            this.stats.localcandidatedist[x.localCandidateType] =
+              (this.stats.localcandidatedist[x.localCandidateType] || 0) + 1;
 
-          this.stats.remotecandidatedist[x.remoteCandidateType] =
-            (this.stats.remotecandidatedist[x.remoteCandidateType] || 0) + 1;
-        })
-        .catch(() => {
-          this.log('Could not retrieve candidates info');
-        });
-        connection.isRelayed().then((isRelayed) => {
-          if (isRelayed) {
-            this.stats.relayedconn += 1;
-          }
-        })
-        .catch(() => {
-          this.log('Could not retrieve candidates info');
-        });
-        // TODO: this is a potential memory leak
-        if (!has(this.stats._peers, peer)) {
-          this.stats._peers[peer] = true;
-          this.stats.distinctpeers += 1;
+            this.stats.remotecandidatedist[x.remoteCandidateType] =
+              (this.stats.remotecandidatedist[x.remoteCandidateType] || 0) + 1;
+          })
+          .catch(() => {
+            this.log('Could not retrieve candidates info');
+          });
+          connection.isRelayed().then((isRelayed) => {
+            if (isRelayed) {
+              this.stats.relayedconn += 1;
+            }
+          })
+          .catch((e) => {
+            this.log('Could not retrieve candidates info', e);
+          });
+        } catch (e) {
+          this.logError('Stats: error trying to get candidates', e);
         }
       };
       connection.onclose = (status) => {
@@ -821,14 +850,13 @@ export default class CliqzPeer {
                 /* eslint-disable no-new */
                 // TODO: remove these side effects...
                 new InMessage(chunk, peer, (data, label) => {
-                  const listeners = this.messageListeners.concat(this.onmessage || []);
-                  listeners.forEach((cb) => {
+                  if (this.onmessage) {
                     try {
-                      cb(data, label, peer, connection);
+                      this.onmessage(data, label, peer, connection);
                     } catch (e) {
                       this.log(typeof e === 'string' ? e : e.message, 'Error in cb onmessage');
                     }
-                  });
+                  }
                 }, this);
               } else {
                 this.inMessages[msgId].receivedChunk(chunk);
@@ -850,14 +878,9 @@ export default class CliqzPeer {
             connection.send(new Uint8Array([constants.PONG_MSG_TYPE]));
           } else if (type === constants.PONG_MSG_TYPE) {
             // Connection is alive, for the moment
-            const promises = connection.pongPromises.splice(0, connection.pongPromises.length);
-            promises.forEach((cb) => {
-              try {
-                cb();
-              } catch (e) {
-                this.log(typeof e === 'string' ? e : e.message, 'error in pong promise');
-              }
-            });
+            if (connection.healthCheckResolver) {
+              connection.healthCheckResolver();
+            }
           } else {
             this.log('ERROR: unknown message type', type);
           }
@@ -999,6 +1022,8 @@ export default class CliqzPeer {
   _sendSocket(type, data) {
     if (this.connectionStatus === 'open' || this.connectionStatus === 'routed') {
       try {
+        // TODO: Hopefully this will detect 'stale' WebSockets and close them. If not, we
+        // will need to kill the socket if we have not received a response for some time
         this.socket.send(JSON.stringify({ type, data }));
       } catch (e) {
         this.log('Error in sending socket, closing it...', e);
