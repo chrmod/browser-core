@@ -2,6 +2,7 @@ import * as datetime from '../time';
 import md5 from '../md5';
 import Database from '../../core/database';
 import console from '../../core/console';
+import SerialExecutor from '../../core/helpers/serial-executor';
 
 /**
  * Takes a set of strings and returns an object with the set members as
@@ -27,7 +28,7 @@ export default class {
     this.config = config;
     this.db = new Database('cliqz-attrack-request-key-value', { auto_compaction: true });
     this.hashTokens = false;
-    this.transactionQueue = Promise.resolve();
+    this.queue = new SerialExecutor();
   }
 
   init() {
@@ -64,8 +65,10 @@ export default class {
       }, new Map());
       const unsafeKeysSeen = new Set(kvs.keys());
 
-      // query the db for keys for this tracker domain
-      this.transactionQueue = this.transactionQueue.then(() => (
+      // Add upsert function to serial queue
+      // this ensures multiple upserts do not conflict.
+      this.queue.enqueue(() => (
+        // query the db for keys for this tracker domain
         this.db.allDocs({
           include_docs: true,
           startkey: tracker,
