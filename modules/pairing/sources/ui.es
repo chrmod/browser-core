@@ -201,6 +201,18 @@ export default class PairingUI {
   unload() {
     PeerComm.removeObserver(this.observerID, this.observer);
     utils.clearInterval(this.connectionChecker);
+    this.window.parent.removeEventListener('hashchange', this.onHashChange);
+  }
+
+  onHashChange() {
+    if (this.window.parent.location.hash === '#connect') {
+      utils.telemetry({
+        type: 'settings',
+        version: 1,
+        view: 'connect',
+        action: 'show',
+      });
+    }
   }
 
   get observerID() {
@@ -219,12 +231,9 @@ export default class PairingUI {
       PeerComm.addObserver(this.observerID, observer);
     });
 
-    utils.telemetry({
-      type: 'settings',
-      version: 1,
-      view: 'connect',
-      action: 'show',
-    });
+    this.onHashChange = this.onHashChange.bind(this);
+    this.window.parent.addEventListener('hashchange', this.onHashChange);
+    this.onHashChange();
 
     observer.onerror = () => {
       // TODO: handle error
