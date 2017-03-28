@@ -99,7 +99,8 @@ export default class PairingUI {
     }
   }
 
-  renderPairing(token) {
+  renderPairing() {
+    const token = PeerComm.pairingToken;
     const $ = this.window.$;
     if (token) {
       if (!this.qr) {
@@ -111,26 +112,22 @@ export default class PairingUI {
           colorLight: '#ffffff',
           correctLevel: this.window.QRCode.CorrectLevel.Q,
         });
-        // Temporarily remove the CLIQZ icon in the center of QR code until
-        // the mobile team fixes the issue
-        // $('<div class="icon-logo"></div>').insertAfter('#qrcode > canvas');
+        $('<div class="icon-logo"></div>').insertAfter('#qrcode > canvas');
       } else {
         this.qr.makeCode(token);
       }
     }
   }
 
-  renderPaired(masterName, isMasterConnected) {
+  renderPaired() {
+    const masterName = PeerComm.masterName;
+    const isMasterConnected = PeerComm.isMasterConnected;
     this.hideExtraInfos(masterName);
     this.updateConnectionInfo(isMasterConnected);
   }
 
   renderUnpaired() {
     this.showExtraInfos();
-  }
-
-  renderMasterConnectedChanged(isMasterConnected) {
-    this.updateConnectionInfo(isMasterConnected);
   }
 
   renderInitial() {
@@ -239,15 +236,11 @@ export default class PairingUI {
     observer.oninit = () => {
       this.renderInitial();
       if (PeerComm.isPaired) {
-        PeerComm.checkMasterConnection();
-        const masterName = PeerComm.masterName; // Mobile name
-        const isMasterConnected = PeerComm.isMasterConnected; // Is mobile connected?
-        // stop pairing timer...
-        this.renderPaired(masterName, isMasterConnected);
+        observer.onpaired();
       } else if (PeerComm.isPairing) {
-        this.renderPairing(PeerComm.pairingToken);
+        observer.onpairing();
       } else {
-        this.startPairing();
+        observer.onunpaired();
       }
     };
 
@@ -256,10 +249,7 @@ export default class PairingUI {
     };
 
     observer.ondeviceadded = () => {
-      // This is also called when mobile changes our device name
-      const masterName = PeerComm.masterName; // Mobile name
-      const isMasterConnected = PeerComm.isMasterConnected; // Is mobile connected?
-      this.renderPaired(masterName, isMasterConnected);
+      observer.onpaired();
     };
 
     observer.ondeviceremoved = () => {
@@ -267,27 +257,30 @@ export default class PairingUI {
     };
 
     observer.onpairing = () => {
-      const token = PeerComm.pairingToken; // string to be shown as qr code
-      this.renderPairing(token);
+      if (PeerComm.isPairing) {
+        this.renderPairing();
+      }
     };
 
     observer.onpaired = () => {
-      const masterName = PeerComm.masterName; // Mobile name
-      const isMasterConnected = PeerComm.isMasterConnected; // Is mobile connected?
-      this.renderPaired(masterName, isMasterConnected);
+      if (PeerComm.isPaired) {
+        this.renderPaired();
+      }
     };
 
     observer.onunpaired = () => {
       this.renderUnpaired();
-      this.startPairing();
+      if (PeerComm.isUnpaired) {
+        this.startPairing();
+      }
     };
 
     observer.onmasterconnected = () => {
-      this.renderMasterConnectedChanged(PeerComm.isMasterConnected);
+      observer.onpaired();
     };
 
     observer.onmasterdisconnected = () => {
-      this.renderMasterConnectedChanged(PeerComm.isMasterConnected);
+      observer.onpaired();
     };
 
     if (PeerComm.isInit && PeerComm.isPaired) {
