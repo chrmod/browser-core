@@ -164,8 +164,6 @@ export default class {
     removeWindowObserver(this.windowWatcher);
 
     disableChangeEvents();
-
-    this.prefchangeEventListener = subscribe('prefchange', this.onPrefChange, this);
   }
 
   modules() {
