@@ -12,6 +12,9 @@ export function isTabURL() {
   return false;
 }
 
+export function getLang() {
+  return window.navigator.language || window.navigator.userLanguage;
+}
 
 export function getBrowserMajorVersion() {
   const raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);

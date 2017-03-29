@@ -9,7 +9,7 @@ import prefs from './prefs';
 import background from './base/background';
 import { Window, mapWindows, getLang } from '../platform/browser';
 import loadLogoDb from "../platform/load-logo-db";
-import { isMobile } from "./platform";
+import { isMobile, isFirefox } from "./platform";
 import Storage from './storage';
 import resourceManager from './resource-manager';
 import inject from './kord/inject';
@@ -27,8 +27,10 @@ export default background({
     });
     if (!isMobile) {
       this.checkSession();
-      language.init();
-      HistoryManager.init();
+      if(isFirefox){
+        language.init();
+        HistoryManager.init();
+      }
     }
     utils.CliqzLanguage = language;
     this.dispatchMessage = this.dispatchMessage.bind(this);
