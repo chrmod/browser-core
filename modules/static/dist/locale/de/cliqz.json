@@ -1601,5 +1601,8 @@
     "pairing-send-video-to-mobile-retry": {
       "message": "Erneut senden"
     },
+    "ad-label": {
+      "message": "Anzeige"
+    },
     "TEST": "OK"
 }
