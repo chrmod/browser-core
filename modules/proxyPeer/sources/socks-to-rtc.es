@@ -30,38 +30,25 @@ function shuffle(array) {
 }
 
 
-const PUB_KEYS = new Map();
-function getPubKey(peer) {
-  // Check cache first
-  if (PUB_KEYS.has(peer)) {
-    return Promise.resolve(PUB_KEYS.get(peer));
-  }
-
-  // Fetch public key and store it in cache
-  return new Promise((resolve, reject) => {
-    utils.httpPost(
-      'https://hpn-sign.cliqz.com/getpublickey/',
-      (res) => {
-        console.debug(`proxyPeer SocksToRTC fetched public key for ${peer}`);
-        const key = { pubKey: JSON.parse(res.response).key, name: peer };
-        PUB_KEYS.set(peer, key);
-        resolve(key);
-      },
-      JSON.stringify({ peername: peer }),
-      reject);
-  });
-}
-
-
 function fetchRemotePeers(peerID) {
   return new Promise((resolve, reject) => {
     utils.httpGet(
-      'https://hpn-sign.cliqz.com/listpeers',
+      'https://p2p-signaling-proxypeer.cliqz.com/peers',
       (res) => {
         // Extract remote peer ids
-        const remotePeers = JSON.parse(res.response).peers.up.filter(peer => peer !== peerID);
-        // Get public keys
-        Promise.all(remotePeers.map(getPubKey)).then(resolve);
+        const data = JSON.parse(res.response);
+
+        const peers = [];
+        Object.keys(data).forEach((name) => {
+          if (peerID !== name) {
+            peers.push({
+              name,
+              pubKey: data[name],
+            });
+          }
+        });
+
+        resolve(peers);
       },
       reject,
     );

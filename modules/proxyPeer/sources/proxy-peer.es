@@ -1,4 +1,3 @@
-import { fetch, Request } from '../core/http';
 import { utils } from '../core/cliqz';
 
 import CliqzPeer from '../p2p/cliqz-peer';
@@ -63,23 +62,6 @@ function MultiplexedQueue(name, callback) {
 }
 
 
-function post(url, payload) {
-  const headers = new Headers();
-  headers.append('Content-Type', 'application/json');
-  const request = new Request(url, {
-    headers,
-    method: 'POST',
-    body: JSON.stringify(payload) });
-  return fetch(request)
-    .then((response) => {
-      if (response.ok) {
-        return Promise.resolve();
-      }
-      return Promise.reject();
-    });
-}
-
-
 export default class {
   constructor() {
     // Create a socks proxy
@@ -91,7 +73,7 @@ export default class {
     this.rtcRelay = null;
     this.rtcToNet = null;
 
-    this.signalingURL = 'p2p-signaling-102182689.us-east-1.elb.amazonaws.com:9666';
+    this.signalingURL = 'p2p-signaling-proxypeer.cliqz.com';
   }
 
   createPeer(window) {
@@ -100,7 +82,7 @@ export default class {
       .then(() => {
         this.peer = new CliqzPeer(window, this.ppk, {
           ordered: true,
-          brokerUrl: `ws://${this.signalingURL}`,
+          brokerUrl: `wss://${this.signalingURL}`,
           maxReconnections: 0,
           maxMessageRetries: 0,
         });
@@ -108,17 +90,7 @@ export default class {
         // Add message listener
         this.peer.onmessage = (message, label, peer) => this.handleNewMessage(message, peer);
       })
-      .then(() => this.peer.createConnection())
-      .then(() => post('https://hpn-sign.cliqz.com/registerPeerProxy/', {
-        pk: this.ppk[0],
-        name: this.peer.peerID,
-        ver: '0.6',
-      }))
-      .then(() => this.peer.socket.close())
-      .then(() => post('https://hpn-sign.cliqz.com/registerPeerProxy/', {
-        name: this.peer.peerID,
-        ver: '0.6',
-      }));
+      .then(() => this.peer.createConnection());
   }
 
   init() {
