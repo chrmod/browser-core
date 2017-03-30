@@ -84620,3 +84620,4 @@ zynga.com###zap-bac-iframe
 ||zyxwvutsrqponmlkjihgfedcbazyxwvutsrqponmlkjihgfedcbazyxwvutsrqp.de^$third-party
 ###zztextad
 /zzz/init.php?$script
+||sport1.de*/my_ad_integration.js$script,redirect=noopjs,domain=sport1.de
