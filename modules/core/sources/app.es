@@ -130,6 +130,7 @@ export default class {
     utils.telemetry({
       type: 'activity',
       action: telemetrySignal,
+      shutDownStack: (new Error()).stack
     }, true /* force push */);
 
     /**
