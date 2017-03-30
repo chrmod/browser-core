@@ -329,6 +329,20 @@
         text-decoration: none;
         &:hover { text-decoration: underline; }
     }
+
+    .ad {
+        position: relative;
+        top: 3px;
+        padding: 0px 4px;
+        margin-right: 3px;
+        display: inline-block;
+        line-height: 1.2em;
+        color: #45c2cc;
+        border: 1px solid #45c2cc;
+        text-transform: uppercase;
+        font-size: 14px;
+        font-weight: bold;
+    }
 }
 
 .cqz-results .cqz-result-title * {

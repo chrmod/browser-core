@@ -119,6 +119,7 @@ var UI = {
       // a simple reslut. This function converts the EZ into a regular result
       return {
         title: data.title,
+        hasAd: data.extra.is_ad,
         description: data.description || data.desc,
         friendlyUrl: data.friendlyUrl,
         trigger_urls: data.trigger_urls,
@@ -1006,6 +1007,9 @@ function enhanceResults(res){
             r.vertical = d.template;
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
             r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
+            if(d.extra && d.extra.is_ad) {
+              r.data.hasAd = d.extra.is_ad;
+            }
             if (r.vertical == 'text') r.dontCountAsResult = true;
           } else {
             // double safety - to be removed
