@@ -34,6 +34,14 @@ class SchemaAnalysis {
 * aggregation of behavioral signals to general messages to send
 * to the backend.
 */
+class Dummy {
+  constructor() {
+    this.name = 'retention_daily';
+  }
+  generateSignals() {
+    return [{a: 42}];
+  }
+}
 const analyses = [
   new ResultSelectionAnalysis(),
   // Schemas
@@ -46,5 +54,6 @@ const analyses = [
   // a bit of love. We probably will change this once we have a few real use
   // cases to work on.
   // new ABTestsAnalysis(),
+  new Dummy()
 ];
 export default analyses;

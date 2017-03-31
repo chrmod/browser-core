@@ -205,7 +205,7 @@ export default class {
     return this.behaviorStorage.getTypesByTimespan(timespan)
       .then((records) => {
         // Ignore days with no records
-        if (records.length === 0) return;
+        if (records.length === 0) return Promise.resolve();
 
         const t0 = Date.now();
         const aggregation = this.behaviorAggregator.aggregate(records);
@@ -216,12 +216,12 @@ export default class {
 
         // 3. Generate messages for each analysis
         log(`generateSignals ${date}`);
-        analyses.forEach((analysis) => {
+        return Promise.all(analyses.map((analysis) => {
           log(`generateSignals for ${analysis.name}`);
-          analysis.generateSignals(aggregation, abtests)
-            .forEach((signal) => {
+          return Promise.all(analysis.generateSignals(aggregation, abtests)
+            .map((signal) => {
               log(`Signal for ${analysis.name} ${JSON.stringify(signal)}`);
-              this.handleTelemetrySignal(
+              return this.handleTelemetrySignal(
                 Object.assign(signal, {
                   meta: {
                     date,
@@ -232,8 +232,8 @@ export default class {
                 }),
                 analysis.name,
               );
-            });
-        });
+            }));
+        }));
       });
   }
 
@@ -246,27 +246,36 @@ export default class {
    * @param {Object} signal - The telemetry signal.
    */
   handleTelemetrySignal(signal, schemaName) {
+    console.log('handle', JSON.stringify(signal), schemaName);
     // Try to fetch the schema definition from the name.
     let schema;
     if (schemaName !== undefined) {
       schema = this.availableSchemas.get(schemaName);
       if (schema === undefined) {
+        console.log('no schema found');
         return Promise.reject(`Telemetry schema ${schemaName} was not found`);
       }
     }
 
     return this.preprocessor.process(signal, schema, schemaName)
       .then((processedSignal) => {
+        console.log('process');
         const isDemographics = processedSignal.demographics !== undefined;
         const isLegacy = schema === undefined;
         const isInstantPush = !isLegacy && schema.instantPush;
 
         if (isDemographics) {
+          console.log('demographics');
           return this.gidManager.updateDemographics(processedSignal);
         } else if (isInstantPush && !isLegacy) {
+          console.log('instantPush');
           log(`Signal is instantPush ${JSON.stringify(processedSignal)}`);
           return this.gidManager.getGID()
+            .catch((ex) => {
+              console.log(`Error on get GID ${ex} ${ex.stack}\n`);
+            })
             .then((gid) => {
+              console.log('Got gid');
               // Attach id to the message
               processedSignal.id = schemaName;
 
@@ -293,6 +302,7 @@ export default class {
             });
         }
 
+        console.log('aggregate signal');
         // if (!isInstantPush || isLegacy) {
         // This signal is stored and will be aggregated with other signals from
         // the same day to generate 'analyses' signals.
