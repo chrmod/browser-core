@@ -345,6 +345,12 @@ var CliqzABTests = {
             case "1096_B":
               CliqzUtils.setPref("extOnboardCliqzConnect", true);
               break;
+            case "1097_A":
+              CliqzUtils.setPref("dropdownAdCampaignPosition", 'top');
+              break;
+            case "1097_B":
+              CliqzUtils.setPref("dropdownAdCampaignPosition", 'bottom');
+              break;
             default:
                 rule_executed = false;
         }
@@ -561,6 +567,10 @@ var CliqzABTests = {
             case "1096_A":
             case "1096_B":
               CliqzUtils.clearPref('extOnboardCliqzConnect');
+              break;
+            case "1097_A":
+            case "1097_B":
+              CliqzUtils.clearPref('dropdownAdCampaignPosition');
               break;
             default:
                 rule_executed = false;

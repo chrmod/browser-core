@@ -93,6 +93,8 @@ var UI = {
 
         resultsBox.addEventListener('mouseup', resultClick);
         resultsBox.addEventListener('mousedown', handleMouseDown);
+        messageContainer.addEventListener('mouseup', resultClick);
+        messageContainer.addEventListener('mousedown', handleMouseDown);
 
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
@@ -117,9 +119,10 @@ var UI = {
     getMinimalResultData(data) {
       // If an EZ ends up in the 2nd place (or after), we want to display it as
       // a simple reslut. This function converts the EZ into a regular result
+
       return {
         title: data.title,
-        hasAd: data.extra.is_ad,
+        hasAd: data.extra && data.extra.is_ad && CliqzUtils.getPref('dropdownAdCampaignPosition', '') !== '',
         description: data.description || data.desc,
         friendlyUrl: data.friendlyUrl,
         trigger_urls: data.trigger_urls,
@@ -129,7 +132,6 @@ var UI = {
     },
     // FF specific
     handleResults: function(){
-      CliqzUtils.log("!!handle results in UI.js")
       // TODO: this is FF specific - move it to another place!
       var popup = urlbar.popup,
         data = [],
@@ -218,7 +220,6 @@ var UI = {
           clearTimeout(UI.resultIconsTimer);
         }
         currentResults = enhanceResults(rawResults);
-
         var query = currentResults.q;
         if (!query)
           query = "";
@@ -905,7 +906,6 @@ function setPartialTemplates(data) {
 
 
   if (data.deepResults) {
-    CliqzUtils.log(data.deepResults, "!!deepResults")
     data.deepResults.forEach(function (item) {
       if (item.type == 'buttons') {
         data.btns = item.links;
@@ -954,7 +954,12 @@ function enhanceResults(res){
     res = JSON.parse(JSON.stringify(res));
 
     clearMessage('bottom');
-    var adult = false, data;
+    var adult = false,
+        data,
+        hasAd = false,
+        resultWithAd = {},
+        adPosition = CliqzUtils.getPref('dropdownAdCampaignPosition', ''),
+        adIndex;
 
     for(var i=0; i<res.results.length; i++) {
         var r = res.results[i];
@@ -989,6 +994,13 @@ function enhanceResults(res){
         }
         if(r.data.extra && r.data.extra.adult) adult = true;
 
+        if(r.data.extra && r.data.extra.is_ad && adPosition !== '') {
+          r.data.hasAd = r.data.extra.is_ad;
+          hasAd = true;
+          resultWithAd = r;
+          adIndex = i;
+        }
+
         if (r.type.indexOf('cliqz-extra') !== -1 &&  i > 0 ) {
           r.data = UI.getMinimalResultData(r.data);
         }
@@ -1007,9 +1019,6 @@ function enhanceResults(res){
             r.vertical = d.template;
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
             r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-            if(d.extra && d.extra.is_ad) {
-              r.data.hasAd = d.extra.is_ad;
-            }
             if (r.vertical == 'text') r.dontCountAsResult = true;
           } else {
             // double safety - to be removed
@@ -1059,7 +1068,13 @@ function enhanceResults(res){
             }
           }
         }
+    }
 
+    // remove adResult from results, we will display it as an Ad at the footer
+    if(hasAd && adPosition === 'bottom') {
+      res.results = res.results.filter((r) => {
+        return !r.data.hasAd;
+      });
     }
 
     var spellCheckMessage;
@@ -1103,6 +1118,12 @@ function enhanceResults(res){
                 }
             });
         }
+    } else if(hasAd && adPosition === 'bottom') {
+      updateMessage('bottom', {
+        "footer-ad": resultWithAd
+      });
+      //Keep original ranking of the result for telemetry purposes
+      document.getElementById('ad-container').setAttribute('idx', adIndex);
     }
     else if (notSupported()) {
       updateMessage('bottom', {

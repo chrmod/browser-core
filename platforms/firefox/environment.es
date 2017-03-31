@@ -48,6 +48,7 @@ var CLIQZEnvironment = {
     },
     MESSAGE_TEMPLATES: [
       'footer-message',
+      'footer-ad',
       'onboarding-callout',
       'onboarding-callout-extended',
       'slow_connection',
