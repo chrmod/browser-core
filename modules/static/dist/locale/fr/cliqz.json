@@ -276,7 +276,7 @@
         "message":"il y a $1 ans"
     },
     "onCalloutSameResult":{
-        "message":"Désolé de t'interrompre. Savez-vous que vous pouvez obtenir le même résultat en utilisant CLIQZ ?"
+        "message":"Désolé de t'interrompre. Saviez-vous que vous pouviez obtenir le même résultat en utilisant CLIQZ ?"
     },
     "onCalloutSameResultBtnOk":{
         "message":"J'ai compris !"
@@ -285,7 +285,7 @@
         "message":"Ne plus montrer."
     },
     "onCalloutSmartCliqz":{
-        "message":"Désolé de t'interrompre. Saviez-vous que vous pouvez obtenir le même résultat en utilisant CLIQZ ?"
+        "message":"Désolé de t'interrompre. Saviez-vous que vous pouviez obtenir le même résultat en utilisant CLIQZ ?"
     },
     "onCalloutSmartCliqzBtnOk":{
         "message":"J'ai compris !"
@@ -1107,7 +1107,7 @@
       "message": "Sites les plus visités"
     },
     "freshtab_abTest_hdr_news_email": {
-      "message": "Obtenir VOS ACTUALITÉS INFORMATIONS directement par mail"
+      "message": "Obtenir VOS ACTUALITÉS directement par mail"
     },
     "freshtab_abTest_btn_subscribe": {
       "message": "S'abonner MAINTENANT"
