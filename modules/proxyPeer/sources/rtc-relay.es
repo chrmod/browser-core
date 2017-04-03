@@ -17,7 +17,9 @@ export default class {
     // Keep some statistics
     this.receivedMessages = 0;
     this.droppedMessages = 0;
-    this.dataIn = 0;
+
+    // Stats about data received
+    this.dataIn = 0;  // Updated in proxy-peer.es
     this.dataOut = 0;
 
     // Display health check
@@ -33,7 +35,7 @@ export default class {
         const timestamp = Date.now();
         [...this.previousPeer.keys()].forEach((connectionID) => {
           const { lastActivity } = this.previousPeer.get(connectionID);
-          if (lastActivity < (timestamp - (1000 * 60))) {
+          if (lastActivity < (timestamp - (1000 * 15))) {
             console.debug(`proxyPeer RELAY ${connectionID} garbage collect`);
             this.previousPeer.delete(connectionID);
           }
@@ -46,8 +48,8 @@ export default class {
     return {
       receivedMessages: this.receivedMessages,
       droppedMessages: this.droppedMessages,
-      dataIn: this.dataIn,
-      dataOut: this.dataOut,
+      dataIn: `${(this.dataIn / 1048576).toFixed(2)} MB`,
+      dataOut: `${(this.dataOut / 1048576).toFixed(2)} MB`,
       currentOpenedConnections: this.previousPeer.size,
     };
   }
@@ -64,7 +66,6 @@ export default class {
   handleRelayMessage(data, message, peer, sender) {
     try {
       this.receivedMessages += 1;
-      this.dataIn += data.length;
 
       if (message.nextPeer) {
         return this.relay(message, peer, sender);

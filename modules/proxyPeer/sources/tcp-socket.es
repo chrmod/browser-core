@@ -154,8 +154,8 @@ export class TcpConnection {
 export function openSocket(host, port) {
   console.debug(`proxyPeer TCP openSocket ${host}:${port}`);
   const transport = TRANSPORT_SERVICE.createTransport(
-    ['starttls'], // null,  // aSocketTypes
-    1, // 0,     // aTypeCount
+    null,  // aSocketTypes
+    0,     // aTypeCount
     host,  // aHost
     port,  // aPort
     null); // aProxyInfo

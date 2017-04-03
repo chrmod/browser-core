@@ -7,7 +7,7 @@ import { AUTH_METHOD
 import { wrapOnionRequest
        , sendOnionRequest
        , decryptResponseFromExitNode } from './rtc-onion';
-import { generateAESKey, generateAESIv, packAESKeyAndIv } from './rtc-crypto';
+import { generateAESKey, wrapAESKey } from './rtc-crypto';
 import MessageQueue from './message-queue';
 
 
@@ -30,10 +30,10 @@ function shuffle(array) {
 }
 
 
-function fetchRemotePeers(peerID) {
+function fetchRemotePeers(peerID, peersUrl) {
   return new Promise((resolve, reject) => {
     utils.httpGet(
-      'https://p2p-signaling-proxypeer.cliqz.com/peers',
+      peersUrl,
       (res) => {
         // Extract remote peer ids
         const data = JSON.parse(res.response);
@@ -59,6 +59,8 @@ function fetchRemotePeers(peerID) {
 class SocksConnection {
 
   constructor(tcpConnection, peer, route) {
+    this.lastActivity = Date.now();
+
     this.id = tcpConnection.id;
     this.clientConnection = tcpConnection;
     this.toRtcQueue = MessageQueue(
@@ -68,7 +70,6 @@ class SocksConnection {
 
     // Created when connection is established
     this.aesKey = null;
-    this.iv = null;
     this.packedAESKey = null;
 
     // Information about where to route this request
@@ -119,8 +120,9 @@ class SocksConnection {
   }
 
   onDataFromDestination(encrypted) {
+    this.lastActivity = Date.now();
     // Decrypt data with AES keys
-    return decryptResponseFromExitNode(encrypted, this.aesKey, this.iv)
+    return decryptResponseFromExitNode(encrypted, this.aesKey)
       .then((decrypted) => {
         const data = new Uint8Array(decrypted);
         this.clientConnection.sendData(data, data.length);
@@ -153,7 +155,7 @@ class SocksConnection {
 
     // Check authent method
     if (!handshake.METHODS.includes(AUTH_METHOD.NOAUTH)) {
-      console.debug(`proxyPeer CLIENT ${this.id} no valid authent method found`);
+      console.error(`proxyPeer CLIENT ${this.id} no valid authent method found`);
       // Close socket (client must close it)
       resp[1] = 0xFF;
       this.close(resp);
@@ -176,11 +178,11 @@ class SocksConnection {
     try {
       // Create webrtc connection
       return generateAESKey().then((aesKey) => {
+        // Generate AES key and wrap it with key of exit node
         this.aesKey = aesKey;
-        this.iv = generateAESIv();
         const pubKeyExitNode = this.route[this.route.length - 1].pubKey;
 
-        return packAESKeyAndIv(aesKey, this.iv, pubKeyExitNode).then((packedAESKey) => {
+        return wrapAESKey(aesKey, pubKeyExitNode).then((packedAESKey) => {
           this.packedAESKey = packedAESKey;
           const messageNumber = this.messageNumber;
           this.messageNumber += 1;
@@ -211,13 +213,14 @@ class SocksConnection {
    * @param {Uint8Array} data - Data chunk received from client.
    */
   proxy(data) {
+    this.lastActivity = Date.now();
+
     try {
       const messageNumber = this.messageNumber;
       this.messageNumber += 1;
       return wrapOnionRequest(data, this.route, this.id, null, messageNumber)
         .then(onionRequest => sendOnionRequest(onionRequest, this.route, this.peer)
           .then(() => {
-            this.dataOut += onionRequest.length;
             console.debug(`proxyPeer CLIENT ${this.id} ${messageNumber} sends ${onionRequest.length}`);
           }),
         );
@@ -229,33 +232,48 @@ class SocksConnection {
 
 
 export default class {
-  constructor(peer, socksProxy) {
+  constructor(peer, socksProxy, peersUrl) {
     // {connectionID => SocksConnection} Opened connections
     this.connections = new Map();
 
     // Fetch a new list of peers from time to time
     this.availablePeers = [];
-    fetchRemotePeers().then((peers) => { this.availablePeers = peers; });
-    this.updateInterval = utils.setInterval(
+
+    // Get a valid list of peers as soon as possible
+    fetchRemotePeers(peer.peerID, peersUrl).then((peers) => { this.availablePeers = peers; });
+
+    this.actionInterval = utils.setInterval(
       () => {
-        fetchRemotePeers(peer.peerID)
+        // Fetch peers from time to time
+        fetchRemotePeers(peer.peerID, peersUrl)
           .then((peers) => {
             console.debug(`proxyPeer SocksToRTC found ${peers.length} peers`);
             this.availablePeers = peers;
           });
+
+        // Display health check as well
+        console.debug(`proxyPeer CLIENT healthcheck ${JSON.stringify(this.healthcheck())}`);
+
+        // Garbage collect inactive connections
+        const timestamp = Date.now();
+        this.connections.forEach((connection, connectionID) => {
+          const lastActivity = connection.lastActivity;
+          // Garbage collect connection inactive for 15 seconds
+          if (lastActivity < (timestamp - (1000 * 10))) {
+            // NOTE: Garbage collection does not mean the connection failed
+            // (peers where offline or encountered an exception). It can be that
+            // the connection was just maintenained opened? There does not seem
+            // to be a direct correlation between: GC and peer connectivity
+            // issue.
+            console.debug(`proxyPeer CLIENT ${connectionID} garbage collect`);
+            // Close connection + remove from connections Map.
+            connection.close();
+            // NOTE: onClose will automatically remove the connection from the
+            // map of connections. So not need to do it here.
+          }
+        });
       },
       10 * 1000);
-
-    // Display a health check
-    this.receivedMessages = 0;
-    this.dataIn = 0;
-    this.dataOut = 0;
-    this.healthCheck = utils.setInterval(
-      () => {
-        console.debug(`proxyPeer CLIENT healthcheck ${JSON.stringify(this.healthcheck())}`);
-      },
-      60 * 1000);
-
 
     // Register handler to SocksProxy
     console.debug('proxyPeer SocksToRTC SocksToRTC attach listener');
@@ -295,29 +313,24 @@ export default class {
 
   healthcheck() {
     return {
-      receivedMessages: this.receivedMessages,
-      droppedMessages: this.droppedMessages,
-      dataIn: this.dataIn,
-      dataOut: this.dataOut,
       currentOpenedConnections: this.connections.size,
     };
   }
 
   stop() {
-    utils.clearInterval(this.updateInterval);
-    utils.clearInterval(this.healthCheck);
+    utils.clearInterval(this.actionInterval);
   }
 
+  /**
+   * Handle data coming from RTC peers.
+   */
   handleClientMessage(message) {
     const data = message.data;
     const connectionID = message.connectionID;
 
     console.debug(`proxyPeer CLIENT ${connectionID} ${message.messageNumber} receives ${data.length}`);
 
-    this.receivedMessages += 1;
-    this.dataIn += data.length;
-
-    // We are the client, so give it back to the proxy somehow
+    // We are the client, so give it back to the proxy
     try {
       if (this.connections.has(connectionID)) {
         return this.connections.get(connectionID).onDataFromDestination(data);

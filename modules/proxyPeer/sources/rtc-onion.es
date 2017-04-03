@@ -4,7 +4,7 @@ import { generateAESKey
        , decryptRSA
        , encryptAES
        , decryptAES
-       , fromArrayBuffer } from './rtc-crypto';
+       , base64_encode } from './rtc-crypto';
 
 
 /*
@@ -12,18 +12,11 @@ import { generateAESKey
  */
 
 
-function padPayload(data /* , paddingLength */) {
-  // TODO: padding necessary?
-  // TODO: implement different padding sizes to avoid sending too much data
-  return data;
-}
-
-
 function encryptPayload(payload, pubKey) {
   const data = (new TextEncoder()).encode(JSON.stringify(payload));
   return generateAESKey()
     .then(aesKey => encryptRSA(
-      padPayload(data, 20000),
+      data,
       pubKey,
       aesKey,
     ))
@@ -52,7 +45,7 @@ export function wrapOnionRequest(data, peers, connectionID, aesKey, messageNumbe
     connectionID,
     messageNumber,
     role: 'exit',
-    data: [...data.values()],
+    data: base64_encode(data),
   };
 
   const wrapRequest = (layer, i) => {
@@ -94,20 +87,20 @@ export function sendOnionRequest(onionRequest, peers, peer) {
  */
 
 
-export function createResponseFromExitNode(data, aesKey, iv) {
-  return Promise.resolve(encryptAES(data, aesKey, iv).then(encrypted => encrypted[1]))
+export function createResponseFromExitNode(data, aesKey) {
+  return Promise.resolve(encryptAES(data, aesKey))
     .catch((ex) => {
-      console.debug(`proxyPeer SERVER ERR encryptResponse ${ex}`);
+      console.error(`proxyPeer SERVER ERR encryptResponse ${ex}`);
       return Promise.reject(ex);
     });
 }
 
 
-export function decryptResponseFromExitNode(encrypted, aesKey, iv) {
+export function decryptResponseFromExitNode(encrypted, aesKey) {
   // TODO: Remove double conversion of iv
-  return Promise.resolve(decryptAES([fromArrayBuffer(iv, 'b64'), encrypted], aesKey))
+  return Promise.resolve(decryptAES(encrypted, aesKey))
     .catch((ex) => {
-      console.debug(`proxyPeer SERVER ERR decryptResponse ${ex}`);
+      console.error(`proxyPeer SERVER ERR decryptResponse ${ex}`);
       return Promise.reject(ex);
     });
 }

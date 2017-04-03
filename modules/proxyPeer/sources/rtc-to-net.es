@@ -5,10 +5,36 @@ import { utils } from '../core/cliqz';
 import console from './console';
 import { openSocket } from './tcp-socket';
 import { SERVER_REPLY
+       , ADDRESS_TYPE
        , parseRequest } from './socks-protocol';
-import { unpackAESKeyAndIv } from './rtc-crypto';
+import { unwrapAESKey, base64_decode } from './rtc-crypto';
 import { createResponseFromExitNode } from './rtc-onion';
 import MessageQueue from './message-queue';
+
+
+// Used to perform a DNS lookup if remoteDNS is enabled
+const dnsService = Components.classes['@mozilla.org/network/dns-service;1']
+  .createInstance(Components.interfaces.nsIDNSService);
+
+
+function resolveDNS(hostname) {
+  return new Promise((resolve, reject) => {
+    dnsService.asyncResolve(hostname,
+      0,
+      {
+        onLookupComplete: (request, record, status) => {
+          if (!Components.isSuccessCode(status)) {
+            // Handle error here
+            reject();
+          }
+
+          resolve(record.getNextAddrAsString());
+        }
+      },
+      null,
+    );
+  });
+}
 
 
 function hashConnectionID(connectionID /* , peerID */) {
@@ -28,7 +54,8 @@ export default class {
     // Keep some statistics
     this.receivedMessages = 0;
     this.droppedMessages = 0;
-    this.dataIn = 0;
+
+    this.dataIn = 0; // updated in proxy-peer.es
     this.dataOut = 0;
 
     // Display health check
@@ -44,14 +71,14 @@ export default class {
         const timestamp = Date.now();
         [...this.outgoingTcpConnections.keys()].forEach((connectionID) => {
           const { socket, lastActivity } = this.outgoingTcpConnections.get(connectionID);
-          if (lastActivity < (timestamp - (1000 * 60))) {
+          if (lastActivity < (timestamp - (1000 * 15))) {
             console.debug(`proxyPeer EXIT ${connectionID} garbage collect`);
             this.outgoingTcpConnections.delete(connectionID);
 
             try {
               socket.close();
             } catch (e) {
-              console.debug(`proxyPeer EXIT ${connectionID} exception while garbage collecting ${e}`);
+              console.error(`proxyPeer EXIT ${connectionID} exception while garbage collecting ${e}`);
             }
           }
         });
@@ -63,8 +90,8 @@ export default class {
     return {
       receivedMessages: this.receivedMessages,
       droppedMessages: this.droppedMessages,
-      dataIn: this.dataIn,
-      dataOut: this.dataOut,
+      dataIn: `${(this.dataIn / 1048576).toFixed(2)} MB`,
+      dataOut: `${(this.dataOut / 1048576).toFixed(2)} MB`,
       currentOpenedConnections: this.outgoingTcpConnections.size,
     };
   }
@@ -77,7 +104,6 @@ export default class {
   handleExitMessage(message, peer, sender, peerPrivKey) {
     try {
       this.receivedMessages += 1;
-      this.dataIn += message.data.length;
 
       const connectionID = message.connectionID;
       const connectionHash = hashConnectionID(connectionID, sender);
@@ -104,24 +130,29 @@ export default class {
    */
   openNewConnection(message, peer, sender, connectionHash, peerPrivKey) {
     const connectionID = message.connectionID;
-    const data = message.data;
+    const data = base64_decode(message.data);
     console.debug(`proxyPeer EXIT ${connectionID} ${message.messageNumber} openNewConnection`);
 
     // We have a SOCKS Request and need to establish the connection
     const req = parseRequest(data);
     if (req === undefined) {
       // Request is not valid, hence we ignore it
-      console.debug(`proxyPeer EXIT ${connectionID} ${message.messageNumber} proxy request is not valid ${data}`);
+      console.error(`proxyPeer EXIT ${connectionID} ${message.messageNumber} proxy request is not valid ${data}`);
       return Promise.resolve();
     }
 
-    let messageNumber = -1;
-    return unpackAESKeyAndIv(message.aesKey, peerPrivKey).then((unpacked) => {
-      const { key, iv } = unpacked;
+    let addressPromise;
+    if (req.ATYP === ADDRESS_TYPE.DOMAIN_NAME) {
+      addressPromise = resolveDNS(req['DST.ADDR']);
+    } else {
+      addressPromise = Promise.resolve(req['DST.ADDR']);
+    }
 
+    let messageNumber = -1;
+    return unwrapAESKey(message.aesKey, peerPrivKey).then(key => addressPromise.then((address) => {
       console.debug(`proxyPeer EXIT ${connectionID} ${message.messageNumber} connect to ${JSON.stringify(req)}`);
       const connection = {
-        socket: openSocket(req['DST.ADDR'], req['DST.PORT']),
+        socket: openSocket(address, req['DST.PORT']),
         lastActivity: Date.now(),
       };
 
@@ -131,10 +162,11 @@ export default class {
           // Refresh last activity
           connection.lastActivity = Date.now();
 
+          // Update data received from tcp socket
           this.dataIn += destData.length;
 
           // Encrypt payload before sending to client
-          return createResponseFromExitNode(destData, key, iv).then((encrypted) => {
+          return createResponseFromExitNode(destData, key).then((encrypted) => {
             const currentMessageNumber = messageNumber;
             messageNumber -= 1;
             const response = JSON.stringify({
@@ -174,7 +206,7 @@ export default class {
       // Acknowledge that connection is opened
       console.debug(`proxyPeer EXIT ${connectionHash} ${messageNumber} acknowledge opened`);
       data[1] = SERVER_REPLY.SUCCEEDED;
-      return createResponseFromExitNode(new Uint8Array(data), key, iv).then((encrypted) => {
+      return createResponseFromExitNode(data, key).then((encrypted) => {
         const currentMessageNumber = messageNumber;
         messageNumber -= 1;
         const acknowledgement = JSON.stringify({
@@ -191,7 +223,8 @@ export default class {
                 `ERROR: could not send message ${e}`);
           });
       });
-    }).catch((ex) => {
+    })
+    ).catch((ex) => {
       // It can happen when connection is closed from the exit's node
       // perspective, but then client sends a request again through the
       // same channel. Then it's ok to make this fail as we don't really
@@ -204,7 +237,7 @@ export default class {
 
   relayToOpenedConnection(message, connectionHash) {
     const connectionID = message.connectionID;
-    const data = message.data;
+    const data = base64_decode(message.data);
 
     // This should be a byte array (Uint8Array) and the connection should be established
     if (this.outgoingTcpConnections.has(connectionHash)) {

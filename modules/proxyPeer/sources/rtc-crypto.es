@@ -1,5 +1,3 @@
-import console from './console';
-
 // import crypto from 'platform/crypto';
 Components.utils.importGlobalProperties(['crypto']);
 
@@ -17,7 +15,7 @@ const mod_table = [0, 2, 1];
 
 
 // Returns base64 encoded string, expects Uint8Array
-function base64_encode(data) {
+export function base64_encode(data) {
 	if (!data.buffer) {
 		data = new Uint8Array(data);
 	}
@@ -47,7 +45,7 @@ function base64_encode(data) {
 
 
 //Returns Uint8Array, expects base64 encoded string
-function base64_decode(data) {
+export function base64_decode(data) {
 	var input_length = data.length;
 	if (input_length % 4 !== 0) return;
 
@@ -112,35 +110,6 @@ export function generateAESIv() {
 }
 
 
-export function packAESKeyAndIv(aesKey, iv, pubKey) {
-  try {
-    return wrapAESKey(aesKey, pubKey).then(wrapped => {
-      return JSON.stringify({
-        key: wrapped,
-        iv: fromArrayBuffer(iv, 'b64'),
-      });
-    });
-  } catch (e) {
-    console.debug(`proxyPeer SERVER FAIL TO PACK AES ${e}`);
-    return Promise.reject(e);
-  }
-}
-
-
-export function unpackAESKeyAndIv(packed, privKey) {
-  try {
-    const { key, iv } = JSON.parse(packed);
-    return unwrapAESKey(key, privKey).then(aesKey => ({
-      key: aesKey,
-      iv: new Uint8Array(toArrayBuffer(iv, 'b64')),
-    }));
-  } catch (e) {
-    console.debug(`proxyPeer SERVER FAIL TO UNPACK AES ${e} ${packed}`);
-    return Promise.reject(e);
-  }
-}
-
-
 export function generateAESKey() {
   return crypto.subtle.generateKey(
     { name: 'AES-GCM', length: 256 },
@@ -194,22 +163,7 @@ function importRSAKey(pk, pub = true) {
 }
 
 
-export function encryptRSA(data, pubKey, aesKey) {
-  return Promise.all([
-    encryptAES(data, aesKey),
-    wrapAESKey(aesKey, pubKey),
-  ]);
-}
-
-
-export function decryptRSA(data, privKey) {
-  const [encrypted, wrappedKey] = data;
-  return unwrapAESKey(wrappedKey, privKey)
-    .then(aesKey => decryptAES(encrypted, aesKey));
-}
-
-
-function wrapAESKey(aesKey, publicKey) {
+export function wrapAESKey(aesKey, publicKey) {
   return Promise.resolve(
     typeof publicKey === 'string' ? importRSAKey(publicKey, true) : publicKey
   ).then(pk =>
@@ -218,7 +172,7 @@ function wrapAESKey(aesKey, publicKey) {
 }
 
 
-function unwrapAESKey(aesKey, privateKey) {
+export function unwrapAESKey(aesKey, privateKey) {
   return Promise.resolve(
     typeof privateKey === 'string' ? importRSAKey(privateKey, false) : privateKey
   )
@@ -241,4 +195,19 @@ function unwrapAESKey(aesKey, privateKey) {
         ['encrypt', 'decrypt'],
       ),
     );
+}
+
+
+export function encryptRSA(data, pubKey, aesKey) {
+  return Promise.all([
+    encryptAES(data, aesKey),
+    wrapAESKey(aesKey, pubKey),
+  ]);
+}
+
+
+export function decryptRSA(data, privKey) {
+  const [encrypted, wrappedKey] = data;
+  return unwrapAESKey(wrappedKey, privKey)
+    .then(aesKey => decryptAES(encrypted, aesKey));
 }

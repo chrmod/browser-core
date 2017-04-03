@@ -63,7 +63,7 @@ function MultiplexedQueue(name, callback) {
 
 
 export default class {
-  constructor() {
+  constructor(signalingUrl, peersUrl) {
     // Create a socks proxy
     this.socksProxy = new SocksProxy();
     this.peer = null;
@@ -73,7 +73,8 @@ export default class {
     this.rtcRelay = null;
     this.rtcToNet = null;
 
-    this.signalingURL = 'p2p-signaling-proxypeer.cliqz.com';
+    this.signalingURL = signalingUrl;
+    this.peersUrl = peersUrl;
   }
 
   createPeer(window) {
@@ -82,7 +83,7 @@ export default class {
       .then(() => {
         this.peer = new CliqzPeer(window, this.ppk, {
           ordered: true,
-          brokerUrl: `wss://${this.signalingURL}`,
+          brokerUrl: this.signalingURL,
           maxReconnections: 0,
           maxMessageRetries: 0,
         });
@@ -99,7 +100,7 @@ export default class {
       .then(window => this.createPeer(window))
       .then(() => {
         // Client
-        this.socksToRTC = new SocksToRTC(this.peer, this.socksProxy);
+        this.socksToRTC = new SocksToRTC(this.peer, this.socksProxy, this.peersUrl);
         this.clientQueue = MultiplexedQueue(
           'client',
           ({ msg }) => this.socksToRTC.handleClientMessage(msg),
@@ -132,30 +133,36 @@ export default class {
         // All messages
         this.messages = MessageQueue(
           'all',
-          ({ message, peer }) =>
-          decryptPayload(message, this.ppk[1])
-          .then((msg) => {
-            // Every message must have these fields defined
-            const connectionID = msg.connectionID;
-            const role = msg.role;
-            const data = {
-              msg,
-              message,
-              peer,
-            };
+          ({ message, peer }) => {
+            // Get real size of the message as received
+            const dataIn = message.length;
 
-            // Push in corresponding message queue
-            if (role === 'exit') {
-              this.exitQueue.push(connectionID, data);
-            } else if (role === 'relay') {
-              if (msg.nextPeer || this.rtcRelay.isOpenedConnection(connectionID, peer)) {
-                this.relayQueue.push(connectionID, data);
-              } else {
-                this.clientQueue.push(connectionID, data);
-              }
-            }
-          })
-          .catch(ex => console.error(`proxyPeer ProxyPeer error: ${ex} ${ex.stack}`)),
+            return decryptPayload(message, this.ppk[1])
+              .then((msg) => {
+                // Every message must have these fields defined
+                const connectionID = msg.connectionID;
+                const role = msg.role;
+                const data = {
+                  msg,
+                  message,
+                  peer,
+                };
+
+                // Push in corresponding message queue
+                if (role === 'exit') {
+                  this.rtcToNet.dataIn += dataIn;
+                  this.exitQueue.push(connectionID, data);
+                } else if (role === 'relay') {
+                  if (msg.nextPeer || this.rtcRelay.isOpenedConnection(connectionID, peer)) {
+                    this.rtcRelay.dataIn += dataIn;
+                    this.relayQueue.push(connectionID, data);
+                  } else {
+                    this.clientQueue.push(connectionID, data);
+                  }
+                }
+              })
+              .catch(ex => console.error(`proxyPeer ProxyPeer error: ${ex} ${ex.stack}`));
+          }
         );
       });
   }

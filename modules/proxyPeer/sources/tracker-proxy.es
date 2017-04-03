@@ -1,4 +1,5 @@
 import { utils, events } from '../core/cliqz';
+import { URLInfo } from '../antitracking/url';
 import console from './console';
 import ProxyPeer from './proxy-peer';
 
@@ -7,6 +8,14 @@ const PROXY_INSECURE_CONNECTIONS_PREF = 'proxyInsecureConnections';
 const PROXY_PEER_PREF = 'proxyPeer';
 const PROXY_TRACKERS_PREF = 'proxyTrackers';
 const PROXY_ALL_PREF = 'proxyAll';
+
+// Signaling server for WebRTC
+const PROXY_SIGNALING_URL_PREF = 'proxySignalingUrl';
+const PROXY_SIGNALING_DEFAULT = 'wss://p2p-signaling-proxypeer.cliqz.com';
+
+// Endpoint used to get the peers
+const PROXY_PEERS_URL_PREF = 'proxyPeersUrl';
+const PROXY_PEERS_DEFAULT = 'https://p2p-signaling-proxypeer.cliqz.com/peers';
 
 
 function shouldProxyTrackers() {
@@ -34,6 +43,28 @@ function shouldProxyInsecureConnections() {
 }
 
 
+function getSignalingUrl() {
+  let signalingUrl = utils.getPref(PROXY_SIGNALING_URL_PREF);
+  if (!signalingUrl) {
+    signalingUrl = PROXY_SIGNALING_DEFAULT;
+    utils.setPref(PROXY_SIGNALING_URL_PREF, signalingUrl);
+  }
+
+  return signalingUrl;
+}
+
+
+function getPeersUrl() {
+  let peersUrl = utils.getPref(PROXY_PEERS_URL_PREF);
+  if (!peersUrl) {
+    peersUrl = PROXY_PEERS_DEFAULT;
+    utils.setPref(PROXY_PEERS_URL_PREF, peersUrl);
+  }
+
+  return peersUrl;
+}
+
+
 export default class {
 
   constructor(antitracking) {
@@ -45,6 +76,9 @@ export default class {
 
     // Internal state
     this.proxyPeer = null;
+    this.signalingUrlHostname = null;
+    this.peersUrlHostname = null;
+
     this.firefoxProxy = null;
     this.prefListener = null;
 
@@ -70,7 +104,12 @@ export default class {
 
   initPeer() {
     if (this.isPeerEnabled() && this.proxyPeer === null) {
-      this.proxyPeer = new ProxyPeer();
+      const signalingUrl = getSignalingUrl();
+      this.signalingUrlHostname = URLInfo.get(signalingUrl).hostname;
+      const peersUrl = getPeersUrl();
+      this.peersUrlHostname = URLInfo.get(peersUrl).hostname;
+
+      this.proxyPeer = new ProxyPeer(signalingUrl, peersUrl);
       return this.proxyPeer.init();
     }
 
@@ -89,12 +128,12 @@ export default class {
     if (this.isProxyEnabled() && this.firefoxProxy === null) {
       // Inform Firefox to use our local proxy
       this.firefoxProxy = this.pps.newProxyInfo(
-        'socks',                              // aType = socks5
-        this.proxyPeer.getSocksProxyHost(),   // aHost
-        this.proxyPeer.getSocksProxyPort(),   // aPort
-        null,                                 // aFlags
-        5000,                                 // aFailoverTimeout
-        null);                                // aFailoverProxy
+        'socks',                                  // aType = socks5
+        this.proxyPeer.getSocksProxyHost(),       // aHost
+        this.proxyPeer.getSocksProxyPort(),       // aPort
+        this.pps.TRANSPARENT_PROXY_RESOLVES_HOST, // aFlags
+        5000,                                     // aFailoverTimeout
+        null);                                    // aFailoverProxy
 
       // Filter used to determine which requests are to be proxied.
       // Position 2 since 'unblock/sources/proxy.es' is in position 1
@@ -122,12 +161,11 @@ export default class {
         fn: (state) => {
           // Here we must perform some additional checks so that the proxying
           // does not interfere with the signaling and WebRTC infrastructure.
-          // In particular, we must check that calls to the signaling server
-          // or https://hpn-sign.cliqz.com/ are not proxied.
-          const isSignalingServer = state.url.indexOf(this.proxyPeer.signalingURL) !== -1;
-          const isHpnPeerEndpoint = state.url.indexOf('https://hpn-sign.cliqz.com/') === 0;
+          // In particular, we must check that calls to the signaling server.
+          const isSignalingServer = state.url.indexOf(this.signalingUrlHostname) !== -1;
+          const isPeersServer = state.url.indexOf(this.peersUrlHostname) !== -1;
 
-          if (!(isSignalingServer || isHpnPeerEndpoint)) {
+          if (!(isSignalingServer || isPeersServer)) {
             this.checkShouldProxyRequest(state);
           }
 
