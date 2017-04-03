@@ -15,6 +15,13 @@ function generateDiagnosis() {
   content.push(`<div>FF = ${firefox_version}</div>`);
   content.push(`<div>EXT = ${extension_version}</div>`);
 
+  if (adblocker === null) {
+    elt = document.getElementById('adb-warning');
+    content.push(['<h1>Adblocker is currently disabled</h1>']);
+    elt.innerHTML = content.join('\n');
+    return;
+  }
+
   // Display logs
   elt = document.getElementById("adb-logs");
   content.push(['<h1>Adblocker logs</h1>']);
