@@ -4,7 +4,7 @@ import { generateAESKey
        , decryptRSA
        , encryptAES
        , decryptAES
-       , base64_encode } from './rtc-crypto';
+       , b64Encode } from './rtc-crypto';
 
 
 /*
@@ -45,7 +45,7 @@ export function wrapOnionRequest(data, peers, connectionID, aesKey, messageNumbe
     connectionID,
     messageNumber,
     role: 'exit',
-    data: base64_encode(data),
+    data: b64Encode(data),
   };
 
   const wrapRequest = (layer, i) => {

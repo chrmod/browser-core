@@ -7,7 +7,7 @@ import { openSocket } from './tcp-socket';
 import { SERVER_REPLY
        , ADDRESS_TYPE
        , parseRequest } from './socks-protocol';
-import { unwrapAESKey, base64_decode } from './rtc-crypto';
+import { unwrapAESKey, b64Decode } from './rtc-crypto';
 import { createResponseFromExitNode } from './rtc-onion';
 import MessageQueue from './message-queue';
 
@@ -130,7 +130,7 @@ export default class {
    */
   openNewConnection(message, peer, sender, connectionHash, peerPrivKey) {
     const connectionID = message.connectionID;
-    const data = base64_decode(message.data);
+    const data = b64Decode(message.data);
     console.debug(`proxyPeer EXIT ${connectionID} ${message.messageNumber} openNewConnection`);
 
     // We have a SOCKS Request and need to establish the connection
@@ -237,7 +237,7 @@ export default class {
 
   relayToOpenedConnection(message, connectionHash) {
     const connectionID = message.connectionID;
-    const data = base64_decode(message.data);
+    const data = b64Decode(message.data);
 
     // This should be a byte array (Uint8Array) and the connection should be established
     if (this.outgoingTcpConnections.has(connectionHash)) {

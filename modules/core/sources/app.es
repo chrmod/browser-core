@@ -127,6 +127,9 @@ export default class {
   }
 
   stop(isShutdown, disable, telemetrySignal) {
+    /* eslint-disable no-param-reassign */
+    // NOTE: Disable this warning locally since the solution is hacky anyway.
+
     utils.telemetry({
       type: 'activity',
       action: telemetrySignal
@@ -145,7 +148,7 @@ export default class {
      *
      */
 
-    if(disable && config.settings.channel === '40'){
+    if (disable && config.settings.channel === '40') {
       // in the CLIQZ browser the extension runns as a system addon and
       // the user cannot disable or uninstall it. Therefore we do not need
       // to consider an uninstall signal.

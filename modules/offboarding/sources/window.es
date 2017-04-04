@@ -1,6 +1,7 @@
 import inject from '../core/kord/inject';
 import utils from '../core/utils';
-import { forEachWindow } from 'platform/browser';
+import { forEachWindow } from '../platform/browser';
+
 
 export default class {
   constructor({ window, settings }) {
@@ -11,19 +12,19 @@ export default class {
     // in case the extension runs in the CLIQZ browser we could get fake uninstall
     // signals from the system addon updater so we must remove any offboarding page
     // see https://bugzilla.mozilla.org/show_bug.cgi?id=1351617
-    if(settings.channel == '40'){
-      let offboardingURL = [
-        "https://cliqz.com/home/offboarding", // == utils.UNINSTALL
-        "https://cliqz.com/offboarding",
-        "https://cliqz.com/en/offboarding",
-        "https://cliqz.com/fr/offboarding"
+    if (settings.channel === '40') {
+      const offboardingURL = [
+        'https://cliqz.com/home/offboarding', // == utils.UNINSTALL
+        'https://cliqz.com/offboarding',
+        'https://cliqz.com/en/offboarding',
+        'https://cliqz.com/fr/offboarding'
       ];
       forEachWindow((win) => {
         win.gBrowser.tabs.forEach((tab) => {
-          if(offboardingURL.indexOf(tab.linkedBrowser.currentURI.spec) != -1) {
+          if (offboardingURL.indexOf(tab.linkedBrowser.currentURI.spec) !== -1) {
             win.gBrowser.removeTab(tab);
           }
-        })
+        });
       });
     }
   }
