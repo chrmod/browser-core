@@ -92,7 +92,7 @@ var UI = {
     },
     setTheme: function (incognito = false) {
       UI.isIncognito = incognito;
-      window.document.body.style.backgroundColor = incognito ? '#4a4a4a' : '#E8E8E8';
+      window.document.body.style.backgroundColor = incognito ? '#333333' : '#E8E8E8';
     },
     results: function (r) {
 
@@ -279,6 +279,7 @@ function enhanceResults(results) {
     const url = r.val || '';
     r.data.urlDetails = url && utils.getDetailsFromUrl(url);
     r.data.logo = r.data.urlDetails && utils.getLogoDetails(r.data.urlDetails);
+    r.data.query = r.query;
 
     let historyStyle = '';
     if ((r.data.kind || []).find(kind => kind === 'C' || kind === 'H')) {
