@@ -1,11 +1,9 @@
-import CliqzUtils from 'core/utils';
-import PeerComm from 'pairing/main';
-import YoutubeApp from 'pairing/apps/youtube';
-import TabsharingApp from 'pairing/apps/tabsharing';
-import PingPongApp from 'pairing/apps/pingpong';
-import SimpleStorage from 'core/simple-storage';
-
-import { createHiddenWindow, destroyHiddenWindow } from 'p2p/utils';
+import CliqzUtils from '../core/utils';
+import PeerComm from './main';
+import YoutubeApp from './apps/youtube';
+import TabsharingApp from './apps/tabsharing';
+import PingPongApp from './apps/pingpong';
+import SimpleStorage from '../core/simple-storage';
 
 export default {
   init() {
@@ -35,18 +33,12 @@ export default {
     });
     PeerComm.addObserver('TABSHARING', tabsharing);
     this.storage = new SimpleStorage();
-    const storagePromise = this.storage.open('data', 'cliqz/pairing', true, true);
-    Promise.all([createHiddenWindow(), storagePromise])
-      .then(([w]) => {
-        this.window = w;
-        return PeerComm.init(this.storage, this.window);
-      });
+    this.storage.open('data', ['cliqz', 'pairing'], true, true)
+      .then(() => PeerComm.init(this.storage));
   },
   unload() {
     PeerComm.unload();
     this.storage.close();
-    destroyHiddenWindow(this.window);
-    this.window = null;
   },
 
   actions: {

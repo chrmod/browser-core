@@ -1,7 +1,6 @@
 import { utils } from '../core/cliqz';
 
 import CliqzPeer from '../p2p/cliqz-peer';
-import { createHiddenWindow, destroyHiddenWindow } from '../p2p/utils';
 
 import logger from './logger';
 import MessageQueue from './message-queue';
@@ -10,7 +9,7 @@ import RTCRelay from './rtc-relay';
 import RTCToNet from './rtc-to-net';
 import SocksToRTC from './socks-to-rtc';
 import { decryptPayload } from './rtc-onion';
-
+import inject from '../core/kord/inject';
 
 /**
  * Wrap a MessageQueue into a multiplexer. It exposes a different `push`
@@ -64,6 +63,7 @@ function MultiplexedQueue(name, callback) {
 
 export default class {
   constructor(signalingUrl, peersUrl) {
+    this.p2p = inject.module('p2p');
     // Create a socks proxy
     this.socksProxy = new SocksProxy();
     this.peer = null;
@@ -77,28 +77,32 @@ export default class {
     this.peersUrl = peersUrl;
   }
 
-  createPeer(window) {
+  createPeer() {
     return CliqzPeer.generateKeypair()
       .then((ppk) => { this.ppk = ppk; })
-      .then(() => {
-        this.peer = new CliqzPeer(window, this.ppk, {
-          ordered: true,
-          brokerUrl: this.signalingURL,
-          maxReconnections: 0,
-          maxMessageRetries: 0,
-          DEBUG: true,
-        });
-
+      .then(() =>
+        this.p2p.action(
+          'createPeer',
+          this.ppk,
+          {
+            ordered: true,
+            brokerUrl: this.signalingURL,
+            maxReconnections: 0,
+            maxMessageRetries: 0,
+            DEBUG: true,
+          }
+        )
+      )
+      .then((p) => {
+        this.peer = p;
         // Add message listener
         this.peer.onmessage = (message, label, peer) => this.handleNewMessage(message, peer);
-      })
-      .then(() => this.peer.createConnection());
+      });
   }
 
   init() {
     // Init peer and register it to the signaling server
-    return createHiddenWindow()
-      .then(window => this.createPeer(window))
+    return this.createPeer()
       .then(() => {
         // Client
         this.socksToRTC = new SocksToRTC(this.peer, this.socksProxy, this.peersUrl);
@@ -185,9 +189,7 @@ export default class {
     });
 
     this.socksProxy.unload();
-    this.peer.disableSignaling();
     this.peer.destroy();
-    destroyHiddenWindow();
     this.peer = null;
   }
 

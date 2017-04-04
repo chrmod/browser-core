@@ -1,6 +1,6 @@
 /* eslint no-param-reassign: off */
 
-import random from 'core/crypto/random';
+import random from '../../core/crypto/random';
 import constants from './constants';
 
 // CliqzPeerConnection: encapsulates a RTCDataChannel and RTCPeerConnection
@@ -157,8 +157,12 @@ export default class CliqzPeerConnection {
           } else if (pairs.length > 1) {
             return reject('more than one candidate pair');
           }
-          const localCandidate = conn.iceCandidateStats.find(x => x.type === 'localcandidate' && x.id === pairs[0].localCandidateId);
-          const remoteCandidate = conn.iceCandidateStats.find(x => x.type === 'remotecandidate' && x.id === pairs[0].remoteCandidateId);
+          const localCandidate = conn.iceCandidateStats.find(x =>
+            x.type.indexOf('local') === 0 && x.id === pairs[0].localCandidateId
+          );
+          const remoteCandidate = conn.iceCandidateStats.find(x =>
+            x.type.indexOf('remote') === 0 && x.id === pairs[0].remoteCandidateId
+          );
           if (!localCandidate) {
             return reject('no local candidate');
           }

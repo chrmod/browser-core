@@ -217,7 +217,6 @@ export default class CliqzPeer {
         delete stats[key];
       }
     });
-    stats.useragent = this.window.navigator ? this.window.navigator.userAgent : null;
     stats.version = '0.1';
     stats.timestamp = Math.floor(Date.now() / 1000);
     return stats;
@@ -271,6 +270,9 @@ export default class CliqzPeer {
   }
 
   applySignalingMessage(data) {
+    if (this.closed) {
+      return;
+    }
     const _message = data.data;
     const from = data.from;
     const id = data.id;
@@ -484,59 +486,67 @@ export default class CliqzPeer {
     this.messageSizeLimit = 0; // Will drop messages larger than this message size, if it is > 0
   }
 
+  open() {
+    this.enableSignaling();
+    this.closed = false;
+  }
+
   /**
-  * Destroys peer. This means closing connection with signaling server and other peers, and that
-    the peer instance cannot be used anymore.
+  * Closes all connections and disables signaling.
+  */
+  close() {
+    this.disableSignaling();
+    try {
+      Object.keys(this.connections).forEach((key) => {
+        const conn = this.connections[key];
+        if (conn) {
+          conn.close('destroy');
+        }
+      });
+    } catch (e) {
+      this.logError('Error closing connections', e);
+    }
+
+    try {
+      Object.keys(this.pendingConnections).forEach((key) => {
+        const conn = this.pendingConnections[key];
+        if (conn) {
+          conn.close('destroy');
+        }
+      });
+    } catch (e) {
+      this.logError('Error closing pending connections', e);
+    }
+
+    try {
+      Object.keys(this.outMessages).forEach((key) => {
+        this.outMessages[key].kill(true); // Close with success..
+      });
+    } catch (e) {
+      this.logError('Error killing outcoming messages', e);
+    }
+
+    try {
+      Object.keys(this.inMessages).forEach((key) => {
+        this.inMessages[key].kill(true); // Close with success
+      });
+    } catch (e) {
+      this.logError('Error killing incoming messages', e);
+    }
+    this._setInitialState();
+    this.closed = true;
+  }
+
+  /**
+  * Destroys peer.
   */
   destroy() {
-    if (!this.destroyed) {
-      this.clearInterval(this.signalingConnector);
-      this.signalingConnector = null;
-      this.destroyed = true;
-      try {
-        Object.keys(this.connections).forEach((key) => {
-          const conn = this.connections[key];
-          if (conn) {
-            conn.close('destroy');
-          }
-        });
-      } catch (e) {
-        this.logError('Error closing connections', e);
-      }
-
-      try {
-        Object.keys(this.pendingConnections).forEach((key) => {
-          const conn = this.pendingConnections[key];
-          if (conn) {
-            conn.close('destroy');
-          }
-        });
-      } catch (e) {
-        this.logError('Error closing pending connections', e);
-      }
-
-      try {
-        Object.keys(this.outMessages).forEach((key) => {
-          this.outMessages[key].kill(true); // Close with success..
-        });
-      } catch (e) {
-        this.logError('Error killing outcoming messages', e);
-      }
-
-      try {
-        Object.keys(this.inMessages).forEach((key) => {
-          this.inMessages[key].kill(true); // Close with success
-        });
-      } catch (e) {
-        this.logError('Error killing incoming messages', e);
-      }
-      try {
-        this.closeSocket();
-      } catch (e) {
-        this.logError('Error closing socket', e);
-      }
-      this._setInitialState();
-    }
+    this.close();
+    this.window = null;
+    this.RTCSessionDescription = null;
+    this.RTCPeerConnection = null;
+    this.RTCIceCandidate = null;
+    this.WebSocket = null;
   }
 
   /**
@@ -627,6 +637,9 @@ export default class CliqzPeer {
   * @param {string} peerID - The other peerID.
   */
   checkPeerConnection(peer) {
+    if (this.closed) {
+      return Promise.reject(new Error('CliqzPeer is closed'));
+    }
     return this.connectPeer(peer)
       .then(() => this._getConnection(peer).healthCheck())
       // Try to reconnect once, for the cases the connection was stale
@@ -646,6 +659,9 @@ export default class CliqzPeer {
   * @param {string} peerID - The other peerID.
   */
   connectPeer(requestedPeer) {
+    if (this.closed) {
+      return Promise.reject(new Error('CliqzPeer is closed'));
+    }
     if (has(this.connections, requestedPeer)) {
       return Promise.resolve();
     }
@@ -672,6 +688,9 @@ export default class CliqzPeer {
     @param {string} peerID - The target peerID.
   */
   send(peer, msg, label) {
+    if (this.closed) {
+      return Promise.reject(new Error('CliqzPeer is closed'));
+    }
     if (msg === undefined) {
       return Promise.reject('undefined is not a valid message: use null instead');
     }
