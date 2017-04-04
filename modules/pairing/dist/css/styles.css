@@ -41,12 +41,6 @@ body {
     -moz-user-select: none;
 }
 
-.header-help-link {
-    float: right;
-    margin-top: 5px;
-    padding-right: 15px;
-}
-
 div.row {
     clear: both;
     width: 100%;
