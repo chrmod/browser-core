@@ -10,9 +10,9 @@ ops['$send_signal'] = function(args, eventLoop) {
       reject(new Error('invalid args'));
     }
 
-    var capmaignId = args[0];
-    var offerId = args[1];
-    var key = args[2];
+    var offerId = args[0];
+    var key = args[1];
+    var capmaignId = args[2];
 
     eventLoop.environment.sendSignal(capmaignId, offerId, key);
 
