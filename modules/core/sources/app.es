@@ -129,8 +129,7 @@ export default class {
   stop(isShutdown, disable, telemetrySignal) {
     utils.telemetry({
       type: 'activity',
-      action: telemetrySignal,
-      shutDownStack: (new Error()).stack
+      action: telemetrySignal
     }, true /* force push */);
 
     /**
@@ -145,6 +144,18 @@ export default class {
      *  * ADDON_UPGRADE, ADDON_DOWNGRADE - fast cleanup
      *
      */
+
+    if(disable && config.settings.channel === '40'){
+      // in the CLIQZ browser the extension runns as a system addon and
+      // the user cannot disable or uninstall it. Therefore we do not need
+      // to consider an uninstall signal.
+      //
+      // we need this override to avoid an issue in FF52. Please check:
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1351617
+      //
+      // TODO: find a nicer way to detect if this runs in the CLIQZ browser
+      disable = false;
+    }
 
     if (isShutdown) {
       this.unload({ quick: true });
