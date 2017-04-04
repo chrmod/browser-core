@@ -277,8 +277,12 @@ function enhanceResults(results) {
 
   filteredResults.forEach((r, index) => {
     const url = r.val || '';
-    r.data.urlDetails = url && utils.getDetailsFromUrl(url);
-    r.data.logo = r.data.urlDetails && utils.getLogoDetails(r.data.urlDetails);
+    if (url) {
+      const urlDetails = utils.getDetailsFromUrl(url);
+      r.data.urlDetails = urlDetails;
+      r.data.logo = utils.getLogoDetails(urlDetails);
+      r.data.title = r.data.title || urlDetails.name;
+    }
     r.data.query = r.query;
 
     let historyStyle = '';
