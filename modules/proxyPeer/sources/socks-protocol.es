@@ -1,6 +1,6 @@
 /* eslint no-bitwise: off */
 
-import console from './console';
+import logger from './logger';
 
 
 // Supported SOCKS version
@@ -84,7 +84,7 @@ export function parseRequest(data) {
       command !== COMMAND_TYPE.TCP_CONNECT &&
       command !== COMMAND_TYPE.UDP_ASSOCIATE) {
     // SERVER_REPLY.COMMAND_NOT_SUPPORTED
-    console.error(`proxyPeer socks-protocol: command not supported: ${command}`);
+    logger.error(`socks-protocol: command not supported: ${command}`);
     return undefined;
   }
 
@@ -110,7 +110,7 @@ export function parseRequest(data) {
 
     default:
       // SERVER_REPLY.ADDRESS_TYPE_NOT_SUPPORTED
-      console.error(`proxyPeer socks-protocol address type not supported: ${addressType}`);
+      logger.error(`socks-protocol address type not supported: ${addressType}`);
       return undefined;
   }
 

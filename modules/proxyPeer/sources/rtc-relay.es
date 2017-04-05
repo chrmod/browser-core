@@ -1,6 +1,6 @@
 // import md5 from 'core/helpers/md5';
 import { utils } from '../core/cliqz';
-import console from './console';
+import logger from './logger';
 
 
 function hashConnectionID(connectionID /* , peerID */) {
@@ -25,7 +25,7 @@ export default class {
     // Display health check
     this.healthCheck = utils.setInterval(
       () => {
-        console.debug(`proxyPeer RTCRelay healthcheck ${JSON.stringify(this.healthcheck())}`);
+        logger.log(`RTCRelay healthcheck ${JSON.stringify(this.healthcheck())}`);
       },
       60 * 1000);
 
@@ -36,7 +36,7 @@ export default class {
         [...this.previousPeer.keys()].forEach((connectionID) => {
           const { lastActivity } = this.previousPeer.get(connectionID);
           if (lastActivity < (timestamp - (1000 * 15))) {
-            console.debug(`proxyPeer RELAY ${connectionID} garbage collect`);
+            logger.debug(`RELAY ${connectionID} garbage collect`);
             this.previousPeer.delete(connectionID);
           }
         });
@@ -89,17 +89,17 @@ export default class {
       const previousPeer = this.previousPeer.get(connectionHash);
       previousPeer.lastActivity = Date.now();
 
-      console.debug(`proxyPeer RELAY ${connectionID} ${messageNumber} backward ${data.length}`);
+      logger.debug(`RELAY ${connectionID} ${messageNumber} backward ${data.length}`);
 
       this.dataOut += data.length;
       return peer.send(previousPeer.sender, data, 'antitracking')
         .catch((e) => {
-          console.error(`proxyPeer RELAY ${connectionID} ${messageNumber} ERROR: could not send message ${e}`);
+          logger.error(`RELAY ${connectionID} ${messageNumber} ERROR: could not send message ${e}`);
         });
     }
 
     // Drop message because connection doesn't exist
-    console.debug(`proxyPeer RELAY ${connectionID} ${messageNumber} dropped message`);
+    logger.error(`RELAY ${connectionID} ${messageNumber} dropped message`);
     this.droppedMessages += 1;
     return Promise.resolve();
   }
@@ -112,7 +112,7 @@ export default class {
     const nextData = message.data;
     const connectionID = message.connectionID;
 
-    console.debug(`proxyPeer RELAY ${connectionID} ${message.messageNumber} forward ${nextData.length}`);
+    logger.debug(`RELAY ${connectionID} ${message.messageNumber} forward ${nextData.length}`);
 
     // Remember where the query came from
     this.previousPeer.set(
@@ -123,7 +123,7 @@ export default class {
     this.dataOut += nextData.length;
     return peer.send(nextPeer, nextData, 'antitracking')
       .catch((e) => {
-        console.error(`proxyPeer RELAY ${connectionID} ${message.messageNumber} ERROR: could not send message ${e}`);
+        logger.error(`RELAY ${connectionID} ${message.messageNumber} ERROR: could not send message ${e}`);
       });
   }
 }

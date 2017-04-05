@@ -1,4 +1,4 @@
-import console from './console';
+import logger from './logger';
 import { generateAESKey
        , encryptRSA
        , decryptRSA
@@ -60,7 +60,7 @@ export function wrapOnionRequest(data, peers, connectionID, aesKey, messageNumbe
           nextPeer: peerName,
           data: encrypted,
         },
-        i - 1)).catch((e) => { console.error(`proxyPeer PEER ERROR ${e} ${e.stack}`); });
+        i - 1)).catch((e) => { logger.error(`PEER ERROR ${e} ${e.stack}`); });
     }
 
     return encryptPayload(layer, peers[0].pubKey);
@@ -71,13 +71,13 @@ export function wrapOnionRequest(data, peers, connectionID, aesKey, messageNumbe
 
 
 export function sendOnionRequest(onionRequest, peers, peer) {
-  console.debug(`proxyPeer sendOnionRequest to ${JSON.stringify(peers[0])}`);
+  logger.debug(`sendOnionRequest to ${JSON.stringify(peers[0])}`);
   return peer.send(
     peers[0].name,
     onionRequest,
     'antitracking',
   ).catch((e) => {
-    console.error(`proxyPeer CLIENT ERROR: could not send message ${e} ${e.stack}`);
+    logger.error(`CLIENT ERROR: could not send message ${e} ${e.stack}`);
   });
 }
 
@@ -90,7 +90,7 @@ export function sendOnionRequest(onionRequest, peers, peer) {
 export function createResponseFromExitNode(data, aesKey) {
   return Promise.resolve(encryptAES(data, aesKey))
     .catch((ex) => {
-      console.error(`proxyPeer SERVER ERR encryptResponse ${ex}`);
+      logger.error(`SERVER ERR encryptResponse ${ex}`);
       return Promise.reject(ex);
     });
 }
@@ -100,7 +100,7 @@ export function decryptResponseFromExitNode(encrypted, aesKey) {
   // TODO: Remove double conversion of iv
   return Promise.resolve(decryptAES(encrypted, aesKey))
     .catch((ex) => {
-      console.error(`proxyPeer SERVER ERR decryptResponse ${ex}`);
+      logger.error(`SERVER ERR decryptResponse ${ex}`);
       return Promise.reject(ex);
     });
 }

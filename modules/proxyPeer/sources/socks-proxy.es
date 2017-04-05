@@ -1,4 +1,4 @@
-import console from './console';
+import logger from './logger';
 import { TcpConnection } from './tcp-socket';
 
 
@@ -49,7 +49,7 @@ export default class SocksProxy {
         // TODO: Exception or logging?
       }
     } catch (ex) {
-      console.error(`proxyPeer SOCKS PROXY error on socket accept ${ex}`);
+      logger.error(`SOCKS PROXY error on socket accept ${ex}`);
     }
   }
 

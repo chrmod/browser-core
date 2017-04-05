@@ -127,8 +127,11 @@ class OutMessage {
     this.resolve = resolve;
     this.reject = reject;
     this.cliqzPeer = cliqzPeer;
-    this.log = (...args) => cliqzPeer.log(`[${peer}]`, ...args);
-    this.logDebug = (...args) => cliqzPeer.logDebug(`[${peer}]`, ...args);
+
+    this.log = cliqzPeer.log.bind(null, `[${peer}]`);
+    this.logDebug = cliqzPeer.logDebug.bind(null, `[${peer}]`);
+    this.logError = cliqzPeer.logError.bind(null, `[${peer}]`);
+
     this.chunkSize = cliqzPeer.chunkSize;
     do {
       this.msgId = Math.round(random() * 2000000000);
@@ -181,7 +184,7 @@ class OutMessage {
             this.send();
           })
           .catch((ex) => {
-            this.log('Killing outcoming message', this.msgId, 'to peer', this.peer);
+            this.logError('Killing outcoming message', this.msgId, 'to peer', this.peer);
             delete this.cliqzPeer.outMessages[this.msgId];
             this.reject(`killing outcoming message: ${ex}`);
           });
@@ -197,19 +200,19 @@ class OutMessage {
         this.cliqzPeer.stats.outbytes += this.chunks[chunk].byteLength;
         --this.remainingChunks;
         if (this.remainingChunks === 0) {
-          this.log('Received last ack ', this.msgId, chunk);
+          this.logDebug('Received last ack ', this.msgId, chunk);
           this.cliqzPeer.stats.outmsgs++;
           this.kill(true);
           this.resolve();
         } else {
-          this.log('Received ack ', this.msgId, chunk);
+          this.logDebug('Received ack ', this.msgId, chunk);
           this.scheduleKiller();
         }
       } else {
-        this.log('Warning: repeated chunk');
+        this.logError('Warning: repeated chunk');
       }
     } else {
-      this.log('Warning: chunk number is too big');
+      this.logError('Warning: chunk number is too big');
     }
   }
 
@@ -226,7 +229,7 @@ class OutMessage {
           conn.send(this.chunks[i]);
         }
       })
-      .catch(e => this.log('Error sending msg', e));
+      .catch(e => this.logError('Error sending msg', e));
   }
 }
 
@@ -234,8 +237,11 @@ class InMessage {
   constructor(firstChunk, peer, resolve, cliqzPeer) {
     this.msgTimeout = cliqzPeer.msgTimeout;
     this.cliqzPeer = cliqzPeer;
-    this.log = (...args) => cliqzPeer.log(`[${peer}]`, ...args);
-    this.logDebug = (...args) => cliqzPeer.logDebug(`[${peer}]`, ...args);
+
+    this.log = cliqzPeer.log.bind(null, `[${peer}]`);
+    this.logDebug = cliqzPeer.logDebug.bind(null, `[${peer}]`);
+    this.logError = cliqzPeer.logError.bind(null, `[${peer}]`);
+
     this.peer = peer;
     this.resolve = resolve;
     this.chunks = [];
@@ -261,7 +267,7 @@ class InMessage {
           --this.remainingChunks;
           this.sendAck(chunk.chunkId);
           if (this.remainingChunks === 0) {
-            this.log('Received last chunk ', this.msgId, chunk.chunkId);
+            this.logDebug('Received last chunk ', this.msgId, chunk.chunkId);
             this.cliqzPeer.stats.inmsgs++;
             this.kill(true);
             this.cliqzPeer.setTimeout(() => {
@@ -279,17 +285,17 @@ class InMessage {
               this.resolve(decoded.data, decoded.label);
             }, 0);
           } else {
-            this.log('Received chunk ', this.msgId, chunk.chunkId, this.remainingChunks);
+            this.logDebug('Received chunk ', this.msgId, chunk.chunkId, this.remainingChunks);
             this.scheduleKiller();
           }
         } else {
-          this.log('Message size exceeded, dropping chunk...');
+          this.logError('Message size exceeded, dropping chunk...');
         }
       } else {
-        this.log('Warning: received repeated chunk');
+        this.logError('Warning: received repeated chunk');
       }
     } else {
-      this.log('Warning: received chunk number is too big');
+      this.logError('Warning: received chunk number is too big');
     }
   }
 
@@ -316,7 +322,7 @@ class InMessage {
     this.cancelKiller();
     delete this.cliqzPeer.inMessages[this.msgId];
     if (!success) {
-      this.log('Killing incoming message', this.msgId, 'from peer', this.peer);
+      this.logError('Killing incoming message', this.msgId, 'from peer', this.peer);
           // this.reject();
     }
   }

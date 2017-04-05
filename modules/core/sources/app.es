@@ -127,8 +127,8 @@ export default class {
   }
 
   stop(isShutdown, disable, telemetrySignal) {
-    /* eslint-disable no-param-reassign */
     // NOTE: Disable this warning locally since the solution is hacky anyway.
+    /* eslint-disable no-param-reassign */
 
     utils.telemetry({
       type: 'activity',

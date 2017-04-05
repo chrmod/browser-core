@@ -19,9 +19,9 @@ export default class CliqzPeerConnection {
   }
 
   constructor(cliqzPeer, peerOptions, peer, isLocal) {
-    this.log = (...args) => cliqzPeer.log(`[${peer}]`, ...args);
-    this.logDebug = (...args) => cliqzPeer.logDebug(`[${peer}]`, ...args);
-    this.logError = (...args) => cliqzPeer.logError(`[${peer}]`, ...args);
+    this.logDebug = cliqzPeer.logDebug.bind(null, `[${peer}]`);
+    this.log = cliqzPeer.log.bind(null, `[${peer}]`);
+    this.logError = cliqzPeer.logError.bind(null, `[${peer}]`);
     this.id = Math.round(random() * 2000000000);
     this.remoteId = null;
     this.cliqzPeer = cliqzPeer;
@@ -71,7 +71,7 @@ export default class CliqzPeerConnection {
 
     this.connection.onerror = (e) => {
       if (connection === this.connection) {
-        this.log(e, 'Connection error');
+        this.logError(e, 'Connection error');
         this.close('connection.onerror');
       } else {
         this.logError('ERROR: received onerror message from old PeerConnection');
@@ -240,14 +240,14 @@ export default class CliqzPeerConnection {
           connection.addIceCandidate(new this.cliqzPeer.RTCIceCandidate(candidate), () => {
             this.logDebug('candidate ok', candidate);
           }, (e) => {
-            this.log(e, 'candidate wrong', candidate);
+            this.logError(e, 'candidate wrong', candidate);
           });
         } else {
           // TODO: should we do sth here? Chromium and Firefox seem to handle this differently...
           this.logDebug('Received end of candidates', from, candidate, id, this.remoteId);
         }
       } else {
-        this.log('Warning: wrong ice candidate received', from, id, this.remoteId);
+        this.logError('Warning: wrong ice candidate received', from, id, this.remoteId);
       }
     } else {
       if (!this.savedICECandidates) {
@@ -282,7 +282,7 @@ export default class CliqzPeerConnection {
         this.logError(error, 'error setting receiver remote description');
       });
     } else {
-      this.log('Warning: wrong offer received', from, id, this.remoteId);
+      this.logError('Warning: wrong offer received', from, id, this.remoteId);
     }
   }
 
@@ -310,7 +310,7 @@ export default class CliqzPeerConnection {
       this.status = 'nosuchroute';
       this.close('nosuchroute');
     } else {
-      this.logDebug('Discarding no such route error', id, this.id);
+      this.logError('Discarding no such route error', id, this.id);
     }
   }
 
@@ -392,7 +392,7 @@ export default class CliqzPeerConnection {
         try {
           this.onopen();
         } catch (e) {
-          this.log(typeof e === 'string' ? e : e.message, 'error calling cliqzpeerconnection onopen');
+          this.logError(typeof e === 'string' ? e : e.message, 'error calling cliqzpeerconnection onopen');
         }
       }
     };

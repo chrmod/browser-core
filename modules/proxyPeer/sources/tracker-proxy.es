@@ -1,6 +1,5 @@
 import { utils, events } from '../core/cliqz';
-import { URLInfo } from '../antitracking/url';
-import console from './console';
+import logger from './logger';
 import ProxyPeer from './proxy-peer';
 
 
@@ -105,9 +104,9 @@ export default class {
   initPeer() {
     if (this.isPeerEnabled() && this.proxyPeer === null) {
       const signalingUrl = getSignalingUrl();
-      this.signalingUrlHostname = URLInfo.get(signalingUrl).hostname;
+      this.signalingUrlHostname = utils.getDetailsFromUrl(signalingUrl).host;
       const peersUrl = getPeersUrl();
-      this.peersUrlHostname = URLInfo.get(peersUrl).hostname;
+      this.peersUrlHostname = utils.getDetailsFromUrl(peersUrl).host;
 
       this.proxyPeer = new ProxyPeer(signalingUrl, peersUrl);
       return this.proxyPeer.init();
@@ -128,12 +127,12 @@ export default class {
     if (this.isProxyEnabled() && this.firefoxProxy === null) {
       // Inform Firefox to use our local proxy
       this.firefoxProxy = this.pps.newProxyInfo(
-        'socks',                                  // aType = socks5
-        this.proxyPeer.getSocksProxyHost(),       // aHost
-        this.proxyPeer.getSocksProxyPort(),       // aPort
-        this.pps.TRANSPARENT_PROXY_RESOLVES_HOST, // aFlags
-        5000,                                     // aFailoverTimeout
-        null);                                    // aFailoverProxy
+        'socks',                            // aType = socks5
+        this.proxyPeer.getSocksProxyHost(), // aHost
+        this.proxyPeer.getSocksProxyPort(), // aPort
+        Components.interfaces.nsIProxyInfo.TRANSPARENT_PROXY_RESOLVES_HOST,
+        5000,                               // aFailoverTimeout
+        null);                              // aFailoverProxy
 
       // Filter used to determine which requests are to be proxied.
       // Position 2 since 'unblock/sources/proxy.es' is in position 1
@@ -275,18 +274,18 @@ export default class {
 
   checkShouldProxyURL(url, isTrackerDomain) {
     if (this.firefoxProxy === null) {
-      console.error('proxyPeer cannot proxy: tracker-proxy not yet initialized');
+      logger.error('cannot proxy: tracker-proxy not yet initialized');
       return false;
     }
 
     if (this.proxyPeer === null || this.proxyPeer.socksToRTC === null) {
-      console.error('proxyPeer cannot proxy: proxyPeer not yet initialized');
+      logger.error('cannot proxy: proxyPeer not yet initialized');
       return false;
     }
 
     const availablePeers = this.proxyPeer.socksToRTC.availablePeers.length;
     if (availablePeers < 2) {
-      console.error(`proxyPeer cannot proxy: not enough peers available (${availablePeers})`);
+      logger.error(`cannot proxy: not enough peers available (${availablePeers})`);
       return false;
     }
 
@@ -296,18 +295,18 @@ export default class {
 
       // Ignore https if proxyHttp is false
       if (isHttp && !this.shouldProxyInsecureConnections) {
-        console.error(`proxyPeer do not proxy non-https ${url}`);
+        logger.error(`do not proxy non-https ${url}`);
         return false;
       }
 
       if (isHttp || isHttps) {
-        console.debug(`proxyPeer proxy: ${url}`);
+        logger.debug(`proxy: ${url}`);
         this.proxyOnce(url);
         return true;
       }
     }
 
-    console.debug(`proxyPeer do *not* proxy: ${url}`);
+    logger.debug(`do *not* proxy: ${url}`);
 
     return false;
   }

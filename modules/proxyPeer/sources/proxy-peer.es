@@ -3,7 +3,7 @@ import { utils } from '../core/cliqz';
 import CliqzPeer from '../p2p/cliqz-peer';
 import { createHiddenWindow, destroyHiddenWindow } from '../p2p/utils';
 
-import console from './console';
+import logger from './logger';
 import MessageQueue from './message-queue';
 import SocksProxy from './socks-proxy';
 import RTCRelay from './rtc-relay';
@@ -46,7 +46,7 @@ function MultiplexedQueue(name, callback) {
       Object.keys(queues).forEach((key) => {
         const { lastActivity } = queues[key];
         if (lastActivity < (timestamp - (1000 * 30))) {
-          console.debug(`proxyPeer ${name}_${key} garbage collect`);
+          logger.debug(`${name}_${key} garbage collect`);
           delete queues[key];
         }
       });
@@ -86,6 +86,7 @@ export default class {
           brokerUrl: this.signalingURL,
           maxReconnections: 0,
           maxMessageRetries: 0,
+          DEBUG: true,
         });
 
         // Add message listener
@@ -161,7 +162,7 @@ export default class {
                   }
                 }
               })
-              .catch(ex => console.error(`proxyPeer ProxyPeer error: ${ex} ${ex.stack}`));
+              .catch(ex => logger.error(`proxy-peer error: ${ex} ${ex.stack}`));
           }
         );
       });

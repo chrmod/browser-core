@@ -1,6 +1,6 @@
 import { utils } from '../core/cliqz';
 
-import console from './console';
+import logger from './logger';
 import { AUTH_METHOD
        , SOCKS5
        , parseHandshake } from './socks-protocol';
@@ -87,7 +87,7 @@ class SocksConnection {
    * @param {String|null} msg - Sends a message to client before closing.
    */
   close(msg) {
-    console.debug(`proxyPeer CLIENT ${this.id} garbage collect connection`);
+    logger.debug(`CLIENT ${this.id} garbage collect connection`);
     if (msg) {
       this.clientConnection.sendData(msg, msg.length);
     }
@@ -109,14 +109,14 @@ class SocksConnection {
    */
   initSocksConnection() {
     // Establish SOCKS connection
-    this.clientConnection.getNextData()
+    return this.clientConnection.getNextData()
       .then(data => this.handshake(data))
       .then(() => this.clientConnection.getNextData())
       .then((data) => {
         this.clientConnection.registerCallbackOnData(chunk => this.toRtcQueue.push(chunk));
         this.establishConnection(data);
       })
-      .catch(ex => console.debug(`proxyPeer CLIENT ${this.id} failed to establish socks connection ${ex}`));
+      .catch(ex => logger.error(`CLIENT ${this.id} failed to establish socks connection ${ex}`));
   }
 
   onDataFromDestination(encrypted) {
@@ -140,10 +140,10 @@ class SocksConnection {
    */
   handshake(data) {
     const handshake = parseHandshake(data);
-    console.debug(`proxyPeer CLIENT ${this.id} initiate handshake`);
+    logger.debug(`CLIENT ${this.id} initiate handshake`);
 
     if (handshake.VER !== SOCKS5) {
-      console.error(`proxyPeer CLIENT ${this.id} socks version error ${handshake.VER}`);
+      logger.error(`CLIENT ${this.id} socks version error ${handshake.VER}`);
       // TODO: Check if we should return an error code
       // End socket clientConnection
       this.close();
@@ -155,7 +155,7 @@ class SocksConnection {
 
     // Check authent method
     if (!handshake.METHODS.includes(AUTH_METHOD.NOAUTH)) {
-      console.error(`proxyPeer CLIENT ${this.id} no valid authent method found`);
+      logger.error(`CLIENT ${this.id} no valid authent method found`);
       // Close socket (client must close it)
       resp[1] = 0xFF;
       this.close(resp);
@@ -190,7 +190,7 @@ class SocksConnection {
             .then(onionRequest =>
               sendOnionRequest(onionRequest, this.route, this.peer)
                 .then(() => {
-                  console.debug(`proxyPeer CLIENT ${this.id} ${messageNumber} sends ${onionRequest.length}`);
+                  logger.debug(`CLIENT ${this.id} ${messageNumber} sends ${onionRequest.length}`);
                 }),
           );
 
@@ -201,7 +201,7 @@ class SocksConnection {
     } catch (ex) {
       // TODO: set REP with error code and send it to client before closing.
       // this.clientConnection.sendData(data, data.length);
-      console.error(`proxyPeer CLIENT ${this.id} error while establishing connection ${ex}`);
+      logger.error(`CLIENT ${this.id} error while establishing connection ${ex}`);
       this.close();
       return Promise.reject(ex);
     }
@@ -221,7 +221,7 @@ class SocksConnection {
       return wrapOnionRequest(data, this.route, this.id, null, messageNumber)
         .then(onionRequest => sendOnionRequest(onionRequest, this.route, this.peer)
           .then(() => {
-            console.debug(`proxyPeer CLIENT ${this.id} ${messageNumber} sends ${onionRequest.length}`);
+            logger.debug(`CLIENT ${this.id} ${messageNumber} sends ${onionRequest.length}`);
           }),
         );
     } catch (ex) {
@@ -247,12 +247,12 @@ export default class {
         // Fetch peers from time to time
         fetchRemotePeers(peer.peerID, peersUrl)
           .then((peers) => {
-            console.debug(`proxyPeer SocksToRTC found ${peers.length} peers`);
+            logger.debug(`SocksToRTC found ${peers.length} peers`);
             this.availablePeers = peers;
           });
 
         // Display health check as well
-        console.debug(`proxyPeer CLIENT healthcheck ${JSON.stringify(this.healthcheck())}`);
+        logger.log(`CLIENT healthcheck ${JSON.stringify(this.healthcheck())}`);
 
         // Garbage collect inactive connections
         const timestamp = Date.now();
@@ -265,7 +265,7 @@ export default class {
             // the connection was just maintenained opened? There does not seem
             // to be a direct correlation between: GC and peer connectivity
             // issue.
-            console.debug(`proxyPeer CLIENT ${connectionID} garbage collect`);
+            logger.debug(`CLIENT ${connectionID} garbage collect`);
             // Close connection + remove from connections Map.
             connection.close();
             // NOTE: onClose will automatically remove the connection from the
@@ -276,10 +276,10 @@ export default class {
       10 * 1000);
 
     // Register handler to SocksProxy
-    console.debug('proxyPeer SocksToRTC SocksToRTC attach listener');
+    logger.log('SocksToRTC attach listener');
     socksProxy.addSocketOpenListener((tcpConnection) => {
       if (this.availablePeers.length >= 2) {
-        console.debug('proxyPeer SocksToRTC new connection from socks proxy');
+        logger.debug('SocksToRTC new connection from socks proxy');
 
         // Choose a route for this connection
         const shuffledPeers = shuffle(this.availablePeers);
@@ -297,7 +297,7 @@ export default class {
 
         // Remove closed connection
         socks.onClose = () => {
-          console.debug(`proxyPeer SocksToRTC delete connection ${socks.id}`);
+          logger.debug(`SocksToRTC delete connection ${socks.id}`);
           this.connections.delete(socks.id);
         };
 
@@ -306,7 +306,7 @@ export default class {
           socks.close();
         });
       } else {
-        console.debug(`proxyPeer SocksToRTC not enough peers to route request (${this.availablePeers.length})`);
+        logger.error(`SocksToRTC not enough peers to route request (${this.availablePeers.length})`);
       }
     });
   }
@@ -328,7 +328,7 @@ export default class {
     const data = message.data;
     const connectionID = message.connectionID;
 
-    console.debug(`proxyPeer CLIENT ${connectionID} ${message.messageNumber} receives ${data.length}`);
+    logger.debug(`CLIENT ${connectionID} ${message.messageNumber} receives ${data.length}`);
 
     // We are the client, so give it back to the proxy
     try {

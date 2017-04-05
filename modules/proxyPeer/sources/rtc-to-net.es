@@ -2,39 +2,13 @@
 import { utils } from '../core/cliqz';
 // import md5 from 'core/helpers/md5';
 
-import console from './console';
+import logger from './logger';
 import { openSocket } from './tcp-socket';
 import { SERVER_REPLY
-       , ADDRESS_TYPE
        , parseRequest } from './socks-protocol';
 import { unwrapAESKey, b64Decode } from './rtc-crypto';
 import { createResponseFromExitNode } from './rtc-onion';
 import MessageQueue from './message-queue';
-
-
-// Used to perform a DNS lookup if remoteDNS is enabled
-const dnsService = Components.classes['@mozilla.org/network/dns-service;1']
-  .createInstance(Components.interfaces.nsIDNSService);
-
-
-function resolveDNS(hostname) {
-  return new Promise((resolve, reject) => {
-    dnsService.asyncResolve(hostname,
-      0,
-      {
-        onLookupComplete: (request, record, status) => {
-          if (!Components.isSuccessCode(status)) {
-            // Handle error here
-            reject();
-          }
-
-          resolve(record.getNextAddrAsString());
-        }
-      },
-      null,
-    );
-  });
-}
 
 
 function hashConnectionID(connectionID /* , peerID */) {
@@ -61,7 +35,7 @@ export default class {
     // Display health check
     this.healthCheck = utils.setInterval(
       () => {
-        console.debug(`proxyPeer RTCToNet healthcheck ${JSON.stringify(this.healthcheck())}`);
+        logger.log(`RTCToNet healthcheck ${JSON.stringify(this.healthcheck())}`);
       },
       60 * 1000);
 
@@ -72,13 +46,13 @@ export default class {
         [...this.outgoingTcpConnections.keys()].forEach((connectionID) => {
           const { socket, lastActivity } = this.outgoingTcpConnections.get(connectionID);
           if (lastActivity < (timestamp - (1000 * 15))) {
-            console.debug(`proxyPeer EXIT ${connectionID} garbage collect`);
+            logger.debug(`EXIT ${connectionID} garbage collect`);
             this.outgoingTcpConnections.delete(connectionID);
 
             try {
               socket.close();
             } catch (e) {
-              console.error(`proxyPeer EXIT ${connectionID} exception while garbage collecting ${e}`);
+              logger.error(`EXIT ${connectionID} exception while garbage collecting ${e}`);
             }
           }
         });
@@ -131,28 +105,21 @@ export default class {
   openNewConnection(message, peer, sender, connectionHash, peerPrivKey) {
     const connectionID = message.connectionID;
     const data = b64Decode(message.data);
-    console.debug(`proxyPeer EXIT ${connectionID} ${message.messageNumber} openNewConnection`);
+    logger.debug(`EXIT ${connectionID} ${message.messageNumber} openNewConnection`);
 
     // We have a SOCKS Request and need to establish the connection
     const req = parseRequest(data);
     if (req === undefined) {
       // Request is not valid, hence we ignore it
-      console.error(`proxyPeer EXIT ${connectionID} ${message.messageNumber} proxy request is not valid ${data}`);
+      logger.error(`EXIT ${connectionID} ${message.messageNumber} proxy request is not valid ${data}`);
       return Promise.resolve();
     }
 
-    let addressPromise;
-    if (req.ATYP === ADDRESS_TYPE.DOMAIN_NAME) {
-      addressPromise = resolveDNS(req['DST.ADDR']);
-    } else {
-      addressPromise = Promise.resolve(req['DST.ADDR']);
-    }
-
     let messageNumber = -1;
-    return unwrapAESKey(message.aesKey, peerPrivKey).then(key => addressPromise.then((address) => {
-      console.debug(`proxyPeer EXIT ${connectionID} ${message.messageNumber} connect to ${JSON.stringify(req)}`);
+    return unwrapAESKey(message.aesKey, peerPrivKey).then((key) => {
+      logger.log(`EXIT ${connectionID} ${message.messageNumber} connect to ${JSON.stringify(req)}`);
       const connection = {
-        socket: openSocket(address, req['DST.PORT']),
+        socket: openSocket(req['DST.ADDR'], req['DST.PORT']),
         lastActivity: Date.now(),
       };
 
@@ -176,12 +143,12 @@ export default class {
               data: encrypted,
             });
 
-            console.debug(`proxyPeer EXIT ${connectionID} ${currentMessageNumber} to client ${destData.length}`);
+            logger.debug(`EXIT ${connectionID} ${currentMessageNumber} to client ${destData.length}`);
 
             this.dataOut += response.length;
             return peer.send(sender, response, 'antitracking')
               .catch((e) => {
-                console.error(`proxyPeer EXIT ${connectionID} ${currentMessageNumber} ` +
+                logger.error(`EXIT ${connectionID} ${currentMessageNumber} ` +
                     `ERROR: could not send message ${e}`);
               });
           });
@@ -196,7 +163,7 @@ export default class {
 
       // Garbage collect if connection is closed by remote
       connection.socket.registerCallbackOnClose(() => {
-        console.debug(`proxyPeer EXIT ${connectionHash} garbage collect TCP closed`);
+        logger.debug(`EXIT ${connectionHash} garbage collect TCP closed`);
         this.outgoingTcpConnections.delete(connectionHash);
       });
 
@@ -204,7 +171,7 @@ export default class {
       connection.socket.registerCallbackOnData(destData => connection.queue.push(destData));
 
       // Acknowledge that connection is opened
-      console.debug(`proxyPeer EXIT ${connectionHash} ${messageNumber} acknowledge opened`);
+      logger.debug(`EXIT ${connectionHash} ${messageNumber} acknowledge opened`);
       data[1] = SERVER_REPLY.SUCCEEDED;
       return createResponseFromExitNode(data, key).then((encrypted) => {
         const currentMessageNumber = messageNumber;
@@ -219,18 +186,17 @@ export default class {
         this.dataOut += acknowledgement.length;
         return peer.send(sender, acknowledgement, 'antitracking')
           .catch((e) => {
-            console.error(`proxyPeer EXIT ${connectionHash} ${message.messageNumber} ` +
+            logger.error(`EXIT ${connectionHash} ${message.messageNumber} ` +
                 `ERROR: could not send message ${e}`);
           });
       });
-    })
-    ).catch((ex) => {
+    }).catch((ex) => {
       // It can happen when connection is closed from the exit's node
       // perspective, but then client sends a request again through the
       // same channel. Then it's ok to make this fail as we don't really
       // want to have long-lived connection through proxy network.
-      console.error(`proxyPeer EXIT ${connectionHash} exception while unpacking ` +
-          `AES keys ${ex} ${JSON.stringify(message)}`);
+      logger.error(`EXIT ${connectionHash} exception while unpacking ` +
+        `AES keys ${ex} ${JSON.stringify(message)}`);
     });
   }
 
@@ -244,14 +210,14 @@ export default class {
       const outgoingConnection = this.outgoingTcpConnections.get(connectionHash);
       outgoingConnection.lastActivity = Date.now();
 
-      console.debug(`proxyPeer EXIT ${connectionID} ${message.messageNumber} to net ${data.length}`);
+      logger.debug(`EXIT ${connectionID} ${message.messageNumber} to net ${data.length}`);
 
       this.dataOut += data.length;
       return outgoingConnection.socket.sendData(data, data.length);
     }
 
     // Drop message because connection doesn't exist
-    console.debug(`proxyPeer EXIT ${connectionID} ${message.messageNumber} dropped message`);
+    logger.error(`EXIT ${connectionID} ${message.messageNumber} dropped message`);
     this.droppedMessages += 1;
     return Promise.resolve();
   }
