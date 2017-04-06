@@ -799,7 +799,7 @@ export default class CliqzPeer {
               (this.stats.remotecandidatedist[x.remoteCandidateType] || 0) + 1;
           })
           .catch(() => {
-            this.logError('Could not retrieve candidates info');
+            this.log('Could not retrieve candidates info');
           });
           connection.isRelayed().then((isRelayed) => {
             if (isRelayed) {
@@ -807,7 +807,7 @@ export default class CliqzPeer {
             }
           })
           .catch((e) => {
-            this.logError('Could not retrieve candidates info', e);
+            this.log('Could not retrieve candidates info', e);
           });
         } catch (e) {
           this.logError('Stats: error trying to get candidates', e);

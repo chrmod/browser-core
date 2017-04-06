@@ -2,7 +2,7 @@ import Logger from '../../core/logger';
 
 
 export default Logger({
-  useDump: true,
-  level: 'log',
+  useDump: false,
+  level: 'error',
   prefix: '[P2P]',
 });
