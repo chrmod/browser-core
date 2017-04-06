@@ -81,6 +81,8 @@ export default {
     "hdr-video-downloader": "Télécharger des vidéos de Youtube",
     "txt-video-downloader": "À la grande demande de nos utilisateurs, vous pouvez maintenant télécharger des vidéos YouTube sur votre ordinateur. Rendez-vous simplement sur une vidéo sur youtube.com et cliquez sur l'icône qui apparaîtra dans la barre de navigation.",
     "cta-video-downloader": "En savoir plus...",
+    "hdr-ADB-onboarding": "Ad-block enabled",
+    "txt-ADB-onboarding": "Did you know that Cliqz can remove advertisements on websites? We activated ad-blocking for you to test. You can change the settings in the Control Center next to the address bar at any time.",
     "txt-cliqz-ghostery": "GHOSTERY REJOINT NOS RANGS",
     "cta-learn-more": "EN APPRENDRE PLUS",
     "txt-cliqz-connect": "Connectez-vous avec Cliqz pour Android maintenant pour pouvoir partager des onglets et des vidéos Youtube avec votre téléphone.",
