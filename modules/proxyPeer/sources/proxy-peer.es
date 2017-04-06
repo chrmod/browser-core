@@ -89,6 +89,7 @@ export default class {
             brokerUrl: this.signalingURL,
             maxReconnections: 0,
             maxMessageRetries: 0,
+            chunkSize: 100 * 1024,
             DEBUG: true,
           }
         )
