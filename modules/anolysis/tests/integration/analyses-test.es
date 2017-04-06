@@ -6,6 +6,7 @@
 const PouchDB = System._nodeRequire('pouchdb');
 const UAParser = System._nodeRequire('ua-parser-js');
 const moment = System._nodeRequire('moment');
+const fs = System._nodeRequire('fs');
 
 const CURRENT_DATE = '2017-01-01';
 const DATE_FORMAT = 'YYYY-MM-DD';
@@ -13,6 +14,83 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 const DAY_FORMAT = 'YYYY-DDD';
 const WEEK_FORMAT = 'YYYY-WW';
 const MONTH_FORMAT = 'YYYY-M';
+
+
+let anolysis;
+
+let openedDB = [];
+
+
+/**
+ * Read signals from file
+ */
+function readSignals(type) {
+  return fs.readFileSync(`modules/anolysis/tests/integration/data/${type}`, 'utf8')
+    .split(/\n/)
+    .filter(l => l.length > 0)
+    .map(JSON.parse);
+}
+
+
+/**
+ * Simulates the result of the aggregation on one key
+ */
+function stats(n) {
+  return {
+    numbers: {
+      count: n,
+      mean: 'mean',
+      median: 'median',
+      stdev: 'stdev',
+      min: 'min',
+      max: 'max',
+    },
+    nulls: {
+      count: 0
+    }
+  };
+}
+
+
+function testAnalysis(analysisName, signals, expected) {
+  // Workflow
+  // 1. Load fake telemetry signals
+  // 2. Init anolysis (which should trigger loading of analyses, etc.)
+  // 3. Feed fake signals into anolysis
+  // 4. Trigger aggregation of signals + generation via analyses
+  // 5. Intercept result of analyses
+  // 6. Compare to what we expect.
+
+  anolysis.availableSchemas = {
+    get() {
+      return {
+        needs_gid: false,
+        instantPush: true,
+      };
+    }
+  };
+
+  const telemetrySignals = [];
+
+  // Mock handling of telemetry signals
+  anolysis.messageQueue.push = sinon.spy((s) => {
+    if (s.id === analysisName) {
+      const newSignal = Object.create(null);
+
+      Object.keys(s.behavior)
+        .filter(k => k !== 'meta')
+        .forEach((key) => {
+          newSignal[key] = s.behavior[key];
+        });
+
+      telemetrySignals.push(newSignal);
+    }
+  });
+
+  return Promise.all(signals.map(signal => anolysis.handleTelemetrySignal(signal)))
+    .then(() => anolysis.generateAndSendAnalysesSignalsForDay(CURRENT_DATE))
+    .then(() => chai.expect(telemetrySignals).to.be.eql(expected));
+}
 
 
 function getCurrentDate() {
@@ -53,10 +131,14 @@ export default describeModule('anolysis/anolysis',
     },
     'core/database': {
       default: class Database {
-        constructor() {
+        constructor(name) {
+          const dbName = `cliqz-test-integration-${name}`;
+
           this.db = new PouchDB(
-            'cliqz-test-anolysis-integration-analyses',
+            dbName,
             { db: System._nodeRequire('memdown') });
+
+          openedDB.push(this.db);
         }
         put(...args) {
           return this.db.put(...args);
@@ -82,7 +164,7 @@ export default describeModule('anolysis/anolysis',
       default: {
         mean() { return 'mean'; },
         median() { return 'median'; },
-        stdev() { return 'standardDeviation'; },
+        standardDeviation() { return 'stdev'; },
         min() { return 'min'; },
         max() { return 'max'; },
       },
@@ -95,47 +177,87 @@ export default describeModule('anolysis/anolysis',
       },
     },
     'anolysis/signals-queue': {
-      default: class SignalQueue {
-        push(...args) { console.log('PUSH', ...args); }
-      },
+      default: class SignalQueue { },
     },
     'anolysis/logging': {
-      default(...args) {
-        console.log(...args);
+      default() {
       },
     },
   }),
   () => {
-    let anolysis;
-
-    // Signals to feed to anolysis
-    const signals = [
-      { action: 'test', type: 'test', value: 1 },
-      { action: 'test', type: 'test', value: 2 },
-    ];
-
     beforeEach(function importAnolysis() {
       const Anolysis = this.module().default;
       anolysis = new Anolysis();
     });
 
+    afterEach(() => Promise.all(openedDB.map(d => d.destroy())).then(() => {
+      openedDB = [];
+    }));
+
     describe('Test analyses', () => {
-      // Workflow
-      // 1. Load fake telemetry signals
-      // 2. Init anolysis (which should trigger loading of analyses, etc.)
-      // 3. Feed fake signals into anolysis
-      // 4. Trigger aggregation of signals + generation via analyses
-      // 5. Intercept result of analyses
-      // 6. Compare to what we expect.
-      it('works', () => {
-        console.log(`START`);
-        return Promise.all(signals.map(signal => anolysis.handleTelemetrySignal(signal)))
-          .then(() => anolysis.registerSchemas({ retention_daily: { instantPush: true, schema: {} } }))
-          .then(() => anolysis.generateAndSendAnalysesSignalsForDay(CURRENT_DATE))
-          .catch((ex) => {
-            console.log(`EXCEPTION ${ex}`);
-          })
-      });
+      it('Generate signals for result_selection', () => testAnalysis('result_selection',
+        readSignals('result_selection'),
+        [
+          {
+            count: 1,
+            keys: {
+              type: {
+                count: 1,
+                categories: {
+                  result_selection_click: 1
+                }
+              },
+              current_position: {
+                count: 1,
+                categories: {
+                  0: 1
+                }
+              },
+              query_length: stats(1),
+              reaction_time: stats(1),
+              display_time: stats(1),
+            }
+          },
+          {
+            count: 2,
+            keys: {
+              type: {
+                count: 2,
+                categories: {
+                  result_selection_enter: 2
+                }
+              },
+              current_position: {
+                count: 2,
+                categories: {
+                  0: 1,
+                  1: 1
+                }
+              },
+              query_length: stats(2),
+              reaction_time: stats(2),
+              display_time: stats(2),
+              urlbar_time: stats(2),
+            }
+          },
+          {
+            count: 1,
+            keys: {
+              type: {
+                count: 1,
+                categories: {
+                  result_selection_url: 1
+                }
+              },
+              current_position: stats(1),
+              query_length: stats(1),
+              reaction_time: stats(1),
+              display_time: stats(1),
+              urlbar_time: stats(1),
+            }
+          }
+        ],
+      ));
     });
   },
 );

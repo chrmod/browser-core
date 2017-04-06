@@ -2,8 +2,9 @@
 /* global emit */
 
 
-import log from 'anolysis/logging';
-import getSynchronizedDate, { DATE_FORMAT } from 'anolysis/synchronized-date';
+import md5 from '../core/helpers/md5';
+import log from './logging';
+import getSynchronizedDate, { DATE_FORMAT } from './synchronized-date';
 
 
 export default class {
@@ -54,9 +55,10 @@ export default class {
   put(doc) {
     const type = this.getDocType(doc);
     const timestamp = getSynchronizedDate().format(DATE_FORMAT);
+    const docHash = md5(JSON.stringify(doc));
     const decoratedDoc = Object.assign({
       ts: doc.ts || timestamp,
-      _id: doc._id || `${doc.ts || Date.now()}/${type}`,
+      _id: doc._id || `${doc.ts || Date.now()}/${type}/${docHash}`,
     }, doc);
 
     return this.database.put(decoratedDoc)

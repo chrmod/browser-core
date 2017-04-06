@@ -246,36 +246,27 @@ export default class {
    * @param {Object} signal - The telemetry signal.
    */
   handleTelemetrySignal(signal, schemaName) {
-    console.log('handle', JSON.stringify(signal), schemaName);
     // Try to fetch the schema definition from the name.
     let schema;
     if (schemaName !== undefined) {
       schema = this.availableSchemas.get(schemaName);
       if (schema === undefined) {
-        console.log('no schema found');
         return Promise.reject(`Telemetry schema ${schemaName} was not found`);
       }
     }
 
     return this.preprocessor.process(signal, schema, schemaName)
       .then((processedSignal) => {
-        console.log('process');
         const isDemographics = processedSignal.demographics !== undefined;
         const isLegacy = schema === undefined;
         const isInstantPush = !isLegacy && schema.instantPush;
 
         if (isDemographics) {
-          console.log('demographics');
           return this.gidManager.updateDemographics(processedSignal);
         } else if (isInstantPush && !isLegacy) {
-          console.log('instantPush');
           log(`Signal is instantPush ${JSON.stringify(processedSignal)}`);
           return this.gidManager.getGID()
-            .catch((ex) => {
-              console.log(`Error on get GID ${ex} ${ex.stack}\n`);
-            })
             .then((gid) => {
-              console.log('Got gid');
               // Attach id to the message
               processedSignal.id = schemaName;
 
@@ -302,7 +293,6 @@ export default class {
             });
         }
 
-        console.log('aggregate signal');
         // if (!isInstantPush || isLegacy) {
         // This signal is stored and will be aggregated with other signals from
         // the same day to generate 'analyses' signals.

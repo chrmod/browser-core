@@ -6,9 +6,9 @@ export default class {
   generateSignals(aggregation) {
     const signals = [];
 
-    Object.keys(aggregation).forEach((key) => {
+    Object.keys(aggregation.types).forEach((key) => {
       if (key.startsWith('result_selection')) {
-        signals.push(aggregation[key]);
+        signals.push(aggregation.types[key]);
       }
     });
 
