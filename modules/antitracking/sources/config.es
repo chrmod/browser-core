@@ -73,7 +73,7 @@ export default class {
   }
 
   onPrefChange(pref) {
-    if (Object.values(PREFS).indexOf(pref) > -1) {
+    if (Object.keys(PREFS).map(n => PREFS[n]).indexOf(pref) > -1) {
       this.loadPrefs();
     }
   }
