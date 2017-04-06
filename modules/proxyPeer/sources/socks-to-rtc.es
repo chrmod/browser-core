@@ -109,14 +109,18 @@ class SocksConnection {
    */
   initSocksConnection() {
     // Establish SOCKS connection
-    return this.clientConnection.getNextData()
-      .then(data => this.handshake(data))
-      .then(() => this.clientConnection.getNextData())
-      .then((data) => {
-        this.clientConnection.registerCallbackOnData(chunk => this.toRtcQueue.push(chunk));
-        this.establishConnection(data);
-      })
-      .catch(ex => logger.error(`CLIENT ${this.id} failed to establish socks connection ${ex}`));
+    try {
+      return this.clientConnection.getNextData()
+        .then(data => this.handshake(data))
+        .then(() => this.clientConnection.getNextData())
+        .then((data) => {
+          this.clientConnection.registerCallbackOnData(chunk => this.toRtcQueue.push(chunk));
+          return this.establishConnection(data);
+        });
+    } catch (ex) {
+      // Socks connection failed
+      return Promise.reject(ex);
+    }
   }
 
   onDataFromDestination(encrypted) {
@@ -125,7 +129,7 @@ class SocksConnection {
     return decryptResponseFromExitNode(encrypted, this.aesKey)
       .then((decrypted) => {
         const data = new Uint8Array(decrypted);
-        this.clientConnection.sendData(data, data.length);
+        return this.clientConnection.sendData(data, data.length);
       });
   }
 
@@ -175,36 +179,25 @@ class SocksConnection {
    * @param {Uint8Array} data - second data chunk sent by client.
    */
   establishConnection(data) {
-    try {
-      // Create webrtc connection
-      return generateAESKey().then((aesKey) => {
-        // Generate AES key and wrap it with key of exit node
-        this.aesKey = aesKey;
-        const pubKeyExitNode = this.route[this.route.length - 1].pubKey;
+    // Create webrtc connection
+    return generateAESKey().then((aesKey) => {
+      // Generate AES key and wrap it with key of exit node
+      this.aesKey = aesKey;
+      const pubKeyExitNode = this.route[this.route.length - 1].pubKey;
 
-        return wrapAESKey(aesKey, pubKeyExitNode).then((packedAESKey) => {
-          this.packedAESKey = packedAESKey;
-          const messageNumber = this.messageNumber;
-          this.messageNumber += 1;
-          return wrapOnionRequest(data, this.route, this.id, packedAESKey, messageNumber)
-            .then(onionRequest =>
-              sendOnionRequest(onionRequest, this.route, this.peer)
-                .then(() => {
-                  logger.debug(`CLIENT ${this.id} ${messageNumber} sends ${onionRequest.length}`);
-                }),
+      return wrapAESKey(aesKey, pubKeyExitNode).then((packedAESKey) => {
+        this.packedAESKey = packedAESKey;
+        const messageNumber = this.messageNumber;
+        this.messageNumber += 1;
+        return wrapOnionRequest(data, this.route, this.id, packedAESKey, messageNumber)
+          .then(onionRequest => sendOnionRequest(onionRequest, this.route, this.peer)
+            .then(() => logger.debug(`CLIENT ${this.id} ${messageNumber} sends ${onionRequest.length}`))
           );
 
-          // Note: Socks response is handled by the exit node and will be
-          // transmitted directly to client.
-        });
+        // Note: Socks response is handled by the exit node and will be
+        // transmitted directly to client.
       });
-    } catch (ex) {
-      // TODO: set REP with error code and send it to client before closing.
-      // this.clientConnection.sendData(data, data.length);
-      logger.error(`CLIENT ${this.id} error while establishing connection ${ex}`);
-      this.close();
-      return Promise.reject(ex);
-    }
+    });
   }
 
   /* Once handshake with client is done and connection to destination
@@ -238,14 +231,25 @@ export default class {
 
     // Fetch a new list of peers from time to time
     this.availablePeers = [];
+    this.blacklist = new Map();
 
     // Get a valid list of peers as soon as possible
     fetchRemotePeers(peer.peerID, peersUrl).then((peers) => { this.availablePeers = peers; });
 
     this.actionInterval = utils.setInterval(
       () => {
+        // Remove peers from blacklist after `timeout` seconds.
+        this.blacklist.forEach(({ added, timeout }, name) => {
+          const timestamp = Date.now();
+          if (added < (timestamp - timeout)) {
+            logger.error(`Remove ${name} from blacklist`);
+            this.blacklist.delete(name);
+          }
+        });
+
         // Fetch peers from time to time
         fetchRemotePeers(peer.peerID, peersUrl)
+          .then(peers => peers.filter(({ name }) => !this.blacklist.has(name)))
           .then((peers) => {
             logger.debug(`SocksToRTC found ${peers.length} peers`);
             this.availablePeers = peers;
@@ -290,7 +294,31 @@ export default class {
 
         // Wrap TcpSocket into a SocksConnection to handle Socks5 protocol
         const socks = new SocksConnection(tcpConnection, peer, route);
-        socks.initSocksConnection();
+        socks.initSocksConnection()
+          .catch((e) => {
+            logger.error(`CLIENT ${socks.id} error while establishing connection: ${e}`);
+            // Close connection as soon as possible so that the request can be
+            // retried by the browser.
+            socks.close();
+
+            // Blacklist the relay peer for 60 seconds
+            const peerName = route[0].name;
+
+            logger.error(`blacklist ${peerName}`);
+            this.blacklist.set(peerName, {
+              timeout: 1000 * 60,
+              added: Date.now(),
+            });
+
+            // Remove the peer from available peers
+            this.availablePeers = this.availablePeers.filter(({ name }) => name !== peerName);
+
+            // NOTE: We don't have a way to know if the connection to the exit
+            // node failed. Attempting a connection from the client would defeat
+            // the purpose of the network since the exit would know we want to
+            // proxy through it. So the easy way for now is to wait for this
+            // connection to be closed after 10 seconds of inactivity.
+          });
 
         // Keep track of opened connections
         this.connections.set(socks.id, socks);

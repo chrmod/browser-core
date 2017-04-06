@@ -76,9 +76,7 @@ export function sendOnionRequest(onionRequest, peers, peer) {
     peers[0].name,
     onionRequest,
     'antitracking',
-  ).catch((e) => {
-    logger.error(`CLIENT ERROR: could not send message ${e} ${e.stack}`);
-  });
+  );
 }
 
 
