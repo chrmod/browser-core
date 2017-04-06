@@ -3,7 +3,7 @@ import { toBase64, fromBase64, toHex, fromHex } from '../core/encoding';
 import crypto from '../platform/crypto';
 
 
-export function fromArrayBuffer(data, format) {
+function fromArrayBuffer(data, format) {
   const newdata = new Uint8Array(data);
   if (format === 'hex') {
     return toHex(newdata);
@@ -24,7 +24,7 @@ function toArrayBuffer(data, format) {
 }
 
 
-export function generateAESIv() {
+function generateAESIv() {
   return crypto.getRandomValues(new Uint8Array(12));
 }
 
@@ -46,7 +46,7 @@ function importAESKey(key) {
 
 export function encryptAES(data, key, iv) {
   return Promise.all([
-    iv || crypto.getRandomValues(new Uint8Array(12)),
+    iv || generateAESIv(),
     typeof key === 'string' ? importAESKey(key) : key,
   ]).then(([_iv, _key]) =>
        crypto.subtle.encrypt({ name: 'AES-GCM', iv: _iv }, _key, data)
