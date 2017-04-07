@@ -76,6 +76,8 @@ export default class Search {
   constructor({ successCode } = {}) {
     this.TIMEOUT = 1000;
     this.HISTORY_TIMEOUT = 400;
+    this.REFETCH_MAX_ATTEMPTS = 10; // How many times should we try fetching incomplete (promised) results before giving up?
+    this.REFETCH_DELAY = 100; // delay before refetch
 
     var mixerArgs = isFirefox ? {
       smartCliqzCache: new SmartCliqzCache(),
@@ -591,7 +593,7 @@ export default class Search {
           this.discardedResults += 1; // count results discarded from backend because they were out of date
       } else {
           this.latency.backend = Date.now() - this.startTime;
-          setTimeout(this.loadIncompleteResults.bind(this), 0,
+          setTimeout(this.loadIncompleteResults.bind(this), this.REFETCH_DELAY,
                      json,
                      q,
                      (attemptsSoFar || 0) + 1);
