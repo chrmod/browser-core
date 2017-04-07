@@ -123,7 +123,6 @@ modules/expansions-provider/expansions-provider.es
 modules/expansions-provider/window.es
 modules/firefox-specific/background.es
 modules/firefox-specific/demo.es
-modules/firefox-specific/redirect.es
 modules/firefox-specific/tests/unit/window-test.es
 modules/firefox-specific/window.es
 modules/firefox-tests/background.es
@@ -166,6 +165,11 @@ modules/human-web/background.es
 modules/human-web/bloom-filter.es
 modules/human-web/human-web.es
 modules/human-web/window.es
+modules/human-web2/background.es
+modules/human-web2/bloom-filter.es
+modules/human-web2/human-web.es
+modules/human-web2/window.es
+platforms/firefox/human-web/storage.es
 modules/message-center/background.es
 modules/message-center/handlers/alert.es
 modules/message-center/handlers/base.es

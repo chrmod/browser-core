@@ -1,11 +1,10 @@
-import System from 'system';
 import config from './config';
-import console from './console';
-import utils from './utils';
 import events, { subscribe } from './events';
 import prefs from './prefs';
 import Module from './app/module';
 import { setGlobal } from './kord';
+import console from './console';
+import utils from './utils';
 import { mapWindows, forEachWindow, addWindowObserver,
   removeWindowObserver, reportError, mustLoadWindow, setInstallDatePref,
   setOurOwnPrefs, resetOriginalPrefs, enableChangeEvents,
@@ -269,11 +268,16 @@ export default class {
     if (!window.CLIQZ) {
       const CLIQZ = {
         app: this,
-        System,
         Core: {
           windowModules: {},
         }, // TODO: remove and all clients
       };
+
+      // legacy code for bootstrap addon - remove it when bundling is there
+      if (typeof System === 'object') {
+        CLIQZ.System = System;
+      }
+
       Object.defineProperty(window, 'CLIQZ', {
         configurable: true,
         value: CLIQZ,

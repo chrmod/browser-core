@@ -1,4 +1,3 @@
-import System from 'system';
 import { utils } from "core/cliqz";
 import autocomplete from "autocomplete/autocomplete";
 import CliqzHandlebars from "core/templates";

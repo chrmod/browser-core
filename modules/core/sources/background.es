@@ -209,6 +209,30 @@ export default background({
     recordMouseDown(...args) {
       events.pub('core:mouse-down', ...args);
     },
+    /**
+    * @method actions.recordKeyPress
+    */
+    recordKeyPress() {
+      events.pub('core:key-press', ...arguments);
+    },
+    /**
+    * @method actions.recordMouseMove
+    */
+    recordMouseMove() {
+      events.pub('core:mouse-move', ...arguments);
+    },
+    /**
+    * @method actions.recordScroll
+    */
+    recordScroll() {
+      events.pub('core:scroll', ...arguments);
+    },
+    /**
+    * @method actions.recordCopy
+    */
+    recordCopy() {
+      events.pub('core:copy', ...arguments);
+    },
     restart() {
       return utils.app.extensionRestart();
     },

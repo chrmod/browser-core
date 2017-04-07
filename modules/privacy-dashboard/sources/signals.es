@@ -189,20 +189,7 @@ var Signals = {
   IPs: "",
   initialized: false,
   init: function () {
-    try {
-      // resolve dns hsotName. Further doc is at
-      // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDNSService#resolve()
-      var dns = Components.classes["@mozilla.org/network/dns-service;1"]
-                    .getService(Components.interfaces.nsIDNSService),
-      myName = dns.myHostName,
-      record = dns.resolve(myName, 0);
-
-      while (record.hasMore()) {
-        Signals.IPs = Signals.IPs + " " + record.getNextAddrAsString();
-      }
-    } catch (e) {
-      Signals.IPs = "Deine IP-Addresse"
-    }
+    Signals.IPs = "Deine IP-Addresse"
   },
 
   startListening: function() {

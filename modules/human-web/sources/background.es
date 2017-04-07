@@ -1,7 +1,7 @@
 import utils from "../core/utils";
 import background from "../core/base/background";
 import HumanWeb from "./human-web";
-import hs from "../core/history-service";
+import { legacy as hs } from "../platform/history-service";
 import inject from "../core/kord/inject";
 
 /**
@@ -89,33 +89,21 @@ export default background({
     "core:mouse-down": function onMouseDown() {
       HumanWeb.captureMouseClickPage.apply(HumanWeb, arguments);
     },
+    "core:key-press": function onKeyPress() {
+      HumanWeb.captureKeyPressPage.apply(HumanWeb, arguments);
+    },
+    "core:mouse-move": function onMouseMove() {
+      HumanWeb.captureMouseMovePage.apply(HumanWeb, arguments);
+    },
+    "core:scroll": function onScroll() {
+      HumanWeb.captureScrollPage.apply(HumanWeb, arguments);
+    },
+    "core:copy": function onCopy() {
+      HumanWeb.captureCopyPage.apply(HumanWeb, arguments);
+    }
   },
 
   actions: {
-    /**
-    * @method actions.recordKeyPress
-    */
-    recordKeyPress() {
-      HumanWeb.captureKeyPressPage.apply(HumanWeb, arguments);
-    },
-    /**
-    * @method actions.recordMouseMove
-    */
-    recordMouseMove() {
-      HumanWeb.captureMouseMovePage.apply(HumanWeb, arguments);
-    },
-    /**
-    * @method actions.recordScroll
-    */
-    recordScroll() {
-      HumanWeb.captureScrollPage.apply(HumanWeb, arguments);
-    },
-    /**
-    * @method actions.recordCopy
-    */
-    recordCopy() {
-      HumanWeb.captureCopyPage.apply(HumanWeb, arguments);
-    },
 
     /**
      * Check whether there is some state for this url.
