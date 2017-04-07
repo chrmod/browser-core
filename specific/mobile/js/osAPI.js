@@ -267,6 +267,19 @@ var osAPI = {
     osAPI.OS.postMessage(message);
   },
 
+  /**
+    function: showQuerySuggestions
+    description: sends the query suggestions to native
+    params: an array of strings
+    message data: an array of strings
+  */
+  showQuerySuggestions: function(suggestions) {
+    var message = {
+      action: "showQuerySuggestions",
+      data: suggestions
+    };
+    osAPI.OS.postMessage(message);
+  },
   // DT-mobile pairing messages (uses a different bridge, need to refactor this)
   downloadVideo: function(url) {
     var message = {

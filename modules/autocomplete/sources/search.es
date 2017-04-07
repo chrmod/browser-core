@@ -8,6 +8,7 @@ import Result from "autocomplete/result";
 import Mixer from "autocomplete/mixer";
 import SpellCheck from "autocomplete/spell-check";
 import console from "core/console";
+import { handleQuerySuggestions } from 'platform/query-suggestions';
 
 class TimeoutError extends Error {}
 
@@ -598,6 +599,8 @@ export default class Search {
                      q,
                      (attemptsSoFar || 0) + 1);
           this.cliqzResults = json.results.filter(this.isReadyToRender).map(this.enhanceResult);
+
+          handleQuerySuggestions(json.suggestions);
 
           this.cliqzResultsParams = {
             choice: json.choice,

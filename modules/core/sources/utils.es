@@ -627,6 +627,7 @@ var CliqzUtils = {
            CliqzUtils.encodeFilter() +
            CliqzUtils.encodeLocation(true) + // @TODO: remove true
            CliqzUtils.encodeResultCount(numberResults) +
+           CliqzUtils.enncodeQuerySuggestionParam() +
            CliqzUtils.disableWikiDedup();
   },
 
@@ -777,6 +778,10 @@ var CliqzUtils = {
   encodeResultCount: function(count) {
     count = count || 5;
     return '&count=' + count;
+  },
+  enncodeQuerySuggestionParam: function () {
+    const suggestionsEnabled = CliqzUtils.getPref("suggestionsEnabled", false);
+    return `&suggest=${suggestionsEnabled ? 1 : 0}`;
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return ['T'];
