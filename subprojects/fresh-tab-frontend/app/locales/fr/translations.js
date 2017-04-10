@@ -85,8 +85,9 @@ export default {
     "txt-ADB-onboarding": "Did you know that Cliqz can remove advertisements on websites? We activated ad-blocking for you to test. You can change the settings in the Control Center next to the address bar at any time.",
     "txt-cliqz-ghostery": "GHOSTERY REJOINT NOS RANGS",
     "cta-learn-more": "EN APPRENDRE PLUS",
-    "txt-cliqz-connect": "Connectez-vous avec Cliqz pour Android maintenant pour pouvoir partager des onglets et des vidéos Youtube avec votre téléphone.",
-    "cta-cliqz-connect": "Pour en savoir plus"
+    "hdr-cliqz-connect": "Connect",
+    "txt-cliqz-connect": "Envoyez des liens ou téléchargez des vidéos YouTube vers votre périphérique Android.",
+    "cta-cliqz-connect": "Voici comment."
   },
   title: 'Nouvel onglet',
   settings: {

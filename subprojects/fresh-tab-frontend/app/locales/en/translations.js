@@ -85,8 +85,9 @@ export default {
     "txt-ADB-onboarding": "Did you know that Cliqz can remove advertisements on websites? We activated ad-blocking for you to test. You can change the settings in the Control Center next to the address bar at any time.",
     "txt-cliqz-ghostery": "WE'VE JOINED FORCES WITH GHOSTERY",
     "cta-learn-more": "READ ALL ABOUT IT",
-    "txt-cliqz-connect": "Connect with Cliqz for Android now to start sending links or download videos to your mobile device.",
-    "cta-cliqz-connect": "How it works"
+    "hdr-cliqz-connect": "Welcome to Connect",
+    "txt-cliqz-connect": "Send links or download YouTube videos to your Android device.",
+    "cta-cliqz-connect": "Here is how."
   },
   title: 'New Tab',
   settings: {
