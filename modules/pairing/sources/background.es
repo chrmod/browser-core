@@ -33,7 +33,7 @@ export default {
     });
     PeerComm.addObserver('TABSHARING', tabsharing);
     this.storage = new SimpleStorage();
-    this.storage.open('data', ['cliqz', 'pairing'], true, true)
+    return this.storage.open('data', ['cliqz', 'pairing'], true, true)
       .then(() => PeerComm.init(this.storage));
   },
   unload() {

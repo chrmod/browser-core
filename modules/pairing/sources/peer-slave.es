@@ -520,9 +520,8 @@ export default class CliqzPairing {
   }
 
   init(storage) {
-    this.ss = storage;
     this.pairingTimeout = 60; // seconds
-    this.data = this.ss;
+    this.data = storage;
 
     this.onpairing = null;
     this.onpaired = null;
@@ -534,7 +533,7 @@ export default class CliqzPairing {
     this.onmasterconnected = null;
     this.onmasterdisconnected = null;
 
-    this.generateKeypair()
+    return this.generateKeypair()
       .then(() => this.initPeer())
       .then(() => {
         if (this.masterID) {
@@ -664,6 +663,7 @@ export default class CliqzPairing {
     this.connectionKeeper = null;
     this.isInit = false;
     this.isUnloaded = true;
+    this.data = null;
   }
 
   destroy() {
