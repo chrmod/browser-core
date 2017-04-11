@@ -83,6 +83,9 @@ export default background({
     telemetry(opts) {
       return CliqzAttrack.telemetry(opts);
     },
+    getWhitelist() {
+      return CliqzAttrack.qs_whitelist;
+    }
   },
 
   popupActions: {

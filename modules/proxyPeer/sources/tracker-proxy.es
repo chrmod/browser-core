@@ -1,7 +1,10 @@
 import { utils, events } from '../core/cliqz';
 import logger from './logger';
 import ProxyPeer from './proxy-peer';
-
+import { CompositePolicy, TrackerWhitelistPolicy,
+  PrivateIPBlacklistPolicy, PublicDomainOnlyPolicy,
+  BloomFilterWhitelistPolicy } from './proxy-policy';
+import ResourceLoader from '../core/resource-loader';
 
 const PROXY_INSECURE_CONNECTIONS_PREF = 'proxyInsecureConnections';
 const PROXY_PEER_PREF = 'proxyPeer';
@@ -63,7 +66,6 @@ function getPeersUrl() {
   return peersUrl;
 }
 
-
 export default class {
 
   constructor(antitracking) {
@@ -91,6 +93,15 @@ export default class {
     this.urlsToProxy = new Set();
     this.proxyStats = new Map();
     this.antitracking = antitracking;
+
+    // policies for when to proxy and when to block exit requests
+    this.proxyPolicy = new PublicDomainOnlyPolicy();
+    this.exitPolicy = new CompositePolicy();
+    this.exitPolicy.addBlacklistPolicy(new PrivateIPBlacklistPolicy());
+    this.proxyWhitelistLoader = new ResourceLoader(['proxyPeer', 'proxy_whitelist_bf.json'], {
+      cron: 1000 * 60 * 60 * 12,
+      remoteURL: 'https://cdn.cliqz.com/anti-tracking/proxy_whitelist_bf.json',
+    });
   }
 
   isProxyEnabled() {
@@ -108,7 +119,7 @@ export default class {
       const peersUrl = getPeersUrl();
       this.peersUrlHostname = utils.getDetailsFromUrl(peersUrl).host;
 
-      this.proxyPeer = new ProxyPeer(signalingUrl, peersUrl);
+      this.proxyPeer = new ProxyPeer(signalingUrl, peersUrl, this.exitPolicy);
       return this.proxyPeer.init();
     }
 
@@ -163,8 +174,10 @@ export default class {
           // In particular, we must check that calls to the signaling server.
           const isSignalingServer = state.url.indexOf(this.signalingUrlHostname) !== -1;
           const isPeersServer = state.url.indexOf(this.peersUrlHostname) !== -1;
+          // we also check that the current network policy allows this host to be proxied
+          const proxyIsPermitted = this.proxyPolicy.shouldProxyAddress(state.urlParts.hostname);
 
-          if (!(isSignalingServer || isPeersServer)) {
+          if (!(isSignalingServer || isPeersServer) && proxyIsPermitted) {
             this.checkShouldProxyRequest(state);
           }
 
@@ -185,6 +198,25 @@ export default class {
     }
 
     return Promise.resolve();
+  }
+
+  initPolicy() {
+    const firstPartyWhitelist = new BloomFilterWhitelistPolicy();
+    const loadCallback = firstPartyWhitelist.updateBloomFilter.bind(firstPartyWhitelist);
+
+    this.proxyWhitelistLoader.onUpdate(loadCallback);
+    return this.proxyWhitelistLoader.load().then(loadCallback)
+    .then(() => (
+      this.antitracking.action('getWhitelist').then((qsWhitelist) => {
+        const trackerWhitelist = new TrackerWhitelistPolicy(qsWhitelist);
+        // trackers are always proxied; public others must be in the first party whitelist
+        this.proxyPolicy.setOverridePolicy(trackerWhitelist);
+        this.proxyPolicy.setRequiredPolicy(firstPartyWhitelist);
+        // the exit policy is trackers or popular domains
+        this.exitPolicy.addWhitelistPolicy(trackerWhitelist);
+        this.exitPolicy.addWhitelistPolicy(firstPartyWhitelist);
+      })
+    ));
   }
 
   unloadProxy() {
@@ -211,10 +243,9 @@ export default class {
 
   init() {
     this.initPrefListener();
-    return this.initPeer()
-      .then(() => {
-        this.initProxy();
-      });
+    return this.initPolicy()
+      .then(() => this.initPeer())
+      .then(() => this.initProxy());
   }
 
   unload() {

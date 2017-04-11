@@ -62,7 +62,7 @@ function MultiplexedQueue(name, callback) {
 
 
 export default class {
-  constructor(signalingUrl, peersUrl) {
+  constructor(signalingUrl, peersUrl, policy) {
     this.p2p = inject.module('p2p');
     // Create a socks proxy
     this.socksProxy = new SocksProxy();
@@ -75,6 +75,7 @@ export default class {
 
     this.signalingURL = signalingUrl;
     this.peersUrl = peersUrl;
+    this.policy = policy;
   }
 
   createPeer() {
@@ -125,7 +126,7 @@ export default class {
         );
 
         // Exit
-        this.rtcToNet = new RTCToNet();
+        this.rtcToNet = new RTCToNet(this.policy);
         this.exitQueue = MultiplexedQueue(
           'exit',
           ({ msg, peer }) =>

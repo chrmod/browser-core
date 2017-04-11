@@ -3,11 +3,13 @@ import { utils } from '../core/cliqz';
 import logger from './logger';
 import { openSocket } from './tcp-socket';
 import { SERVER_REPLY
+       , ADDRESS_TYPE
        , parseRequest } from './socks-protocol';
 import { unwrapAESKey } from './rtc-crypto';
 import { fromBase64 } from '../core/encoding';
 import { createResponseFromExitNode } from './rtc-onion';
 import MessageQueue from './message-queue';
+import { asyncResolve, isPrivateIPAddress } from './dns-utils';
 
 
 function hashConnectionID(connectionID /* , peerID */) {
@@ -20,7 +22,8 @@ function hashConnectionID(connectionID /* , peerID */) {
 
 
 export default class {
-  constructor() {
+  constructor(policy) {
+    this.policy = policy;
     // {connectionID => TcpConnection} in case of exit node, keep connection to server opened
     this.outgoingTcpConnections = new Map();
 
@@ -114,11 +117,30 @@ export default class {
       return Promise.resolve();
     }
 
+    if (this.policy && !this.policy.shouldProxyAddress(req['DST.ADDR'])) {
+      logger.error(`EXIT ${connectionID} ${req['DST.ADDR']} exit not permitted`);
+      return Promise.reject();
+    }
+
+    // if the address is a domain name, do a dns lookup
+    let addressPromise;
+    if (req.ATYP === ADDRESS_TYPE.DOMAIN_NAME) {
+      addressPromise = asyncResolve(req['DST.ADDR']);
+    } else {
+      addressPromise = Promise.resolve(req['DST.ADDR']);
+    }
+
     let messageNumber = -1;
-    return unwrapAESKey(message.aesKey, peerPrivKey).then((key) => {
+    return addressPromise.then((ip) => {
+      // if the request to proxy resolves to a private IP address, refuse to proxy it.
+      if (isPrivateIPAddress(ip)) {
+        return Promise.reject(`refuse to proxy private address ${req['DST.ADDR']} -> ${ip}`);
+      }
+      return Promise.resolve(ip);
+    }).then(ip => unwrapAESKey(message.aesKey, peerPrivKey).then((key) => {
       logger.log(`EXIT ${connectionID} ${message.messageNumber} connect to ${JSON.stringify(req)}`);
       const connection = {
-        socket: openSocket(req['DST.ADDR'], req['DST.PORT']),
+        socket: openSocket(ip, req['DST.PORT']),
         lastActivity: Date.now(),
       };
 
@@ -196,7 +218,7 @@ export default class {
       // want to have long-lived connection through proxy network.
       logger.error(`EXIT ${connectionHash} exception while unpacking ` +
         `AES keys ${ex} ${JSON.stringify(message)}`);
-    });
+    }));
   }
 
 
