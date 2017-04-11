@@ -298,7 +298,11 @@ const urlCache = new MapCache(function(url) { return new Url(url); }, 100);
 const URLInfo = {
   get: function(url) {
     if (!url) return "";
-    return urlCache.get(url);
+    try {
+      return urlCache.get(url);
+    } catch(e) {
+      return null;
+    }
   }
 }
 
@@ -312,6 +316,8 @@ class Url {
       Object.keys(parsed).forEach((k) => {
         this[k] = parsed[k];
       });
+    } else {
+      throw new Error(`invalid url: ${urlString}`);
     }
   }
 

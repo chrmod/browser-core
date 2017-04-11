@@ -35,7 +35,8 @@
   },
   "default_prefs" : {
     "modules.context-search.enabled": false,
-    "modules.type-filter.enabled": false
+    "modules.type-filter.enabled": false,
+    "modules.antitracking-blocker.enabled": false
   },
   "priority": [
     "core",

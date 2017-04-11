@@ -38,7 +38,8 @@
   },
   "default_prefs" : {
     "modules.context-search.enabled": false,
-    "modules.type-filter.enabled": false
+    "modules.type-filter.enabled": false,
+    "modules.antitracking-blocker.enabled": false
   },
   "priority": [
     "core",
@@ -89,7 +90,8 @@
     "video-downloader",
     "p2p",
     "proxyPeer",
-    "pairing"
+    "pairing",
+    "antitracking-blocker"
   ],
   "subprojects": [
     "fresh-tab-frontend"

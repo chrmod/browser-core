@@ -11,9 +11,9 @@ var app;
 
 const startup = loadPrefs().then(() => {
   app = new App();
+  setGlobal(app);
   return app.load();
 }).then(() => {
-  setGlobal(app);
   bridge.registerAction('antitracking:getTrackerListForTab', CliqzAttrack.getTrackerListForTab);
   bridge.registerAction('antitracking:isSourceWhitelisted', (domain) => {
     return CliqzAttrack.isSourceWhitelisted(domain)

@@ -44,12 +44,10 @@ export default class {
     cleanTimestampCache(this.visitCache, this.timeCleaningCache, currTime);
     // trusted domain pairs
     const now = Date.now();
-    console.log('xxx', 'clean third party trust');
     this.trustedThirdParties.forEach((counter, key) => {
       const timeoutAt = counter.ts + (counter.c > 0 ? this.USED_TRUST_TIMEOUT :
                                                       this.UNUSED_TRUST_TIMEOUT);
       if (now > timeoutAt) {
-        console.log('xxx', 'trust delete', key);
         this.trustedThirdParties.delete(key);
       }
     });

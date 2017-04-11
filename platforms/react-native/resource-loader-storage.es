@@ -10,6 +10,6 @@ export default class Storage {
   }
 
   save(data) {
-    return writeFile(this.filePath, (new TextEncoder()).encode(data));
+    return writeFile(this.filePath, data);
   }
 }

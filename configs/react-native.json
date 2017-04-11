@@ -1,6 +1,7 @@
 {
   "platform": "react-native",
   "format": "common",
+  "baseURL": "chrome://cliqz/content/",
   "settings": {
     "antitrackingButton": false,
     "telemetryProvider": "platform"
@@ -14,6 +15,7 @@
   "modules": [
     "core",
     "antitracking",
+    "antitracking-blocker",
     "adblocker"
   ]
 }

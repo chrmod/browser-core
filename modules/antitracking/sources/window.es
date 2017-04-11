@@ -91,9 +91,10 @@ export default class {
   }
 
   status() {
+    const url = URLInfo.get(this.window.gBrowser.currentURI.spec);
     var info = CliqzAttrack.getCurrentTabBlockingInfo(this.window.gBrowser),
         ps = info.ps,
-        hostname = URLInfo.get(this.window.gBrowser.currentURI.spec).hostname,
+        hostname = url ? url.hostname : '',
         isWhitelisted = CliqzAttrack.isSourceWhitelisted(hostname),
         enabled = utils.getPref('modules.antitracking.enabled', true) && !isWhitelisted;
 

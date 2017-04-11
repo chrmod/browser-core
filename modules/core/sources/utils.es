@@ -899,11 +899,14 @@ var CliqzUtils = {
   locale: {},
   currLocale: null,
   getLocaleFile: function (locale) {
-    const url = CliqzUtils.LOCALE_PATH + locale + '/cliqz.json';
-    // Synchronous request is depricated
-    const req = CliqzUtils.httpGet(url, null, null, null, null, true);
-    CliqzUtils.currLocale = locale;
-    CliqzUtils.locale.default = CliqzUtils.locale[locale] = JSON.parse(req.response);
+    // locale file might not exist on mobile
+    if (CliqzUtils.LOCALE_PATH) {
+      const url = CliqzUtils.LOCALE_PATH + locale + '/cliqz.json';
+      // Synchronous request is depricated
+      const req = CliqzUtils.httpGet(url, null, null, null, null, true);
+      CliqzUtils.currLocale = locale;
+      CliqzUtils.locale.default = CliqzUtils.locale[locale] = JSON.parse(req.response);
+    }
   },
   getLocalizedString: function(key, substitutions){
     if(!key) return '';

@@ -386,7 +386,7 @@ var CliqzAttrack = {
               // redirect, update location for tab
               // if no redirect location set, stage the tab id so we don't get false data
               let redirect_url = state.requestContext.getResponseHeader("Location");
-              let redirect_url_parts = URLInfo.get(redirect_url);
+              let redirect_url_parts = URLInfo.get(redirect_url) || {};
               // if redirect is relative, use source domain
               if (!redirect_url_parts.hostname) {
                 redirect_url_parts.hostname = state.urlParts.hostname;
