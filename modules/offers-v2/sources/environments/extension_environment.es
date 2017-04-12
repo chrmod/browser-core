@@ -37,9 +37,11 @@ export default class ExtensionEnvironment extends EmptyEnvironment {
       req.onload = function() {
         if(req.status == 200) {
           resolve(JSON.parse(req.response));
+          return;
         }
         else {
           reject('Status code ' + req.status + ' for ' + url + this.statusText);
+          return;
         }
       };
       req.onerror = function () {
@@ -142,7 +144,7 @@ export default class ExtensionEnvironment extends EmptyEnvironment {
       offerData = {
         created_ts: Date.now()
       };
-      signalData.offers[offerId] = offerData; 
+      signalData.offers[offerId] = offerData;
     };
 
 

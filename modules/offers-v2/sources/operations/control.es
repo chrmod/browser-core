@@ -8,6 +8,7 @@ ops['$log'] = function(args, eventLoop) {
   return new Promise((resolve, reject) => {
     if(args.length < 1) {
       reject(new Error('invalid args'));
+      return;
     }
 
     eventLoop.environment.info("Trigger", args[0]);
@@ -19,6 +20,7 @@ ops['$and'] = function(args) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     var result = true;
@@ -34,6 +36,7 @@ ops['$or'] = function(args) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     var result = false;
@@ -50,6 +53,7 @@ ops['$not'] = function(args) {
   return new Promise((resolve, reject) => {
     if(args.length < 1) {
       reject(new Error('invalid args'));
+      return;
     }
 
     resolve(!args[0]);
@@ -61,6 +65,7 @@ ops['$eq'] = function(args) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     resolve(args[0] === args[1]);
@@ -72,6 +77,7 @@ ops['$gt'] = function(args) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     resolve(args[0] > args[1]);
@@ -83,6 +89,7 @@ ops['$lt'] = function(args) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     resolve(args[0] < args[1]);
@@ -94,6 +101,7 @@ ops['$match'] = function(args, eventLoop) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     var text = args.shift();
@@ -117,6 +125,7 @@ ops['$match_url'] = function(args, eventLoop, context) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     var patterns = args;
@@ -140,6 +149,7 @@ ops['$prop'] = function(args) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     var obj = args[0];
@@ -154,6 +164,7 @@ ops['$prop_array'] = function(args) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     var key = args[1];

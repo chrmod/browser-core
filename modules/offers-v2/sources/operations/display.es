@@ -8,6 +8,7 @@ ops['$show_offer'] = function(args, eventLoop) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     var url = args[0];
@@ -35,6 +36,7 @@ ops['$offer_added'] = function(args, eventLoop) {
   return new Promise((resolve, reject) => {
     if(args.length < 2) {
       reject(new Error('invalid args'));
+      return;
     }
 
     var offerId = args[0];
