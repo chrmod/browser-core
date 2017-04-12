@@ -118,11 +118,11 @@ export default class {
         this.relayQueue = MultiplexedQueue(
           'relay',
           ({ msg, message, peer }) =>
-          this.rtcRelay.handleRelayMessage(
-            message,     /* Original message */
-            msg,         /* Decrypted message */
-            this.peer,   /* Current peer */
-            peer),       /* Sender */
+            this.rtcRelay.handleRelayMessage(
+              message,     /* Original message */
+              msg,         /* Decrypted message */
+              this.peer,   /* Current peer */
+              peer),       /* Sender */
         );
 
         // Exit
@@ -130,11 +130,11 @@ export default class {
         this.exitQueue = MultiplexedQueue(
           'exit',
           ({ msg, peer }) =>
-          this.rtcToNet.handleExitMessage(
-            msg,          /* Decrypted message */
-            this.peer,    /* Current peer */
-            peer,         /* Sender */
-            this.ppk[1]), /* Private key of current peer */
+            this.rtcToNet.handleExitMessage(
+              msg,          /* Decrypted message */
+              this.peer,    /* Current peer */
+              peer,         /* Sender */
+              this.ppk[1]), /* Private key of current peer */
         );
 
         // All messages

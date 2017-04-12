@@ -1,6 +1,7 @@
 // import md5 from 'core/helpers/md5';
 import { utils } from '../core/cliqz';
 import logger from './logger';
+import { ERROR_CODE } from './rtc-onion';
 
 
 function hashConnectionID(connectionID /* , peerID */) {
@@ -117,13 +118,28 @@ export default class {
     // Remember where the query came from
     this.previousPeer.set(
       hashConnectionID(message.connectionID, nextPeer),
-      { sender, lastActivity: Date.now() });
+      {
+        sender,
+        lastActivity: Date.now()
+      });
 
     // Sends payload to the next peer
     this.dataOut += nextData.length;
     return peer.send(nextPeer, nextData, 'antitracking')
       .catch((e) => {
         logger.error(`RELAY ${connectionID} ${message.messageNumber} ERROR: could not send message ${e}`);
+        // We were not able to connect to the next node, so we relay backward an
+        // error message so that the client can close the connection as soon as
+        // possible.
+        const payload = JSON.stringify({
+          connectionID,
+          error: ERROR_CODE.CANNOT_CONNECT_TO_EXIT,
+          role: 'relay',
+        });
+
+        // Send back response to the client. Note that this is not encrypted, as
+        // there is not much information here.
+        return peer.send(sender, payload, 'antitracking');
       });
   }
 }

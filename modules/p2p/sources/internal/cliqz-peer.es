@@ -294,7 +294,7 @@ export default class CliqzPeer {
           conn.status = 'signaling';
           conn.receiveICECandidate(candidate, id);
         } else {
-          this.log('Received ICE for connection with status', conn.status);
+          this.logDebug('Received ICE for connection with status', conn.status);
         }
       } else if (type === 'offer') { // Receive offer description
         let conn = this._createConnection(from, false);
@@ -304,13 +304,13 @@ export default class CliqzPeer {
           // with biggest ID wins.
           conn = this._getPendingConnection(from);
           if (!conn.isLocal || from > this.peerID) {
-            this.log('INFO: connection collision -> I lose', this.peerID);
+            this.logDebug('INFO: connection collision -> I lose', this.peerID);
             conn.close(true); // Close without propagating onclose event
             delete this.pendingConnections[from];
             this.connectionRetries[from] = 0;
             conn = this._createConnection(from, false); // Replace with new non-local connection
           } else {
-            this.log('INFO: connection collision -> I win', this.peerID);
+            this.logDebug('INFO: connection collision -> I win', this.peerID);
             conn = null;
           }
         }
@@ -319,18 +319,18 @@ export default class CliqzPeer {
             conn.status = 'signaling';
             conn.receiveOffer(message, id);
           } else {
-            this.log('Received offer for connection with status', conn.status);
+            this.logDebug('Received offer for connection with status', conn.status);
           }
         }
       } else if (type === 'answer') {
         const conn = this._getPendingConnection(from);
         if (!conn) {
-          this.log('ERROR: received answer for unexisting pending connection');
+          this.logError('ERROR: received answer for unexisting pending connection');
         } else if (conn.status === 'initial' || conn.status === 'signaling') {
           conn.status = 'signaling';
           conn.receiveAnswer(message, id);
         } else {
-          this.log('Received answer for connection with status', conn.status);
+          this.logDebug('Received answer for connection with status', conn.status);
         }
       } else {
         this.log(message, 'Unknown message');
@@ -667,7 +667,7 @@ export default class CliqzPeer {
     }
     return Promise.resolve().then(() => (this.signalingEnabled ? this.createConnection() : null))
     .then(() => new Promise((resolve, reject) => {
-      this.log('Trying to connect to peer', requestedPeer);
+      this.logDebug('Trying to connect to peer', requestedPeer);
       if (!has(this.connectionPromises, requestedPeer)) {
         this.connectionPromises[requestedPeer] = [];
       }
@@ -768,7 +768,7 @@ export default class CliqzPeer {
         connection.createOffer();
       }
       connection.onopen = () => {
-        this.log('Connected to', peer);
+        this.logDebug('Connected to', peer);
         if (has(this.connections, peer)) {
           this.connections[peer].close('replaced');
         }
@@ -903,12 +903,12 @@ export default class CliqzPeer {
             this.logError('unknown message type', type);
           }
         } else {
-          this.log('Message', message, 'received, only processing ArrayBuffer messages');
+          this.logDebug('Message', message, 'received, only processing ArrayBuffer messages');
         }
       };
       return connection;
     }
-    this.log(`already connecting to ${peer}`);
+    this.logDebug(`already connecting to ${peer}`);
     return null;
   }
 
@@ -1002,7 +1002,7 @@ export default class CliqzPeer {
 
   _onSocketClose() {
     if (this.socket) {
-      this.log('socket.onclose');
+      this.logDebug('socket.onclose');
       this.socket = this.connectionStatus = null;
       if (this.stats._lastsignalingtime) {
         this.stats.signalingtime += Math.floor((Date.now() - this.stats._lastsignalingtime) / 1000);
@@ -1028,7 +1028,7 @@ export default class CliqzPeer {
   }
 
   _onSocketOpen() {
-    this.log('socket.onopen');
+    this.logDebug('socket.onopen');
     this.connectionStatus = 'open';
     if (this.privateKey) {
       this._sendSocket('connect', { authLogin: true });

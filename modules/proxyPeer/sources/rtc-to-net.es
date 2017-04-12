@@ -138,7 +138,7 @@ export default class {
       }
       return Promise.resolve(ip);
     }).then(ip => unwrapAESKey(message.aesKey, peerPrivKey).then((key) => {
-      logger.log(`EXIT ${connectionID} ${message.messageNumber} connect to ${JSON.stringify(req)}`);
+      logger.debug(`EXIT ${connectionID} ${message.messageNumber} connect to ${JSON.stringify(req)}`);
       const connection = {
         socket: openSocket(ip, req['DST.PORT']),
         lastActivity: Date.now(),

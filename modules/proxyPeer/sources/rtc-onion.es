@@ -7,12 +7,18 @@ import { generateAESKey
        , decryptAES } from './rtc-crypto';
 
 
+export const ERROR_CODE = {
+  CANNOT_CONNECT_TO_EXIT: 0,
+  CANNOT_CONNECT_TO_REMOTE: 1,
+};
+
+
 /*
  * Socks to RTC
  */
 
 
-function encryptPayload(payload, pubKey) {
+export function encryptPayload(payload, pubKey) {
   const data = (new TextEncoder()).encode(JSON.stringify(payload));
   return generateAESKey()
     .then(aesKey => encryptRSA(

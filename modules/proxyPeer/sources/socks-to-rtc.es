@@ -6,7 +6,8 @@ import { AUTH_METHOD
        , parseHandshake } from './socks-protocol';
 import { wrapOnionRequest
        , sendOnionRequest
-       , decryptResponseFromExitNode } from './rtc-onion';
+       , decryptResponseFromExitNode
+       , ERROR_CODE } from './rtc-onion';
 import { generateAESKey, wrapAESKey } from './rtc-crypto';
 import MessageQueue from './message-queue';
 
@@ -224,36 +225,86 @@ class SocksConnection {
 }
 
 
+class AvailablePeers {
+  constructor(peersUrl, peer) {
+    this.peersUrl = peersUrl;
+    this.peer = peer;
+
+    // Blacklist for peers
+    this.blacklist = new Map();
+    this.availablePeers = [];
+    this.update();
+  }
+
+  get length() {
+    return this.availablePeers.length;
+  }
+
+  updatePeers() {
+    // Fetch peers from time to time
+    return fetchRemotePeers(this.peer.peerID, this.peersUrl)
+      .then(peers => peers.filter(({ name }) => !this.blacklist.has(name)))
+      .then((peers) => {
+        logger.debug(`SocksToRTC found ${peers.length} peers`);
+        this.availablePeers = peers;
+      });
+  }
+
+  updateBlacklist() {
+    // Remove peers from blacklist after `timeout` seconds.
+    this.blacklist.forEach(({ added, timeout }, name) => {
+      const timestamp = Date.now();
+      if (added < (timestamp - timeout)) {
+        logger.error(`Remove ${name} from blacklist`);
+        this.blacklist.delete(name);
+      }
+    });
+  }
+
+  update() {
+    return Promise.all([
+      this.updatePeers(),
+      this.updateBlacklist(),
+    ]);
+  }
+
+  getRandomRoute() {
+    // Choose a route for this connection
+    const shuffledPeers = shuffle(this.availablePeers);
+    return [
+      shuffledPeers[0],
+      shuffledPeers[1],
+    ];
+  }
+
+  blacklistPeer(peer) {
+    const peerName = peer.name;
+    logger.error(`blacklist ${peerName}`);
+
+    this.blacklist.set(peerName, {
+      timeout: 1000 * 60 * 10, // 10 minutes
+      added: Date.now(),
+    });
+
+    // Remove the peer from available peers
+    this.availablePeers = this.availablePeers.filter(({ name }) => name !== peerName);
+  }
+}
+
+
 export default class {
   constructor(peer, socksProxy, peersUrl) {
     // {connectionID => SocksConnection} Opened connections
     this.connections = new Map();
 
-    // Fetch a new list of peers from time to time
-    this.availablePeers = [];
-    this.blacklist = new Map();
-
-    // Get a valid list of peers as soon as possible
-    fetchRemotePeers(peer.peerID, peersUrl).then((peers) => { this.availablePeers = peers; });
+    this.peers = new AvailablePeers(peersUrl, peer);
 
     this.actionInterval = utils.setInterval(
       () => {
-        // Remove peers from blacklist after `timeout` seconds.
-        this.blacklist.forEach(({ added, timeout }, name) => {
-          const timestamp = Date.now();
-          if (added < (timestamp - timeout)) {
-            logger.error(`Remove ${name} from blacklist`);
-            this.blacklist.delete(name);
-          }
-        });
-
-        // Fetch peers from time to time
-        fetchRemotePeers(peer.peerID, peersUrl)
-          .then(peers => peers.filter(({ name }) => !this.blacklist.has(name)))
-          .then((peers) => {
-            logger.debug(`SocksToRTC found ${peers.length} peers`);
-            this.availablePeers = peers;
-          });
+        // Update peers:
+        // 1. Clean-up blacklist.
+        // 2. Fetch a new list of available peers.
+        this.peers.update();
 
         // Display health check as well
         logger.log(`CLIENT healthcheck ${JSON.stringify(this.healthcheck())}`);
@@ -282,15 +333,10 @@ export default class {
     // Register handler to SocksProxy
     logger.log('SocksToRTC attach listener');
     socksProxy.addSocketOpenListener((tcpConnection) => {
-      if (this.availablePeers.length >= 2) {
+      if (this.peers.length >= 2) {
         logger.debug('SocksToRTC new connection from socks proxy');
 
-        // Choose a route for this connection
-        const shuffledPeers = shuffle(this.availablePeers);
-        const route = [
-          shuffledPeers[0],
-          shuffledPeers[1],
-        ];
+        const route = this.peers.getRandomRoute();
 
         // Wrap TcpSocket into a SocksConnection to handle Socks5 protocol
         const socks = new SocksConnection(tcpConnection, peer, route);
@@ -300,24 +346,7 @@ export default class {
             // Close connection as soon as possible so that the request can be
             // retried by the browser.
             socks.close();
-
-            // Blacklist the relay peer for 60 seconds
-            const peerName = route[0].name;
-
-            logger.error(`blacklist ${peerName}`);
-            this.blacklist.set(peerName, {
-              timeout: 1000 * 60,
-              added: Date.now(),
-            });
-
-            // Remove the peer from available peers
-            this.availablePeers = this.availablePeers.filter(({ name }) => name !== peerName);
-
-            // NOTE: We don't have a way to know if the connection to the exit
-            // node failed. Attempting a connection from the client would defeat
-            // the purpose of the network since the exit would know we want to
-            // proxy through it. So the easy way for now is to wait for this
-            // connection to be closed after 10 seconds of inactivity.
+            this.peers.blacklistPeer(route[0]);
           });
 
         // Keep track of opened connections
@@ -334,7 +363,7 @@ export default class {
           socks.close();
         });
       } else {
-        logger.error(`SocksToRTC not enough peers to route request (${this.availablePeers.length})`);
+        logger.error(`SocksToRTC not enough peers to route request (${this.peers.length})`);
       }
     });
   }
@@ -356,12 +385,23 @@ export default class {
     const data = message.data;
     const connectionID = message.connectionID;
 
-    logger.debug(`CLIENT ${connectionID} ${message.messageNumber} receives ${data.length}`);
-
     // We are the client, so give it back to the proxy
     try {
       if (this.connections.has(connectionID)) {
-        return this.connections.get(connectionID).onDataFromDestination(data);
+        const connection = this.connections.get(connectionID);
+        // Handle errors from relay, exit nodes
+        if (message.error === ERROR_CODE.CANNOT_CONNECT_TO_EXIT) {
+          // Close connection + blacklist exit node. This means the relay could
+          // not connect to the exit node.
+          connection.close();
+          this.peers.blacklistPeer(connection.route[1]);
+        } else if (message.error === ERROR_CODE.CANNOT_CONNECT_TO_REMOTE) {
+          // Close connection (it might be that the exit node just refused the
+          // connection because the hostname was not in the whitelist).
+          connection.close();
+        } else {
+          return connection.onDataFromDestination(data);
+        }
       }
 
       return Promise.resolve();

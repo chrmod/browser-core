@@ -314,7 +314,7 @@ export default class {
       return false;
     }
 
-    const availablePeers = this.proxyPeer.socksToRTC.availablePeers.length;
+    const availablePeers = this.proxyPeer.socksToRTC.peers.length;
     if (availablePeers < 2) {
       logger.error(`cannot proxy: not enough peers available (${availablePeers})`);
       return false;
