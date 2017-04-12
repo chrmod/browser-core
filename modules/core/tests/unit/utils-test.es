@@ -42,6 +42,9 @@ export default describeModule("core/utils",
       './crypto/random': {
         default: Math.random.bind(Math),
       },
+      '../platform/fetch': {
+        fetchFactory() {},
+      },
     };
   },
   function () {

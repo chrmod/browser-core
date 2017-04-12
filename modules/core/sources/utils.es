@@ -9,6 +9,7 @@ import gzip from './gzip';
 import CliqzLanguage from './language';
 import { isUrl } from './url';
 import random from './crypto/random';
+import { fetchFactory } from '../platform/fetch';
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
@@ -40,7 +41,6 @@ var CliqzUtils = {
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
   FEEDBACK:                       'https://cliqz.com/feedback/',
-  SYSTEM_BASE_URL:                CLIQZEnvironment.SYSTEM_BASE_URL,
   PREFERRED_LANGUAGE:             null,
   RESULTS_TIMEOUT:                CLIQZEnvironment.RESULTS_TIMEOUT,
 
@@ -638,42 +638,32 @@ var CliqzUtils = {
   },
 
   getBackendResults: function(q) {
-    return new Promise(function(resolve, reject) {
-      if (!CliqzUtils.getPref('cliqzBackendProvider.enabled', true)) {
-        resolve({
-          response: {
-            results: [],
-          },
-          query: q
-        });
-      }
-      else {
-        CliqzUtils._sessionSeq++;
+    if (!CliqzUtils.getPref('cliqzBackendProvider.enabled', true)) {
+      return Promise.resolve({
+        response: {
+          results: [],
+        },
+        query: q
+      });
+    }
+    
+    CliqzUtils._sessionSeq++;
 
-        // if the user sees the results more than 500ms we consider that he starts a new query
-        if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + 500)){
-          CliqzUtils._queryCount++;
-        }
-        CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
-        CliqzUtils._queryLastLength = q.length;
-        var url = CliqzUtils.RESULTS_PROVIDER + CliqzUtils.getResultsProviderQueryString(q);
-        CliqzUtils.httpGet(
-          url,
-          function (res) {
-            var resp = JSON.parse(res.response || '{}')
-            if (resp.result !== undefined && resp.results === undefined) {
-              resp.results = resp.result;
-              delete resp.result;
-            }
-            resolve({
-              response: resp,
-              query: q
-            });
-          },
-          reject
-        );
-      }
-    });
+    // if the user sees the results more than 500ms we consider that he starts a new query
+    if (CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + 500)){
+      CliqzUtils._queryCount++;
+    }
+    CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
+    CliqzUtils._queryLastLength = q.length;
+    const url = CliqzUtils.RESULTS_PROVIDER + CliqzUtils.getResultsProviderQueryString(q);
+    
+    const fetch = fetchFactory();
+    return fetch(url)
+      .then(res => res.json()) 
+      .then(response => ({
+        response,
+        query: q
+      }));
   },
 
   // IP driven configuration

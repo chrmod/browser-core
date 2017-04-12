@@ -3,10 +3,10 @@
  *
  */
 
-import { utils } from "core/cliqz";
-import Result from "autocomplete/result";
-import { isFirefox } from "core/platform";
-import mathLib from 'math';
+import mathLib from 'mathjs';
+import { utils } from "../core/cliqz";
+import Result from "./result";
+import { isFirefox } from "../core/platform";
 
 
 // REF:

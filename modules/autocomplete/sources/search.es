@@ -1,14 +1,14 @@
-import { utils, events } from "core/cliqz";
-import { isFirefox } from "core/platform";
-import SmartCliqzCache from 'autocomplete/smart-cliqz-cache/smart-cliqz-cache';
-import TriggerUrlCache from 'autocomplete/smart-cliqz-cache/trigger-url-cache';
-import CliqzAutocomplete from "autocomplete/autocomplete";
-import historyCluster from "autocomplete/history-cluster";
-import Result from "autocomplete/result";
-import Mixer from "autocomplete/mixer";
-import SpellCheck from "autocomplete/spell-check";
-import console from "core/console";
-import { handleQuerySuggestions } from 'platform/query-suggestions';
+import { utils, events } from "../core/cliqz";
+import { isFirefox } from "../core/platform";
+import SmartCliqzCache from './smart-cliqz-cache/smart-cliqz-cache';
+import TriggerUrlCache from './smart-cliqz-cache/trigger-url-cache';
+import CliqzAutocomplete from "./autocomplete";
+import historyCluster from "./history-cluster";
+import Result from "./result";
+import Mixer from "./mixer";
+import SpellCheck from "./spell-check";
+import console from "../core/console";
+import { handleQuerySuggestions } from '../platform/query-suggestions';
 
 class TimeoutError extends Error {}
 
@@ -143,7 +143,8 @@ export default class Search {
       searchString = this.analyzeQuery(searchString);
 
       // spell correction
-      var urlbar = utils.getWindow().document.getElementById('urlbar');
+      const window = utils.getWindow();
+      var urlbar = window ? window.document.getElementById('urlbar') : null;
       if (urlbar && //we do not have urlbar on mobile TODO - fix it better!
           !this.spellCheck.state.override &&
           urlbar.selectionEnd == urlbar.selectionStart &&

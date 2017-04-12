@@ -4,11 +4,11 @@
  *
  */
 
-import utils from "core/utils";
-import console from "core/console";
-import Result from "autocomplete/result";
-import CliqzCalculator from "autocomplete/calculator";
-import { setSearchEngine } from "core/search-engines";
+import utils from "../core/utils";
+import console from "../core/console";
+import Result from "./result";
+import CliqzCalculator from "./calculator";
+import { setSearchEngine } from "../core/search-engines";
 
 // INIT_KEY ('newProvidersAdded') was used only as a boolean but now we have multiple states
 // state 1 -> Google images & Google maps

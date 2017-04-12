@@ -1,6 +1,6 @@
-import autocomplete from "autocomplete/autocomplete";
-import { utils } from "core/cliqz";
-import { isFirefox } from "core/platform";
+import autocomplete from "./autocomplete";
+import { utils } from "../core/cliqz";
+import { isFirefox } from "../core/platform";
 
 export default class SpellCheck {
     constructor() {

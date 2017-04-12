@@ -3,10 +3,10 @@
  *
  */
 
-import { utils } from "core/cliqz";
-import Result from "autocomplete/result";
-import UrlCompare from "autocomplete/url-compare";
-import prefs from "core/prefs";
+import { utils } from "../core/cliqz";
+import Result from "./result";
+import UrlCompare from "./url-compare";
+import prefs from "../core/prefs";
 
 function objectExtend(target, obj) {
   Object.keys(obj).forEach(function(key) {

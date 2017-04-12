@@ -4,8 +4,8 @@
  *
  */
 
-import utils from "core/utils";
-import console from "core/console";
+import utils from "../core/utils";
+import console from "../core/console";
 
 var LOG_KEY = 'CliqzBackends.jsm';
 

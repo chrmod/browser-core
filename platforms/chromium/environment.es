@@ -17,7 +17,6 @@ const CLIQZEnvironment = {
   RESULTS_PROVIDER: 'https://api.cliqz.com/api/v2/results?nrh=1&q=',
   RICH_HEADER: 'https://api.cliqz.com/api/v2/rich-header?path=/v2/map',
   LOG: 'https://stats.cliqz.com',
-  BRANDS_DATA_URL: 'static/brands_database.json',
   TEMPLATES_PATH: 'modules/static/templates/',
   LOCALE_PATH: 'modules/static/locale/',
   RERANKERS: [],

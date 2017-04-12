@@ -1,6 +1,6 @@
-import { utils } from "core/cliqz";
-import Result from "autocomplete/result";
-import HistoryManager from "core/history-manager";
+import { utils } from "../core/cliqz";
+import Result from "./result";
+import HistoryManager from "../core/history-manager";
 
 var FF_DEF_FAVICON = 'chrome://mozapps/skin/places/defaultFavicon.png',
     Q_DEF_FAVICON = utils.SKIN_PATH + 'defaultFavicon.png';

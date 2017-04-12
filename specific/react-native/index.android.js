@@ -1,82 +1,55 @@
-'use strict';
 import React from 'react';
-import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View,
-  ListView,
-} from 'react-native';
+import { AppRegistry, StyleSheet, View, DeviceEventEmitter } from 'react-native';
+import App from './modules/core/app';
+import inject from './modules/core/kord/inject';
+import CardList from './components/CardList';
+import events from './modules/core/events';
 
-import startup from './modules/platform/startup';
-startup.then((app) => {
-  global.app = app;
-});
+const app = new App();
+app.start();
+global.app = app;
 
-class ExtensionApp extends React.Component {
-
+class SearchUI extends React.Component {
   constructor(props) {
     super(props);
-    console.log('construct');
-    this.state = {modules: []};
+    this.state = {
+      result: null,
+    };
+    this.autocomplete = inject.module('autocomplete');
+    events.sub('search', (...args) => this.searchResults(...args));
   }
 
   componentDidMount() {
-    startup.then((app) => {
-      this.app = app;
-      const modules = this.app.modules().map((m) => {
-        return {
-          name: m.name,
-          isEnabled: m.isEnabled,
-          loadingTime: m.loadingTime,
-        }
-      });
-      this.setState({ modules })
-    }).catch((err) => {
-      console.error('xxx', err);
-    });
+  }
+
+  searchResults(query) {
+    this.setState({ result: null });
+    this.autocomplete.action('search', query, (result) => {
+      console.log('result', result)
+      this.setState({result})
+    }).then(console.log.bind(console)).catch((err) => {
+      console.error(err)
+    })
   }
 
   render() {
-    // setPref('test', 'hi')
-    const mods = this.state.modules.map(mod => <Text key={mod.name}>{mod.name}, {mod.loadingTime}</Text>)
+    console.log('render')
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to CLIQZ Mobile Native!!!!!
-        </Text>
-        {mods}
+      <View style={styles().container}>
+        <CardList result={this.state.result} />
       </View>
     );
   }
-
-  _renderRow(mod) {
-    const text = `${mod.name}, enabled: ${mod.isEnabled} (${mod.loadingTime})`
-    return (
-      <Text>{text}</Text>
-    )
-  }
-
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
+const styles = function () {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      flexDirection: 'column',
+    },
+  });
+};
 
 // Module name
-AppRegistry.registerComponent('ExtensionApp', () => ExtensionApp);
+AppRegistry.registerComponent('ExtensionApp', () => SearchUI);

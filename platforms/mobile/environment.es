@@ -32,10 +32,8 @@ const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
 var CLIQZEnvironment = {
   RESULTS_PROVIDER: 'https://api.cliqz.com/api/v2/results?q=',
   RICH_HEADER: 'https://api.cliqz.com/api/v2/rich-header?path=/v2/map',
-  BRANDS_DATA_URL: 'static/brands_database.json',
   TEMPLATES_PATH: 'mobile-ui/templates/',
   LOCALE_PATH: 'static/locale/',
-  SYSTEM_BASE_URL: './',
   RESULTS_LIMIT: 3,
   RERANKERS: [],
   RESULTS_TIMEOUT: 60000, // 1 minute
