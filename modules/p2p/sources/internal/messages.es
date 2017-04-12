@@ -252,19 +252,25 @@ class InMessage {
     this.receivedChunk(firstChunk);
   }
 
-  receivedChunk(chunk) {
-    if (chunk.chunkId < this.numChunks) {
-      if (!this.chunks[chunk.chunkId]) {
-        this.currentSize += chunk.data.byteLength;
-        this.cliqzPeer.stats.inbytes += chunk.data.byteLength;
+  receivedChunk({ chunkId, data }) {
+    // decodeChunk gives us some guarantees:
+    // version is 1 byte int
+    // msgId is 4 bytes int
+    // chunkId is 2 bytes int (good to limit max number of chunks)
+    // numChunks is 2 bytes int
+    // data is Uint8Array
+    if (chunkId < this.numChunks) {
+      if (!this.chunks[chunkId]) {
+        this.currentSize += data.byteLength;
+        this.cliqzPeer.stats.inbytes += data.byteLength;
         if (
           !this.cliqzPeer.messageSizeLimit || this.currentSize <= this.cliqzPeer.messageSizeLimit
         ) {
-          this.chunks[chunk.chunkId] = chunk.data;
+          this.chunks[chunkId] = data;
           --this.remainingChunks;
-          this.sendAck(chunk.chunkId);
+          this.sendAck(chunkId);
           if (this.remainingChunks === 0) {
-            this.logDebug('Received last chunk ', this.msgId, chunk.chunkId);
+            this.logDebug('Received last chunk ', this.msgId, chunkId);
             this.cliqzPeer.stats.inmsgs++;
             this.kill(true);
             this.cliqzPeer.setTimeout(() => {
@@ -282,17 +288,19 @@ class InMessage {
               this.resolve(decoded.data, decoded.label);
             }, 0);
           } else {
-            this.logDebug('Received chunk ', this.msgId, chunk.chunkId, this.remainingChunks);
+            this.logDebug('Received chunk ', this.msgId, chunkId, this.remainingChunks);
             this.scheduleKiller();
           }
         } else {
-          this.logError('Message size exceeded, dropping chunk...');
+          this.logError('Message size exceeded, killing message...');
+          this.kill();
         }
       } else {
         this.logError('Warning: received repeated chunk');
       }
     } else {
-      this.logError('Warning: received chunk number is too big');
+      this.logError('Warning: received chunk number is too big, killing message');
+      this.kill();
     }
   }
 

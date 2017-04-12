@@ -100,6 +100,7 @@ export default class {
       )
       .then((p) => {
         this.peer = p;
+        this.peer.setMessageSizeLimit(5 * 1024 * 1024);
         // Add message listener
         this.peer.onmessage = (message, label, peer) => this.handleNewMessage(message, peer);
       });
