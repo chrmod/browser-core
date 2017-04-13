@@ -999,6 +999,10 @@ function enhanceResults(res){
           hasAd = true;
           resultWithAd = r;
           adIndex = i;
+
+          if (r.data.extra.url_ad) {
+            r.url = r.data.extra.url_ad;
+          }
         }
 
         if (r.type.indexOf('cliqz-extra') !== -1 &&  i > 0 ) {
