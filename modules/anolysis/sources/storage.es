@@ -3,7 +3,7 @@
 
 
 import md5 from '../core/helpers/md5';
-import log from './logging';
+import logger from './logger';
 import getSynchronizedDate, { DATE_FORMAT } from './synchronized-date';
 
 
@@ -63,7 +63,7 @@ export default class {
 
     return this.database.put(decoratedDoc)
       .then(() => decoratedDoc)
-      .catch((ex) => { log(`put exception ${ex} ${JSON.stringify(decoratedDoc)}`); });
+      .catch((ex) => { logger.error(`put exception ${ex} ${JSON.stringify(decoratedDoc)}`); });
   }
 
   getN(n) {
@@ -93,14 +93,14 @@ export default class {
   }
 
   getByTimespan({ from, to } = { }) {
-    log(`getByTimespan ${from} -> ${to}`);
+    logger.debug(`getByTimespan ${from} -> ${to}`);
     return this.database.query('index/by_ts', {
       startkey: from,
       endkey: to,
       include_docs: true,
     }).then((result) => {
       const documents = result.rows.map(row => row.doc);
-      log(`getByTimespan from ${from} to ${to} found ${documents.length} documents`);
+      logger.debug(`getByTimespan from ${from} to ${to} found ${documents.length} documents`);
       return documents;
     });
   }
@@ -120,7 +120,7 @@ export default class {
   deleteByTimespan(timespan) {
     return this.getByTimespan(timespan)
       .then((documents) => {
-        log(`remove ${documents.length} with timespan ${JSON.stringify(timespan)}`);
+        logger.debug(`remove ${documents.length} with timespan ${JSON.stringify(timespan)}`);
         return Promise.all(documents.map(doc => this.database.remove(doc)));
       });
   }

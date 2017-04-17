@@ -1,8 +1,8 @@
-import moment from 'platform/moment';
-import UAParser from 'platform/ua-parser';
-import log from 'anolysis/logging';
-import getSynchronizedDate from 'anolysis/synchronized-date';
-import legacyPreprocessor from 'anolysis/preprocessors/legacy';
+import moment from '../platform/moment';
+import UAParser from '../platform/ua-parser';
+import logger from './logger';
+import getSynchronizedDate from './synchronized-date';
+import legacyPreprocessor from './preprocessors/legacy';
 
 
 const ARCHITECTURE = new Set([
@@ -167,7 +167,7 @@ export function parseABTests(abtests) {
     return Object.keys(JSON.parse(abtests));
   } catch (ex) {
     /* Ignore exception */
-    log(`EXCEPTION ${ex} ${ex.stack}`);
+    logger.error(`EXCEPTION ${ex} ${ex.stack}`);
   }
 
   return [];
@@ -238,7 +238,7 @@ export default class {
 
   // TODO: define 'campaign'
   parseDemographics(signal) {
-    log('parse demographics');
+    logger.debug('parse demographics');
     const channel = signal.channel || this.settings.channel;
 
     // Resulting demographic factors
@@ -324,7 +324,7 @@ export default class {
         distribution = `Other/c=${channel} d=${rawDistribution}`;
       }
     }
-    log(`distribution ${JSON.stringify(distribution)}`);
+    logger.debug(`distribution ${JSON.stringify(distribution)}`);
 
     // ---------------------------------------------------------------------- //
     // Parse installDate
@@ -345,7 +345,7 @@ export default class {
         installDate = `Other/${installDate}`;
       }
     }
-    log(`installDate ${JSON.stringify(installDate)}`);
+    logger.debug(`installDate ${JSON.stringify(installDate)}`);
 
     // ---------------------------------------------------------------------- //
     // Parse platform
@@ -408,7 +408,7 @@ export default class {
         platform = `${platform}/${splittedVersion.join('.').trim()}`;
       }
     }
-    log(`platform ${JSON.stringify(platform)}`);
+    logger.debug(`platform ${JSON.stringify(platform)}`);
 
     // ---------------------------------------------------------------------- //
     // Parse product
@@ -463,10 +463,10 @@ export default class {
       if (parsedVersion) {
         product = `${product}/${parsedVersion.join('.')}`;
       }
-      log(`product ${JSON.stringify(product)}`);
+      logger.debug(`product ${JSON.stringify(product)}`);
     } catch (ex) {
       /* Wrong data for product */
-      log(`exception ${ex} ${ex.stack}`);
+      logger.error(`exception ${ex} ${ex.stack}`);
     }
 
     // ---------------------------------------------------------------------- //

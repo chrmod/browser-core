@@ -1,7 +1,8 @@
-import Backend from 'anolysis/backend-communication';
-import log from 'anolysis/logging';
-import moment from 'platform/moment';
-import getSynchronizedDate, { DATE_FORMAT } from 'anolysis/synchronized-date';
+import moment from '../platform/moment';
+
+import Backend from './backend-communication';
+import logger from './logger';
+import getSynchronizedDate, { DATE_FORMAT } from './synchronized-date';
 
 
 const CLIENT_STATE = {
@@ -70,7 +71,7 @@ export default class {
         .catch(() => {
           // We currently don't have any demographics available, we need to
           // wait until a call to `updateDemographics` before proceeding.
-          log('No valid GID available found');
+          logger.log('No valid GID available found');
         })
         .then(() => {
           // Delete reference as init is done.
@@ -151,13 +152,13 @@ export default class {
       // If it's the first time, it might be that there is no granular
       // demographic factors yet. Check if there is one in storage, if
       // yes, use the last one.
-      log('try to get latest demographics from storage');
+      logger.debug('try to get latest demographics from storage');
       return this.demographicsStorage.getLastN(1)
         .then((results) => {
-          log(`registerDemographicsFirstTime results ${JSON.stringify(results)}`);
+          logger.debug(`registerDemographicsFirstTime results ${JSON.stringify(results)}`);
           if (results.length === 1) {
             const newDemographics = JSON.stringify(results[0].demographics);
-            log(`registerDemographicsFirstTime returns ${newDemographics}`);
+            logger.log(`registerDemographicsFirstTime returns ${newDemographics}`);
             return Promise.resolve(newDemographics);
           }
 
@@ -218,7 +219,7 @@ export default class {
   }
 
   updateClientState(demographics) {
-    log(`update client state from ${this.currentState()} ${demographics}`);
+    logger.debug(`update client state from ${this.currentState()} ${demographics}`);
     switch (this.currentState()) {
       case CLIENT_STATE.NEW_INSTALL:
         return this.handleNewInstall(demographics);
@@ -245,10 +246,10 @@ export default class {
   // --------------------------------------------------------------------------
 
   handleNewInstall(demographics) {
-    log('handleNewInstall');
+    logger.debug('handleNewInstall');
     return Backend.newInstall(demographics)
       .then((formattedDemographics) => {
-        log('Success handleNewInstall');
+        logger.debug('Success handleNewInstall');
         const currentDate = getSynchronizedDate().format(DATE_FORMAT);
 
         this.setLastTimeDemographicSent(currentDate);
@@ -259,17 +260,17 @@ export default class {
       })
       .catch((ex) => {
         // TODO: This could be a security problem for the user
-        log(`Could not send newInstall signal ${ex}`);
+        logger.error(`Could not send newInstall signal ${ex}`);
 
         return '';
       });
   }
 
   handleUpdate(demographics) {
-    log('handleUpdate');
+    logger.debug('handleUpdate');
     return Backend.updateGID(demographics)
       .then((gid) => {
-        log(`success handleUpdate ${gid}`);
+        logger.log(`success handleUpdate ${gid}`);
         this.setLastGIDUpdateDate(getSynchronizedDate().format(DATE_FORMAT));
         this.setCurrentGID(gid);
 
@@ -290,13 +291,13 @@ export default class {
     // the most granular demographic factors.
     const lastTimeDemographicsSent = this.getLastTimeDemographicSent();
     if (lastTimeDemographicsSent !== undefined) {
-      log('handleActiveUserSignal has already been sent before');
+      logger.debug('handleActiveUserSignal has already been sent before');
 
       const currentDate = getSynchronizedDate();
       const lastDemographicSentDate = moment(lastTimeDemographicsSent, DATE_FORMAT);
 
       if (currentDate.isAfter(lastDemographicSentDate, 'month')) {
-        log('handleActiveUserSignal send again');
+        logger.debug('handleActiveUserSignal send again');
         // Get latest demographics available in storage
         return this.demographicsStorage.getLastN(1)
           .then((results) => {
@@ -324,7 +325,7 @@ export default class {
    * Handle new demographics for the user. This should not happen very often.
    */
   updateDemographics(demographics) {
-    log(`updateDemographics ${JSON.stringify(demographics)}`);
+    logger.debug(`updateDemographics ${JSON.stringify(demographics)}`);
     return this.demographicsStorage.put(demographics)
       .then(() => this.init());
   }
@@ -340,7 +341,7 @@ export default class {
    * the back-end.
    */
   getGID() {
-    log('getGID');
+    logger.debug('getGID');
     return this.init()
       .then(() => {
         switch (this.currentState()) {
@@ -361,7 +362,7 @@ export default class {
         return '';
       })
       .catch((ex) => {
-        log(`Exception ${ex} ${ex.stack}`);
+        logger.error(`Exception ${ex} ${ex.stack}`);
       });
   }
 }

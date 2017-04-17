@@ -1,4 +1,4 @@
-import ResultSelectionAnalysis from 'anolysis/analyses/result-selection';
+import ResultSelectionAnalysis from './analyses/result-selection';
 
 // Some analyses only consist in selecting fields from the
 // aggregation. In which case the telemetry schema is used

@@ -1,19 +1,19 @@
 /* eslint { "no-param-reassign": "off" } */
 
-import moment from 'platform/moment';
+import moment from '../platform/moment';
 
-import { utils } from 'core/cliqz';
-import Database from 'core/database';
+import { utils } from '../core/cliqz';
+import Database from '../core/database';
 
-import BehaviorAggregator from 'anolysis/aggregator';
-import GIDManager from 'anolysis/gid-manager';
-import Preprocessor, { parseABTests } from 'anolysis/preprocessor';
-import SignalQueue from 'anolysis/signals-queue';
-import Storage from 'anolysis/storage';
-import analyses from 'anolysis/analyses';
-import generateRetentionSignals from 'anolysis/analyses/retention';
-import log from 'anolysis/logging';
-import getSynchronizedDate, { DATE_FORMAT } from 'anolysis/synchronized-date';
+import BehaviorAggregator from './aggregator';
+import GIDManager from './gid-manager';
+import Preprocessor, { parseABTests } from './preprocessor';
+import SignalQueue from './signals-queue';
+import Storage from './storage';
+import analyses from './analyses';
+import generateRetentionSignals from './analyses/retention';
+import logger from './logger';
+import getSynchronizedDate, { DATE_FORMAT } from './synchronized-date';
 
 
 export default class {
@@ -95,7 +95,7 @@ export default class {
     return new Promise((resolve, reject) => {
       Object.keys(schemas).forEach((name) => {
         const schema = schemas[name];
-        log(`Register schema ${name}`);
+        logger.log(`Register schema ${name}`);
         // TODO: Perform some checks on `schema`.
         // - allowed fields
         // - missing information
@@ -120,10 +120,10 @@ export default class {
     return Promise.all([
       this.behaviorStorage
         .deleteByTimespan({ to: getSynchronizedDate().subtract(1, 'months').format(DATE_FORMAT) })
-        .catch(err => log(`error deleting old behavior data: ${err}`)),
+        .catch(err => logger.error(`error deleting old behavior data: ${err}`)),
       this.demographicsStorage
         .deleteByTimespan({ to: getSynchronizedDate().subtract(1, 'months').format(DATE_FORMAT) })
-        .catch(err => log(`error deleting old behavior data: ${err}`)),
+        .catch(err => logger.error(`error deleting old behavior data: ${err}`)),
     ]);
   }
 
@@ -145,8 +145,9 @@ export default class {
         throw err;
       })
       .then((doc) => {
-        log(`generate retention signals ${JSON.stringify(doc)}\n`);
+        logger.log(`generate retention signals ${JSON.stringify(doc)}\n`);
         generateRetentionSignals(doc).forEach(([schema, signal]) => {
+          logger.debug(`Retention signal ${JSON.stringify(signal)} (${schema})`);
           this.handleTelemetrySignal(signal, schema);
         });
 
@@ -169,7 +170,7 @@ export default class {
         .catch(() => this.generateAndSendAnalysesSignalsForDay(formattedDate)
           .then(() => aggregationLogDB.put({ _id: formattedDate }))
           .catch((ex) => {
-            log(`could not generate aggregated signals for day ${formattedDate}: ${ex}`);
+            logger.error(`could not generate aggregated signals for day ${formattedDate}: ${ex}`);
           })
         ).then(() => {
           // Recursively check previous day until we reach `stopDay`
@@ -215,12 +216,12 @@ export default class {
         const abtests = new Set(parseABTests(utils.getPref('ABTests')));
 
         // 3. Generate messages for each analysis
-        log(`generateSignals ${date}`);
+        logger.log(`generateSignals ${date}`);
         return Promise.all(analyses.map((analysis) => {
-          log(`generateSignals for ${analysis.name}`);
+          logger.debug(`generateSignals for ${analysis.name}`);
           return Promise.all(analysis.generateSignals(aggregation, abtests)
             .map((signal) => {
-              log(`Signal for ${analysis.name} ${JSON.stringify(signal)}`);
+              logger.debug(`Signal for ${analysis.name} ${JSON.stringify(signal)}`);
               return this.handleTelemetrySignal(
                 Object.assign(signal, {
                   meta: {
@@ -246,6 +247,7 @@ export default class {
    * @param {Object} signal - The telemetry signal.
    */
   handleTelemetrySignal(signal, schemaName) {
+    logger.debug(`handleTelemetrySignal ${schemaName} ${JSON.stringify(signal)}`);
     // Try to fetch the schema definition from the name.
     let schema;
     if (schemaName !== undefined) {
@@ -264,7 +266,7 @@ export default class {
         if (isDemographics) {
           return this.gidManager.updateDemographics(processedSignal);
         } else if (isInstantPush && !isLegacy) {
-          log(`Signal is instantPush ${JSON.stringify(processedSignal)}`);
+          logger.debug(`Signal is instantPush ${JSON.stringify(processedSignal)}`);
           return this.gidManager.getGID()
             .then((gid) => {
               // Attach id to the message
@@ -297,7 +299,7 @@ export default class {
         // This signal is stored and will be aggregated with other signals from
         // the same day to generate 'analyses' signals.
         return this.behaviorStorage.put(processedSignal)
-          .catch((ex) => { log(`behavior exception ${ex}`); });
+          .catch((ex) => { logger.error(`behavior exception ${ex}`); });
         // }
       });
   }

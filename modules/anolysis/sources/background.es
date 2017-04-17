@@ -1,12 +1,12 @@
 /* eslint { "object-shorthand": "off" } */
 
-import background from 'core/base/background';
-import { utils } from 'core/cliqz';
+import background from '../core/base/background';
+import { utils } from '../core/cliqz';
 
 
-import telemetrySchemas from 'anolysis/telemetry-schemas';
-import Anolysis from 'anolysis/anolysis';
-import getSynchronizedDate from 'anolysis/synchronized-date';
+import telemetrySchemas from './telemetry-schemas';
+import Anolysis from './anolysis';
+import getSynchronizedDate from './synchronized-date';
 
 
 /* TODO - use the new kord module
@@ -64,8 +64,8 @@ export default background({
       type: 'anolysis_ping',
     }, true /* force push */);
 
-    return this.anolysis.init()
-      .then(() => { this.actions.registerSchemas(telemetrySchemas); })
+    return this.actions.registerSchemas(telemetrySchemas)
+      .then(() => this.anolysis.init())
       .then(() => {
         this.isRunning = true;
         utils.log('started', 'anon');

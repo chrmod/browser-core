@@ -58,10 +58,11 @@ const SCHEMAS = {
       offset: 'number',
     },
   },
+
   // abstraction of result_enter and result_click signals
   result_selection: {
     needs_gid: true,
-    instantPush: false,
+    instantPush: true,
     schema: {
       selection_type: 'string',
       current_position: 'number',
