@@ -1394,6 +1394,12 @@
     "control-center-backend-country": {
       "message": "Search Results for"
     },
+    "control-center-report-url": {
+      "message": "Report Website"
+    },
+    "control-center-tips": {
+      "message": "Tips"
+    },
     "control-center-humanweb": {
       "message": "Take part in Human Web"
     },

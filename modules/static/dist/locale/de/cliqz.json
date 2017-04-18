@@ -1391,6 +1391,12 @@
     "control-center-search-engine": {
       "message": "Ergänzende Suchmaschine"
     },
+    "control-center-report-url": {
+      "message": "Website melden"
+    },
+    "control-center-tips": {
+      "message": "Tipps"
+    },
     "control-center-backend-country": {
       "message": "Suchergebnisse für"
     },
