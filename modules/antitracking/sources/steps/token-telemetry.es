@@ -262,7 +262,7 @@ export default class {
       console.log('have', counts[1], 'tokens for', counts[0], 'domains in the db');
       // calculate number of elements to send
       const domainCount = counts[0];
-      const limit = Math.ceil(domainCount / 12);
+      const limit = Math.floor(domainCount / 12) || 1;
 
       // get domains with last update before the current hour
       return this.lastSentLog.peek({
