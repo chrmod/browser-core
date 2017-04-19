@@ -39,7 +39,9 @@
   "default_prefs" : {
     "modules.context-search.enabled": false,
     "modules.type-filter.enabled": false,
-    "modules.antitracking-blocker.enabled": false
+    "modules.antitracking-blocker.enabled": false,
+    "proxyPeer": false,
+    "proxyTrackers": false
   },
   "priority": [
     "core",

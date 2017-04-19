@@ -8,8 +8,13 @@ import { generateAESKey
 
 
 export const ERROR_CODE = {
-  CANNOT_CONNECT_TO_EXIT: 0,
-  CANNOT_CONNECT_TO_REMOTE: 1,
+  RELAY_CANNOT_CONNECT_TO_EXIT: 0,
+  RELAY_CONNECTION_GARBAGE_COLLECTED: 1,
+  EXIT_INCORRECT_SOCKS_REQUEST: 2,
+  EXIT_HOST_NOT_ALLOWED_BY_POLICY: 3,
+  EXIT_PRIVATE_ADDRESS: 4,
+  EXIT_CLOSED_BY_REMOTE: 5,
+  EXIT_CONNECTION_GARBAGE_COLLECTED: 6,
 };
 
 
@@ -77,7 +82,6 @@ export function wrapOnionRequest(data, peers, connectionID, aesKey, messageNumbe
 
 
 export function sendOnionRequest(onionRequest, peers, peer) {
-  logger.debug(`sendOnionRequest to ${JSON.stringify(peers[0])}`);
   return peer.send(
     peers[0].name,
     onionRequest,

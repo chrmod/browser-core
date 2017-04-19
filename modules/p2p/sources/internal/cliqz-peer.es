@@ -289,7 +289,7 @@ export default class CliqzPeer {
         const candidate = JSON.parse(message.candidate);
         const conn = this._getPendingConnection(from);
         if (!conn) {
-          this.log('WARNING: setting ICE candidates for unexisting pending connection');
+          this.logDebug('Setting ICE candidates for unexisting pending connection');
         } else if (conn.status === 'initial' || conn.status === 'signaling') {
           conn.status = 'signaling';
           conn.receiveICECandidate(candidate, id);
@@ -853,7 +853,7 @@ export default class CliqzPeer {
             this.ondisconnect(peer);
           }
         } else {
-          this.logError('WARNING: closed connection is not stored in CliqzPeer.connections or CliqzPeer.pendingConnections');
+          this.log('WARNING: closed connection is not stored in CliqzPeer.connections or CliqzPeer.pendingConnections');
         }
       };
       connection.onmessage = (message) => {

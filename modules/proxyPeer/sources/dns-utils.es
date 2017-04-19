@@ -1,6 +1,7 @@
 const dnsService = Components.classes['@mozilla.org/network/dns-service;1']
   .createInstance(Components.interfaces.nsIDNSService);
 
+
 export function asyncResolve(hostname) {
   return new Promise((resolve, reject) => {
     dnsService.asyncResolve(hostname, 0, {
@@ -14,6 +15,7 @@ export function asyncResolve(hostname) {
     }, null);
   });
 }
+
 
 export function isPrivateIPAddress(ip) {
   try {

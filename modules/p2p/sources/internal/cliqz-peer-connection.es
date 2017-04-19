@@ -251,7 +251,7 @@ export default class CliqzPeerConnection {
           this.logDebug('Received end of candidates', from, candidate, id, this.remoteId);
         }
       } else {
-        this.logError('Warning: wrong ice candidate received', from, id, this.remoteId);
+        this.log('Warning: wrong ice candidate received', from, id, this.remoteId);
       }
     } else {
       if (!this.savedICECandidates) {
@@ -286,7 +286,7 @@ export default class CliqzPeerConnection {
         this.logError(error, 'error setting receiver remote description');
       });
     } else {
-      this.logError('Warning: wrong offer received', from, id, this.remoteId);
+      this.log('Warning: wrong offer received', from, id, this.remoteId);
     }
   }
 

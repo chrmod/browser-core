@@ -9,12 +9,13 @@ import RTCRelay from './rtc-relay';
 import RTCToNet from './rtc-to-net';
 import SocksToRTC from './socks-to-rtc';
 import { decryptPayload } from './rtc-onion';
-import inject from '../core/kord/inject';
+
 
 /**
  * Wrap a MessageQueue into a multiplexer. It exposes a different `push`
  * function, with an extra argument `key`. For each different value of key,
- * a different queue is created.
+ * a different queue is created. This is to allow more concurrency in the way
+ * requests belonging to different connections are processed.
  *
  * It also implements a mechanism to garbage collect un-used queues.
  */
@@ -62,8 +63,10 @@ function MultiplexedQueue(name, callback) {
 
 
 export default class {
-  constructor(signalingUrl, peersUrl, policy) {
-    this.p2p = inject.module('p2p');
+  constructor(signalingUrl, peersUrl, policy, p2p) {
+    // External dependency
+    this.p2p = p2p;
+
     // Create a socks proxy
     this.socksProxy = new SocksProxy();
     this.peer = null;
@@ -114,25 +117,23 @@ export default class {
         );
 
         // Relay
-        this.rtcRelay = new RTCRelay();
+        this.rtcRelay = new RTCRelay(this.peer);
         this.relayQueue = MultiplexedQueue(
           'relay',
           ({ msg, message, peer }) =>
             this.rtcRelay.handleRelayMessage(
               message,     /* Original message */
               msg,         /* Decrypted message */
-              this.peer,   /* Current peer */
               peer),       /* Sender */
         );
 
         // Exit
-        this.rtcToNet = new RTCToNet(this.policy);
+        this.rtcToNet = new RTCToNet(this.policy, this.peer);
         this.exitQueue = MultiplexedQueue(
           'exit',
           ({ msg, peer }) =>
             this.rtcToNet.handleExitMessage(
               msg,          /* Decrypted message */
-              this.peer,    /* Current peer */
               peer,         /* Sender */
               this.ppk[1]), /* Private key of current peer */
         );
@@ -163,12 +164,19 @@ export default class {
                   if (msg.nextPeer || this.rtcRelay.isOpenedConnection(connectionID, peer)) {
                     this.rtcRelay.dataIn += dataIn;
                     this.relayQueue.push(connectionID, data);
-                  } else {
+                  } else if (this.socksToRTC.isOpenedConnection(connectionID, peer)) {
                     this.clientQueue.push(connectionID, data);
+                  } else {
+                    // Drop message as it might belong to a closed connection
+                    // This happens normally when the client closed the TCP
+                    // socket and the exit node did the same, in this case the
+                    // client will still receive a message from the exit node
+                    // saying that the connection has been closed. It's safe to
+                    // ignore it.
+                    logger.debug(`peer drops ${JSON.stringify(data)}`);
                   }
                 }
-              })
-              .catch(ex => logger.error(`proxy-peer error: ${ex} ${ex.stack}`));
+              }).catch(ex => logger.error(`proxy-peer error: ${ex} ${ex.stack}`));
           }
         );
       });
@@ -184,9 +192,16 @@ export default class {
 
   unload() {
     // Unload multiplexed message queues
-    [this.socksToRTC, this.rtcRelay, this.rtcToNet].forEach((queue) => {
+    [this.clientQueue, this.relayQueue, this.exitQueue].forEach((queue) => {
       if (queue !== null) {
         queue.unload();
+      }
+    });
+
+    // Unload client, relay and exit
+    [this.socksToRTC, this.rtcRelay, this.rtcToNet].forEach((node) => {
+      if (node !== null) {
+        node.unload();
       }
     });
 

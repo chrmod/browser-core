@@ -86,7 +86,6 @@ export class TcpConnection {
    * @param {integer} length - Number of octets to be sent.
    */
   sendData(data, length) {
-    // TODO: Send async somehow. (use a data queue?)
     logger.debug(`TCP ${this.id} sends ${length} octets`);
     return Promise.resolve(this._binaryWriter.writeByteArray(data, length))
       .catch((ex) => {
@@ -125,8 +124,8 @@ export class TcpConnection {
     this.getNextData().then((data) => {
       callback(data);
       this.registerCallbackOnData(callback);
-    }).catch(() => {
-      logger.debug(`TCP ${this.id} closing connection`);
+    }).catch((ex) => {
+      logger.debug(`TCP ${this.id} closing connection ${ex} ${ex.stack}`);
       try {
         // Make sure transport is properly closed
         this.close();

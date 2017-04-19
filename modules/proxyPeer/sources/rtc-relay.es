@@ -12,7 +12,8 @@ function hashConnectionID(connectionID /* , peerID */) {
 
 
 export default class {
-  constructor() {
+  constructor(peer) {
+    this.peer = peer;
     this.previousPeer = new Map();
 
     // Keep some statistics
@@ -35,10 +36,18 @@ export default class {
       () => {
         const timestamp = Date.now();
         [...this.previousPeer.keys()].forEach((connectionID) => {
-          const { lastActivity } = this.previousPeer.get(connectionID);
+          const { lastActivity, sender } = this.previousPeer.get(connectionID);
           if (lastActivity < (timestamp - (1000 * 15))) {
             logger.debug(`RELAY ${connectionID} garbage collect`);
             this.previousPeer.delete(connectionID);
+
+            // Signal to the client that the connection has been garbage
+            // collected.
+            this.signalClosedConnectionToClient(
+              connectionID,
+              sender,
+              ERROR_CODE.RELAY_CONNECTION_GARBAGE_COLLECTED
+            );
           }
         });
       },
@@ -60,21 +69,25 @@ export default class {
     utils.clearInterval(this.healthCheck);
   }
 
+  unload() {
+    this.stop();
+  }
+
   isOpenedConnection(connectionID, sender) {
     return this.previousPeer.has(hashConnectionID(connectionID, sender));
   }
 
-  handleRelayMessage(data, message, peer, sender) {
+  handleRelayMessage(data, message, sender) {
     try {
       this.receivedMessages += 1;
 
       if (message.nextPeer) {
-        return this.relay(message, peer, sender);
+        return this.relay(message, this.peer, sender);
       }
 
       return this.relayBackward(
         data,
-        peer,
+        this.peer,
         sender,
         message.connectionID,
         message.messageNumber,
@@ -86,6 +99,7 @@ export default class {
 
   relayBackward(data, peer, sender, connectionID, messageNumber) {
     const connectionHash = hashConnectionID(connectionID, sender);
+
     if (this.previousPeer.has(connectionHash)) {
       const previousPeer = this.previousPeer.get(connectionHash);
       previousPeer.lastActivity = Date.now();
@@ -95,11 +109,12 @@ export default class {
       this.dataOut += data.length;
       return peer.send(previousPeer.sender, data, 'antitracking')
         .catch((e) => {
+          // We were not able to contact the client
           logger.error(`RELAY ${connectionID} ${messageNumber} ERROR: could not send message ${e}`);
         });
     }
 
-    // Drop message because connection doesn't exist
+    // Drop message because connection doesn't exist anymore
     logger.error(`RELAY ${connectionID} ${messageNumber} dropped message`);
     this.droppedMessages += 1;
     return Promise.resolve();
@@ -131,15 +146,23 @@ export default class {
         // We were not able to connect to the next node, so we relay backward an
         // error message so that the client can close the connection as soon as
         // possible.
-        const payload = JSON.stringify({
+        return this.signalClosedConnectionToClient(
           connectionID,
-          error: ERROR_CODE.CANNOT_CONNECT_TO_EXIT,
-          role: 'relay',
-        });
-
-        // Send back response to the client. Note that this is not encrypted, as
-        // there is not much information here.
-        return peer.send(sender, payload, 'antitracking');
+          sender,
+          ERROR_CODE.RELAY_CANNOT_CONNECT_TO_EXIT);
       });
+  }
+
+
+  signalClosedConnectionToClient(connectionID, sender, error) {
+    const payload = JSON.stringify({
+      connectionID,
+      error,
+      role: 'relay',
+    });
+
+    // Send back response to the client. Note that this is not encrypted, as
+    // there is not much information here.
+    return this.peer.send(sender, payload, 'antitracking');
   }
 }

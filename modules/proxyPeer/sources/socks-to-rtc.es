@@ -1,4 +1,5 @@
 import { utils } from '../core/cliqz';
+import { fromUTF8 } from '../core/encoding';
 
 import logger from './logger';
 import { AUTH_METHOD
@@ -88,7 +89,7 @@ class SocksConnection {
    * @param {String|null} msg - Sends a message to client before closing.
    */
   close(msg) {
-    logger.debug(`CLIENT ${this.id} garbage collect connection`);
+    logger.debug(`CLIENT ${this.id} closing connection`);
     if (msg) {
       this.clientConnection.sendData(msg, msg.length);
     }
@@ -129,6 +130,18 @@ class SocksConnection {
     // Decrypt data with AES keys
     return decryptResponseFromExitNode(encrypted, this.aesKey)
       .then((decrypted) => {
+        try {
+          const errorMessage = JSON.parse(fromUTF8(decrypted));
+          // Handle error from exit node, close connection immediatly
+          if (errorMessage.error !== undefined) {
+            logger.log(`CLIENT ${errorMessage.connectionID} received error ${errorMessage.error} from exit`);
+            return Promise.resolve(this.close());
+          }
+        } catch (ex) {
+          /* Ignore */
+        }
+
+        // No error code, proxy data chunk to client
         const data = new Uint8Array(decrypted);
         return this.clientConnection.sendData(data, data.length);
       });
@@ -255,7 +268,7 @@ class AvailablePeers {
     this.blacklist.forEach(({ added, timeout }, name) => {
       const timestamp = Date.now();
       if (added < (timestamp - timeout)) {
-        logger.error(`Remove ${name} from blacklist`);
+        logger.log(`Remove ${name} from blacklist`);
         this.blacklist.delete(name);
       }
     });
@@ -313,8 +326,8 @@ export default class {
         const timestamp = Date.now();
         this.connections.forEach((connection, connectionID) => {
           const lastActivity = connection.lastActivity;
-          // Garbage collect connection inactive for 15 seconds
-          if (lastActivity < (timestamp - (1000 * 10))) {
+          // Garbage collect connection inactive for 20 seconds
+          if (lastActivity < (timestamp - (1000 * 20))) {
             // NOTE: Garbage collection does not mean the connection failed
             // (peers where offline or encountered an exception). It can be that
             // the connection was just maintenained opened? There does not seem
@@ -378,6 +391,19 @@ export default class {
     utils.clearInterval(this.actionInterval);
   }
 
+  unload() {
+    this.stop();
+
+    // Close all remaining connections
+    this.connections.forEach((connection) => {
+      connection.close();
+    });
+  }
+
+  isOpenedConnection(connectionID) {
+    return this.connections.has(connectionID);
+  }
+
   /**
    * Handle data coming from RTC peers.
    */
@@ -389,23 +415,26 @@ export default class {
     try {
       if (this.connections.has(connectionID)) {
         const connection = this.connections.get(connectionID);
-        // Handle errors from relay, exit nodes
-        if (message.error === ERROR_CODE.CANNOT_CONNECT_TO_EXIT) {
-          // Close connection + blacklist exit node. This means the relay could
-          // not connect to the exit node.
-          connection.close();
-          this.peers.blacklistPeer(connection.route[1]);
-        } else if (message.error === ERROR_CODE.CANNOT_CONNECT_TO_REMOTE) {
-          // Close connection (it might be that the exit node just refused the
-          // connection because the hostname was not in the whitelist).
-          connection.close();
-        } else {
-          return connection.onDataFromDestination(data);
+        // Handle errors from relay
+        if (message.error !== undefined) {
+          logger.log(`CLIENT received error ${message.error} from relay`);
+
+          if (message.error === ERROR_CODE.RELAY_CANNOT_CONNECT_TO_EXIT) {
+            // Close connection + blacklist exit node.
+            connection.close();
+            return Promise.resolve(this.peers.blacklistPeer(connection.route[1]));
+          }
+
+          return Promise.resolve();
         }
+
+        return connection.onDataFromDestination(data);
       }
 
+      logger.debug(`CLIENT ${connectionID} drops message: connection does not exist`);
       return Promise.resolve();
     } catch (ex) {
+      logger.error(`CLIENT encountered exception ${ex} ${ex.stack} ${JSON.stringify(message)}`);
       return Promise.reject(ex);
     }
   }

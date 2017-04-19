@@ -68,7 +68,7 @@ function getPeersUrl() {
 
 export default class {
 
-  constructor(antitracking) {
+  constructor(antitracking, p2p) {
     // Use a local socks proxy to be able to 'hack' the HTTP lifecycle
     // inside Firefox. This allows us to proxy some requests in a peer
     // to peer fashion using WebRTC.
@@ -92,9 +92,12 @@ export default class {
     // Proxy state
     this.urlsToProxy = new Set();
     this.proxyStats = new Map();
-    this.antitracking = antitracking;
 
-    // policies for when to proxy and when to block exit requests
+    // External dependencies
+    this.antitracking = antitracking;
+    this.p2p = p2p;
+
+    // Policies for when to proxy and when to block exit requests
     this.proxyPolicy = new PublicDomainOnlyPolicy();
     this.exitPolicy = new CompositePolicy();
     this.exitPolicy.addBlacklistPolicy(new PrivateIPBlacklistPolicy());
@@ -119,7 +122,13 @@ export default class {
       const peersUrl = getPeersUrl();
       this.peersUrlHostname = utils.getDetailsFromUrl(peersUrl).host;
 
-      this.proxyPeer = new ProxyPeer(signalingUrl, peersUrl, this.exitPolicy);
+      this.proxyPeer = new ProxyPeer(
+        signalingUrl,
+        peersUrl,
+        this.exitPolicy,
+        this.p2p,
+      );
+
       return this.proxyPeer.init();
     }
 
@@ -131,6 +140,8 @@ export default class {
       this.proxyPeer.unload();
       this.proxyPeer = null;
     }
+
+    return Promise.resolve();
   }
 
   initProxy() {
@@ -171,10 +182,11 @@ export default class {
         fn: (state) => {
           // Here we must perform some additional checks so that the proxying
           // does not interfere with the signaling and WebRTC infrastructure.
-          // In particular, we must check that calls to the signaling server.
+          // In particular, we must check that calls to the signaling server
+          // are not routed through the proxy network.
           const isSignalingServer = state.url.indexOf(this.signalingUrlHostname) !== -1;
           const isPeersServer = state.url.indexOf(this.peersUrlHostname) !== -1;
-          // we also check that the current network policy allows this host to be proxied
+          // We also check that the current network policy allows this host to be proxied
           const proxyIsPermitted = this.proxyPolicy.shouldProxyAddress(state.urlParts.hostname);
 
           if (!(isSignalingServer || isPeersServer) && proxyIsPermitted) {
@@ -229,7 +241,7 @@ export default class {
     return Promise.all([
       this.antitracking.action('removePipelineStep', 'checkShouldProxyTrackers'),
       this.antitracking.action('removePipelineStep', 'checkShouldProxyAll'),
-    ]);
+    ]).catch(() => {}); // This should not fail
   }
 
   initPrefListener() {

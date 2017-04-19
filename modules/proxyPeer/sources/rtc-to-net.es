@@ -1,4 +1,5 @@
 import { utils } from '../core/cliqz';
+import { toUTF8, fromBase64 } from '../core/encoding';
 
 import logger from './logger';
 import { openSocket } from './tcp-socket';
@@ -6,8 +7,7 @@ import { SERVER_REPLY
        , ADDRESS_TYPE
        , parseRequest } from './socks-protocol';
 import { unwrapAESKey } from './rtc-crypto';
-import { fromBase64 } from '../core/encoding';
-import { createResponseFromExitNode } from './rtc-onion';
+import { ERROR_CODE, createResponseFromExitNode } from './rtc-onion';
 import MessageQueue from './message-queue';
 import { asyncResolve, isPrivateIPAddress } from './dns-utils';
 
@@ -22,7 +22,8 @@ function hashConnectionID(connectionID /* , peerID */) {
 
 
 export default class {
-  constructor(policy) {
+  constructor(policy, peer) {
+    this.peer = peer;
     this.policy = policy;
     // {connectionID => TcpConnection} in case of exit node, keep connection to server opened
     this.outgoingTcpConnections = new Map();
@@ -46,10 +47,23 @@ export default class {
       () => {
         const timestamp = Date.now();
         [...this.outgoingTcpConnections.keys()].forEach((connectionID) => {
-          const { socket, lastActivity } = this.outgoingTcpConnections.get(connectionID);
+          const {
+            socket,
+            lastActivity,
+            key,
+            sender } = this.outgoingTcpConnections.get(connectionID);
           if (lastActivity < (timestamp - (1000 * 15))) {
             logger.debug(`EXIT ${connectionID} garbage collect`);
             this.outgoingTcpConnections.delete(connectionID);
+
+            // Signal that the connection has been closed to the client
+            this.signalClosedConnectionToClient(
+              connectionID,
+              this.peer,
+              sender,
+              key,
+              ERROR_CODE.EXIT_CONNECTION_GARBAGE_COLLECTED,
+            );
 
             try {
               socket.close();
@@ -77,7 +91,21 @@ export default class {
     utils.clearInterval(this.healthCheck);
   }
 
-  handleExitMessage(message, peer, sender, peerPrivKey) {
+  unload() {
+    this.stop();
+
+    // Close all remaining connections
+    [...this.outgoingTcpConnections.keys()].forEach((connectionID) => {
+      const { socket } = this.outgoingTcpConnections.get(connectionID);
+      try {
+        socket.close();
+      } catch (e) {
+        /* Ignore exception */
+      }
+    });
+  }
+
+  handleExitMessage(message, sender, peerPrivKey) {
     try {
       this.receivedMessages += 1;
 
@@ -85,12 +113,12 @@ export default class {
       const connectionHash = hashConnectionID(connectionID, sender);
 
       if (!this.outgoingTcpConnections.has(connectionHash) && message.messageNumber === 1) {
-        return this.openNewConnection(message, peer, sender, connectionHash, peerPrivKey);
+        return this.openNewConnection(message, this.peer, sender, connectionHash, peerPrivKey);
       }
 
       return this.relayToOpenedConnection(message, connectionHash);
     } catch (ex) {
-      return Promise.reject(ex);
+      return Promise.reject(`EXIT exception in handle message ${ex} ${ex.stack}`);
     }
   }
 
@@ -109,107 +137,147 @@ export default class {
     const data = fromBase64(message.data);
     logger.debug(`EXIT ${connectionID} ${message.messageNumber} openNewConnection`);
 
-    // We have a SOCKS Request and need to establish the connection
-    const req = parseRequest(data);
-    if (req === undefined) {
-      // Request is not valid, hence we ignore it
-      logger.error(`EXIT ${connectionID} ${message.messageNumber} proxy request is not valid ${data}`);
-      return Promise.resolve();
-    }
-
-    if (this.policy && !this.policy.shouldProxyAddress(req['DST.ADDR'])) {
-      logger.error(`EXIT ${connectionID} ${req['DST.ADDR']} exit not permitted`);
-      return Promise.reject();
-    }
-
-    // if the address is a domain name, do a dns lookup
-    let addressPromise;
-    if (req.ATYP === ADDRESS_TYPE.DOMAIN_NAME) {
-      addressPromise = asyncResolve(req['DST.ADDR']);
-    } else {
-      addressPromise = Promise.resolve(req['DST.ADDR']);
-    }
-
     let messageNumber = -1;
-    return addressPromise.then((ip) => {
-      // if the request to proxy resolves to a private IP address, refuse to proxy it.
-      if (isPrivateIPAddress(ip)) {
-        return Promise.reject(`refuse to proxy private address ${req['DST.ADDR']} -> ${ip}`);
-      }
-      return Promise.resolve(ip);
-    }).then(ip => unwrapAESKey(message.aesKey, peerPrivKey).then((key) => {
-      logger.debug(`EXIT ${connectionID} ${message.messageNumber} connect to ${JSON.stringify(req)}`);
-      const connection = {
-        socket: openSocket(ip, req['DST.PORT']),
-        lastActivity: Date.now(),
-      };
-
-      connection.queue = MessageQueue(
-        'net-to-rtc',
-        (destData) => {
-          // Refresh last activity
-          connection.lastActivity = Date.now();
-
-          // Update data received from tcp socket
-          this.dataIn += destData.length;
-
-          // Encrypt payload before sending to client
-          return createResponseFromExitNode(destData, key).then((encrypted) => {
-            const currentMessageNumber = messageNumber;
-            messageNumber -= 1;
-            const response = JSON.stringify({
-              connectionID,
-              messageNumber: currentMessageNumber,
-              role: 'relay',
-              data: encrypted,
-            });
-
-            logger.debug(`EXIT ${connectionID} ${currentMessageNumber} to client ${destData.length}`);
-
-            this.dataOut += response.length;
-            return peer.send(sender, response, 'antitracking')
-              .catch((e) => {
-                logger.error(`EXIT ${connectionID} ${currentMessageNumber} ` +
-                    `ERROR: could not send message ${e}`);
-              });
-          });
-        },
-      );
-
-      // Keep connection opened
-      this.outgoingTcpConnections.set(
-        connectionHash,
-        connection,
-      );
-
-      // Garbage collect if connection is closed by remote
-      connection.socket.registerCallbackOnClose(() => {
-        logger.debug(`EXIT ${connectionHash} garbage collect TCP closed`);
-        this.outgoingTcpConnections.delete(connectionHash);
-      });
-
-      // Proxy data from the endpoint backwards to the client
-      connection.socket.registerCallbackOnData(destData => connection.queue.push(destData));
-
-      // Acknowledge that connection is opened
-      logger.debug(`EXIT ${connectionHash} ${messageNumber} acknowledge opened`);
-      data[1] = SERVER_REPLY.SUCCEEDED;
-      return createResponseFromExitNode(data, key).then((encrypted) => {
-        const currentMessageNumber = messageNumber;
-        messageNumber -= 1;
-        const acknowledgement = JSON.stringify({
-          messageNumber: currentMessageNumber,
+    return unwrapAESKey(message.aesKey, peerPrivKey).then((key) => {
+      // We have a SOCKS Request and need to establish the connection
+      const req = parseRequest(data);
+      if (req === undefined) {
+        // Request is not valid, hence we ignore it
+        return this.signalClosedConnectionToClient(
           connectionID,
-          role: 'relay',
-          data: encrypted,
+          peer,
+          sender,
+          key,
+          ERROR_CODE.EXIT_INCORRECT_SOCKS_REQUEST)
+        .then(() => Promise.reject(
+          `EXIT ${connectionID} ${message.messageNumber} proxy request is not valid ${data}`
+        ));
+      }
+
+      // Check the policy to make sure the destination host is allowed
+      if (this.policy && !this.policy.shouldProxyAddress(req['DST.ADDR'])) {
+        return this.signalClosedConnectionToClient(
+          connectionID,
+          peer,
+          sender,
+          key,
+          ERROR_CODE.EXIT_HOST_NOT_ALLOWED_BY_POLICY)
+        .then(() => Promise.reject(
+          `EXIT ${connectionID} ${req['DST.ADDR']} exit not permitted`
+        ));
+      }
+
+      // If the address is a domain name, do a DNS lookup
+      let addressPromise;
+      if (req.ATYP === ADDRESS_TYPE.DOMAIN_NAME) {
+        addressPromise = asyncResolve(req['DST.ADDR']);
+      } else {
+        addressPromise = Promise.resolve(req['DST.ADDR']);
+      }
+
+      return addressPromise.then((ip) => {
+        // If the request to proxy resolves to a private IP address, refuse to proxy it.
+        if (isPrivateIPAddress(ip)) {
+          return this.signalClosedConnectionToClient(
+            connectionID,
+            peer,
+            sender,
+            key,
+            ERROR_CODE.EXIT_PRIVATE_ADDRESS)
+          .then(() => Promise.reject(
+            `refuse to proxy private address ${req['DST.ADDR']} -> ${ip}`
+          ));
+        }
+
+        logger.debug(`EXIT ${connectionID} ${message.messageNumber} connect to ${JSON.stringify(req)}`);
+        const connection = {
+          socket: openSocket(ip, req['DST.PORT']),
+          lastActivity: Date.now(),
+          sender,
+          key,
+        };
+
+        connection.queue = MessageQueue(
+          'net-to-rtc',
+          (destData) => {
+            // Refresh last activity
+            connection.lastActivity = Date.now();
+
+            // Update data received from tcp socket
+            this.dataIn += destData.length;
+
+            // Encrypt payload before sending to client
+            return createResponseFromExitNode(destData, key).then((encrypted) => {
+              const currentMessageNumber = messageNumber;
+              messageNumber -= 1;
+              const response = JSON.stringify({
+                connectionID,
+                messageNumber: currentMessageNumber,
+                role: 'relay',
+                data: encrypted,
+              });
+
+              logger.debug(`EXIT ${connectionID} ${currentMessageNumber} to client ${destData.length}`);
+
+              this.dataOut += response.length;
+              return peer.send(sender, response, 'antitracking')
+                .catch((e) => {
+                  // Here it means that we could not contact the relay peer for
+                  // some reason.
+                  logger.error(`EXIT ${connectionID} ${currentMessageNumber} ` +
+                      `ERROR: could not send message ${e}`);
+                });
+            });
+          },
+        );
+
+        // Keep connection opened
+        this.outgoingTcpConnections.set(
+          connectionHash,
+          connection,
+        );
+
+        // Garbage collect if connection is closed by remote
+        connection.socket.registerCallbackOnClose(() => {
+          if (this.outgoingTcpConnections.has(connectionHash)) {
+            this.outgoingTcpConnections.delete(connectionHash);
+            return this.signalClosedConnectionToClient(
+              connectionID,
+              peer,
+              sender,
+              key,
+              ERROR_CODE.EXIT_CLOSED_BY_REMOTE)
+              .then(() => Promise.reject(
+                `EXIT ${connectionHash} garbage collect TCP closed`
+              ));
+          }
+
+          return Promise.resolve();
         });
 
-        this.dataOut += acknowledgement.length;
-        return peer.send(sender, acknowledgement, 'antitracking')
-          .catch((e) => {
-            logger.error(`EXIT ${connectionHash} ${message.messageNumber} ` +
-                `ERROR: could not send message ${e}`);
+        // Proxy data from the endpoint backwards to the client
+        connection.socket.registerCallbackOnData(destData => connection.queue.push(destData));
+
+        // Acknowledge that connection is opened
+        logger.debug(`EXIT ${connectionHash} ${messageNumber} acknowledge opened`);
+        data[1] = SERVER_REPLY.SUCCEEDED;
+        return createResponseFromExitNode(data, key).then((encrypted) => {
+          const currentMessageNumber = messageNumber;
+          messageNumber -= 1;
+          const acknowledgement = JSON.stringify({
+            messageNumber: currentMessageNumber,
+            connectionID,
+            role: 'relay',
+            data: encrypted,
           });
+
+          this.dataOut += acknowledgement.length;
+          return peer.send(sender, acknowledgement, 'antitracking')
+            .catch((ex) => {
+              logger.error(`EXIT ${connectionHash} ${message.messageNumber} ` +
+                  `ERROR: could not send message ${ex}`);
+            });
+        });
       });
     }).catch((ex) => {
       // It can happen when connection is closed from the exit's node
@@ -218,7 +286,7 @@ export default class {
       // want to have long-lived connection through proxy network.
       logger.error(`EXIT ${connectionHash} exception while unpacking ` +
         `AES keys ${ex} ${JSON.stringify(message)}`);
-    }));
+    });
   }
 
 
@@ -237,9 +305,33 @@ export default class {
       return outgoingConnection.socket.sendData(data, data.length);
     }
 
-    // Drop message because connection doesn't exist
-    logger.error(`EXIT ${connectionID} ${message.messageNumber} dropped message`);
+    // Drop message because connection doesn't exist anymore
     this.droppedMessages += 1;
-    return Promise.resolve();
+    return Promise.reject(`EXIT ${connectionID} ${message.messageNumber} dropped message`);
+  }
+
+  signalClosedConnectionToClient(connectionID, peer, sender, key, error) {
+    // Error message for the client
+    const payload = toUTF8(JSON.stringify({
+      connectionID,
+      error,
+    }));
+
+    return createResponseFromExitNode(payload, key).then((encrypted) => {
+      // Create message for relay to proxy backward
+      const wrappedForRelay = JSON.stringify({
+        connectionID,
+        role: 'relay',
+        data: encrypted,
+      });
+      logger.debug(`signalClosedConnectionToClient ${error} ${wrappedForRelay}`);
+
+      this.dataOut += wrappedForRelay.length;
+      return peer.send(sender, wrappedForRelay, 'antitracking')
+        .catch((ex) => {
+          logger.error(`EXIT ${connectionID} could not send error message ${payload}`);
+          return Promise.reject(ex);
+        });
+    });
   }
 }
