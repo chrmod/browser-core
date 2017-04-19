@@ -453,8 +453,6 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
             .visited-at {
               position: absolute;
               right: 50px;
-              /*float: right;
-              margin-right: 40px;*/
               display: inline-block;
               width: 200px;
               font-size: 13.5px;
@@ -463,7 +461,6 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
             }
 
             .delete-visit-btn {
-              /*float: right;*/
               background:url('./images/trash-visit.svg') no-repeat;
               width: 46px;
               height: 36px;
@@ -491,10 +488,6 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
                 color: #000;
               }
             }
-
-            /*.delete-visit-btn:hover ~ div {
-              background-color: #F3C2CB;
-            }*/
           }
         }
 
@@ -512,10 +505,6 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
         .delete-session-btn:hover {
           background-image:url('./images/trash-session-hover.svg');
         }
-
-       /* .delete-session-btn:hover ~ div {
-          background-color: #F3C2CB;
-        }*/
       }
     }
   }

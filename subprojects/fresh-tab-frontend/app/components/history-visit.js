@@ -69,19 +69,6 @@ export default Ember.Component.extend({
     }
   }.on('didUpdateAttrs'),
 
-  // onModelUpdate: function () {
-  //   this.set('selected', false);
-  // }.on('didReceiveAttrs'),
-
-  // onSelectionChange: function () {
-  //   const selected = this.get('selected');
-  //   if (selected) {
-  //     this.get('onSelect')();
-  //   } else {
-  //     this.get('onUnselect')();
-  //   }
-  // }.observes('selected'),
-
   actions: {
     open() {
       const url = this.get('model.url');

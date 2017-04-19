@@ -1,6 +1,6 @@
 {{#unless hasNoSortedVisits}}
   <button class="delete-visit-btn" {{action "deleteVisit" bubbles=false}}
-    {{action "markForDeletion" on="mouseEnter"}} title="delete this page"
+    {{action "markForDeletion" on="mouseEnter"}} title="{{t 'history.delete-this-page'}}"
     {{action "unMarkForDeletion" on="mouseLeave"}}>
   </button>
 {{/unless}}

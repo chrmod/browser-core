@@ -4,7 +4,7 @@
   {{/if}}
   <button class="delete-session-btn" {{action "deleteSession"}}
     {{action "markForDeletion" on="mouseEnter"}}
-    {{action "unMarkForDeletion" on="mouseLeave"}} title="delete this section">
+    {{action "unMarkForDeletion" on="mouseLeave"}} title="{{t 'history.delete-this-section'}}">
   </button>
   {{history-visit query=query model=entryVisit logoclass="big" onDelete=(action "deleteVisit") hasNoSortedVisits=hasNoSortedVisits}}
   {{#each sortedVisits as |visit|}}

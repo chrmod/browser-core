@@ -40,6 +40,7 @@ const VisitsProxy = Ember.ArrayProxy.extend({
 export default Ember.Route.extend({
   historySync: Ember.inject.service('history-sync'),
   cliqz: Ember.inject.service(),
+  i18n: Ember.inject.service(),
 
   queryParams: {
     query: {
@@ -55,7 +56,7 @@ export default Ember.Route.extend({
 
   activate() {
     this.set('previousTitle', document.title);
-    document.title = "History"
+    document.title = this.get('i18n').t('history.tab-title');
   },
 
   deactivate() {
