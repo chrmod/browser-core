@@ -49,7 +49,7 @@ var __CliqzUtils = function() { // (_export) {
                 setTimeout: function(callback, time, args) {
                 },
                 clearTimeout: function(id) {
-
+                    clearTimeout(id);
                 },
                 setInterval: function(callback, time) {
 

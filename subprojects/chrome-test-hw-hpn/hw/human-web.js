@@ -1760,6 +1760,9 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
                     CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
+                    CliqzHumanWeb.pacemakerId = null;
+                    CliqzHumanWeb.trkTimer = null;
+
                 },
                 unloadAtBrowser: function unloadAtBrowser() {
                     try {
