@@ -1391,14 +1391,14 @@
     "control-center-search-engine": {
       "message": "Ergänzende Suchmaschine"
     },
+    "control-center-backend-country": {
+      "message": "Suchergebnisse für"
+    },
     "control-center-report-url": {
       "message": "Website melden"
     },
     "control-center-tips": {
       "message": "Tipps"
-    },
-    "control-center-backend-country": {
-      "message": "Suchergebnisse für"
     },
     "control-center-humanweb": {
       "message": "Am Human Web teilnehmen"
