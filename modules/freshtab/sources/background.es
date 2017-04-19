@@ -419,7 +419,7 @@ export default background({
         const tabs = [...window.gBrowser.tabs];
         tabs.forEach(tab => {
           const browser = tab.linkedBrowser;
-          if (browser.currentURI.spec.indexOf('#/history') >= 0) {
+          if (browser.currentURI.spec.indexOf('#/history') >= 0) { // TODO: @mai change #/history to utils.CLIQZ_NEW_TAB_RESOURCE_URL/#/history
             browser.reload();
           }
         });

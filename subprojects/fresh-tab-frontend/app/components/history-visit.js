@@ -78,6 +78,13 @@ export default Ember.Component.extend({
       } else {
         cliqz.openUrl(url, true);
       }
+
+      this.get('cliqz').sendTelemetry({
+        type: 'history',
+        view: 'sections',
+        action: 'click',
+        target: this.get('logoclass') === 'big' ? 'header' : 'site'
+      });
     },
     deleteVisit() {
       const model = this.get('model');
@@ -85,20 +92,20 @@ export default Ember.Component.extend({
         this.get('onDelete')(model);
       }.bind(this));
     },
-    clickTitle() {
-      console.log('@@@@@@@@@@@@Title');
-    },
-    clickUrl() {
-      console.log('@@@@@@@@@@@@Url');
-    },
-    clickVisitAt() {
-      console.log('@@@@@@@@@@@@VisitAt');
-    },
     markForDeletion() {
       this.set("isMarkedForDeletion", true);
     },
     unMarkForDeletion() {
       this.set("isMarkedForDeletion", false);
     },
+    sendTelemetry(name) {
+      this.get('cliqz').sendTelemetry({
+        type: 'history',
+        view: 'sections',
+        action: 'click',
+        target: this.get('logoclass') === 'big' ? 'header' : 'site',
+        element: name
+      });
+    }
   }
 });

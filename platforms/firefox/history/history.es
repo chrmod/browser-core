@@ -11,22 +11,18 @@ let history = Components.classes['@mozilla.org/browser/nav-history-service;1']
 let observer = {
   isProcessBatch: false,
   onBeginUpdateBatch: function () {
-    console.log('@@@@@onBeginUpdateBatch');
     this.batch = [];
   },
   onEndUpdateBatch: function () {
-    console.log('@@@@@onEndUpdateBatch');
     events.pub('history:removed', this.batch);
     this.batch = null;
   },
   onVisit: function (aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {
   },
   onTitleChanged: function (aURI, aPageTitle) {
-    console.log('@@@onTitleChanged');
   },
   onDeleteURI: function (aURI) {
     const url = aURI.spec;
-    console.log('@@@@@onDeleteURI', url);
     if (!this.batch) {
       events.pub('history:removed', [url]);
     } else {
@@ -34,14 +30,11 @@ let observer = {
     }
   },
   onClearHistory: function () {
-    console.log('@@@@@onClearHistory');
     events.pub('history:cleared');
   },
   onPageChanged: function(aURI, aWhat, aValue) {
-    console.log('@@@onPageChanged');
   },
   onPageExpired: function(aURI, aVisitTime, aWholeEntry) {
-    console.log('@@@onPageExpired');
   },
   QueryInterface: function(iid) {
     if (iid.equals(Components.interfaces.nsINavHistoryObserver) ||

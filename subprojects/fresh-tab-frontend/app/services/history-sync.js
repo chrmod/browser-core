@@ -280,6 +280,12 @@ export default Ember.Service.extend({
     if (session.get('visits.length') === 0) {
       session.unloadRecord();
     }
+    cliqz.sendTelemetry({
+      type: 'history',
+      view: 'sections',
+      action: 'click',
+      target: 'delete_site'
+    });
     cliqz.deleteVisit(visitId);
   },
 
@@ -291,6 +297,12 @@ export default Ember.Service.extend({
     const visitUrls = session.get('visits').mapBy('url');
     this.get('urlsToDelete').addObjects(visitUrls);
     session.unloadRecord();
+    cliqz.sendTelemetry({
+      type: 'history',
+      view: 'sections',
+      action: 'click',
+      target: 'delete_section'
+    });
     cliqz.deleteVisits(visitIds);
   }
 });
