@@ -216,7 +216,6 @@ function initOnMessage() {
 
       // Listen for pref change from GH UI:
       if(info && info.name === 'onHWSettingChanged') {
-        console.log("onHWSettingChanged RECEIVED", info.message);
          CliqzUtils.setPref('enable_human_web', info.message);
       }
 
@@ -227,13 +226,14 @@ function initOnMessage() {
       if(info.type == "dom"){
         CliqzHumanWeb.tempCurrentURL = tab.url;
 
+        CliqzHumanWeb.detectOwnKeyword(info.html, info.ad, info.hidden);
+
         aProgress["isLoadingDocument"] = tab.status;
         aRequest["isChannelPrivate"] = tab.incognito;
         aRequest["tabId"] = tab.id;
 
         aURI["spec"] = tab.url;
         CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = {"doc":info.html,'time': CliqzHumanWeb.counter};
-        console.log(">>>>> DOM RCVD >>> " + tab.url);
         CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
       }
       else if(info.type == "event_listener"){
@@ -299,7 +299,7 @@ function initHumanWeb() {
 function enableHumanWeb() {
   if (navigator &&
       navigator.appVersion.indexOf('Edge') === -1 &&
-      CliqzUtils.getPref('enable_human_web', true)
+      CliqzUtils.getPref('enable_human_web', false)
     ) {
     return true;
   } else {
