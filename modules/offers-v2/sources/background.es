@@ -10,6 +10,7 @@ import {SignalHandler} from './signals_handler';
 import jsep from './lib/jsep';
 import { UIOffersHistory } from './ui/ui_offers_history';
 import {UIFilterRulesEvaluator} from './ui/ui_filter_rules_evaluator';
+import Database from '../core/database';
 
 ////////////////////////////////////////////////////////////////////////////////
 // consts
@@ -48,6 +49,8 @@ export default background({
       LoggingHandler.SAVE_TO_FILE = true;
       // enable trigger history
       OffersConfigs.LOAD_TRIGGER_HISTORY_DATA = false;
+      // dont load signals from DB
+      OffersConfigs.SIGNALS_LOAD_FROM_DB = utils.getPref('offersLoadSignalsFromDB', false);
     }
 
     if(utils.getPref('triggersBE')) {
@@ -91,6 +94,8 @@ export default background({
       '------------------------------------------------------------------------\n'
       );
 
+    // create the DB to be used over all offers module
+    this.offersDB = new Database('cliqz-offers');
 
     // create the event handler
     this.eventHandler = new EventHandler();
@@ -110,7 +115,7 @@ export default background({
     };
 
     // for the new ui system
-    this.signalsHandler = new SignalHandler();
+    this.signalsHandler = new SignalHandler(this.offersDB);
 
     this.uiOfferProc = new UIOfferProcessor(this.signalsHandler, this.eventHandler);
 
@@ -203,7 +208,7 @@ export default background({
       LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME, JSON.stringify(reqObj.req_obj.url));
     }
-  },  
+  },
 
   //////////////////////////////////////////////////////////////////////////////
   events: {

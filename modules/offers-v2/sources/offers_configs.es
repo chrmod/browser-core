@@ -51,6 +51,10 @@ var OffersConfigs = {
   // the time we want to keep the signals (accumulating) from the last time
   // the signal was modified (#GR-298)
   SIGNALS_OFFERS_EXPIRATION_SECS: 60 * 60 * 24 * 60, //60 days?
+  // the version number of the signal structure we are currently using
+  SIGNALS_VERSION: 3.0,
+  // debug variable to load / not load the data from DB
+  SIGNALS_LOAD_FROM_DB: true,
 
   //////////////////////////////////////////////////////////////////////////////
   // CONFIG / DEBUG variables

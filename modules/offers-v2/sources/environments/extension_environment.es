@@ -121,49 +121,13 @@ export default class ExtensionEnvironment extends EmptyEnvironment {
       }
     }
 
-    // TODO: check if we need to update the bucket (remove old and create a new one)
-    //       this may delete all the current data => create a method to update
-    //       the configuration of the bucket only then.
-
     if (!campaignId || !offerId || !key) {
       return;
     }
 
-    // get the offer related info
-    var signalData = this.signalHandler.getSignalData(campaignId);
-    if (!signalData) {
-      signalData = {
-        created_ts: Date.now(),
-        ucid: this.uuid(),
-        offers: {}
-      };
-    }
-
-    var offerData = signalData.offers[offerId];
-    if(!offerData) {
-      offerData = {
-        created_ts: Date.now()
-      };
-      signalData.offers[offerId] = offerData;
-    };
-
-
-
-    // merge (update) signal
-    addOrCreate(offerData, key, 1);
-
-    // set it back to the sig handler
-    this.signalHandler.setSignalData(campaignId, signalData);
+    // send the signal associated to the campaign using the origin trigger
+    const originID = 'trigger';
+    this.signalHandler.setCampaignSignal(campaignId, offerId, originID, key);
   }
 
-
-  uuid() {
-    function s4() {
-      return Math.floor((1 + random()) * 0x10000)
-        .toString(16)
-        .substring(1);
-    }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-      s4() + '-' + s4() + s4() + s4();
-  }
 }
