@@ -65,6 +65,8 @@ export default background({
         handleCompletion: () => {
           utils.setTimeout(() =>
             History.fillFromVisit(url, encodeURI(queryUrl)), 2000);
+
+          // TODO: @mai - make this Place marked as hidden
         },
       });
     },
@@ -132,8 +134,8 @@ export default background({
       });
     },
 
-    openUrl(url) {
-      utils.openLink(utils.getWindow(), url);
+    openUrl(url, newTab = false) {
+      utils.openLink(utils.getWindow(), url, newTab);
     },
 
     selectTabAtIndex(index) {
@@ -157,5 +159,17 @@ export default background({
     recordMeta(url, meta) {
       this.metaDatabase.record(url, meta);
     },
+
+    deleteVisit(visitId) {
+      return this.history.deleteVisit(visitId);
+    },
+
+    deleteVisits(visitIds) {
+      return this.history.deleteVisits(visitIds);
+    },
+
+    showHistoryDeletionPopup() {
+      return this.history.showHistoryDeletionPopup(utils.getWindow());
+    }
   },
 });

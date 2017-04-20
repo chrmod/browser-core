@@ -16,7 +16,16 @@ const isGoogle = hostname => {
 };
 
 export default Ember.Component.extend({
+  tagName: 'a',
+
+  attributeBindings: ['href', 'title'],
+
   cliqz: Ember.inject.service(),
+  classNames: ['visit'],
+  classNameBindings: ['isMarkedForDeletion:marked-for-deletion'],
+
+  href: Ember.computed.alias('model.url'),
+  title: Ember.computed.alias('model.title'),
 
   keyword: Ember.computed('model.url', function () {
     const url = this.get('model.url');
@@ -47,6 +56,32 @@ export default Ember.Component.extend({
     this.set('isHovered', false);
   },
 
+  click(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.actions.open.call(this);
+  },
+
+  setup: function() {
+    this.set("isMarkedForDeletion", false);
+    if (this.$()) {
+      this.$().css('display', 'block');
+    }
+  }.on('didUpdateAttrs'),
+
+  // onModelUpdate: function () {
+  //   this.set('selected', false);
+  // }.on('didReceiveAttrs'),
+
+  // onSelectionChange: function () {
+  //   const selected = this.get('selected');
+  //   if (selected) {
+  //     this.get('onSelect')();
+  //   } else {
+  //     this.get('onUnselect')();
+  //   }
+  // }.observes('selected'),
+
   actions: {
     open() {
       const url = this.get('model.url');
@@ -54,8 +89,29 @@ export default Ember.Component.extend({
       if (this.get('isCliqz')) {
         cliqz.queryCliqz(this.get('keyword'));
       } else {
-        cliqz.openUrl(url);
+        cliqz.openUrl(url, true);
       }
-    }
+    },
+    deleteVisit() {
+      const model = this.get('model');
+      this.$().fadeOut(function () {
+        this.get('onDelete')(model);
+      }.bind(this));
+    },
+    clickTitle() {
+      console.log('@@@@@@@@@@@@Title');
+    },
+    clickUrl() {
+      console.log('@@@@@@@@@@@@Url');
+    },
+    clickVisitAt() {
+      console.log('@@@@@@@@@@@@VisitAt');
+    },
+    markForDeletion() {
+      this.set("isMarkedForDeletion", true);
+    },
+    unMarkForDeletion() {
+      this.set("isMarkedForDeletion", false);
+    },
   }
 });

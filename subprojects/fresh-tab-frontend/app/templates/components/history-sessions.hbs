@@ -16,6 +16,8 @@
   {{/if}}
 {{else}}
   {{#unless model.hasMoreResults}}
-    <li>No more history</li>
+    {{#if sessions}}
+      <li>No more history</li>
+    {{/if}}
   {{/unless}}
 {{/if}}

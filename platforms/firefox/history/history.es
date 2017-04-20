@@ -1,5 +1,58 @@
 import HistoryProvider from '../../core/history-provider';
+import events from '../../core/events';
 
+const { utils: Cu } = Components;
+// Cu.import('resource://gre/modules/PlacesUtils.jsm');
+const PlacesUtils = Cu.import('resource://gre/modules/PlacesUtils.jsm', null).PlacesUtils;
+
+let history = Components.classes['@mozilla.org/browser/nav-history-service;1']
+  .getService(Components.interfaces.nsINavHistoryService);
+
+let observer = {
+  isProcessBatch: false,
+  onBeginUpdateBatch: function () {
+    console.log('@@@@@onBeginUpdateBatch');
+    this.batch = [];
+  },
+  onEndUpdateBatch: function () {
+    console.log('@@@@@onEndUpdateBatch');
+    events.pub('history:removed', this.batch);
+    this.batch = null;
+  },
+  onVisit: function (aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {
+  },
+  onTitleChanged: function (aURI, aPageTitle) {
+    console.log('@@@onTitleChanged');
+  },
+  onDeleteURI: function (aURI) {
+    const url = aURI.spec;
+    console.log('@@@@@onDeleteURI', url);
+    if (!this.batch) {
+      events.pub('history:removed', [url]);
+    } else {
+      this.batch.push(url);
+    }
+  },
+  onClearHistory: function () {
+    console.log('@@@@@onClearHistory');
+    events.pub('history:cleared');
+  },
+  onPageChanged: function(aURI, aWhat, aValue) {
+    console.log('@@@onPageChanged');
+  },
+  onPageExpired: function(aURI, aVisitTime, aWholeEntry) {
+    console.log('@@@onPageExpired');
+  },
+  QueryInterface: function(iid) {
+    if (iid.equals(Components.interfaces.nsINavHistoryObserver) ||
+        iid.equals(Components.interfaces.nsISupports)) {
+      return this;
+    }
+    throw Components.results.NS_ERROR_NO_INTERFACE;
+  }
+};
+
+history.addObserver(observer, false);
 
 function findLastVisitId(url, since) {
   return HistoryProvider.query(
@@ -17,6 +70,36 @@ function findLastVisitId(url, since) {
 }
 
 export default class {
+  static deleteVisit(visitId) {
+    return HistoryProvider.query(
+      `
+        SELECT id, from_visit
+        FROM moz_historyvisits
+        WHERE visit_date = '${visitId}'
+        LIMIT 1
+      `,
+      ['id', 'from_visit'],
+    ).then(([{ id, from_visit }]) =>
+      HistoryProvider.query(
+        `
+          UPDATE moz_historyvisits
+          SET from_visit = '${from_visit}'
+          WHERE from_visit = ${id}
+        `
+      ).then(() => PlacesUtils.history.removePagesByTimeframe(visitId, visitId))
+    );
+  }
+
+  static deleteVisits(visitIds) {
+    visitIds.forEach((visitId) => {
+      PlacesUtils.history.removePagesByTimeframe(visitId, visitId);
+    });
+  }
+
+  static showHistoryDeletionPopup(window) {
+    Components.classes['@mozilla.org/browser/browserglue;1'].getService(Components.interfaces.nsIBrowserGlue).sanitize(window);
+  }
+
   static query({ limit, frameStartsAt, frameEndsAt, domain, query }) {
     const conditions = [];
 
@@ -141,7 +224,25 @@ export default class {
           WHERE id = ${visitId}
             AND from_visit = 0
         `,
-      );
+      ).then(() => {
+        HistoryProvider.query(
+          `
+            SELECT place_id
+            FROM moz_historyvisits
+            WHERE id = ${visitId}
+            LIMIT 1
+          `,
+          ['place_id'],
+        );
+      }).then(([{ place_id }]) => {
+        HistoryProvider.query(
+          `
+            UPDATE moz_places
+            SET hidden = 1
+            WHERE id = ${place_id}
+          `,
+        );
+      });
     });
   }
 
