@@ -8,6 +8,7 @@ import { httpHandler, promiseHttpHandler } from './http';
 import gzip from './gzip';
 import CliqzLanguage from './language';
 import { isUrl } from './url';
+import random from './crypto/random';
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
@@ -243,7 +244,7 @@ var CliqzUtils = {
           sLen = space.length;
 
       for(i=0; i < len; i++ )
-          ret += space.charAt(Math.floor(Math.random() * sLen));
+          ret += space.charAt(Math.floor(random() * sLen));
 
       return ret;
   },
