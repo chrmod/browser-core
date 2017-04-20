@@ -217,6 +217,9 @@ export default class {
     // do not initialize the UI if the user decided to turn off search
     if(utils.getPref("cliqz_core_disabled", false)) return;
 
+    // do not initialize the UI if locationbar is invisible in this window
+    if(!this.window.locationbar.visible) return;
+
     utils.dropDownStyle = prefs.get('dropDownStyle', '');
 
     console.log("UI window init");
