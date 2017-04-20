@@ -14,29 +14,32 @@ const VisitsProxy = Ember.ArrayProxy.extend({
   },
 
   loadMore() {
-    if (this.get('isLoading') || !this.get('hasMoreResults')) {
+    if (this.get('isLoading') || !this.get('hasMoreResults') || (this.get('currentFrom') <= this.get('from'))) {
       return;
     }
-    return this.__load({ query: this.get('query'), to: this.get('currentFrom') });
+    return this.__load({ query: this.get('query'), to: this.get('currentFrom'), from: this.get('from') });
   },
 
   __load({ query, from, to }) {
-    const history = this.get('history');
     this.set('isLoading', true);
+    const history = this.get('history');
 
     return history.search(query, from, to).then(({sessions, history}) => {
+      this.get('content').addObjects(sessions);
+      return history;
+    }).then(history => {
       this.setProperties({
-        hasMoreResults: history.urlCount !== 0,
+        hasMoreResults: history.totalUrlCount !== 0,
         isLoading: false,
         currentFrom: history.frameStartsAt,
       });
-      this.get('content').addObjects(sessions);
     });
   },
 });
 
 export default Ember.Route.extend({
   historySync: Ember.inject.service('history-sync'),
+  cliqz: Ember.inject.service(),
 
   queryParams: {
     query: {
@@ -50,8 +53,13 @@ export default Ember.Route.extend({
     }
   },
 
-  beforeModel() {
+  activate() {
+    this.set('previousTitle', document.title);
     document.title = "History"
+  },
+
+  deactivate() {
+     document.title = this.get('previousTitle');
   },
 
   model({ query, from, to }) {
@@ -65,6 +73,11 @@ export default Ember.Route.extend({
     model.load();
     return model;
   },
+  actions: {
+    delete() {
+      this.get('cliqz').showHistoryDeletionPopup();
+    }
+  }
 
 });
 
