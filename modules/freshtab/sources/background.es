@@ -76,6 +76,9 @@ export default background({
       const isDismissed = utils.getPref('freshtabNewBrandDismissed', false);
       return FreshTab.showNewBrandAlert && isInABTest && !isDismissed;
     },
+    _showHistory() {
+      return utils.getPref('history', false);
+    },
     dismissMessage(messageId) {
       try {
         const dismissedAlerts = JSON.parse(utils.getPref(DISMISSED_ALERTS, '{}'));
@@ -351,6 +354,7 @@ export default background({
         showNewBrandAlert: self.actions._showNewBrandAlert(),
         messages: this.messages,
         newsLanguage: self.actions._getNewsLanguage(),
+        showHistory: self.actions._showHistory(),
       };
 
       let hasActiveNotifications = self.actions._hasActiveNotifications();

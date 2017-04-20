@@ -2,7 +2,6 @@ import HistoryProvider from '../../core/history-provider';
 import events from '../../core/events';
 
 const { utils: Cu } = Components;
-// Cu.import('resource://gre/modules/PlacesUtils.jsm');
 const PlacesUtils = Cu.import('resource://gre/modules/PlacesUtils.jsm', null).PlacesUtils;
 
 let history = Components.classes['@mozilla.org/browser/nav-history-service;1']
@@ -90,7 +89,8 @@ export default class {
   }
 
   static showHistoryDeletionPopup(window) {
-    Components.classes['@mozilla.org/browser/browserglue;1'].getService(Components.interfaces.nsIBrowserGlue).sanitize(window);
+    Components.classes['@mozilla.org/browser/browserglue;1']
+      .getService(Components.interfaces.nsIBrowserGlue).sanitize(window);
   }
 
   static query({ limit, frameStartsAt, frameEndsAt, domain, query }) {

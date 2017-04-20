@@ -39,7 +39,8 @@ export default Ember.Route.extend({
       showNewBrandAlert: config.showNewBrandAlert,
       messageCenter: this.get('messageCenter'),
       newsLanguage: config.newsLanguage,
-      hasActiveNotifications: config.hasActiveNotifications
+      hasActiveNotifications: config.hasActiveNotifications,
+      showHistory: config.showHistory
     });
   },
 
