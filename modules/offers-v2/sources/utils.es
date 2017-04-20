@@ -1,4 +1,5 @@
 import LoggingHandler from './logging_handler';
+import random from '../core/crypto/random';
 import { utils } from '../core/cliqz';
 
 const MODULE_NAME = 'utils';
@@ -30,7 +31,7 @@ function openNewTabAndSelect(url) {
 // generate a new UUID
 function generateUUID() {
   function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
+    return Math.floor((1 + random()) * 0x10000)
       .toString(16)
       .substring(1);
   }
