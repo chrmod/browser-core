@@ -1,7 +1,4 @@
 <div class="visits">
-  {{#if hasNoVisits}}
-    <p>Empty session - No visit</p>
-  {{/if}}
   <button class="delete-session-btn" {{action "deleteSession"}}
     {{action "markForDeletion" on="mouseEnter"}}
     {{action "unMarkForDeletion" on="mouseLeave"}} title="{{t 'history.delete-this-section'}}">

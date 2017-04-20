@@ -424,40 +424,45 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
               }
             }
 
-            .title {
-              float: left;
-              max-width: 25vw;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              overflow: hidden;
-              margin-right: 2vw;
-            }
+            .visit-content {
+              display: flex;
+              flex: 1;
 
-            .url {
-              display: inline-block;
-              font-size: 13.5px;
-              color: #8E8E8E;
-              text-overflow: ellipsis;
-              max-width: 23vw;
-              white-space: nowrap;
-              overflow: hidden;
-              margin-right: 1vw;
-            }
-
-            @media screen and (max-width: 1100px) {
-              .url {
-                display: none;
+              .title {
+                float: left;
+                max-width: 25vw;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+                margin-right: 2vw;
               }
-            }
 
-            .visited-at {
-              position: absolute;
-              right: 50px;
-              display: inline-block;
-              width: 200px;
-              font-size: 13.5px;
-              color: #8E8E8E;
-              text-align: right;
+              .url {
+                display: inline-block;
+                font-size: 13.5px;
+                color: #8E8E8E;
+                text-overflow: ellipsis;
+                max-width: 23vw;
+                white-space: nowrap;
+                overflow: hidden;
+                margin-right: 1vw;
+              }
+
+              @media screen and (max-width: 1100px) {
+                .url {
+                  display: none;
+                }
+              }
+
+              .visited-at {
+                position: absolute;
+                right: 50px;
+                display: inline-block;
+                width: 200px;
+                font-size: 13.5px;
+                color: #8E8E8E;
+                text-align: right;
+              }
             }
 
             .delete-visit-btn {

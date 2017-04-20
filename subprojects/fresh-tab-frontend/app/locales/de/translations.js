@@ -100,7 +100,7 @@ export default {
     "tooltip-top-news": "Die Auswahl der Top Nachrichten basiert ausschließlich auf der Sprache deines CLIQZ Browsers. Du kannst hier eine andere Sprachausgabe wählen.",
     "send-us-feedback": "Feedback schicken"
   },
-    history: {
+  history: {
     "tab-title": "Chronik",
     "btn-clear-all-label": "Gesamte Chronik löschen...",
     "search-placeholder": "Chronik durchsuchen",

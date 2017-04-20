@@ -100,7 +100,7 @@ export default {
     "tooltip-top-news": "Les Top News que nous vous proposons par défaut sont uniquement basés sur la langue de votre navigateur. Vous pouvez changer d'édition ici.",
     "send-us-feedback": "Nous envoyer un Feedback ou commentaire"
   },
-    history: {
+  history: {
     "tab-title": "History",
     "btn-clear-all-label": "Clear Recent History...",
     "search-placeholder": "Search History",

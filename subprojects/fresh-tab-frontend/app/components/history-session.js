@@ -24,10 +24,6 @@ export default Ember.Component.extend({
 
   hasNoSortedVisits: Ember.computed.equal('sortedVisits.length', 0),
 
-  hasNoVisits: Ember.computed.equal('visits.length', 0),
-
-  //isAlreadyDeleted: Ember.computed.equal('isDeleted', true),
-
   actions: {
     deleteVisit(visit) {
       this.get('history').deleteVisit(visit.get('id'));

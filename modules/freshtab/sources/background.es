@@ -76,9 +76,6 @@ export default background({
       const isDismissed = utils.getPref('freshtabNewBrandDismissed', false);
       return FreshTab.showNewBrandAlert && isInABTest && !isDismissed;
     },
-    _showHistory() {
-      return utils.getPref('history', false);
-    },
     dismissMessage(messageId) {
       try {
         const dismissedAlerts = JSON.parse(utils.getPref(DISMISSED_ALERTS, '{}'));
@@ -354,7 +351,7 @@ export default background({
         showNewBrandAlert: self.actions._showNewBrandAlert(),
         messages: this.messages,
         newsLanguage: self.actions._getNewsLanguage(),
-        showHistory: self.actions._showHistory(),
+        isHistoryEnabled: utils.getPref('modules.history.enabled', false),
       };
 
       let hasActiveNotifications = self.actions._hasActiveNotifications();
@@ -418,12 +415,12 @@ export default background({
       });
     },
 
-    refreshHistory() {
+    refreshHistoryUI() {
       forEachWindow(window => {
         const tabs = [...window.gBrowser.tabs];
         tabs.forEach(tab => {
           const browser = tab.linkedBrowser;
-          if (browser.currentURI.spec.indexOf('#/history') >= 0) { // TODO: @mai change #/history to utils.CLIQZ_NEW_TAB_RESOURCE_URL/#/history
+          if (browser.currentURI.spec.indexOf(`${utils.CLIQZ_NEW_TAB_RESOURCE_URL}#/history`) >= 0) {
             browser.reload();
           }
         });
@@ -477,7 +474,7 @@ export default background({
       });
     },
     "history:cleared": function onHistoryCleared() {
-      this.actions.refreshHistory();
+      this.actions.refreshHistoryUI();
     },
     "history:removed": function onHistoryRemoved(urls) {
       const activeUrls = [...mapWindows(w => w).map(queryActiveTabs).reduce((aUrls, aTabs) => {
@@ -486,7 +483,8 @@ export default background({
           ...aTabs.map(t => t.url),
         ]);
       }, new Set())];
-      const historyUrls = activeUrls.filter(u => u.indexOf('#/history') >= 0);
+      const historyUrls = activeUrls
+        .filter(u => u.indexOf(`${utils.CLIQZ_NEW_TAB_RESOURCE_URL}#/history`) >= 0);
 
       historyUrls.forEach((url) => {
         this.core.action(

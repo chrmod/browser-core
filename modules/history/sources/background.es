@@ -66,7 +66,8 @@ export default background({
           utils.setTimeout(() =>
             History.fillFromVisit(url, encodeURI(queryUrl)), 2000);
 
-          // TODO: @mai - make this Place marked as hidden
+          utils.setTimeout(() =>
+            History.markAsHidden(url), 2000);
         },
       });
     },

@@ -13,7 +13,7 @@
     {{#link-to 'freshtab.index' class='freshtab-button'}}
       <img src="./assets/images/Home.svg">
     {{/link-to}}
-    {{#if model.config.showHistory}}
+    {{#if model.config.isHistoryEnabled}}
       <span {{action 'sendTelemetry' 'home-click-history'}}>
         {{#link-to 'freshtab.history.index' (query-params query='') class="history-button"}}
           <img src="./assets/images/History.svg">

@@ -22,26 +22,23 @@ const VisitsProxy = Ember.ArrayProxy.extend({
   },
 
   __load({ query, from, to }) {
-    this.startLoadingAt = new Date();
+    this.startLoadingAt = Date.now();
     this.set('isLoading', true);
     const history = this.get('history');
 
     return history.search(query, from, to).then(({sessions, history}) => {
       this.get('content').addObjects(sessions);
       this.set('sectionCount', this.get('sectionCount') + sessions.length);
-      return history;
-    }).then(history => {
       this.setProperties({
         hasMoreResults: history.totalUrlCount !== 0,
         isLoading: false,
         currentFrom: history.frameStartsAt,
       });
-
       this.get('cliqz').sendTelemetry({
         type: 'history',
         action: 'update',
         section_count: this.get('sectionCount'),
-        load_duration: new Date() - this.startLoadingAt
+        load_duration: Date.now() - this.startLoadingAt
       });
     });
   },
@@ -81,7 +78,7 @@ export default Ember.Route.extend({
       query,
       from,
       to,
-      cliqz, // TODO: @mai not sure if passing cliqz through this Proxy is a good idea or not. Can we get it somehow from the cliqz.js?
+      cliqz,
     });
     model.load();
     return model;

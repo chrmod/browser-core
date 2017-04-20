@@ -385,10 +385,10 @@ var CliqzABTests = {
                 CliqzUtils.setPref("attrackCookieTrustReferers", true);
                 break;
             case "1101_A":
-                CliqzUtils.setPref("history", false);
+                CliqzUtils.setPref("modules.history.enabled", false);
                 break;
             case "1101_B":
-                CliqzUtils.setPref("history", true);
+                CliqzUtils.setPref("modules.history.enabled", true);
                 break;
             default:
                 rule_executed = false;
@@ -627,7 +627,7 @@ var CliqzABTests = {
               break;
             case "1101_A":
             case "1101_B":
-              CliqzUtils.clearPref("history");
+              CliqzUtils.clearPref("modules.history.enabled");
               break;
             default:
                 rule_executed = false;

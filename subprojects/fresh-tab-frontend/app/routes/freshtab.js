@@ -40,7 +40,7 @@ export default Ember.Route.extend({
       messageCenter: this.get('messageCenter'),
       newsLanguage: config.newsLanguage,
       hasActiveNotifications: config.hasActiveNotifications,
-      showHistory: config.showHistory
+      isHistoryEnabled: config.isHistoryEnabled,
     });
   },
 

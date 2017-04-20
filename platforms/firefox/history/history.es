@@ -4,23 +4,19 @@ import events from '../../core/events';
 const { utils: Cu } = Components;
 const PlacesUtils = Cu.import('resource://gre/modules/PlacesUtils.jsm', null).PlacesUtils;
 
-let history = Components.classes['@mozilla.org/browser/nav-history-service;1']
+const history = Components.classes['@mozilla.org/browser/nav-history-service;1']
   .getService(Components.interfaces.nsINavHistoryService);
 
-let observer = {
+const observer = {
   isProcessBatch: false,
-  onBeginUpdateBatch: function () {
+  onBeginUpdateBatch() {
     this.batch = [];
   },
-  onEndUpdateBatch: function () {
+  onEndUpdateBatch() {
     events.pub('history:removed', this.batch);
     this.batch = null;
   },
-  onVisit: function (aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {
-  },
-  onTitleChanged: function (aURI, aPageTitle) {
-  },
-  onDeleteURI: function (aURI) {
+  onDeleteURI(aURI) {
     const url = aURI.spec;
     if (!this.batch) {
       events.pub('history:removed', [url]);
@@ -28,14 +24,10 @@ let observer = {
       this.batch.push(url);
     }
   },
-  onClearHistory: function () {
+  onClearHistory() {
     events.pub('history:cleared');
   },
-  onPageChanged: function(aURI, aWhat, aValue) {
-  },
-  onPageExpired: function(aURI, aVisitTime, aWholeEntry) {
-  },
-  QueryInterface: function(iid) {
+  QueryInterface(iid) {
     if (iid.equals(Components.interfaces.nsINavHistoryObserver) ||
         iid.equals(Components.interfaces.nsISupports)) {
       return this;
@@ -65,17 +57,17 @@ export default class {
   static deleteVisit(visitId) {
     return HistoryProvider.query(
       `
-        SELECT id, from_visit
+        SELECT id, from_visit AS fromVisit
         FROM moz_historyvisits
         WHERE visit_date = '${visitId}'
         LIMIT 1
       `,
-      ['id', 'from_visit'],
-    ).then(([{ id, from_visit }]) =>
+      ['id', 'fromVisit'],
+    ).then(([{ id, fromVisit }]) =>
       HistoryProvider.query(
         `
           UPDATE moz_historyvisits
-          SET from_visit = '${from_visit}'
+          SET from_visit = '${fromVisit}'
           WHERE from_visit = ${id}
         `
       ).then(() => PlacesUtils.history.removePagesByTimeframe(visitId, visitId))
@@ -217,26 +209,34 @@ export default class {
           WHERE id = ${visitId}
             AND from_visit = 0
         `,
-      ).then(() => {
-        HistoryProvider.query(
+      );
+    });
+  }
+
+  static markAsHidden(url) {
+    const oneSecondAgo = (Date.now() - (60 * 1000)) * 1000;
+    return findLastVisitId(url, oneSecondAgo)
+      .then(([{ visitId }]) => {
+        if (!visitId) {
+          return Promise.resolve();
+        }
+        return HistoryProvider.query(
           `
-            SELECT place_id
+            SELECT place_id AS placeId
             FROM moz_historyvisits
             WHERE id = ${visitId}
             LIMIT 1
           `,
-          ['place_id'],
-        );
-      }).then(([{ place_id }]) => {
-        HistoryProvider.query(
-          `
-            UPDATE moz_places
-            SET hidden = 1
-            WHERE id = ${place_id}
-          `,
-        );
+          ['placeId']
+        ).then(([{ placeId }]) => {
+          HistoryProvider.query(
+            `
+              UPDATE moz_places
+              SET hidden = 1
+              WHERE id = ${placeId}
+            `,
+          );
+        });
       });
-    });
   }
-
 }

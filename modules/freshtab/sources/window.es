@@ -8,6 +8,8 @@ const DISMISSED_ALERTS = 'dismissedAlerts';
 const cliqzInitialPages = [
   utils.CLIQZ_NEW_TAB_RESOURCE_URL,
   utils.CLIQZ_NEW_TAB,
+  `${utils.CLIQZ_NEW_TAB_RESOURCE_URL}#`,
+  `${utils.CLIQZ_NEW_TAB_RESOURCE_URL}#/`,
 ];
 
 /**
