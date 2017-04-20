@@ -1,5 +1,5 @@
 <section id="filters">
-  <h1>History</h1>
+  <h1>History <span style="font-style: italic; color: #43bdd9; font-family: Times serif;">β</span></h1>
   <menu type="toolbar" id="time-selector">
     {{#link-to "freshtab.history.index" (query-params query=query from=undefined to=undefined) tagName="button"}}All{{/link-to}}
     {{#link-to "freshtab.history.index" (query-params query=query from=timestamps.today.from to=timestamps.today.to) tagName="button"}}Today{{/link-to}}
@@ -11,6 +11,7 @@
 <section id="search">
   <header>
     {{search-form model=query debounce=200}}
+    <button class="clear-history-btn" {{action "delete"}}>Clear Recent History...</button>
   </header>
 
   {{history-sessions model=model query=query}}
