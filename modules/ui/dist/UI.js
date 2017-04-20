@@ -1846,6 +1846,7 @@ function onEnter(ev, item){
     // we delegate to FF all their actions
     if(CLIQZ.Core.urlbar) {
       CLIQZ.Core.urlbar.value = input;
+      CLIQZ.Core.urlbar.mInputField.value = input;
     }
     return false;
   } else {
