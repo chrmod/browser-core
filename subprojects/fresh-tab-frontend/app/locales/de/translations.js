@@ -83,7 +83,6 @@ export default {
     "cta-video-downloader": "Mehr erfahren...",
     "hdr-ADB-onboarding": "Werbeblocker aktiviert",
     "txt-ADB-onboarding": "Wußtest du, dass Cliqz Werbungen auf Websites entfernen kann? Wir haben zum Test den Werbeblocker für dich aktiviert. Du kannst die Einstellungen jederzeit im Control Center neben der Adressleiste ändern.",
-    "txt-cliqz-ghostery": "WIR VERBÜNDEN UNS MIT GHOSTERY",
     "cta-learn-more": "LIES MEHR DARÜBER",
     "hdr-cliqz-connect": "Dürfen wir vorstellen: Connect",
     "txt-cliqz-connect": "Einfach Websites und YouTube Videos an dein Android Smartphone oder Tablet schicken.",

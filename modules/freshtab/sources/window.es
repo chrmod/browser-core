@@ -54,22 +54,6 @@ export default class {
   }
 
   showOnboarding() {
-    const locale = utils.getPref('general.useragent.locale', 'en', '');
-    const isInABTest = utils.getPref('extOnboardCliqzGhostery', false);
-    const dismissed = JSON.parse(utils.getPref(DISMISSED_ALERTS, '{}'));
-    const messageType = 'cliqz-ghostery';
-    const isDismissed = (dismissed[messageType] && dismissed[messageType].count >= 1) || false;
-    const messageCenter = inject.module('message-center');
 
-    if (isInABTest && (locale !== 'fr') && !isDismissed) {
-      messageCenter.action(
-        'showMessage',
-        'MESSAGE_HANDLER_FRESHTAB',
-        {
-          id: 'cliqz-ghostery',
-          template: 'cliqz-ghostery',
-        },
-      );
-    }
   }
 }
