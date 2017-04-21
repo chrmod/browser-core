@@ -236,6 +236,10 @@ function onMessageListener(info, sender, sendResponse) {
      if (info.message === false) {
       unloadHumanWeb();
      }
+
+     if (info.message === true) {
+      initHumanWeb();
+     }
   }
 
   // Will only get executed, if human-web in enabled and content script loaded.
