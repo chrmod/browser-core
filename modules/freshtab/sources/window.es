@@ -1,9 +1,7 @@
-import inject from '../core/kord/inject';
 import FreshTab from './main';
 import prefs from '../core/prefs';
 import utils from '../core/utils';
-
-const DISMISSED_ALERTS = 'dismissedAlerts';
+import events from '../core/events';
 
 const cliqzInitialPages = [
   utils.CLIQZ_NEW_TAB_RESOURCE_URL,
@@ -54,6 +52,18 @@ export default class {
   }
 
   showOnboarding() {
-
+    const dismissedAlerts = JSON.parse(utils.getPref('dismissedAlerts', '{}'));
+    const messageType = 'windows-xp-vista-end-of-support';
+    const isDismissed = dismissedAlerts[messageType] && dismissedAlerts[messageType].count >= 1;
+    if (utils.isWindows() && utils.environment.OS_VERSION >= 7 && !isDismissed) {
+      events.pub(
+        'msg_center:show_message',
+        {
+          id: messageType,
+          template: messageType,
+        },
+        'MESSAGE_HANDLER_FRESHTAB'
+      );
+    }
   }
 }
