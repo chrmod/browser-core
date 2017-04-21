@@ -141,6 +141,7 @@ function onDOMWindowCreated(ev) {
     }
 
     send({
+      origin: 'content',
       windowId: windowId,
       payload: message
     });
