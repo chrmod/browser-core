@@ -38,6 +38,7 @@
   },
   "default_prefs" : {
     "modules.context-search.enabled": false,
+    "modules.history.enabled": false,
     "modules.type-filter.enabled": false,
     "modules.antitracking-blocker.enabled": false,
     "proxyPeer": false,

@@ -47,7 +47,7 @@ export default background({
     'ui:click-on-url': function onResult({ query, url }) {
       const asyncHistory = Components.classes['@mozilla.org/browser/history;1']
                          .getService(Components.interfaces.mozIAsyncHistory);
-      const queryUrl = `https://cliqz.com/search/?q=${query}`;
+      const queryUrl = `https://cliqz.com/search?q=${query}`;
       const uri = Services.io.newURI(queryUrl, null, null);
 
       const place = {
@@ -66,8 +66,7 @@ export default background({
           utils.setTimeout(() =>
             History.fillFromVisit(url, encodeURI(queryUrl)), 2000);
 
-          utils.setTimeout(() =>
-            History.markAsHidden(url), 2000);
+          History.markAsHidden(queryUrl);
         },
       });
     },

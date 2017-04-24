@@ -214,29 +214,10 @@ export default class {
   }
 
   static markAsHidden(url) {
-    const oneSecondAgo = (Date.now() - (60 * 1000)) * 1000;
-    return findLastVisitId(url, oneSecondAgo)
-      .then(([{ visitId }]) => {
-        if (!visitId) {
-          return Promise.resolve();
-        }
-        return HistoryProvider.query(
-          `
-            SELECT place_id AS placeId
-            FROM moz_historyvisits
-            WHERE id = ${visitId}
-            LIMIT 1
-          `,
-          ['placeId']
-        ).then(([{ placeId }]) => {
-          HistoryProvider.query(
-            `
-              UPDATE moz_places
-              SET hidden = 1
-              WHERE id = ${placeId}
-            `,
-          );
-        });
-      });
+    return HistoryProvider.query(`
+      UPDATE moz_places
+      SET hidden = 1
+      WHERE url = '${url}'
+    `);
   }
 }
