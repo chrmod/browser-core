@@ -5,16 +5,16 @@ import TabsharingApp from './apps/tabsharing';
 import PingPongApp from './apps/pingpong';
 import SimpleStorage from '../core/simple-storage';
 
-//TODO: remove this!
+// TODO: remove this!
 const CustomizableUI = Components.utils.import('resource:///modules/CustomizableUI.jsm', null).CustomizableUI;
 
 const BTN_ID = 'mobilepairing_btn';
 
 export default {
   init() {
-    if(CliqzUtils.getPref('connect', false) == false){
-      this.enabled = false
-      return;
+    if (CliqzUtils.getPref('connect', false) === false) {
+      this.enabled = false;
+      return Promise.resolve();
     }
 
     const pingpong = new PingPongApp();
@@ -48,7 +48,7 @@ export default {
       label: 'Connect',
       tooltiptext: 'Connect',
       onCommand: () => {
-        CliqzUtils.openLink(CliqzUtils.getWindow(), "about:preferences#connect", true, false, false, true);
+        CliqzUtils.openLink(CliqzUtils.getWindow(), 'about:preferences#connect', true, false, false, true);
         CliqzUtils.telemetry({
           type: 'burger_menu',
           version: 1,
@@ -65,12 +65,10 @@ export default {
       .then(() => PeerComm.init(this.storage));
   },
   unload() {
-    if(this.enabled){
+    if (this.enabled) {
       CustomizableUI.destroyWidget(BTN_ID);
       PeerComm.unload();
       this.storage.close();
-      destroyHiddenWindow(this.window);
-      this.window = null;
     }
   },
 
