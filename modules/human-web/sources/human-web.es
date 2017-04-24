@@ -1558,6 +1558,17 @@ var CliqzHumanWeb = {
                 return;
             }
 
+            // Need to check if the location change is a forget mode(tab). foreget mode(window) is alredy handled in window.es.
+            // This only seems to work if it's the active tab, but it's better then not having any check.
+            try {
+                if (utils.isOnPrivateTab(utils.getWindow())) {
+                    _log("The URL is on private tab " + aURI.spec);
+                    return;
+                }
+            } catch (err) {
+                utils.log("Error while detecting private tab in human-web " + err);
+            }
+
             if(aProgress.isLoadingDocument){
                 CliqzHumanWeb.captureJSRefresh(aRequest, aURI);
             }
