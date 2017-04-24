@@ -86,7 +86,10 @@ export default {
     "cta-learn-more": "LIES MEHR DARÜBER",
     "hdr-cliqz-connect": "Dürfen wir vorstellen: Connect",
     "txt-cliqz-connect": "Einfach Websites und YouTube Videos an dein Android Smartphone oder Tablet schicken.",
-    "cta-cliqz-connect": "So gehts."
+    "cta-cliqz-connect": "So gehts.",
+    "hdr-win-no-support-message": "Unterstützung für Windows XP und Vista Endet",
+    "txt-win-no-support-message": "Wie du Cliqz weiter nutzen kannst, erfährst du",
+    "cta-win-no-support-message": "hier"
   },
   title: 'Neuer Tab',
   settings: {

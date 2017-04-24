@@ -55,15 +55,28 @@ export default class {
     const dismissedAlerts = JSON.parse(utils.getPref('dismissedAlerts', '{}'));
     const messageType = 'windows-xp-vista-end-of-support';
     const isDismissed = dismissedAlerts[messageType] && dismissedAlerts[messageType].count >= 1;
-    if (utils.isWindows() && utils.environment.OS_VERSION >= 7 && !isDismissed) {
-      events.pub(
-        'msg_center:show_message',
-        {
-          id: messageType,
-          template: messageType,
-        },
-        'MESSAGE_HANDLER_FRESHTAB'
-      );
+
+    let unsupportedOS = false;
+
+    if (utils.isWindows() && FreshTab.isBrowser && !isDismissed) {
+      try {
+        if (parseFloat(utils.environment.OS_VERSION) <= 6.0) {
+          unsupportedOS = true;
+        }
+      } catch (e) {
+        utils.log('FreshTab: unable to decode OS version');
+      }
+
+      if (unsupportedOS) {
+        events.pub(
+          'msg_center:show_message',
+          {
+            id: messageType,
+            template: messageType,
+          },
+          'MESSAGE_HANDLER_FRESHTAB'
+        );
+      }
     }
   }
 }

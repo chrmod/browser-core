@@ -86,7 +86,10 @@ export default {
     "cta-learn-more": "EN APPRENDRE PLUS",
     "hdr-cliqz-connect": "Connect",
     "txt-cliqz-connect": "Envoyez des liens ou téléchargez des vidéos YouTube vers votre périphérique Android.",
-    "cta-cliqz-connect": "Voici comment."
+    "cta-cliqz-connect": "Voici comment.",
+    "hdr-win-no-support-message": "Support for Windows XP and Vista Ending",
+    "txt-win-no-support-message": "Cliqz will end support for Windows XP and Windows Vista with the next update at the end of April. Find out how you can continue using Cliqz",
+    "cta-win-no-support-message": "here"
   },
   title: 'Nouvel onglet',
   settings: {

@@ -86,7 +86,10 @@ export default {
     "cta-learn-more": "READ ALL ABOUT IT",
     "hdr-cliqz-connect": "Welcome to Connect",
     "txt-cliqz-connect": "Send links or download YouTube videos to your Android device.",
-    "cta-cliqz-connect": "Here is how."
+    "cta-cliqz-connect": "Here is how.",
+    "hdr-win-no-support-message": "Support for Windows XP and Vista Ending",
+    "txt-win-no-support-message": "Find out how you can continue using Cliqz",
+    "cta-win-no-support-message": "here"
   },
   title: 'New Tab',
   settings: {
