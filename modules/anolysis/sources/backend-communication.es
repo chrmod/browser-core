@@ -74,6 +74,13 @@ function newInstall(demographics) {
 
 
 /**
+ * Send a reappearing_user signal to the backend, with granular demographics.
+ */
+function reappearingUser(demographics) {
+  return sendDemographics(demographics, 'reappearing_user');
+}
+
+/**
  * Once during each month (except during the same month as the new_install),
  * sends the granular demographic factors again to the backend.
  */
@@ -147,6 +154,7 @@ function sendSignal(signal) {
 
 export default {
   newInstall,
+  reappearingUser,
   activeUserSignal,
   updateGID,
   sendSignal,

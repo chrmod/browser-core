@@ -179,8 +179,11 @@ export default describeModule('anolysis/anolysis',
     'anolysis/signals-queue': {
       default: class SignalQueue { },
     },
-    'anolysis/logging': {
-      default() {
+    'anolysis/logger': {
+      default: {
+        debug() {},
+        log() {},
+        error() {},
       },
     },
   }),

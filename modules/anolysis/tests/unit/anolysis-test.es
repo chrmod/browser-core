@@ -83,8 +83,12 @@ export default describeModule('anolysis/anolysis',
         { name: 'fake', generateSignals() { return [{}]; } },
       ],
     },
-    'anolysis/logging': {
-      default() {},
+    'anolysis/logger': {
+      default: {
+        debug() {},
+        log() {},
+        error() {},
+      },
     },
   }),
   () => {
