@@ -5,8 +5,18 @@ import TabsharingApp from './apps/tabsharing';
 import PingPongApp from './apps/pingpong';
 import SimpleStorage from '../core/simple-storage';
 
+//TODO: remove this!
+const CustomizableUI = Components.utils.import('resource:///modules/CustomizableUI.jsm', null).CustomizableUI;
+
+const BTN_ID = 'mobilepairing_btn';
+
 export default {
   init() {
+    if(CliqzUtils.getPref('connect', false) == false){
+      this.enabled = false
+      return;
+    }
+
     const pingpong = new PingPongApp();
     PeerComm.addObserver('PINGPONG', pingpong);
 
@@ -18,9 +28,8 @@ export default {
       CliqzUtils.httpGet(youtubeurl, (x) => {
         if (x && x.responseText) {
           const videos = YoutubeApp.getLinks(x.responseText);
-          CliqzUtils.getWindow().console.log(videos);
           if (videos.length) {
-            CliqzUtils.getWindow().gBrowser.addTab(videos[0].url); // Ugly hack
+            CliqzUtils.openLink(CliqzUtils.getWindow(), videos[0].url, true, false, false, true);
           }
         }
       });
@@ -32,13 +41,37 @@ export default {
       CliqzUtils.getWindow().gBrowser.addTab(tab);
     });
     PeerComm.addObserver('TABSHARING', tabsharing);
+
+    CustomizableUI.createWidget({
+      id: BTN_ID,
+      defaultArea: CustomizableUI.AREA_PANEL,
+      label: 'Connect',
+      tooltiptext: 'Connect',
+      onCommand: () => {
+        CliqzUtils.openLink(CliqzUtils.getWindow(), "about:preferences#connect", true, false, false, true);
+        CliqzUtils.telemetry({
+          type: 'burger_menu',
+          version: 1,
+          action: 'click',
+          target: 'connect',
+        });
+      },
+    });
+
+    this.enabled = true;
+
     this.storage = new SimpleStorage();
     return this.storage.open('data', ['cliqz', 'pairing'], true, true)
       .then(() => PeerComm.init(this.storage));
   },
   unload() {
-    PeerComm.unload();
-    this.storage.close();
+    if(this.enabled){
+      CustomizableUI.destroyWidget(BTN_ID);
+      PeerComm.unload();
+      this.storage.close();
+      destroyHiddenWindow(this.window);
+      this.window = null;
+    }
   },
 
   actions: {
