@@ -134,35 +134,35 @@ export default class {
           // Hide default search option
           this.builtInSearchItem.setAttribute('hidden', 'true');
         }
-      }
+      } else {
+        // Pairing menu
+        const url = isLink ?
+          this.window.gContextMenu.target.href : this.window.gBrowser.currentURI.spec;
 
-      // Pairing menu
-      const url = isLink ?
-        this.window.gContextMenu.target.href : this.window.gBrowser.currentURI.spec;
+        if (!isValidURL(url)) return;
 
-      if (!isValidURL(url)) return;
-
-      this.getPeerComm().then((PeerComm) => {
-        const beforeElem = this.window.document.getElementById('context-bookmarklink');
-        const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired;
-        const onclick = isEnabled ? () => {
-          sendTab(PeerComm, url);
-          utils.telemetry({
-            type: 'context_menu',
-            version: 1,
-            view: 'web_page',
-            action: 'click',
-            target: 'send_to_mobile',
+        this.getPeerComm().then((PeerComm) => {
+          const beforeElem = this.window.document.getElementById('context-bookmarklink');
+          const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired;
+          const onclick = isEnabled ? () => {
+            sendTab(PeerComm, url);
+            utils.telemetry({
+              type: 'context_menu',
+              version: 1,
+              view: 'web_page',
+              action: 'click',
+              target: 'send_to_mobile',
+            });
+          } : undefined;
+          this.pageMenu.addMenuItem({
+            label: utils.getLocalizedString('pairing-send-tab-to-mobile'),
+            onclick,
+            beforeElem,
+            disabled: !isEnabled,
           });
-        } : undefined;
-        this.pageMenu.addMenuItem({
-          label: utils.getLocalizedString('pairing-send-tab-to-mobile'),
-          onclick,
-          beforeElem,
-          disabled: !isEnabled,
+          this.pageMenu.addSeparator({ beforeElem });
         });
-        this.pageMenu.addSeparator({ beforeElem });
-      });
+      }
     };
     this.pageMenu.init();
   }
