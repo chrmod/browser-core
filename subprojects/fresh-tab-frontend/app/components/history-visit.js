@@ -45,7 +45,7 @@ export default Ember.Component.extend({
   }),
 
   isCliqz: Ember.computed('model.url', function () {
-    return this.getWithDefault('model.url', '').indexOf('https://cliqz.com/search/?q=') === 0;
+    return this.getWithDefault('model.url', '').indexOf('https://cliqz.com/search?q=') === 0;
   }),
 
   mouseEnter() {

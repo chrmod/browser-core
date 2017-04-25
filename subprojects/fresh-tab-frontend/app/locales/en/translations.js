@@ -109,6 +109,9 @@ export default {
     "day-selection-all": "All",
     "day-selection-today": "Today",
     "day-selection-yesterday": "Yesterday",
-    "day-selection-pastweek": "Past week"
+    "day-selection-pastweek": "Past week",
+    "no-history-entry-found": "No history entries found",
+    "no-search-result-found": "No search results found for:",
+    "no-further-history-entry": "No further history entries"
   }
 };
