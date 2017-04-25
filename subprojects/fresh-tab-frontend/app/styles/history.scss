@@ -285,7 +285,7 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
             &:hover {
               background-color: #F7F7F7;
 
-              span {
+              .visit-content span {
                 color: #00869F;
               }
 
@@ -489,7 +489,7 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
             &.marked-for-deletion {
               background-color: #FFDEE3;
 
-              span {
+              .visit-content span {
                 color: #000;
               }
             }

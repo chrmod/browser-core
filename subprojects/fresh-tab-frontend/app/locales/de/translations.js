@@ -109,7 +109,7 @@ export default {
     "day-selection-all": "Alles",
     "day-selection-today": "Heute",
     "day-selection-yesterday": "Gestern",
-    "day-selection-pastweek": "Vergangene Woche",
+    "day-selection-pastweek": "Letzte 7 Tage",
     "no-history-entry-found": "Keine Chronikeinträge gefunden",
     "no-search-result-found": "Keine Suchergebnisse gefunden für:",
     "no-further-history-entry": "Keine weiteren Chronikeinträge"
