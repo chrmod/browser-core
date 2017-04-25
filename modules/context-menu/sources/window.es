@@ -93,19 +93,11 @@ export default class {
       }
 
       const isLink = this.window.gContextMenu.onLink;
-      let selection;
-      if (isLink) {
-        if (this.window.gContextMenu.target.textContent) {
-          selection = this.window.gContextMenu.target.textContent;
-        } else {
-          selection = this.window.gContextMenu.target.href;
-        }
-      } else {
-        try {
-          selection = this.window.gContextMenu.selectionInfo.text;
-        } catch (e) {
-          selection = '';
-        }
+      let selection = '';
+      if (this.window.gContextMenu.selectionInfo.text) {
+        selection = this.window.gContextMenu.selectionInfo.text;
+      } else if (isLink) {
+        selection = this.window.gContextMenu.getLinkText();
       }
 
       if (selection) {
@@ -140,35 +132,35 @@ export default class {
         }
       }
       // Show "Send to mobile" when it's a link or if there is no selection
-      if (isLink || !(isLink && selection)) {
-        // Pairing menu
-        const url = isLink ?
-          this.window.gContextMenu.target.href : this.window.gBrowser.currentURI.spec;
-
-        if (!isValidURL(url)) return;
-
-        this.getPeerComm().then((PeerComm) => {
-          const beforeElem = this.window.document.getElementById('context-bookmarklink');
-          const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired;
-          const onclick = isEnabled ? () => {
-            sendTab(PeerComm, url);
-            utils.telemetry({
-              type: 'context_menu',
-              version: 1,
-              view: 'web_page',
-              action: 'click',
-              target: 'send_to_mobile',
-            });
-          } : undefined;
-          this.pageMenu.addMenuItem({
-            label: utils.getLocalizedString('pairing-send-tab-to-mobile'),
-            onclick,
-            beforeElem,
-            disabled: !isEnabled,
-          });
-          this.pageMenu.addSeparator({ beforeElem });
-        });
+      let url;
+      if (isLink) {
+        url = this.window.gContextMenu.getLinkURL();
+      } else if (!(isLink && selection)) {
+        url = this.window.gBrowser.currentURI.spec;
       }
+      if (!isValidURL(url)) return;
+      // Pairing menu
+      this.getPeerComm().then((PeerComm) => {
+        const beforeElem = this.window.document.getElementById('context-bookmarklink');
+        const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired;
+        const onclick = isEnabled ? () => {
+          sendTab(PeerComm, url);
+          utils.telemetry({
+            type: 'context_menu',
+            version: 1,
+            view: 'web_page',
+            action: 'click',
+            target: 'send_to_mobile',
+          });
+        } : undefined;
+        this.pageMenu.addMenuItem({
+          label: utils.getLocalizedString('pairing-send-tab-to-mobile'),
+          onclick,
+          beforeElem,
+          disabled: !isEnabled,
+        });
+        this.pageMenu.addSeparator({ beforeElem });
+      });
     };
     this.pageMenu.init();
   }
