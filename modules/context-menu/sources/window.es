@@ -11,8 +11,7 @@ function trim(text) {
 }
 
 function isValidURL(url) {
-  return url.indexOf('about:') !== 0 && url.indexOf('place:') !== 0 &&
-    url.indexOf('resource:') !== 0 && url.indexOf('chrome:') !== 0;
+  return url.indexOf('https:') === 0 || url.indexOf('http:') === 0;
 }
 
 function sendTab(PeerComm, url) {
@@ -68,7 +67,7 @@ export default class {
   }
 
   getPeerComm() {
-    return this.pairing.action('getPairingPeer').catch((e) => undefined)
+    return this.pairing.action('getPairingPeer').catch((e) => undefined);
   }
 
   initPageMenu() {
@@ -141,9 +140,11 @@ export default class {
       const url = isLink ?
         this.window.gContextMenu.target.href : this.window.gBrowser.currentURI.spec;
 
+      if (!isValidURL(url)) return;
+
       this.getPeerComm().then((PeerComm) => {
         const beforeElem = this.window.document.getElementById('context-bookmarklink');
-        const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired && isValidURL(url);
+        const isEnabled = PeerComm && PeerComm.isInit && PeerComm.isPaired;
         const onclick = isEnabled ? () => {
           sendTab(PeerComm, url);
           utils.telemetry({
