@@ -95,7 +95,11 @@ export default class {
       const isLink = this.window.gContextMenu.onLink;
       let selection;
       if (isLink) {
-        selection = this.window.gContextMenu.target.textContent;
+        if (this.window.gContextMenu.target.textContent) {
+          selection = this.window.gContextMenu.target.textContent;
+        } else {
+          selection = this.window.gContextMenu.target.href;
+        }
       } else {
         try {
           selection = this.window.gContextMenu.selectionInfo.text;
@@ -134,7 +138,9 @@ export default class {
           // Hide default search option
           this.builtInSearchItem.setAttribute('hidden', 'true');
         }
-      } else {
+      }
+      // Show "Send to mobile" when it's a link or if there is no selection
+      if (isLink || !(isLink && selection)) {
         // Pairing menu
         const url = isLink ?
           this.window.gContextMenu.target.href : this.window.gBrowser.currentURI.spec;
