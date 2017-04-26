@@ -185,7 +185,8 @@ body.freshTabContainer {
 
   /* containers */
   #center {
-    width: 100%;
+    width: calc(100% - 74px);
+    padding-right: 74px;
     display: flex;
     align-items: flex-start;
     justify-items: center;
