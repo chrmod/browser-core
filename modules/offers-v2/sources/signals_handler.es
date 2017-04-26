@@ -287,6 +287,10 @@ export class SignalHandler {
     return now.toISOString().slice(0,10).replace(/-/g,"");
   }
 
+  _getMinuteTimestamp() {
+    return Math.floor((Date.now()/1000)/60);
+  }
+
   _addSignalToBeSent(sigType, sigKey) {
     let container = this.sigsToSend[sigType];
     if (!container) {
@@ -340,6 +344,7 @@ export class SignalHandler {
             ex_v: config.EXTENSION_VERSION,
             is_developer: isDeveloper,
             sig_type: signalType,
+            sent_ts: self._getMinuteTimestamp(),
             data: sigDataToSend
           };
           utils.telemetry(signal);
@@ -356,6 +361,7 @@ export class SignalHandler {
                 ex_v: config.EXTENSION_VERSION,
                 is_developer: isDeveloper,
                 type: signalType,
+                sent_ts: self._getMinuteTimestamp(),
                 data: sigDataToSend
               }
             };
