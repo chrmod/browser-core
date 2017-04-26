@@ -384,6 +384,21 @@ var CliqzABTests = {
             case "1101_B":
                 CliqzUtils.setPref("modules.history.enabled", true);
                 break;
+            case "1102_A":
+                CliqzUtils.setPref("modules.antitracking-blocker.enabled", false);
+                break;
+            case "1102_B":
+                CliqzUtils.setPref("antitrackingBlocklist", "default");
+                CliqzUtils.setPref("modules.antitracking-blocker.enabled", true);
+                break;
+            case "1102_C":
+                CliqzUtils.setPref("antitrackingBlocklist", "cliqz");
+                CliqzUtils.setPref("modules.antitracking-blocker.enabled", true);
+                break;
+            case "1102_D":
+                CliqzUtils.setPref("antitrackingBlocklist", "ghostery");
+                CliqzUtils.setPref("modules.antitracking-blocker.enabled", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -622,6 +637,13 @@ var CliqzABTests = {
             case "1101_A":
             case "1101_B":
               CliqzUtils.clearPref("modules.history.enabled");
+              break;
+            case "1102_A":
+            case "1102_B":
+            case "1102_C":
+            case "1102_D":
+              CliqzUtils.setPref("modules.antitracking-blocker.enabled", false);
+              CliqzUtils.clearPref("antitrackingBlocklist");
               break;
             default:
                 rule_executed = false;

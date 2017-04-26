@@ -1,8 +1,10 @@
+import utils from '../core/utils';
 import inject from '../core/kord/inject';
 import background from '../core/base/background';
 import Blocker from './blocker';
 
-// const ENABLED_PREF = 'attrackForceBlock';
+const DEFAULT_BLOCKLIST = 'default';
+const BLOCKLIST_PREF = 'antitrackingBlocklist';
 const STEP_NAME = 'blockList';
 
 export default background({
@@ -10,7 +12,8 @@ export default background({
   antitracking: inject.module('antitracking'),
 
   init() {
-    this.blockEngine = new Blocker();
+    this.blockList = utils.getPref(BLOCKLIST_PREF, DEFAULT_BLOCKLIST);
+    this.blockEngine = new Blocker(this.blockList);
     return this.blockEngine.init().then(
       () => this.antitracking.action('addPipelineStep', {
         name: STEP_NAME,
@@ -27,5 +30,13 @@ export default background({
   },
 
   events: {
+    prefchange: function onPrefChange(pref) {
+      if (pref === BLOCKLIST_PREF &&
+        utils.getPref(BLOCKLIST_PREF, DEFAULT_BLOCKLIST) !== this.blockList) {
+        // reload with new blocklist
+        this.unload();
+        this.init();
+      }
+    }
   }
 });

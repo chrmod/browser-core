@@ -1,26 +1,34 @@
 import console from '../core/console';
 import md5 from '../antitracking/md5';
 import ResourceLoader from '../core/resource-loader';
-import resourceManager from '../core/resource-manager';
 
 export default class {
 
-  constructor() {
-    this.rules = {};
+  constructor(blocklist) {
+    this.blocklist = blocklist || 'default';
+    this.patterns = {};
   }
 
   init() {
-    const blockListLoader = new ResourceLoader(['antitracking-blocker', 'bugs.json'], {
-      remoteURL: 'https://cdn.cliqz.com/anti-tracking/bugs.json',
+    const fileName = `bugs_${this.blocklist}.json`;
+    this._blockListLoader = new ResourceLoader(['antitracking-blocker', fileName], {
+      remoteURL: `https://cdn.cliqz.com/anti-tracking/${fileName}`,
       cron: 1000 * 60 * 60 * 12,
     });
-    resourceManager.addResourceLoader(blockListLoader, (bugs) => {
-      this.rules = bugs.patterns;
-    });
+    const loadFn = this.loadBugs.bind(this)
+    this._blockListLoader.onUpdate(loadFn);
+    this._blockListLoader.load().then(loadFn);
     return Promise.resolve();
   }
 
+  loadBugs(bugs) {
+    this.patterns = bugs.patterns;
+  };
+
   unload() {
+    if (this._blockListLoader) {
+      this._blockListLoader.stop();
+    }
   }
 
   ruleMatches(urlParts) {
@@ -30,7 +38,7 @@ export default class {
   }
 
   hostRuleMatches(hostPartsReversed) {
-    let root = this.rules.host;
+    let root = this.patterns.host;
     for (let i = 0; i < hostPartsReversed.length; i += 1) {
       const part = hostPartsReversed[i];
       if (!root[part]) {
@@ -47,7 +55,7 @@ export default class {
 
   hostPathRuleMatches(hostPartsReversed, path) {
     const pathHash = md5(path).substring(0, 16);
-    let root = this.rules.host_path;
+    let root = this.patterns.host_path;
     let match = false;
     for (let i = 0; i < hostPartsReversed.length; i += 1) {
       const part = hostPartsReversed[i];
@@ -77,7 +85,8 @@ export default class {
     if (this.ruleMatches(state.urlParts)) {
       const response = _resp;
       response.cancel = true;
-      state.incrementStat('token_blocked_block');
+      state.incrementStat('blocked_blocklist');
+      state.incrementStat(`matched_blocklist_${this.blocklist}`);
       return false;
     }
     return true;
