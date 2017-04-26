@@ -157,13 +157,19 @@ export class UIOfferProcessor {
     const displayID = offerInfoCpy.display_id;
     this.offersHistory.incHistorySignal(offerInfoCpy.offer_id, HistorySignalID.HSIG_OFFER_ADDED);
     this.offersHistory.incHistorySignal(displayID, HistorySignalID.HSIG_OFFER_ADDED);
+    this.offersHistory.incHistorySignal(displayID, HistorySignalID.HSIG_OFFER_DISPLAYED);
 
     // to track we use the offer_id
     const originID = 'processor';
     this.sigHandler.setCampaignSignal(offerInfoCpy.campaign_id,
-                                      offerInfoCpy.offer_id,
+                                      offerInfoCpy.offer_id,  
                                       originID,
                                       TrackSignalID.TSIG_OFFER_ADDED)
+
+    this.sigHandler.setCampaignSignal(offerInfoCpy.campaign_id,
+                                      offerInfoCpy.offer_id,
+                                      originID,
+                                      TrackSignalID.TSIG_OFFER_DISPLAYED)
   }
 
   //
@@ -190,6 +196,14 @@ export class UIOfferProcessor {
       lerr('this should not happen...');
       return false;
     }
+    
+
+    const local_offerInfo = this.activeOffers[offerID];
+    if (!this._shouldShowOffer(local_offerInfo)) {
+      linfo('We should not show this offer with ID: ' + local_offerInfo.offer_id);
+      return;
+    }
+
     // check if it is the same or we need to change it
     // TODO: not implemented yet supporting multiple rule types
     if (currRuleInfo.type !== ruleInfo.type) {
@@ -216,6 +230,8 @@ export class UIOfferProcessor {
       return false;
     }
 
+    const local_displayID = local_offerInfo.display_id;
+    this.offersHistory.incHistorySignal(local_displayID, HistorySignalID.HSIG_OFFER_DISPLAYED);
     this.activeOffers[offerID].rule_info = newRuleInfo;
     return true;
   }

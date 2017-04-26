@@ -16,6 +16,7 @@ const TrackSignalID = {
   TSIG_OFFER_MORE_ABT_CLIQZ: 'offer_more_cliqz',
   TSIG_OFFER_CALL_TO_ACTION: 'offer_ca_action',
   TSIG_OFFER_ADDED: 'offer_added',
+  TSIG_OFFER_DISPLAYED: 'offer_displayed',
 };
 
 
