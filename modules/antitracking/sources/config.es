@@ -34,7 +34,7 @@ export const PREFS = {
  * These are attributes which are loaded from the remote CONFIG_URL
  * @type {Array}
  */
-const REMOTELY_CONFIGURED = ['blockRules', 'reportList', 'cookieWhitelist'];
+const REMOTELY_CONFIGURED = ['blockRules', 'reportList', 'cookieWhitelist', 'subdomainRewriteRules'];
 
 export default class {
 

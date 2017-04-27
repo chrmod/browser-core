@@ -1963,9 +1963,8 @@ var CliqzHumanWeb = {
         //Load ts config
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 20 * 1) == 0) {
             if (CliqzHumanWeb.debug) {
-                _log('Load ts config');
+                _log('expireQuorumBloomFilter');
             }
-            CliqzHumanWeb.fetchAndStoreConfig();
             CliqzHumanWeb.expireQuorumBloomFilter();
         }
 
@@ -2355,8 +2354,6 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.pacemakerId = utils.setInterval(CliqzHumanWeb.pacemaker, CliqzHumanWeb.tpace, null);
         }
 
-
-        CliqzHumanWeb.fetchAndStoreConfig();
 
         if (CliqzHumanWeb.actionStats==null) CliqzHumanWeb.loadActionStats();
         if (CliqzHumanWeb.actionStatsLastSent==null) CliqzHumanWeb.loadActionStatsLastSent();
@@ -3459,23 +3456,6 @@ var CliqzHumanWeb = {
         if (maxlcnpos!=null && maxlcn > max_number_length) return cstr.slice(maxlcnpos-maxlcn,maxlcnpos);
         else return null;
 
-    },
-    fetchAndStoreConfig: function(){
-        //Load latest config.
-        let url = `${CliqzHumanWeb.configURL}?rnd=${Math.floor(random() * 10000000)}`;
-        utils.httpGet(url,
-          function success(req){
-            if(!CliqzHumanWeb) return;
-                try {
-                    var config = JSON.parse(req.response);
-                    for(var k in config){
-                        utils.setPref('config_' + k, config[k]);
-                    }
-                } catch(e){};
-          },
-          function error(res){
-            _log('Error loading config. ')
-          }, 5000);
     },
     checkURL: function(cd, url, ruleset){
         var pageContent = cd;

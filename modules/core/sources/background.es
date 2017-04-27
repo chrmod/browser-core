@@ -14,7 +14,6 @@ import Storage from './storage';
 import resourceManager from './resource-manager';
 import inject from './kord/inject';
 
-
 var lastRequestId = 0;
 var callbacks = {};
 

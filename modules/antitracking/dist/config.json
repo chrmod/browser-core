@@ -1,5 +1,8 @@
 {
   "blockRules": [],
   "reportList": {},
-  "cookieWhitelist": []
+  "cookieWhitelist": [],
+  "subdomainRewriteRules": {
+    ".users.storage.live.com": "cid-0.users.storage.live.com"
+  }
 }

@@ -35,6 +35,7 @@ import TokenChecker from './steps/token-checker';
 import BlockRules from './steps/block-rules';
 import CookieContext from './steps/cookie-context';
 import RedirectTagger from './steps/redirect-tagger';
+import SubdomainChecker from './steps/subdomain-check';
 
 var countReload = false;
 
@@ -270,6 +271,7 @@ var CliqzAttrack = {
         blockRules: new BlockRules(CliqzAttrack.config),
         cookieContext: new CookieContext(CliqzAttrack.config, CliqzAttrack.tp_events),
         redirectTagger: new RedirectTagger(),
+        subdomainChecker: new SubdomainChecker(CliqzAttrack.config),
       };
 
       CliqzAttrack.pipelineSteps = steps;
@@ -290,6 +292,7 @@ var CliqzAttrack = {
         skipInternalProtocols,
         checkSameGeneralDomain,
         CliqzAttrack.cancelRecentlyModified.bind(CliqzAttrack),
+        steps.subdomainChecker.checkBadSubdomain.bind(steps.subdomainChecker),
         steps.tokenExaminer.examineTokens.bind(steps.tokenExaminer),
         steps.tokenTelemetry.extractKeyTokens.bind(steps.tokenTelemetry),
         steps.pageLogger.attachStatCounter.bind(steps.pageLogger),
@@ -324,6 +327,7 @@ var CliqzAttrack = {
         },
         skipInternalProtocols,
         checkSameGeneralDomain,
+        steps.subdomainChecker.checkBadSubdomain.bind(steps.subdomainChecker),
         steps.pageLogger.attachStatCounter.bind(steps.pageLogger),
         function catchMissedOpenListener(state, response) {
           if ((state.reqLog && state.reqLog.c === 0) || steps.redirectTagger.isFromRedirect(state.url)) {
