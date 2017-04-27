@@ -1616,5 +1616,41 @@
     "ad-label": {
       "message": "Anzeige"
     },
+    "signals-humanweb-inactive-message": {
+      "message": "Human Web is not activated"
+    },
+    "signals-humanweb-inactive": {
+      "message": "inactive"
+    },
+    "signals-your-ip-id": {
+      "message": "your IP/IDs: "
+    },
+    "signals-your-location": {
+      "message": "your location"
+    },
+    "signals-private-urls": {
+      "message": "private URLs"
+    },
+    "signals-what-you-search": {
+      "message": "your search term"
+    },
+    "signals-your-ip-address": {
+      "message": "Your IP-Addresse"
+    },
+    "signals-search-results": {
+      "message": "Search result"
+    },
+    "signals-visited-page": {
+      "message": "Visited page"
+    },
+    "signals-count-action": {
+      "message": "Count action"
+    },
+    "signals-page-info": {
+      "message": "Page info"
+    },
+    "signals-redirected-links": {
+      "message": "Redirected links"
+    },
     "TEST": "OK"
 }
