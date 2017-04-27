@@ -94,10 +94,14 @@ export default class {
 
       const isLink = this.window.gContextMenu.onLink;
       let selection = '';
+      let url = ''; // Display "Send to mobile" option based on this url
       if (this.window.gContextMenu.selectionInfo.text) {
         selection = this.window.gContextMenu.selectionInfo.text;
       } else if (isLink) {
         selection = this.window.gContextMenu.getLinkText();
+        url = this.window.gContextMenu.getLinkURL();
+      } else { // No text selected
+        url = this.window.gBrowser.currentURI.spec;
       }
 
       if (selection) {
@@ -131,14 +135,8 @@ export default class {
           this.builtInSearchItem.setAttribute('hidden', 'true');
         }
       }
-      // Show "Send to mobile" when it's a link or if there is no selection
-      let url;
-      if (isLink) {
-        url = this.window.gContextMenu.getLinkURL();
-      } else if (!(isLink && selection)) {
-        url = this.window.gBrowser.currentURI.spec;
-      }
-      if (!isValidURL(url)) return;
+
+      if (!isValidURL(url)) return; // Do not show the "Send to mobile" option
       // Pairing menu
       this.getPeerComm().then((PeerComm) => {
         const beforeElem = this.window.document.getElementById('context-bookmarklink');
