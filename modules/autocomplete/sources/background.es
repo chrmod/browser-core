@@ -90,5 +90,12 @@ export default background({
         this.resultCache.clear();
       }
     },
+    // there are a few places which can change some state and this state
+    // must reset the whole result cache
+    'core:reset_cache': function onResetCache() {
+      if (isFirefox) {
+        this.resultCache.clear();
+      }
+    },
   }
 });

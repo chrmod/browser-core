@@ -1359,6 +1359,9 @@ function urlIndexInHistory(url, urlList) {
                             updateMessage('bottom', {
                                 "footer-message": getNotSupported()
                             });
+
+                        // force a cache reset
+                        CliqzEvents.pub('core:reset_cache');
                         break;
                     default:
                         break;
