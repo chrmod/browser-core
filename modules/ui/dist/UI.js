@@ -1290,7 +1290,7 @@ function urlIndexInHistory(url, urlList) {
         var el = ev.target;
         // Handle adult results
 
-        while (el && (ev.button == 0 || ev.button == 1) && !el.classList.contains("cliqz-message-container")) {
+        while (el && (ev.button == 0 || ev.button == 1) && !el.classList.contains("cqz-message-container")) {
             var action = el.getAttribute('cliqz-action');
 
             /*********************************/
@@ -1960,7 +1960,8 @@ function snippetQualityTelemetry(results){
 function handleMouseDown(e) {
   var walk_the_DOM = function walk(node) {
     while(node) {
-      if (node.classList.contains(IC)) return; //do not go higher that results box
+      if (node.classList.contains(IC) /* one of the results container */ ||
+          node.classList.contains('cqz-message-container') /* footer */ ) return; //do not go higher that results box
       //disable onclick handling for anchor tags, click event handling is left on the div
       //type window.location.href = SOME_URL in the console to see what would happen otherwise:-)
       if (node.tagName === 'a') {
