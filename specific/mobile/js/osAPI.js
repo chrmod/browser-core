@@ -270,13 +270,16 @@ var osAPI = {
   /**
     function: showQuerySuggestions
     description: sends the query suggestions to native
-    params: an array of strings
-    message data: an array of strings
+    @param: {string} query - query
+    @param: {array} suggestions - suggestions
   */
-  showQuerySuggestions: function(suggestions) {
+  showQuerySuggestions: function(query, suggestions) {
     var message = {
       action: "showQuerySuggestions",
-      data: suggestions
+      data: {
+        query: query,
+        suggestions: suggestions
+      }
     };
     osAPI.OS.postMessage(message);
   },

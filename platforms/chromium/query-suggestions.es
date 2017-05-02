@@ -1,3 +1,3 @@
-export function handleQuerySuggestions(suggestions) {
+export function handleQuerySuggestions(query, suggestions) {
   // TBD
 }

@@ -600,7 +600,7 @@ export default class Search {
                      (attemptsSoFar || 0) + 1);
           this.cliqzResults = json.results.filter(this.isReadyToRender).map(this.enhanceResult);
 
-          handleQuerySuggestions(json.suggestions);
+          handleQuerySuggestions(q, json.suggestions);
 
           this.cliqzResultsParams = {
             choice: json.choice,
