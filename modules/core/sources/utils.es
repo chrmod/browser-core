@@ -16,7 +16,7 @@ var VERTICAL_ENCODINGS = {
     'video':'v',
     'hq':'h',
     'bm': 'm',
-    'recipeRD': 'r',
+    'reciperd': 'r',
     'game': 'g',
     'movie': 'o'
 };
