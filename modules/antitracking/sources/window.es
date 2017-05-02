@@ -39,8 +39,6 @@ export default class {
     this.window = config.window;
     this.controlCenter = inject.module('control-center');
 
-    this.popup = background.popup;
-
     this.onLocationChange = onLocationChange.bind(this);
     this.onPrefChange = onPrefChange.bind(this);
     this.enabled = false;
@@ -48,11 +46,6 @@ export default class {
 
   init() {
     events.sub("core.location_change", this.onLocationChange);
-    if( this.popup ){
-      // Better to wait for first window to set the state of the button
-      // otherways button may not be initialized yet
-      this.popup.updateState(utils.getWindow(), CliqzAttrack.isEnabled());
-    }
     this.onPrefChange(CliqzAttrack.ENABLE_PREF);
     events.sub("prefchange", this.onPrefChange);
   }
@@ -63,31 +56,23 @@ export default class {
     events.un_sub("prefchange", this.onPrefChange);
   }
 
+  getBadgeData(info) {
+    if (CliqzAttrack.isSourceWhitelisted(info.hostname)) {
+      // do not display number if site is whitelisted
+      return 0;
+    } else {
+      return info.cookies.blocked + info.requests.unsafe;
+    }
+  }
+
   updateBadge() {
     if (this.window !== utils.getWindow()) { return; }
 
-    var info = CliqzAttrack.getCurrentTabBlockingInfo(), count;
-
-    try {
-      count = info.cookies.blocked + info.requests.unsafe;
-    } catch(e) {
-      count = 0;
-    }
-
-    // do not display number if site is whitelisted
-    if (CliqzAttrack.isSourceWhitelisted(info.hostname)) {
-      count = 0;
-    }
-
-    if( this.popup ){
-      this.popup.setBadge(this.window, count);
-    } else {
-      this.controlCenter.windowAction(
-        this.window,
-        'setBadge',
-        count
-      );
-    }
+    this.controlCenter.windowAction(
+      this.window,
+      'setBadge',
+      this.getBadgeData(CliqzAttrack.getCurrentTabBlockingInfo())
+    );
   }
 
   status() {
@@ -105,6 +90,7 @@ export default class {
       cookiesCount: info.cookies.blocked,
       requestsCount: info.requests.unsafe,
       totalCount: info.cookies.blocked + info.requests.unsafe,
+      badgeData: this.getBadgeData(info),
       enabled: enabled,
       isWhitelisted: isWhitelisted || enabled,
       reload: info.reload || false,

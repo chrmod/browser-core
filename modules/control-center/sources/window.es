@@ -516,7 +516,8 @@ export default class {
         this.sendMessageToPopup({
           action: 'pushData',
           data: data
-        })
+        });
+        this.updateBadge(data.module.antitracking.badgeData);
       }).catch(e => utils.log(e.toString(), "getData error"))
     }
   }
