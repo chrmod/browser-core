@@ -146,8 +146,13 @@ export default background({
           return isCustom;
         }
 
+        function isCliqz(url) {
+          return url.indexOf('https://cliqz.com/search?q=') === 0;
+        }
+
         results = results.filter(history => {
-          return !isDeleted(history.hashedUrl) && !isCustom(history.url) && !this.isAdult(history.url);
+          return !isDeleted(history.hashedUrl) && !isCustom(history.url)
+                  && !this.isAdult(history.url) && !isCliqz(history.url);
         });
 
         return results.map(function(r){
