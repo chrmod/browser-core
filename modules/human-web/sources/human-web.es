@@ -2063,6 +2063,8 @@ var CliqzHumanWeb = {
         CliqzHumanWeb.pushTelemetry();
         utils.clearTimeout(CliqzHumanWeb.pacemakerId);
         utils.clearTimeout(CliqzHumanWeb.trkTimer);
+        delete CliqzHumanWeb.pacemakerId;
+        delete CliqzHumanWeb.trkTimer;
     },
     unloadAtBrowser: function(){
         try {

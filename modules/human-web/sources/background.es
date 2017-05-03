@@ -76,15 +76,17 @@ export default background({
     * @event control-center:toggleHumanWeb
     */
     "control-center:toggleHumanWeb": function() {
-      if(utils.getPref("humanWeb", false) && !utils.getPref('dnt', false)){
-        HumanWeb.unloadAtBrowser();
-      } else {
-        HumanWeb.initAtBrowser();
-      }
+      // 1. we turn off HumanWeb module
+      utils.setPref('modules.human-web.enabled', false);
 
-      utils.app.extensionRestart(() => {
-        utils.setPref('dnt', !utils.getPref('dnt', false));
-      });
+      // 2. change the pref
+      utils.setPref('dnt', !utils.getPref('dnt', false));
+
+      // we need to avoid the throttle on prefs
+      utils.setTimeout(function() {
+        //3. start again the module
+        utils.setPref('modules.human-web.enabled', true);
+      }, 0);
     },
     "core:mouse-down": function onMouseDown() {
       HumanWeb.captureMouseClickPage.apply(HumanWeb, arguments);

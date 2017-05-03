@@ -34,6 +34,7 @@ export default class {
     this.prefchangeEventListener = subscribe('prefchange', this.onPrefChange, this);
   }
 
+  // should be used only for testing!
   extensionRestart(changes) {
     // unload windows
     forEachWindow((win) => {
