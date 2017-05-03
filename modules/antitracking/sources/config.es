@@ -12,6 +12,7 @@ export const DEFAULTS = {
   shortTokenLength: 6,
   placeHolder: 'cliqz.com/tracking',
   cliqzHeader: 'CLIQZ-AntiTracking',
+  enabled: true,
   cookieEnabled: true,
   qsEnabled: true,
   bloomFilterEnabled: true,

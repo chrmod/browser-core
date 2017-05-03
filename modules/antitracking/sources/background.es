@@ -42,6 +42,7 @@ export default background({
 
     // load config
     this.config = new Config({});
+    this.attrack = CliqzAttrack;
 
     return this.config.init().then(() => {
       return CliqzAttrack.init(this.config).then(() => {

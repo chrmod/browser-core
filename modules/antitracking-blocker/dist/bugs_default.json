@@ -8,8 +8,8 @@
           }
         }
       }
-  },
-  "host_path": {
+    },
+    "host_path": {
       "com": {
         "facebook": {
           "$": [

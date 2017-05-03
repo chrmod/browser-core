@@ -9,7 +9,7 @@ import prefs from './prefs';
 import background from './base/background';
 import { Window, mapWindows, getLang } from '../platform/browser';
 import loadLogoDb from "../platform/load-logo-db";
-import { isMobile, isFirefox } from "./platform";
+import { isFirefox } from "./platform";
 import Storage from './storage';
 import resourceManager from './resource-manager';
 import inject from './kord/inject';
@@ -21,15 +21,15 @@ export default background({
 
   init(settings) {
     this.settings = settings;
+    this.utils = utils;
     utils.init({
       lang: getLang(),
     });
-    if (!isMobile) {
-      this.checkSession();
-      if(isFirefox){
-        language.init();
-        HistoryManager.init();
-      }
+
+    this.checkSession();
+    if(isFirefox){
+      language.init();
+      HistoryManager.init();
     }
     utils.CliqzLanguage = language;
     this.dispatchMessage = this.dispatchMessage.bind(this);
@@ -49,7 +49,7 @@ export default background({
 
   unload() {
     utils.clearTimeout(this.report);
-    if (!isMobile) {
+    if (isFirefox) {
       language.unload();
       HistoryManager.unload();
     }
@@ -157,10 +157,16 @@ export default background({
       status: status || 'active',
     });
 
-    ['http://cliqz.com', 'https://cliqz.com'].forEach(url => {
-      const ls = new Storage(url);
-      ls.setItem('extension-info', info);
-    });
+
+    try {
+      ['http://cliqz.com', 'https://cliqz.com'].forEach(url => {
+        const ls = new Storage(url);
+        ls.setItem('extension-info', info);
+      });
+    } catch(e) {
+      console.log('Error setting localstorage', e);
+    }
+
   },
 
   browserDetection() {

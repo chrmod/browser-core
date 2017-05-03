@@ -15,7 +15,7 @@ export default class {
       remoteURL: `https://cdn.cliqz.com/anti-tracking/${fileName}`,
       cron: 1000 * 60 * 60 * 12,
     });
-    const loadFn = this.loadBugs.bind(this)
+    const loadFn = this.loadBugs.bind(this);
     this._blockListLoader.onUpdate(loadFn);
     this._blockListLoader.load().then(loadFn);
     return Promise.resolve();
@@ -23,7 +23,7 @@ export default class {
 
   loadBugs(bugs) {
     this.patterns = bugs.patterns;
-  };
+  }
 
   unload() {
     if (this._blockListLoader) {
@@ -39,6 +39,7 @@ export default class {
 
   hostRuleMatches(hostPartsReversed) {
     let root = this.patterns.host;
+    if (!root) return false;
     for (let i = 0; i < hostPartsReversed.length; i += 1) {
       const part = hostPartsReversed[i];
       if (!root[part]) {
@@ -54,8 +55,9 @@ export default class {
   }
 
   hostPathRuleMatches(hostPartsReversed, path) {
-    const pathHash = md5(path).substring(0, 16);
     let root = this.patterns.host_path;
+    if (!root) return false;
+    const pathHash = md5(path).substring(0, 16);
     let match = false;
     for (let i = 0; i < hostPartsReversed.length; i += 1) {
       const part = hostPartsReversed[i];

@@ -230,7 +230,7 @@ class Module {
       throw new Error('Module not flagged as loading');
     }
     const module = backgrounds[this.name];
-    this.background = backgrounds[this.name];
+    this.background = module;
     return module.init(config.settings)
       .then(() => {
         this.isEnabled = true;

@@ -616,7 +616,8 @@ var CliqzAttrack = {
       var tabData = CliqzAttrack.tp_events._active[tabId],
         plain_data = tabData.asPlainObject(),
         trackers = Object.keys(tabData.tps).filter(function(domain) {
-          return CliqzAttrack.qs_whitelist.isTrackerDomain(md5(getGeneralDomain(domain)).substring(0, 16)) || plain_data.tps[domain].adblock_block > 0;
+          return CliqzAttrack.qs_whitelist.isTrackerDomain(md5(getGeneralDomain(domain)).substring(0, 16))
+            || plain_data.tps[domain].blocked_blocklist > 0;
         }),
         firstPartyCompany = domainInfo.domainOwners[getGeneralDomain(tabData.hostname)];
       result.hostname = tabData.hostname;
@@ -624,13 +625,14 @@ var CliqzAttrack = {
 
       trackers.forEach(function(dom) {
         result.trackers[dom] = {};
-        ['c', 'cookie_set', 'cookie_blocked', 'bad_cookie_sent', 'bad_qs', 'set_cookie_blocked'].forEach(function (k) {
+        ['c', 'cookie_set', 'cookie_blocked', 'bad_cookie_sent', 'bad_qs', 'set_cookie_blocked', 'blocked_blocklist'].forEach(function (k) {
           result.trackers[dom][k] = plain_data.tps[dom][k] || 0;
         });
         // actual block count can be in several different signals, depending on configuration. Aggregate them into one.
         result.trackers[dom].tokens_removed = ['empty', 'replace', 'placeholder', 'block'].reduce((cumsum, action) => {
             return cumsum + (plain_data.tps[dom]['token_blocked_' + action] || 0);
         }, 0);
+        result.trackers[dom].tokens_removed += plain_data.tps[dom]['blocked_blocklist'] || 0;
 
         result.cookies.allowed += result.trackers[dom].cookie_set - result.trackers[dom].cookie_blocked;
         result.cookies.blocked += result.trackers[dom].cookie_blocked + result.trackers[dom].set_cookie_blocked;
