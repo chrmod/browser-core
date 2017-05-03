@@ -381,7 +381,7 @@ export default class CliqzPairing {
   }
 
   generatePairingKey() {
-    const token = randomBytes(9);
+    const token = randomBytes(15);
     this.randomToken = fromByteArray(token, 'b64');
     return this.loadPairingAESKey();
   }
@@ -533,9 +533,12 @@ export default class CliqzPairing {
     this.onmasterconnected = null;
     this.onmasterdisconnected = null;
 
-    return this.generateKeypair()
-      .then(() => this.initPeer())
+    this.generateKeypair()
+      .then(() => !this.isUnloaded && this.initPeer())
       .then(() => {
+        if (this.isUnloaded) {
+          return;
+        }
         if (this.masterID) {
           this.setPaired(this.masterID, this.devices, true);
           this.checkMasterConnection();
