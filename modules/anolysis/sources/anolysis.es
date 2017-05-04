@@ -36,6 +36,13 @@ export default class {
     this.behaviorStorage = new Storage(new Database('cliqz-anolysis-behavior'));
     this.demographicsStorage = new Storage(new Database('cliqz-anolysis-demographics'));
 
+    // Storage to keep track of what days have been aggregated and sent to
+    // backend.
+    this.aggregationLogDB = new Database('cliqz-anolysis-aggregation-log');
+
+    // Storage to keep track of when retention signals have been generated and sent.
+    this.retentionLogDB = new Database('cliqz-anolysis-retention-log');
+
     // This is used to aggregate telemetry signals over 1 day. The result is
     // passed as an argument to the different analyses to generate telemetry
     // signals.
@@ -51,7 +58,7 @@ export default class {
     // will be called before sending any telemetry to check for an existing GID.
     this.gidManager = new GIDManager(
       this.demographicsStorage,
-      { get: utils.getPref, set: utils.setPref },
+      { get: utils.getPref, set: utils.setPref, clear: utils.clearPref },
     );
   }
 
@@ -88,7 +95,28 @@ export default class {
     utils.clearTimeout(this.generateAggregationSignalsTimeout);
     utils.clearTimeout(this.asyncSignals);
 
-    return this.messageQueue.unload();
+    return Promise.all([
+      this.aggregationLogDB.close(),
+      this.behaviorStorage.close(),
+      this.demographicsStorage.close(),
+      this.messageQueue.unload(),
+      this.retentionLogDB.close(),
+    ]);
+  }
+
+  /**
+   * WARNING: This method will only be used during the release of the system. It
+   * will only be triggered on a version change, to allow existing
+   * users (who could be using a previously buggy version of anolysis) to be
+   * updated completely and be put in a safe state.
+   */
+  reset() {
+    // Clear state related to gid management + out-going messages that could be
+    // sent with a GID that does not exist anymore.
+    return Promise.all([
+      this.gidManager.reset(),
+      this.messageQueue.destroy(),
+    ]);
   }
 
   registerSchemas(schemas) {
@@ -128,8 +156,7 @@ export default class {
   }
 
   sendRetentionSignals() {
-    const instantPushDB = new Database('cliqz-anolysis-retention-log');
-    return instantPushDB.get('retention')
+    return this.retentionLogDB.get('retention')
       .catch((err) => {
         // Create default document
         if (err.name === 'not_found') {
@@ -154,21 +181,20 @@ export default class {
         // Doc is updated by the `generateRetentionSignals` function to keep
         // track of the current activity, and avoid generating the signals
         // several times.
-        return instantPushDB.put(doc);
+        return this.retentionLogDB.put(doc);
       });
   }
 
   generateAnalysesSignalsFromAggregation() {
-    const aggregationLogDB = new Database('cliqz-anolysis-aggregation-log');
     const startDay = getSynchronizedDate().subtract(1, 'days');
     const stopDay = getSynchronizedDate().subtract(1, 'months');
 
     const checkPast = (formattedDate) => {
       const date = moment(formattedDate, DATE_FORMAT);
-      return aggregationLogDB.get(formattedDate)
+      return this.aggregationLogDB.get(formattedDate)
         .then(() => { /* We already processed this day before, do nothing */ })
         .catch(() => this.generateAndSendAnalysesSignalsForDay(formattedDate)
-          .then(() => aggregationLogDB.put({ _id: formattedDate }))
+          .then(() => this.aggregationLogDB.put({ _id: formattedDate }))
           .catch((ex) => {
             logger.error(`could not generate aggregated signals for day ${formattedDate}: ${ex}`);
           })

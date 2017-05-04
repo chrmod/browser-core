@@ -54,6 +54,20 @@ export default class {
     this.storage = storage;
   }
 
+  reset() {
+    // Clear all prefs
+    const prefs = [
+      NEW_INSTALL_SIGNAL_SENT_PREF,
+      NEW_INSTALL_DATE_PREF,
+      LAST_TIME_SENT_PREF,
+      LAST_TIME_GID_UPDATE_PREF,
+      CURRENT_SAFE_GID_PREF,
+      CURRENT_DEMOGRAPHICS_PREF
+    ];
+
+    prefs.forEach(pref => this.storage.clear(pref));
+  }
+
   /**
    * Init is a method what will perform the following actions:
    * 1. Check if granular demographics factors are available (prefs, pouchdb)

@@ -33,11 +33,16 @@ export default class {
 
   unload() {
     utils.clearInterval(this.interval);
+    return this.storage.close();
   }
 
   processNextBatch(size) {
     return this.getNextBatch(size)
       .then(batch => this.sendBatch(batch));
+  }
+
+  destroy() {
+    return this.storage.destroy();
   }
 
   getNextBatch(size) {

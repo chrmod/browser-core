@@ -44,6 +44,15 @@ export default class {
     return 'behavior';
   }
 
+  close() {
+    return this.database.close()
+      .catch(() => { /* can happen after DB is destroyed */ });
+  }
+
+  destroy() {
+    return this.database.destroy();
+  }
+
   info() {
     return this.database.info();
   }
