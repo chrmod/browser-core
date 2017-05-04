@@ -77,6 +77,7 @@ export class SignalHandler {
     // the builders
     this.sigBuilder = {
       'campaign': this._sigBuilderCampaign.bind(this),
+      'action': this._sigBuilderAction.bind(this)
     }
 
     // the signal queue
@@ -199,6 +200,98 @@ export class SignalHandler {
 
     // mark it as modified
     this._markSignalAsModified(sigType, sigKey);
+
+    linfo(`setCampaignSignal: new signal added: ${cid} - ${oid} - ${origID} - ${sid}`);
+  }
+
+  /**
+   * Will record a new action signal (basically normal telemetry that is not associated
+   * to a particular offer or campaign id).
+   * @param {string} actionID the action id (signal id)
+   * @param {string} origID   the origin of the signal (who is producing it)
+   * @description The internal information will be stored in a different way,
+   * <pre>
+   * {
+   *  "action": {
+   *    origin_id_1: {
+   *      created_ts: timestamp,
+   *      modified_ts: timestamp,
+   *      be_sync: false,
+   *      seq: 0,
+   *      data: {
+   *        uuid: unique campaign id per user.,
+   *        "actions": {
+   *          action_id_1: 1,
+   *          action_id_2: N
+   *        }
+   *      }
+   *    }
+   *   }
+   * }
+   * </pre>
+   *
+   * We should send to the BE:
+   * <pre>
+   *   {
+   *       "action": "offers-signal",
+   *       "signal_id": "origin_here",
+   *       "timestamp": "20170421",
+   *       "payload": {
+   *           "v": 3,
+   *           "ex_v": "1.16.0",
+   *           "is_developer": true,
+   *           "type": "action",
+   *           "data": {
+   *               "o_id": "origin_here",
+   *               "o_data": {
+   *                   "seq": 0,
+   *                   "created_ts": 1492768930539,
+   *                   "uuid": "937bc2b7-5e27-772c-5d85-41da0110dc86",
+   *                   "actions": {
+   *                       "action_1": 0,
+   *                       "action_2": 10,
+   *                   }
+   *               }
+   *           }
+   *       }
+   * </pre>
+   */
+  setActionSignal(actionID, origID) {
+    if (!actionID || !origID) {
+      lwarn(`setActionSignal: invalid arguments?: ${actionID} - ${origID}`);
+      return;
+    }
+    const sigType = 'action';
+    const sigKey = origID;
+
+    let sigInfo = this._getOrCreateSignal(sigType, sigKey);
+    if (!sigInfo) {
+      lerr(`setActionSignal: cannot create or get action signal: ${sigKey}`);
+      return;
+    }
+
+    // now we update the data here
+    let sigData = sigInfo.data;
+
+    // check if we have the uuid
+    if (!sigData.uuid) {
+      // generate a new one
+      sigData.uuid = generateUUID();
+    }
+
+    // get the actions
+    let actions = sigData.actions;
+    if (!actions) {
+      actions = sigData['actions'] = {};
+    }
+
+    // create or increment the given signal
+    addOrCreate(actions, actionID, 1);
+
+    // mark it as modified
+    this._markSignalAsModified(sigType, sigKey);
+
+    linfo(`setActionSignal: new signal added: ${origID} - ${actionID}`);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -405,7 +498,7 @@ export class SignalHandler {
   _savePersistenceData() {
     // for testing comment the following check
     if (!OffersConfigs.SIGNALS_LOAD_FROM_DB) {
-      linfo('_loadPersistenceData: skipping the loading');
+      linfo('_savePersistenceData: skipping the loading');
       return;
     }
     this.db.saveDocData(STORAGE_DB_DOC_ID,
@@ -534,6 +627,32 @@ export class SignalHandler {
       });
       offers.push(resultOffer);
     });
+
+    return result;
+  }
+
+  _sigBuilderAction(sigKey, sigData) {
+    // we are storing the information as explained on setActionSignal
+    // and we have to build it as explained on
+    // https://cliqztix.atlassian.net/wiki/spaces/SBI/pages/87966116/Real+Time+Analytics
+    if (!sigKey || !sigData || !sigData.data) {
+      lwarn('_sigBuilderAction: invalid args');
+      return null;
+    }
+
+    const sdata = sigData.data;
+    let result = {
+      o_id: sigKey,
+      o_data: {
+        seq: sigData.seq,
+        created_ts: sigData.created_ts,
+        uuid: sdata.uuid,
+        actions: sdata.actions
+      }
+    };
+
+    // increment the sequence number here
+    sigData.seq = sigData.seq + 1;
 
     return result;
   }

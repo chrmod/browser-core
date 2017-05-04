@@ -39,6 +39,9 @@ var OffersConfigs = {
   LOAD_TRIGGER_HISTORY_DATA: true,
   TRIGGER_HISTORY_DATA: isChromium ? undefined : 'chrome://cliqz/content/offers-v2/trigger_history.json',
 
+  // offer storage
+  LOAD_OFFERS_STORAGE_DATA: true,
+  OFFERS_STORAGE_DEFAULT_TTS_SECS: 60 * 60 * 24 * 10,
 
   //////////////////////////////////////////////////////////////////////////////
   // SIGNALS

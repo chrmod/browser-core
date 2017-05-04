@@ -378,6 +378,12 @@ var CliqzABTests = {
             case "1099_B":
                 CliqzUtils.setPref("attrackCookieTrustReferers", true);
                 break;
+            case "1100_A":
+                CliqzUtils.setPref('offersHubEnableSwitch', false);
+                break;
+            case "1100_B":
+                CliqzUtils.setPref('offersHubEnableSwitch', true);
+                break;
             case "1101_A":
                 CliqzUtils.setPref("modules.history.enabled", false);
                 break;
@@ -633,6 +639,10 @@ var CliqzABTests = {
             case "1099_A":
             case "1099_B":
               CliqzUtils.clearPref("attrackCookieTrustReferers");
+              break;
+            case "1100_A":
+            case "1100_B":
+              CliqzUtils.clearPref("offersHubEnableSwitch");
               break;
             case "1101_A":
             case "1101_B":

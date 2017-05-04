@@ -12,6 +12,7 @@ import { UIOffersHistory } from './ui/ui_offers_history';
 import {UIFilterRulesEvaluator} from './ui/ui_filter_rules_evaluator';
 import Database from '../core/database';
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // consts
 
@@ -47,6 +48,7 @@ export default background({
       // enable logs?
       LoggingHandler.LOG_ENABLED = true;
       LoggingHandler.SAVE_TO_FILE = true;
+
       // enable trigger history
       OffersConfigs.LOAD_TRIGGER_HISTORY_DATA = false;
       // dont load signals from DB
@@ -117,10 +119,12 @@ export default background({
     // for the new ui system
     this.signalsHandler = new SignalHandler(this.offersDB);
 
-    this.uiOfferProc = new UIOfferProcessor(this.signalsHandler, this.eventHandler);
+    this.uiOfferProc = new UIOfferProcessor(this.signalsHandler, this.eventHandler, this.offersDB);
 
     this.actions = {
       windowUIConnector: this.windowUIConnector.bind(this),
+      getStorageOffers: this.getStorageOffers.bind(this),
+      onStorageOffersUIEvent: this.onStorageOffersUIEvent.bind(this)
     };
     this.env.uiOfferProcessor = this.uiOfferProc;
     this.env.signalHandler = this.signalsHandler;
@@ -250,6 +254,24 @@ export default background({
     // LoggingHandler.info(MODULE_NAME, "result : " + ee._evalExpression(jsep("not_created_last_secs(10) || not_created_last_secs2(60)")));
   },
 
+  //////////////////////////////////////////////////////////////////////////////
+  // offers storage interfaces
+
+  //
+  // return the offers on the storage
+  //
+  getStorageOffers() {
+    return (this.uiOfferProc) ? this.uiOfferProc.getStorageOffers() : [];
+  },
+
+  //
+  // called whenever a new ui event on the offers storage interface occurs
+  //
+  onStorageOffersUIEvent(event) {
+    if (this.uiOfferProc) {
+      this.uiOfferProc.onStorageOffersUIEvent(event);
+    }
+  },
 
 
 

@@ -16,6 +16,8 @@ import { openNewTabAndSelect } from '../utils';
 import {UIFilterRulesEvaluator} from './ui_filter_rules_evaluator';
 import events from '../../core/events';
 import { isChromium } from '../../core/platform';
+import OffersStorage from '../offers_storage';
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // consts
@@ -40,7 +42,9 @@ function lerr(msg) {
 export class UIOfferProcessor {
 
   //
-  constructor(sigHandler, eventHandler) {
+  constructor(sigHandler, eventHandler, offersDB) {
+    this.offersDB = offersDB;
+
     // the display manager
     this.uiDisplayMngr = new UIDisplayManager(this.uiDisplayMngrSignalsCb.bind(this), eventHandler);
     // active offers (not mean being displayed)
@@ -64,6 +68,13 @@ export class UIOfferProcessor {
 
     // signal handler
     this.sigHandler = sigHandler;
+
+    // we will use this flag here to identify if we should use the storage or not
+    // still we will build it
+    this.shouldUseStorage = utils.getPref('offersHubEnableSwitch', false);
+
+    // create the offers storage module
+    this.offersStorage = new OffersStorage(this.offersHistory, this.sigHandler, this.offersDB);
   }
 
   destroy() {
@@ -79,6 +90,9 @@ export class UIOfferProcessor {
     if (this.filterRuleEval) {
       this.filterRuleEval.destroy();
     }
+    if (this.offersStorage) {
+      this.offersStorage.destroy();
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -87,6 +101,10 @@ export class UIOfferProcessor {
     // save all sub modules persistence data
     if (this.offersHistory) {
       this.offersHistory.savePersistenceData();
+    }
+
+    if (this.offersStorage) {
+      this.offersStorage.savePersistentData();
     }
   }
 
@@ -148,7 +166,10 @@ export class UIOfferProcessor {
         LinkText: offerInfoCpy.ui_info.template_data.call_to_action.url
       }, 'ghostery');
     } else {
-      this.uiDisplayMngr.addOffer(offerData, offerInfoCpy.rule_info);
+      // this is temporary and little nasty
+      if (!this.shouldUseStorage) {
+        this.uiDisplayMngr.addOffer(offerData, offerInfoCpy.rule_info);
+      }
     }
 
     this.activeOffers[offerInfoCpy.offer_id] = offerInfoCpy;
@@ -276,6 +297,21 @@ export class UIOfferProcessor {
     this._processUISignal(signalData.offer_id, signalData.signal_type, signalData.data);
   }
 
+  //
+  // storage connectors
+  //
+  getStorageOffers() {
+    if (!this.offersStorage) {
+      return [];
+    }
+    return this.offersStorage.getAllOffers();
+  }
+  onStorageOffersUIEvent(event) {
+    if (this.offersStorage) {
+      this.offersStorage.onStorageOffersUIEvent(event);
+    }
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   // internal methods
 
@@ -362,6 +398,41 @@ export class UIOfferProcessor {
     }
     return offerInfo.campaign_id;
   }
+
+
+  //
+  // process the rules (if any) and add the offer on the storage
+  // called properly
+  //
+  _processOfferStorage(offerID, offerInfo, tts) {
+    if (offerID === null || offerID === undefined || !offerInfo) {
+      lwarn('_processOfferStorage: invalid arguments');
+      return false;
+    }
+    if (!this.offersStorage) {
+      lwarn('_processOfferStorage: no storage set?');
+      return false;
+    }
+
+    // add it to the storage if not added yet
+    if (this.offersStorage.hasOffer(offerID)) {
+      linfo('_processOfferStorage: offer with ID ' + offerID + ' already on the storage');
+      return true;
+    }
+
+    // TODO: we may want to check if the offer was already added before here? or
+    // perform some other checks. For now we will add it if it is not there
+    //
+
+    // add it
+    var offerData = {
+      tts: tts,
+      offer_info: offerInfo
+    };
+    return this.offersStorage.addOffer(offerID, offerData);
+  }
+
+
 
   //////////////////////////////////////////////////////////////////////////////
   // actions from ui
