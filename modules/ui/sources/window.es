@@ -8,6 +8,7 @@ import placesUtils from '../platform/places-utils';
 import console from '../core/console';
 import prefs from '../core/prefs';
 import inject from '../core/kord/inject';
+import Background from './background';
 
 const SEARCH_BAR_ID = 'search-container';
 const dontHideSearchBar = 'dontHideSearchBar';
@@ -112,7 +113,6 @@ function tryHideSearchBar(win){
       prefs.set(searchBarPositionNext, next);
     }
 
-    prefs.set(dontHideSearchBar, true);
   } catch(e){
     console.log(e, 'Search bar hiding failed!');
   }
@@ -487,7 +487,12 @@ export default class {
   }
 
   disable() {
-    restoreSearchBar(this.window);
+
+    if(Background.firstWindowDisabled == undefined){
+      // we only need to restore it for one window
+      Background.firstWindowDisabled = true;
+      restoreSearchBar(this.window);
+    }
   }
 
   unload() {
