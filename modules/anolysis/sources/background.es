@@ -39,7 +39,7 @@ function storeNewVersionInPrefs() {
 
 
 function isTelemetryEnabled() {
-  return utils.getPref(ENABLE_PREF, true);
+  return utils.getPref(ENABLE_PREF, false);
 }
 
 
