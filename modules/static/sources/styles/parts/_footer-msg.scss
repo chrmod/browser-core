@@ -15,11 +15,16 @@
 }
 
 .ad-container {
-    background-color: #45c2cc;
+    border-top: 1px solid #ccc;
+    background: #fff;
+    color: #333;
 
     .cliqz-brand-logo {
-        background-color: transparent !important;
-        border: 1px solid #fff;
+        margin-top: 9px;
+    }
+
+    a[extra=title] {
+        color: #506bb8 !important;
     }
 }
 

@@ -405,6 +405,15 @@ var CliqzABTests = {
                 CliqzUtils.setPref("antitrackingBlocklist", "ghostery");
                 CliqzUtils.setPref("modules.antitracking-blocker.enabled", true);
                 break;
+            case "1103_A":
+               CliqzUtils.setPref("offersDropdownAdPosition", 'top');
+               break;
+            case "1103_B":
+               CliqzUtils.setPref("offersDropdownAdPosition", 'bottom');
+               break;
+            case "1103_C":
+               CliqzUtils.setPref("offersDropdownAdPosition", 'right');
+               break;
             default:
                 rule_executed = false;
         }
@@ -655,6 +664,11 @@ var CliqzABTests = {
               CliqzUtils.setPref("modules.antitracking-blocker.enabled", false);
               CliqzUtils.clearPref("antitrackingBlocklist");
               break;
+            case "1103_A":
+            case "1103_B":
+            case "1103_C":
+                CliqzUtils.clearPref("offersDropdownAdPosition");
+                break;
             default:
                 rule_executed = false;
         }
