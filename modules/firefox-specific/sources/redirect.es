@@ -20,6 +20,11 @@ const CliqzRedirect = {
         return;
       }
 
+      if (!utils || !utils.autocomplete || !utils.autocomplete.lastResult) {
+        // sanity check
+        return;
+      }
+
       const autocomplete = utils.autocomplete;
 
       // Now that we see a 404, let's compare to the cliqz results we provided
