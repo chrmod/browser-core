@@ -535,6 +535,13 @@ const urlbarEventHandlers = {
   * @event focus
   */
   focus: function(ev) {
+    if(utils.ACproviderInitialized == undefined){
+      // try once to force the initialization of the AC provider
+      this.urlbar.blur();
+      setTimeout(function(urlbar){ urlbar.focus() }, 0, this.urlbar);
+      utils.ACproviderInitialized = true;
+      return;
+    }
     //try to 'heat up' the connection
     utils.pingCliqzResults();
 
