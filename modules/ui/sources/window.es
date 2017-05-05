@@ -16,6 +16,8 @@ const searchBarPosition = 'defaultSearchBarPosition';
 // next element in the toolbar
 const searchBarPositionNext = 'defaultSearchBarPositionNext';
 
+const ACproviderName = 'cliqz-results';
+
 function restoreSearchBar(win) {
   const toolbarId = utils.getPref(searchBarPosition, '');
   utils.setPref(dontHideSearchBar, false);
@@ -235,7 +237,7 @@ export default class {
       // Load autocompletesearch as soon as possible - it is compatible with
       // default firefox and will work with any UI
       this._autocompletesearch = this.urlbar.getAttribute('autocompletesearch');
-      this.urlbar.setAttribute('autocompletesearch', 'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
+      this.urlbar.setAttribute('autocompletesearch', ACproviderName);
     });
 
     let uiLoadingPromise;
@@ -542,6 +544,19 @@ const urlbarEventHandlers = {
       utils.ACproviderInitialized = true;
       return;
     }
+
+    if(this.urlbar.getAttribute('autocompletesearch').indexOf(ACproviderName) === -1){
+      // BUMMER!! Something happened and our AC provider was overriden!
+      // trying to set it back while keeping the new value in case CLIQZ
+      // gets disabled
+      this._autocompletesearch = this.urlbar.getAttribute('autocompletesearch');
+      this.urlbar.setAttribute('autocompletesearch', ACproviderName);
+      this.reloadUrlbar();
+      this.urlbar.blur();
+      setTimeout(function(urlbar){ urlbar.focus() }, 0, this.urlbar);
+      return;
+    }
+
     //try to 'heat up' the connection
     utils.pingCliqzResults();
 
