@@ -1616,6 +1616,48 @@
     "ad-label": {
       "message": "Anzeige"
     },
+    "offers-hub-title": {
+      "message": "CLIQZ OFFERS:"
+    },
+    "offers-hub-show-all-offers-btn": {
+      "message": "Frühere Angebote"
+    },
+    "offers-hub-welcome-title": {
+      "message": "Willkommen bei CLIQZ Offers"
+    },
+    "offers-hub-welcome-text": {
+      "message": "Hier findest du in Kürze exklusive Angebote für dich."
+    },
+    "offers-hub-feedback-title": {
+      "message": "Dein Feedback ist uns wichtig"
+    },
+    "offers-hub-feedaback-sub-title": {
+      "message": "Warum hast du das Angebot entfernt:"
+    },
+    "offers-hub-feedaback-option1": {
+      "message": "Ich habe kein Interesse an diesem Angebot"
+    },
+    "offers-hub-feedaback-option2": {
+      "message": "Ich habe kein Interesse an CLIQZ-Offers"
+    },
+    "offers-hub-feedaback-option3": {
+      "message": "Ich bin an keinem Angebot interessiert"
+    },
+    "offers-hub-cancel": {
+      "message": "Cancel"
+    },
+    "offers-hub-remove": {
+      "message": "Remove"
+    },
+    "offers-hub-about-cliqz-offers": {
+      "message": "Mehr Informationen über CLIQZ Offers"
+    },
+    "offers-hub-powered-by": {
+      "message": "Bereitgestellt von CLIQZ"
+    },
+    "offers-hub-code-copy": {
+      "message": "Code Copied"
+    },
     "signals-humanweb-inactive-message": {
       "message": "Human Web is not activated"
     },
