@@ -157,7 +157,11 @@ export default class {
     this.helpMenu.removeEventListener('popupshowing', this.createFFhelpMenu);
   }
 
-  refreshState() {
+  refreshState(url) {
+    // wait for tab content to load
+    if (!url || url === "about:blank") {
+      return;
+    }
     this.prepareData().then((data) => {
       this.setState(data.generalState);
     });
@@ -420,7 +424,6 @@ export default class {
       friendlyURL = 'Cliqz Tab';
       isSpecialUrl = true;
     }
-
     return {
       activeURL: url,
       friendlyURL: friendlyURL,
