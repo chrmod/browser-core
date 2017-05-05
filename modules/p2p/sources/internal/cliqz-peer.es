@@ -113,7 +113,12 @@ export default class CliqzPeer {
     this.peerOptions = has(_options, 'peerOptions') ? _options.peerOptions : {
       iceServers: [
         {
-          urls: ['turn:p2p-turn.cliqz.com:3478'],
+          urls: [
+            'turn:p2p-turn.cliqz.com',
+            // To bypass strict firewalls (does not work with port 80 because of coturn server
+            // issues, but assuming port 443 will always be allowed)
+            'turn:p2p-turn.cliqz.com:443?transport=tcp',
+          ],
           username: 'cliqz',
           credential: 'JvfTRrV-VHLtOm2_',
         },
