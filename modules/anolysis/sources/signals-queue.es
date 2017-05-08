@@ -33,7 +33,6 @@ export default class {
 
   unload() {
     utils.clearInterval(this.interval);
-    return this.storage.close();
   }
 
   processNextBatch(size) {

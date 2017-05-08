@@ -63,20 +63,17 @@ export default class {
   }
 
   init() {
-    // Trigger sending of retention signals if needed
-    // This can be done as soon as possible, the first time
-    // the user starts the browser, at most once a day.
-    this.asyncRetention = utils.setTimeout(
-      () => this.sendRetentionSignals(),
-      4000,
-    );
-
-    // This will check previous days (30 days max) to aggregate and send
-    // telemetry if the user was not active. This task is async and will try to
-    // not overload the browser.
-    this.asyncSignals = utils.setTimeout(
-      () => this.generateAnalysesSignalsFromAggregation(),
-      6000,
+    this.asyncMessageGeneration = utils.setTimeout(
+      // 1. Trigger sending of retention signals if needed
+      // This can be done as soon as possible, the first time
+      // the user starts the browser, at most once a day.
+      //
+      // 2. Then we check previous days (30 days max) to aggregate and send
+      // telemetry if the user was not active. This task is async and will try to
+      // not overload the browser.
+      () => this.sendRetentionSignals()
+        .then(() => this.generateAnalysesSignalsFromAggregation()),
+      0,
     );
 
     // This can be run async since calling two times the same method will
@@ -84,24 +81,19 @@ export default class {
     // delay the loading of the module.
     this.gidManager.init();
 
-    return Promise.all([
+    // This will delete older signals async
+    // We don't need to wait for this.
+    Promise.all([
       this.removeOldDataFromDB(),
       this.messageQueue.init(),
     ]);
   }
 
   stop() {
-    utils.clearTimeout(this.asyncRetention);
     utils.clearTimeout(this.generateAggregationSignalsTimeout);
-    utils.clearTimeout(this.asyncSignals);
+    utils.clearTimeout(this.asyncMessageGeneration);
 
-    return Promise.all([
-      this.aggregationLogDB.close(),
-      this.behaviorStorage.close(),
-      this.demographicsStorage.close(),
-      this.messageQueue.unload(),
-      this.retentionLogDB.close(),
-    ]);
+    this.messageQueue.unload();
   }
 
   /**
@@ -173,15 +165,15 @@ export default class {
       })
       .then((doc) => {
         logger.log(`generate retention signals ${JSON.stringify(doc)}\n`);
-        generateRetentionSignals(doc).forEach(([schema, signal]) => {
+        const promise = Promise.all(generateRetentionSignals(doc).map(([schema, signal]) => {
           logger.debug(`Retention signal ${JSON.stringify(signal)} (${schema})`);
-          this.handleTelemetrySignal(signal, schema);
-        });
+          return this.handleTelemetrySignal(signal, schema);
+        }));
 
         // Doc is updated by the `generateRetentionSignals` function to keep
         // track of the current activity, and avoid generating the signals
         // several times.
-        return this.retentionLogDB.put(doc);
+        return this.retentionLogDB.put(doc).then(() => promise);
       });
   }
 
