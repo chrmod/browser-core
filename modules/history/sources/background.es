@@ -1,10 +1,10 @@
 import History from '../platform/history/history';
 import background from '../core/base/background';
-import Database from '../core/database';
 import utils from '../core/utils';
 import { queryActiveTabs } from '../core/tabs';
 import createHistoryDTO from './history-dto';
-import MetaDatabase from './meta-database';
+// import Database from '../core/database';
+// import MetaDatabase from './meta-database';
 
 /**
 * @namespace history
@@ -15,9 +15,8 @@ export default background({
   * @method init
   */
   init() {
-    const metaDB = new Database('cliqz-metas');
-
-    this.metaDatabase = new MetaDatabase(metaDB);
+    // const metaDB = new Database('cliqz-metas');
+    // this.metaDatabase = new MetaDatabase(metaDB);
     this.history = History;
     this.redirectMap = Object.create(null);
   },
@@ -157,7 +156,8 @@ export default background({
     },
 
     recordMeta(url, meta) {
-      this.metaDatabase.record(url, meta);
+      // turn off for now
+      // this.metaDatabase.record(url, meta);
     },
 
     deleteVisit(visitId) {
