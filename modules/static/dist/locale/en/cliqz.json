@@ -1620,28 +1620,28 @@
       "message": "CLIQZ OFFERS:"
     },
     "offers-hub-show-all-offers-btn": {
-      "message": "Frühere Angebote"
+      "message": "Previous offers"
     },
     "offers-hub-welcome-title": {
-      "message": "Willkommen bei CLIQZ Offers"
+      "message": "Welcome to CLIQZ Offers"
     },
     "offers-hub-welcome-text": {
-      "message": "Hier findest du in Kürze exklusive Angebote für dich."
+      "message": "Soon you'll find here exclusive offers for you"
     },
     "offers-hub-feedback-title": {
-      "message": "Dein Feedback ist uns wichtig"
+      "message": "Your feedback is important to us"
     },
     "offers-hub-feedaback-sub-title": {
-      "message": "Warum hast du das Angebot entfernt:"
+      "message": "Why have you removed this offer:"
     },
     "offers-hub-feedaback-option1": {
-      "message": "Ich habe kein Interesse an diesem Angebot"
+      "message": "I'm not interested in this offer"
     },
     "offers-hub-feedaback-option2": {
-      "message": "Ich habe kein Interesse an CLIQZ-Offers"
+      "message": "I'm not interested in CLIQZ Offers"
     },
     "offers-hub-feedaback-option3": {
-      "message": "Ich bin an keinem Angebot interessiert"
+      "message": "I'm not interested in any kind of offers"
     },
     "offers-hub-cancel": {
       "message": "Cancel"
@@ -1650,10 +1650,10 @@
       "message": "Remove"
     },
     "offers-hub-about-cliqz-offers": {
-      "message": "Mehr Informationen über CLIQZ Offers"
+      "message": "More information about CLIQZ Offers"
     },
     "offers-hub-powered-by": {
-      "message": "Bereitgestellt von CLIQZ"
+      "message": Powered by CLIQZ"
     },
     "offers-hub-code-copy": {
       "message": "Code Copied"

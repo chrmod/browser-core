@@ -1620,43 +1620,43 @@
       "message": "CLIQZ OFFERS:"
     },
     "offers-hub-show-all-offers-btn": {
-      "message": "Frühere Angebote"
+      "message": "Offres récentes"
     },
     "offers-hub-welcome-title": {
-      "message": "Willkommen bei CLIQZ Offers"
+      "message": "Bienvenue dans CLIQZ Offres
     },
     "offers-hub-welcome-text": {
-      "message": "Hier findest du in Kürze exklusive Angebote für dich."
+      "message": "Ici, vous trouverez bientôt des annonces exclusives pour vous"
     },
     "offers-hub-feedback-title": {
-      "message": "Dein Feedback ist uns wichtig"
+      "message": "Vos commentaires nous importent"
     },
     "offers-hub-feedaback-sub-title": {
-      "message": "Warum hast du das Angebot entfernt:"
+      "message": "Pourquoi avez-vous refusé l'offre:"
     },
     "offers-hub-feedaback-option1": {
-      "message": "Ich habe kein Interesse an diesem Angebot"
+      "message": "Cette offre ne m'intéresse pas"
     },
     "offers-hub-feedaback-option2": {
-      "message": "Ich habe kein Interesse an CLIQZ-Offers"
+      "message": "Les offres de CLIQZ Offers ne m'intéressent pas"
     },
     "offers-hub-feedaback-option3": {
-      "message": "Ich bin an keinem Angebot interessiert"
+      "message": "Aucune offre ne m'intéresse"
     },
     "offers-hub-cancel": {
-      "message": "Cancel"
+      "message": "Annuler"
     },
     "offers-hub-remove": {
-      "message": "Remove"
+      "message": "Supprimer"
     },
     "offers-hub-about-cliqz-offers": {
-      "message": "Mehr Informationen über CLIQZ Offers"
+      "message": "Plus d'informations à propos des offres de CLIQZ Offers"
     },
     "offers-hub-powered-by": {
-      "message": "Bereitgestellt von CLIQZ"
+      "message": "Fourni par CLIQZ"
     },
     "offers-hub-code-copy": {
-      "message": "Code Copied"
+      "message": "Code Copié"
     },
     "signals-humanweb-inactive-message": {
       "message": "Human Web is not activated"
