@@ -1,3 +1,4 @@
+import { utils, events } from '../../core/cliqz';
 import LoggingHandler from '../logging_handler';
 import EmptyEnvironment from './empty_environment'
 import OffersConfigs from '../offers_configs';
@@ -131,6 +132,10 @@ export default class ExtensionEnvironment extends EmptyEnvironment {
     this.signalHandler.setCampaignSignal(campaignId, offerId, originID, key);
   }
 
+  getPref(pref,default_val) {
+    return utils.getPref(String(pref),default_val);
+  }
+  
   /**
    * This method will return the unique generated number for a particular browser.
    * If the value is not generated yet will create a new one.

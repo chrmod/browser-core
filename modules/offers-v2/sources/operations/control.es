@@ -3,6 +3,26 @@
 var ops = {};
 export default ops;
 
+/**
++ * This operation checks whether a particular pref is enabled or not.
++ * @param {object} eventLoop
++ * @param {list} args is a list of strings containing the pref as
++ * first element and the expected value as second argument.
++ * @return {boolean} String(getPref(args[0])) === String(args[1])
++ */
+ops['$if_pref'] = function(args,eventLoop) {
+  return new Promise((resolve, reject) => {
+    if(args.length < 2){
+      reject(new Error('invalid args'));
+      return;
+    }
+
+    var pref_val = eventLoop.environment.getPref(args[0],undefined);
+    
+    resolve(String(pref_val) === String(args[1]));
+  });
+};
+
 
 ops['$log'] = function(args, eventLoop) {
   return new Promise((resolve, reject) => {
