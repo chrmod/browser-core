@@ -350,7 +350,7 @@
     .ad {
         position: relative;
         top: 3px;
-        padding: 0px 4px;
+        padding: 0 4px;
         margin-right: 3px;
         display: inline-block;
         line-height: 1.2em;
@@ -360,6 +360,12 @@
         text-transform: uppercase;
         font-size: 14px;
         font-weight: bold;
+    }
+}
+
+#cliqz-message-container {
+    .cliqz-brand-logo {
+        margin-right: 18px;
     }
 }
 

@@ -1,7 +1,30 @@
- #cliqz-sidebar,
+.cqz-popup {
+    .ad-container {
+        border-top: 1px solid #ccc;
+        background: #fff;
+        color: #333;
+
+        .cliqz-brand-logo {
+            margin-top: 9px;
+        }
+
+        a[extra=title] {
+            color: #506bb8 !important;
+        }
+    }
+}
+
+@media screen and (-moz-os-version: windows-win7) and (-moz-os-version: windows-win8) and (-moz-os-version: windows-win10) {
+    .cqz-popup .ad-container .cliqz-brand-logo {
+                margin-right: 18px;
+    }
+}
+
+#cliqz-sidebar,
  .offer-banner {
     display: none;
  }
+
 
 .cqz-popup-offer {
     .cliqz-content-wrapper {
