@@ -3,6 +3,7 @@ import EmptyEnvironment from './empty_environment'
 import OffersConfigs from '../offers_configs';
 import HistorySignalID from '../ui/ui_offers_history';
 import random from '../../core/crypto/random';
+import { utils } from '../../core/cliqz';
 
 const MODULE_NAME = 'extension_environment';
 
@@ -128,6 +129,27 @@ export default class ExtensionEnvironment extends EmptyEnvironment {
     // send the signal associated to the campaign using the origin trigger
     const originID = 'trigger';
     this.signalHandler.setCampaignSignal(campaignId, offerId, originID, key);
+  }
+
+  /**
+   * This method will return the unique generated number for a particular browser.
+   * If the value is not generated yet will create a new one.
+   * @return {int} the unique number we have for this user, the values will be between
+   *               [0, 9999].
+   */
+  getABNumber() {
+    const prefID = 'offersUniqueNumber';
+    let num = null;
+    if (!utils.hasPref(prefID)) {
+      // generate one
+      num = Math.floor(random() * 10000);
+      utils.setPref(prefID, num.toString());
+    } else {
+      // we get it and transform it to num
+      num = Number(utils.getPref(prefID, 0));
+    }
+
+    return num;
   }
 
 }
