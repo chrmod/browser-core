@@ -103,7 +103,7 @@ var UI = {
           sideBarContainer.addEventListener('mouseup', resultClick);
           sideBarContainer.addEventListener('mousedown', handleMouseDown);
         }
-        
+
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
@@ -1148,8 +1148,8 @@ function enhanceResults(res){
       //Keep original ranking of the result for telemetry purposes
       document.getElementById('ad-container').setAttribute('idx', adIndex);
     } else if(hasAd && offersDropdownAdPosition === 'bottom') {
-       // if there is only 1 result left - show no results entry
-      if(res.results.length <= 1){
+       // if there is no result left - show no results entry, because we have already removed adResult from the res.results before
+      if(res.results.length <= 0){
         const noResults = CliqzUtils.dropDownStyle === 'simple' ? getNoResultsForSimpleUI(CliqzUtils.getNoResults(res.q)) : CliqzUtils.getNoResults(res.q);
         res.results.push(noResults);
         res.results[0].vertical = 'noResult';
@@ -1161,8 +1161,8 @@ function enhanceResults(res){
         document.getElementById('ad-container').setAttribute('idx', adIndex);
       }
     } else if(hasAd && offersDropdownAdPosition === 'right') {
-        // if there is only 1 result left - show no results entry
-       if(res.results.length <=1 ){
+        // if there is no result left - show no results entry
+       if(res.results.length <= 0){
         const noResults = CliqzUtils.dropDownStyle === 'simple' ? getNoResultsForSimpleUI(CliqzUtils.getNoResults(res.q)) : CliqzUtils.getNoResults(res.q);
         res.results.push(noResults);
         res.results[0].vertical = 'noResult';
@@ -1210,7 +1210,7 @@ function enhanceResults(res){
       clearMessage('right');
       clearMessage('top');
     }
-    
+
 
     return res;
 
