@@ -53,6 +53,8 @@ export default background({
       OffersConfigs.LOAD_TRIGGER_HISTORY_DATA = false;
       // dont load signals from DB
       OffersConfigs.SIGNALS_LOAD_FROM_DB = utils.getPref('offersLoadSignalsFromDB', false);
+      // avoid loading storage data if needed
+      OffersConfigs.LOAD_OFFERS_STORAGE_DATA = utils.getPref('offersSaveStorage', false);
     }
 
     if(utils.getPref('triggersBE')) {
