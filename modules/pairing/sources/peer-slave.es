@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import CliqzUtils from '../core/utils';
-import Crypto from './crypto';
+import { fromByteArray, sha256, encryptStringAES, decryptStringAES, toByteArray, deriveAESKey, randomBytes } from '../core/crypto/utils';
 import console from '../core/console';
 import { encryptPairedMessage, decryptPairedMessage, ERRORS } from './shared';
 import CliqzPeer from '../p2p/cliqz-peer';
@@ -42,7 +42,7 @@ export default class CliqzPairing {
     }
     return CliqzPeer.generateKeypair()
       .then(keypair =>
-        Crypto.sha256(keypair[0])
+        sha256(keypair[0])
           .then((deviceID) => {
             this.deviceID = deviceID;
             this.keypair = keypair;
@@ -191,7 +191,7 @@ export default class CliqzPairing {
   }
 
   static sendEncrypted(message, aesKey) {
-    return Crypto.encryptStringAES(JSON.stringify(message), aesKey);
+    return encryptStringAES(JSON.stringify(message), aesKey);
   }
 
   sendPaired(message, targets) {
@@ -202,7 +202,7 @@ export default class CliqzPairing {
   }
 
   static receiveEncrypted(data, aesKey) {
-    return Crypto.decryptStringAES(data, aesKey)
+    return decryptStringAES(data, aesKey)
       .then(message => JSON.parse(message));
   }
 
@@ -211,8 +211,8 @@ export default class CliqzPairing {
       return Promise.resolve(this.pairingAESKey);
     }
     if (this.randomToken) {
-      const token = Crypto.toByteArray(this.randomToken, 'b64');
-      return Crypto.deriveAESKey(token)
+      const token = toByteArray(this.randomToken, 'b64');
+      return deriveAESKey(token)
       .then(key => (this.pairingAESKey = key));
     }
     return Promise.reject(new Error('randomToken is null'));
@@ -381,8 +381,8 @@ export default class CliqzPairing {
   }
 
   generatePairingKey() {
-    const token = Crypto.randomBytes(9);
-    this.randomToken = Crypto.fromByteArray(token, 'b64');
+    const token = randomBytes(9);
+    this.randomToken = fromByteArray(token, 'b64');
     return this.loadPairingAESKey();
   }
 
@@ -429,7 +429,7 @@ export default class CliqzPairing {
 
     Promise.all([this.generatePairingKey(), this.peer.createConnection()])
       .then(() => {
-        const b64 = Crypto.fromByteArray(Crypto.toByteArray(this.peer.peerID, 'hex'), 'b64');
+        const b64 = fromByteArray(toByteArray(this.peer.peerID, 'hex'), 'b64');
         this.pairingToken = [b64, this.randomToken].join(':');
         if (this.onpairing) {
           this.onpairing(this.pairingToken);

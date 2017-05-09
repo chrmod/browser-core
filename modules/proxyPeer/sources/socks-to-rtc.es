@@ -9,7 +9,7 @@ import { wrapOnionRequest
        , sendOnionRequest
        , decryptResponseFromExitNode
        , ERROR_CODE } from './rtc-onion';
-import { generateAESKey, wrapAESKey } from './rtc-crypto';
+import { generateAESKey, wrapAESKey } from '../core/crypto/utils';
 import MessageQueue from './message-queue';
 
 
