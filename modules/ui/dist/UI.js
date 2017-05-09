@@ -100,10 +100,11 @@ var UI = {
         messageContainer.addEventListener('mousedown', handleMouseDown);
         messageContainerTop.addEventListener('mouseup', resultClick);
         messageContainerTop.addEventListener('mousedown', handleMouseDown);
-        sideBarContainer.addEventListener('mouseup', resultClick);
-        sideBarContainer.addEventListener('mousedown', handleMouseDown);
-
-
+        if (sideBarContainer) {
+          sideBarContainer.addEventListener('mouseup', resultClick);
+          sideBarContainer.addEventListener('mousedown', handleMouseDown);
+        }
+        
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
