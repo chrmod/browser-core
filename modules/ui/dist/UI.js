@@ -40,8 +40,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     rawResults, // raw results
     adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
     privateWindow = false,
-    offersDropdownAdPosition = CliqzUtils.getPref('offersDropdownAdPosition', ''),
-    offers2FeatureEnabled = CliqzUtils.getPref('offers2FeatureEnabled', false);
+    offersDropdownAdPosition = CliqzUtils.getPref('offersDropdownAdPosition', '');
 
 var UI = {
     showDebug: false,
@@ -132,7 +131,7 @@ var UI = {
 
       return {
         title: data.title,
-        hasAd: !offers2FeatureEnabled && data.extra && data.extra.is_ad && offersDropdownAdPosition !== '',
+        hasAd: data.extra && data.extra.is_ad && offersDropdownAdPosition !== '',
         banner: (data.extra && data.extra.banner) ? data.extra.banner : '',
         btn_text: (data.extra && data.extra.btn_text) ? data.extra.btn_text : '',
         description: data.description || data.desc,
@@ -1003,22 +1002,21 @@ function enhanceResults(res){
         }
         if(r.data.extra && r.data.extra.adult) adult = true;
 
-        if (!offers2FeatureEnabled) {
-          if(r.data.extra && r.data.extra.is_ad && offersDropdownAdPosition !== '') {
-            r.data.hasAd = r.data.extra.is_ad;
-            r.data.btn_text = r.data.extra.btn_text;
-            r.data.banner = r.data.extra.banner;
-            hasAd = true;
-            resultWithAd = r;
-            resultWithAd.query = '';
-            resultWithAd.text = ''
-            adIndex = i;
+        if(r.data.extra && r.data.extra.is_ad && offersDropdownAdPosition !== '') {
+          r.data.hasAd = r.data.extra.is_ad;
+          r.data.btn_text = r.data.extra.btn_text;
+          r.data.banner = r.data.extra.banner;
+          hasAd = true;
+          resultWithAd = r;
+          resultWithAd.query = '';
+          resultWithAd.text = ''
+          adIndex = i;
 
-            if (r.data.extra.url_ad) {
-              r.url = r.data.extra.url_ad;
-            }
+          if (r.data.extra.url_ad) {
+            r.url = r.data.extra.url_ad;
           }
         }
+
 
         if (r.type.indexOf('cliqz-extra') !== -1 &&  i > 0 ) {
           r.data = UI.getMinimalResultData(r.data);
@@ -1090,13 +1088,13 @@ function enhanceResults(res){
     }
 
     // remove adResult from results, we will display it as an Ad at the footer
-    if(!offers2FeatureEnabled && hasAd && offersDropdownAdPosition !== '' ) {
+    if(hasAd && offersDropdownAdPosition !== '' ) {
       res.results = res.results.filter((r) => {
         return !r.data.hasAd;
       });
     }
 
-    if(!offers2FeatureEnabled && hasAd && offersDropdownAdPosition === 'right') {
+    if(hasAd && offersDropdownAdPosition === 'right') {
       CLIQZ.UI.gCliqzBox.classList.add('cqz-popup-offer');
     } else {
       CLIQZ.UI.gCliqzBox.classList.remove('cqz-popup-offer');
@@ -1143,13 +1141,13 @@ function enhanceResults(res){
                 }
             });
         }
-    } else if(!offers2FeatureEnabled && hasAd && offersDropdownAdPosition === 'top') {
+    } else if(hasAd && offersDropdownAdPosition === 'top') {
        updateMessage('top', {
         "footer-ad": resultWithAd
       });
       //Keep original ranking of the result for telemetry purposes
       document.getElementById('ad-container').setAttribute('idx', adIndex);
-    } else if(!offers2FeatureEnabled && hasAd && offersDropdownAdPosition === 'bottom') {
+    } else if(hasAd && offersDropdownAdPosition === 'bottom') {
        // if there is only 1 result left - show no results entry
       if(res.results.length <= 1){
         const noResults = CliqzUtils.dropDownStyle === 'simple' ? getNoResultsForSimpleUI(CliqzUtils.getNoResults(res.q)) : CliqzUtils.getNoResults(res.q);
@@ -1162,7 +1160,7 @@ function enhanceResults(res){
         //Keep original ranking of the result for telemetry purposes
         document.getElementById('ad-container').setAttribute('idx', adIndex);
       }
-    } else if(!offers2FeatureEnabled && hasAd && offersDropdownAdPosition === 'right') {
+    } else if(hasAd && offersDropdownAdPosition === 'right') {
         // if there is only 1 result left - show no results entry
        if(res.results.length <=1 ){
         const noResults = CliqzUtils.dropDownStyle === 'simple' ? getNoResultsForSimpleUI(CliqzUtils.getNoResults(res.q)) : CliqzUtils.getNoResults(res.q);
