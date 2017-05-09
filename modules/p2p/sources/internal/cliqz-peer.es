@@ -330,7 +330,7 @@ export default class CliqzPeer {
       } else if (type === 'answer') {
         const conn = this._getPendingConnection(from);
         if (!conn) {
-          this.logError('ERROR: received answer for unexisting pending connection');
+          this.logDebug('WARNING: received answer for unexisting pending connection');
         } else if (conn.status === 'initial' || conn.status === 'signaling') {
           conn.status = 'signaling';
           conn.receiveAnswer(message, id);
@@ -989,7 +989,7 @@ export default class CliqzPeer {
         if (conn) {
           conn.noSuchRoute(id);
         } else {
-          this.logError(data, `received no_such_route_error for unexisting pending connection with ${from}`);
+          this.logDebug(data, `received no_such_route_error for unexisting pending connection with ${from}`);
         }
       } else {
         this.logError(data, 'unknown send_response');
