@@ -155,7 +155,7 @@ export default background({
       }
     },
 
-    recordMeta(url, meta) {
+    recordMeta(/* url, meta */) {
       // turn off for now
       // this.metaDatabase.record(url, meta);
     },

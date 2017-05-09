@@ -1,9 +1,10 @@
-import { utils, events } from '../../core/cliqz';
 import LoggingHandler from '../logging_handler';
 import EmptyEnvironment from './empty_environment'
 import OffersConfigs from '../offers_configs';
 import HistorySignalID from '../ui/ui_offers_history';
 import random from '../../core/crypto/random';
+import utils from '../../core/utils';
+import events from '../../core/events';
 
 const MODULE_NAME = 'extension_environment';
 
@@ -134,7 +135,7 @@ export default class ExtensionEnvironment extends EmptyEnvironment {
   getPref(pref,default_val) {
     return utils.getPref(String(pref),default_val);
   }
-  
+
   /**
    * This method will return the unique generated number for a particular browser.
    * If the value is not generated yet will create a new one.
