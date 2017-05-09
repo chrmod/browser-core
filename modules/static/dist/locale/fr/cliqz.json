@@ -1623,7 +1623,7 @@
       "message": "Offres récentes"
     },
     "offers-hub-welcome-title": {
-      "message": "Bienvenue dans CLIQZ Offres
+      "message": "Bienvenue dans CLIQZ Offres"
     },
     "offers-hub-welcome-text": {
       "message": "Ici, vous trouverez bientôt des annonces exclusives pour vous"
@@ -1693,6 +1693,12 @@
     },
     "signals-redirected-links": {
       "message": "Redirected links"
+    },
+    "calculator-decimal-separator": {
+      "message": ","
+    },
+    "calculator-thousands-separator": {
+      "message": "."
     },
     "TEST": "OK"
 }

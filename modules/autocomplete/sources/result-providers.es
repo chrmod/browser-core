@@ -57,6 +57,7 @@ class CliqzResultProviders {
   constructor() {
     console.log('CliqzResultProviders initialized', LOG_KEY);
     this.manageProviders();
+    CliqzCalculator.init();
   }
   manageProviders() {
 

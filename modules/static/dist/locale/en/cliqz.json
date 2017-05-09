@@ -1694,5 +1694,11 @@
     "signals-redirected-links": {
       "message": "Redirected links"
     },
+    "calculator-decimal-separator": {
+      "message": "."
+    },
+    "calculator-thousands-separator": {
+      "message": ","
+    },
     "TEST": "OK"
 }

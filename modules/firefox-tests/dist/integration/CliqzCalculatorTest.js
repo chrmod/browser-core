@@ -83,7 +83,55 @@ TESTS.CliqzCalculatorTest = function() {
       });
 
       it('Results should have ID calc-answer, in localized format', function() {
-        expect(getResultString()).to.equal(getLocaliseString({'de': '6.444,4', 'default': '6,444.4'}));
+        expect(getResultString()).to.equal(getLocaliseString({'de': '6.444,4', 'default': '64,444'}));
+      });
+
+      it('Should have copy message', function() {
+        expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim()).to.exist;
+      });
+    });
+
+    context("Calculator simple DE format - 1.500,2 + 2000,3", function() {
+      beforeEach(function() {
+        respondWith({results: []});
+        fillIn("1.500,2 + 2000,3");
+        return waitForPopup();
+      });
+
+      it('Results should have ID calc-answer, in localized format', function() {
+        expect(getResultString()).to.equal(getLocaliseString({'de': '3.500,5', 'default': '20,004.5'}));
+      });
+
+      it('Should have copy message', function() {
+        expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim()).to.exist;
+      });
+    });
+
+    context("Calculator simple DE format - 10,2 + 1.000,00", function() {
+      beforeEach(function() {
+        respondWith({results: []});
+        fillIn("10,2 + 1.000,00");
+        return waitForPopup();
+      });
+
+      it('Results should have ID calc-answer, in localized format', function() {
+        expect(getResultString()).to.equal(getLocaliseString({'de': '1.010,2', 'default': '103'}));
+      });
+
+      it('Should have copy message', function() {
+        expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim()).to.exist;
+      });
+    });
+
+    context("Calculator simple DE format - 1001,1 + 1.1", function() {
+      beforeEach(function() {
+        respondWith({results: []});
+        fillIn("1001,1 + 1.1");
+        return waitForPopup();
+      });
+
+      it('Results should have ID calc-answer, in localized format', function() {
+        expect(getResultString()).to.equal(getLocaliseString({'de': '1.012,1', 'default': '10,012.1'}));
       });
 
       it('Should have copy message', function() {
