@@ -4,7 +4,6 @@ import EmptyEnvironment from './empty_environment'
 import OffersConfigs from '../offers_configs';
 import HistorySignalID from '../ui/ui_offers_history';
 import random from '../../core/crypto/random';
-import { utils } from '../../core/cliqz';
 
 const MODULE_NAME = 'extension_environment';
 
