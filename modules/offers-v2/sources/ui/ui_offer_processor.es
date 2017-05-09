@@ -183,14 +183,18 @@ export class UIOfferProcessor {
     // to track we use the offer_id
     const originID = 'processor';
     this.sigHandler.setCampaignSignal(offerInfoCpy.campaign_id,
-                                      offerInfoCpy.offer_id,  
+                                      offerInfoCpy.offer_id,
                                       originID,
-                                      TrackSignalID.TSIG_OFFER_ADDED)
+                                      TrackSignalID.TSIG_OFFER_ADDED);
 
     this.sigHandler.setCampaignSignal(offerInfoCpy.campaign_id,
                                       offerInfoCpy.offer_id,
                                       originID,
-                                      TrackSignalID.TSIG_OFFER_DISPLAYED)
+                                      TrackSignalID.TSIG_OFFER_DISPLAYED);
+
+    if (this.shouldUseStorage) {
+      this._processOfferStorage(offerInfoCpy.offer_id, offerInfoCpy, OffersConfigs.OFFERS_STORAGE_DEFAULT_TTS_SECS);
+    }
   }
 
   //
@@ -217,7 +221,7 @@ export class UIOfferProcessor {
       lerr('this should not happen...');
       return false;
     }
-    
+
 
     const local_offerInfo = this.activeOffers[offerID];
     if (!this._shouldShowOffer(local_offerInfo)) {
