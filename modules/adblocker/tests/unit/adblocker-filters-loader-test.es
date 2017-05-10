@@ -110,6 +110,11 @@ export default describeModule('adblocker/filters-loader',
         platformName,
       },
     },
+    'platform/text-decoder': {
+      default: class {
+        decode(d) { return d }
+      }
+    },
   }),
   () => {
     describe('Test loading filters', () => {

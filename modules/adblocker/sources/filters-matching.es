@@ -219,13 +219,7 @@ function matchHostnames(hostname, hostnames) {
     return true;
   }
 
-  for (const hn of hostnames) {
-    if (matchHostname(hostname, hn)) {
-      return true;
-    }
-  }
-
-  return false;
+  return hostnames.some(hn => matchHostname(hostname, hn));
 }
 
 

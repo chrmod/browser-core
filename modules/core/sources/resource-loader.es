@@ -2,6 +2,7 @@ import config from './config';
 import console from './console';
 import { utils } from './cliqz';
 import Storage from '../platform/resource-loader-storage';
+import TextDecoder from '../platform/text-decoder';
 
 // Common durations
 const ONE_SECOND = 1000;
@@ -61,12 +62,8 @@ export class Resource {
   load() {
     return this.storage.load()
       .then((data) => {
-        try {
-          // If TextDecoder is not available just use `data`
-          return (new TextDecoder()).decode(data);
-        } catch (e) {
-          return data;
-        }
+        // If TextDecoder is not available just use `data`
+        return (new TextDecoder()).decode(data) || data;
       })
       .then(data => this.parseData(data))
       .catch(() => this.updateFromURL(this.chromeURL))

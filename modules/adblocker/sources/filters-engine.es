@@ -240,12 +240,18 @@ class FilterReverseIndex {
 
     const buckets = this.index.getFromTokens(request.tokens);
 
-    for (const bucket of buckets) {
+    let match = null;
+    buckets.some((bucket) => {
       log(`INDEX ${this.name} BUCKET => ${bucket.length}`);
       const result = this.matchList(request, bucket, checkedFilters);
       if (result !== null) {
-        return result;
+        match = result;
+        return true;
       }
+      return false;
+    });
+    if (match) {
+      return match;
     }
 
     log(`INDEX ${this.name} ${this.miscFilters.length} remaining filters checked`);
@@ -347,17 +353,19 @@ class FilterHostnameDispatch {
 
   matchWithDomain(request, domain, checkedFilters) {
     const buckets = this.hostnameAnchors.getFromKey(domain);
-    for (const bucket of buckets) {
+    let match = null;
+    buckets.some((bucket) => {
       if (bucket !== undefined) {
         log(`${this.name} bucket try to match hostnameAnchors (${domain}/${bucket.name})`);
         const result = bucket.match(request, checkedFilters);
         if (result !== null) {
-          return result;
+          match = result
+          return true;
         }
+        return false;
       }
-    }
-
-    return null;
+    });
+    return match;
   }
 
   match(request, checkedFilters) {
@@ -707,7 +715,7 @@ class CosmeticEngine {
     const uniqIds = new Set();
     log(`getDomainRules ${url} => ${hostname}`);
     this.cosmetics.getFromKey(hostname).forEach((bucket) => {
-      for (const value of bucket.index.index.values()) {
+      bucket.index.index.forEach((value) => {
         value.forEach((rule) => {
           if (!uniqIds.has(rule.id)) {
             // check if one of the preceeding rules has the same selector
@@ -742,7 +750,7 @@ class CosmeticEngine {
             }
           }
         });
-      }
+      });
     });
     return rules;
   }

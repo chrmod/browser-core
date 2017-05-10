@@ -327,24 +327,48 @@ program.command('generate <type> <moduleName>')
         });
        });
 
-program.command('react-dev')
+program.command('react-dev [config]')
       .description('run the react-native dev server')
-      .action(() => {
-        setConfigPath('configs/react-native.json');
+      .action((config) => {
+        setConfigPath(config || 'configs/react-native.json');
         const projectRoots = [OUTPUT_PATH, path.resolve(__dirname, 'node_modules')]
         const options = ['./node_modules/react-native/local-cli/cli.js', 'start',
                          '--projectRoots', projectRoots.join(',')]
         spaws.sync('node', options, { stdio: 'inherit', stderr: 'inherit'});
       });
 
-program.command('react-bundle <platform> [dest]')
+program.command('react-bundle <platform> [config] [dest]')
       .description('create a react-native jsbundle')
-      .action((platform, dest) => {
-        setConfigPath('configs/react-native.json');
+      .action((platform, config, dest) => {
+        setConfigPath(config || 'configs/react-native.json');
         var options = ['./node_modules/react-native/local-cli/cli.js', 'bundle',
           '--platform', platform, '--entry-file', `${OUTPUT_PATH}/index.${platform}.js`,
           '--bundle-output', dest || 'jsengine.bundle.js']
         spaws.sync('node', options, { stdio: 'inherit', stderr: 'inherit'});
+      });
+
+program.command('react-release <platform> <tag> [config]')
+      .description('deploy a react bundle to the CDN')
+      .action((platform, tag, config) => {
+        setConfigPath(config || 'configs/react-native.json');
+        const shellOpts = { stdio: 'inherit', stderr: 'inherit'};
+        // create bundle
+        const bundleName = `jsengine.bundle.${platform}.${tag}`;
+        var options = ['./node_modules/react-native/local-cli/cli.js', 'bundle',
+          '--platform', platform, '--entry-file', `${OUTPUT_PATH}/index.${platform}.js`,
+          '--bundle-output', bundleName]
+        spaws.sync('node', options, shellOpts);
+        // compress bundle
+        spaws.sync('gzip', [bundleName], shellOpts);
+        // prepare package.json
+        const packageJsonName = `package.json.${platform}.${tag}`
+        spaws.sync('cp', ['package.json', packageJsonName], shellOpts);
+        // push to s3
+        const s3Bucket = 's3://cdn.cliqz.com/mobile/jsengine/';
+        spaws.sync('aws', ['s3', 'cp', packageJsonName, s3Bucket], shellOpts);
+        spaws.sync('aws', ['s3', 'cp', `${bundleName}.gz`, s3Bucket], shellOpts);
+        // cleanup
+        spaws.sync('rm', [packageJsonName, `${bundleName}.gz`, `${bundleName}.meta`], shellOpts);
       });
 
 program.parse(process.argv);
