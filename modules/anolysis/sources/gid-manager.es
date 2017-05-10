@@ -1,4 +1,5 @@
 import moment from '../platform/moment';
+import events from '../core/events';
 
 import Backend from './backend-communication';
 import logger from './logger';
@@ -218,7 +219,8 @@ export default class {
     // Extract real install date from env signal.
     let cliqzInstallDate = demographics.install_date;
     try {
-      cliqzInstallDate = JSON.parse(demographics).install_date;
+      cliqzInstallDate = moment(JSON.parse(demographics).install_date, 'YYYY/MM/DD')
+        .format(DATE_FORMAT);
     } catch (ex) {
       /* Ignore ex since `demographics` might already be an obj */
     }
@@ -406,7 +408,8 @@ export default class {
   updateDemographics(demographics) {
     logger.debug(`updateDemographics ${JSON.stringify(demographics)}`);
     return this.demographicsStorage.put(demographics)
-      .then(() => this.init());
+      .then(() => { this.init(); })
+      .then(() => { events.pub('anolysis:demographics_registered'); });
   }
 
   /**

@@ -32,6 +32,15 @@ export default describeModule('anolysis/anolysis',
     'platform/moment': {
       default: moment,
     },
+    'core/events': {
+      default: {
+        subscript() {
+          return {
+            unsubscribe() {},
+          };
+        },
+      },
+    },
     'anolysis/synchronized-date': {
       DATE_FORMAT,
       DAY_FORMAT,

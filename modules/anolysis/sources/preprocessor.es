@@ -337,7 +337,7 @@ export default class {
       // format there.
       installDate = momentInstallDate.format('YYYY/MM/DD');
       const currentDate = getSynchronizedDate();
-      if (signal.install_date < 16129 || momentInstallDate.isAfter(currentDate)) {
+      if (signal.install_date < 16129 || momentInstallDate.isAfter(currentDate, 'day')) {
         // Some install date are not possible and should be considered as
         // outlier:
         // - In the past (before Cliqz existed)

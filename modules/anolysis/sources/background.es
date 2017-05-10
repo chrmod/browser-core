@@ -2,6 +2,7 @@
 
 import background from '../core/base/background';
 import { utils } from '../core/cliqz';
+import events from '../core/events';
 
 
 import telemetrySchemas from './telemetry-schemas';
@@ -17,7 +18,7 @@ import logger from './logger';
  */
 
 
-const ENABLE_PREF = 'telemetryNoSession';
+export const ENABLE_PREF = 'telemetryNoSession';
 const LATEST_VERSION_USED_PREF = 'anolysisVersion';
 
 /**
@@ -110,6 +111,7 @@ export default background({
         .then(() => {
           this.isRunning = true;
           utils.log('started', 'anon');
+          events.pub('anolysis:initialized');
         });
     });
   },

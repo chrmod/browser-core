@@ -26,6 +26,11 @@ const BACKEND_MOCK = {
 
 export default describeModule('anolysis/gid-manager',
   () => ({
+    'core/events': {
+      default: {
+        pub() {},
+      },
+    },
     'core/cliqz': {
       utils: {},
     },

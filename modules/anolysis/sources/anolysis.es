@@ -4,6 +4,7 @@ import moment from '../platform/moment';
 
 import { utils } from '../core/cliqz';
 import Database from '../core/database';
+import events from '../core/events';
 
 import BehaviorAggregator from './aggregator';
 import GIDManager from './gid-manager';
@@ -63,23 +64,43 @@ export default class {
   }
 
   init() {
-    this.asyncMessageGeneration = utils.setTimeout(
-      // 1. Trigger sending of retention signals if needed
-      // This can be done as soon as possible, the first time
-      // the user starts the browser, at most once a day.
-      //
-      // 2. Then we check previous days (30 days max) to aggregate and send
-      // telemetry if the user was not active. This task is async and will try to
-      // not overload the browser.
-      () => this.sendRetentionSignals()
-        .then(() => this.generateAnalysesSignalsFromAggregation()),
-      0,
+    // Wait for some demographics to be registered to generate any signals.
+    this.onDemographicsRegistered = events.subscribe(
+      'anolysis:demographics_registered',
+      () => {
+        // Stop listening to this event
+        this.onDemographicsRegistered.unsubscribe();
+        this.onDemographicsRegistered = undefined;
+
+        // This can be run async since calling two times the same method will
+        // resolve to the same Promise object. It's not returned there to not
+        // delay the loading of the module.
+        this.gidManager.init();
+
+        // 1. Trigger sending of retention signals if needed
+        // This can be done as soon as possible, the first time
+        // the user starts the browser, at most once a day.
+        //
+        // 2. Then we check previous days (30 days max) to aggregate and send
+        // telemetry if the user was not active. This task is async and will try to
+        // not overload the browser.
+        this.sendRetentionSignals()
+          .then(() => this.generateAnalysesSignalsFromAggregation());
+      },
     );
 
-    // This can be run async since calling two times the same method will
-    // resolve to the same Promise object. It's not returned there to not
-    // delay the loading of the module.
-    this.gidManager.init();
+    // Check everytime we switch to a new day, and trigger the generation of
+    // aggregated telemetry signals (analyses).
+    let currentDate = utils.getPref('config_ts');
+    this.onNewDate = events.subscribe('prefchange', (pref) => {
+      if (pref === 'config_ts') {
+        const newValue = utils.getPref('config_ts');
+        if (newValue !== currentDate) {
+          currentDate = newValue;
+          this.generateAnalysesSignalsFromAggregation();
+        }
+      }
+    });
 
     // This will delete older signals async
     // We don't need to wait for this.
@@ -90,6 +111,16 @@ export default class {
   }
 
   stop() {
+    if (this.onDemographicsRegistered) {
+      this.onDemographicsRegistered.unsubscribe();
+      this.onDemographicsRegistered = undefined;
+    }
+
+    if (this.onNewDate) {
+      this.onNewDate.unsubscribe();
+      this.onNewDate = undefined;
+    }
+
     utils.clearTimeout(this.generateAggregationSignalsTimeout);
     utils.clearTimeout(this.asyncMessageGeneration);
 

@@ -106,6 +106,15 @@ export default describeModule('anolysis/anolysis',
     'platform/ua-parser': {
       default: UAParser,
     },
+    'core/events': {
+      default: {
+        subscript() {
+          return {
+            unsubscribe() {},
+          };
+        },
+      },
+    },
     'anolysis/synchronized-date': {
       DATE_FORMAT,
       DAY_FORMAT,
