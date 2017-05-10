@@ -235,6 +235,7 @@ var UI = {
         if (!query)
           query = "";
 
+        UI.lastInput = query;
         // try to avoid Stack size limitations on Linux by breaking out Handlebars processing
         setTimeout(function(currentResults, query){
           if(gCliqzBox.resultsBox && currentResults.isMixed) {
