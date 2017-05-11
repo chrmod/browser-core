@@ -295,6 +295,7 @@ export default background({
     },
     queryCliqz(query) {
       let urlBar = utils.getWindow().document.getElementById("urlbar")
+      urlBar.mInputField.setUserInput('');
       urlBar.focus();
       urlBar.mInputField.focus();
       urlBar.mInputField.setUserInput(query);
