@@ -176,6 +176,7 @@ export default class Search {
       }
 
       this.cliqzResults = [];
+      this.cliqzResultsDone = false;
       this.cliqzResultsParams = { };
       this.cliqzCache = null;
       this.historyResults = null;
@@ -225,6 +226,7 @@ export default class Search {
           this.resultsTimer = utils.setTimeout(this.pushTimeoutCallback, utils.RESULTS_TIMEOUT, this.searchString);
       } else {
           this.cliqzResults = [];
+          this.cliqzResultsDone = true;
           CliqzAutocomplete.spellCheck.resetState();
       }
 
@@ -457,7 +459,7 @@ export default class Search {
 
        if((now > this.startTime + utils.RESULTS_TIMEOUT) || // do we have a timeout or
            (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out and
-            this.cliqzResults.length > 0) {                  // backend results are ready
+           (this.cliqzResults.length > 0 || this.cliqzResultsDone)) {   // backend results are ready
           /// Push full result
           utils.clearTimeout(this.resultsTimer);
           utils.clearTimeout(this.historyTimer);
@@ -602,6 +604,7 @@ export default class Search {
                      q,
                      (attemptsSoFar || 0) + 1);
           this.cliqzResults = json.results.filter(this.isReadyToRender).map(this.enhanceResult);
+          this.cliqzResultsDone = true;
 
           handleQuerySuggestions(q, json.suggestions);
 
@@ -714,6 +717,7 @@ export default class Search {
       obj.resultsTimer = null;
       obj.historyTimer = null;
       obj.cliqzResults = [];
+      obj.cliqzResultsDone = false;
       obj.cliqzCache = null;
       obj.historyResults = null;
       obj.instant = [];
