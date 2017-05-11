@@ -43,6 +43,7 @@ export default class HistoryCluster extends BaseResult {
         url: rawResult.href,
         bulletLogo: true,
         isCluster: true,
+        text: this.rawResult.text,
       }));
     }
     return this.historyResults;

@@ -1,4 +1,5 @@
 import Dropdown from './dropdown';
+import Results from './results';
 import Popup from './popup';
 import inject from '../core/kord/inject';
 import SupplementarySearchResult from './results/supplementary-search';
@@ -8,10 +9,11 @@ import { enterSignal } from './telemetry';
 
 export default class {
 
-  constructor(window) {
+  constructor(window, { getSessionCount }) {
     this.ui = inject.module('ui');
     this.handleResults = this.handleResults.bind(this);
     this.window = window;
+    this.getSessionCount = getSessionCount;
   }
 
   init() {
@@ -91,6 +93,13 @@ export default class {
           break;
         }
 
+        if (this.dropdown.selectedIndex > 0) {
+          const selectedResult = this.dropdown.results.get(this.dropdown.selectionIndex);
+          selectedResult.click(this.window, selectedResult.url, ev);
+          preventDefault = true;
+          break;
+        }
+
         preventDefault = false;
         break;
       }
@@ -109,7 +118,17 @@ export default class {
   }
 
   handleResults() {
-    const results = this.popup.results();
+    const {
+      query,
+      queriedAt,
+      rawResults,
+    } = this.popup.results();
+    const results = new Results({
+      query,
+      queriedAt,
+      rawResults,
+      sessionCountPromise: this.getSessionCount(query),
+    });
     const queryIsUrl = isUrl(results.query);
     const firstResult = results.firstResult;
     let didAutocomplete;

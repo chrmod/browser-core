@@ -1,4 +1,5 @@
 /* eslint no-use-before-define: ["error", { "classes": false }] */
+import events from '../../core/events';
 import utils from '../../core/utils';
 import { equals } from '../../core/url';
 
@@ -146,7 +147,8 @@ export default class BaseResult {
     const deepLinks = getDeepResults(this.rawResult, 'buttons');
     return deepLinks.map(({ url, title }) => new InternalResult({
       url,
-      title
+      title,
+      text: this.query,
     }));
   }
 
@@ -155,6 +157,7 @@ export default class BaseResult {
     return deepLinks.map(({ image, extra }) => new ImageResult({
       url: (extra && extra.original_image) || image,
       thumbnail: image,
+      text: this.query,
     }));
   }
 
@@ -163,18 +166,23 @@ export default class BaseResult {
     return deepLinks.map(({ url, title }) => new AnchorResult({
       url,
       title,
+      text: this.query,
     }));
   }
 
   get newsResults() {
     const deepLinks = getDeepResults(this.rawResult, 'news');
-    return deepLinks.map(({ url, title, extra }) => new NewsResult({
+    return deepLinks.map(({ url, title, extra = {} } = {}) => new NewsResult({
       url,
       title,
       thumbnail: extra.thumbnail,
       creation_time: extra.creation_timestamp,
       tweet_count: extra.tweet_count,
-      showLogo: utils.getDetailsFromUrl(this.url).domain !== utils.getDetailsFromUrl(url).domain,
+      showLogo: this.url && (
+        utils.getDetailsFromUrl(this.url).domain !==
+        utils.getDetailsFromUrl(url).domain
+      ),
+      text: this.query,
     }));
   }
 
@@ -215,16 +223,27 @@ export default class BaseResult {
     return this.allResults.some(r => equals(r.url, href));
   }
 
-  isHistory() {
+  get isHistory() {
     return this.kind[0] === 'H';
   }
 
   click(window, href, ev) {
+    events.pub('ui:click-on-url', {
+      url: href,
+      query: this.query,
+    });
     // TODO: do not use global
     /* eslint-disable */
     window.CLIQZ.Core.urlbar.value = href;
     /* eslint-enable */
     window.CLIQZ.Core.urlbar.handleCommand(ev);
+  }
+
+  /*
+   * Lifecycle hook
+   */
+  didRender() {
+
   }
 }
 

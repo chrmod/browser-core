@@ -1797,8 +1797,14 @@ body {
 
         const dropdown = new Dropdown(box)
         dropdown.init();
-        const results = new Results({ query, rawResults })
-        dropdown.renderResults(results)
+        const sessionCountPromise = new Promise(resolve => {
+            setTimeout(() => {
+                const count = Math.floor(Math.random() * 10000) % 2000;
+                resolve(count);
+            }, 3000);
+        });
+        const results = new Results({ query, rawResults, sessionCountPromise });
+        dropdown.renderResults(results);
     }
 
     Object.keys(tests).forEach((testName) => {

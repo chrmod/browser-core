@@ -60,8 +60,18 @@ export default class {
   renderResults(results) {
     this.selectedIndex = 0;
     this.results = results;
+
+    // Render and insert templates
     const html = templates.results({ results: results.results });
     this.dropdownElement.innerHTML = html;
+
+    // Nofify results that have been rendered
+    results.results.forEach((result) => {
+      if (!result.didRender) {
+        return;
+      }
+      result.didRender(this.dropdownElement);
+    });
 
     // prevent default behavior of anchor tags
     [...this.rootElement.querySelectorAll('a')].forEach((anchor) => {

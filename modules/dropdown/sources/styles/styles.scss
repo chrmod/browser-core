@@ -5,6 +5,9 @@ $light-gray: #f5f5f5;
 @import 'partials/buttons';
 
 #cliqz-dropdown {
+
+    @import 'results/sessions';
+
     font-size: 15px;
     line-height: 1.07em;
     position: relative;
@@ -164,6 +167,10 @@ $light-gray: #f5f5f5;
                 &.search {
                     background-image: url("chrome://global/skin/icons/autocomplete-search.svg#search-icon");
                 }
+
+                &.history-tool {
+                    background-image: url("resource://cliqz/dropdown/images/history_tool_grey.svg");
+                }
             }
         }
 
@@ -260,6 +267,11 @@ $light-gray: #f5f5f5;
                     background-image: url("chrome://global/skin/icons/autocomplete-search.svg#search-icon-inverted");
                     background-repeat: no-repeat;
                 }
+
+                .icon.history-tool {
+                    background-image: url("resource://cliqz/dropdown/images/history_tool_white.svg");
+                }
+
             }
 
             .logo[style]:after, .micro-logo[style]:after {

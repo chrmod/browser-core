@@ -3,6 +3,7 @@ import CalculatorResult from './results/calculator';
 import CurrencyResult from './results/currency';
 import WeatherResult from './results/weather';
 import HistoryResult from './results/history';
+import SessionsResult from './results/sessions';
 import { equals } from '../core/url';
 import console from '../core/console';
 
@@ -71,10 +72,15 @@ class ResultFactory {
 
 export default class Results {
 
-  constructor({ query, rawResults, queriedAt }) {
+  constructor({ query, rawResults, queriedAt, sessionCountPromise }) {
     this.query = query;
     this.queriedAt = queriedAt;
     this.results = ResultFactory.createAll(rawResults);
+
+    if (this.hasHistory && sessionCountPromise) {
+      this.addSessionsResult(sessionCountPromise);
+    }
+
     this.displayedAt = Date.now();
   }
 
@@ -127,4 +133,27 @@ export default class Results {
     this.results.unshift(result);
   }
 
+  insertAt(result, index) {
+    this.results = [
+      ...this.results.slice(0, index),
+      result,
+      ...this.results.slice(index),
+    ];
+  }
+
+  addSessionsResult(countPromise) {
+    const firstNonHistoryIndex = this.results.findIndex(r => !r.isHistory);
+    const sessionResult = new SessionsResult({
+      query: this.query,
+    }, countPromise);
+
+    this.insertAt(
+      sessionResult,
+      firstNonHistoryIndex >= 0 ? firstNonHistoryIndex : this.results.length,
+    );
+  }
+
+  get hasHistory() {
+    return this.results.some(r => r.isHistory);
+  }
 }

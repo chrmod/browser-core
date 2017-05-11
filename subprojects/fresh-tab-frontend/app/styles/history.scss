@@ -43,6 +43,14 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
       padding: 0px;
       height: 25px;
       display: block;
+
+      &.freshtab-button {
+        background: url('../assets/images/Home White.svg') no-repeat center;
+      }
+
+      &.history-button {
+        background: url('../assets/images/History White.svg') no-repeat center;
+      }
     }
 
     a:hover {

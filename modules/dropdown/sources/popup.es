@@ -1,7 +1,5 @@
 // TODO: remove dependency on autocomplete
 import autocomplete from '../autocomplete/autocomplete';
-import Results from './results';
-import console from '../core/console';
 
 export default class {
   constructor(window) {
@@ -52,13 +50,11 @@ export default class {
       };
       return rawResult;
     });
-    const results = new Results({
+
+    return {
       query: this.query,
       queriedAt: autocomplete.lastQueryTime,
       rawResults,
-    });
-
-    console.log('results', results);
-    return results;
+    };
   }
 }

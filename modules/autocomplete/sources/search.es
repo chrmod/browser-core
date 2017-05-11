@@ -101,6 +101,8 @@ export default class Search {
   }
 
   search(searchString, callback) {
+      events.pub('autocomplete:search', searchString);
+
       CliqzAutocomplete.lastQueryTime = Date.now();
       CliqzAutocomplete.lastDisplayTime = null;
       CliqzAutocomplete.lastResult = null;

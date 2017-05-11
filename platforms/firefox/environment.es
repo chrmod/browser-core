@@ -430,6 +430,14 @@ var CLIQZEnvironment = {
                             let [mozAction, cleanURL] = utils.cleanMozillaActions(result.getValueAt(i));
                             let label;
 
+                            // ignore freshtab and history
+                            if (cleanURL.indexOf('resource://cliqz/fresh-tab-frontend/') === 0) {
+                              continue;
+                            }
+                            if (cleanURL.indexOf('https://cliqz.com/search?q=') === 0) {
+                              continue;
+                            }
+
                             try {
                               // https://bugzilla.mozilla.org/show_bug.cgi?id=419324
                               uri = makeURI(action.params.url);
