@@ -1,5 +1,7 @@
 import console from '../../core/console';
 import { deletePersistantObject, LazyPersistentObject } from '../persistent-state';
+import utils from '../../core/utils';
+import Database from '../../core/database';
 
 /**
  * Remove any old database entries which are no longer needed
@@ -9,7 +11,11 @@ export default function () {
   deletePersistantObject('checkedToken');
   deletePersistantObject('blockedToken');
   deletePersistantObject('loadedPage');
-  deletePersistantObject('tokens');
+  if (utils.getPref('attrack.tokenDbState', 0) === 0) {
+    const db = new Database('cliqz-attrack-tokens', { auto_compaction: true });
+    db.destroy();
+    utils.setPref('attrack.tokenDbState', 1);
+  }
 }
 
 export function migrateTokenDomain(tokenDomain) {
