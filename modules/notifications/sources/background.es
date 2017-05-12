@@ -16,6 +16,12 @@ export default background({
       'new-notification'
     );
 
+    this.onCountUpdate = events.proxyEvent(
+      'notifications:update-mail-count',
+      this.notificationCenter,
+      'update-mail-count'
+    );
+
     this.onNotificationsCleared = events.proxyEvent(
       'notifications:notifications-cleared',
       this.notificationCenter,
@@ -148,6 +154,12 @@ export default background({
     },
     'notifications:new-notification': function onNewNotification(domain, count) {
       this.broadcastMessage('newNotification', {
+        domain,
+        count
+      });
+    },
+    'notifications:update-mail-count': function onCountUpdate(domain, count) {
+      this.broadcastMessage('updateMailCount', {
         domain,
         count
       });

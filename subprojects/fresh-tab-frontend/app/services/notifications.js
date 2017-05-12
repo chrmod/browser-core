@@ -102,6 +102,16 @@ export default Ember.Service.extend({
        notificationError: null,
     });
    },
+
+   updateMailCount(domain, count) {
+    const store = this.get('store');
+    let dial = store.peekRecord('speed-dial', domain);
+    dial.setProperties({
+       notificationCount: count,
+       notificationError: null,
+    }); 
+   },
+
    clearNotification(domain) {
     const store = this.get('store');
     let dial = store.peekRecord('speed-dial', domain);

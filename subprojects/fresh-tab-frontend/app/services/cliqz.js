@@ -92,6 +92,10 @@ export default Ember.Service.extend({
         this.get('notifications').accessibleNotification(message.message.domain, message.message.count, message.message.hasUnread);
       }
 
+      if(message.action === "updateMailCount") {
+        this.get('notifications').updateMailCount(message.message.domain, message.message.count, message.message.hasUnread);
+      }
+
       if(message.action === "updateHistoryUrls") {
         this.get('historySync').updateHistoryUrls(message.message.urls);
       }
