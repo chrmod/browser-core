@@ -6,7 +6,7 @@ import parseList, { parseJSResource
                   , deserializeFilter } from './filters-parsing';
 import { matchNetworkFilter
        , matchCosmeticFilter } from './filters-matching';
-import { TLDs } from '../core/tlds';
+import tlds from '../core/tlds';
 
 
 const TOKEN_BLACKLIST = new Set([
@@ -26,7 +26,7 @@ const TOKEN_BLACKLIST = new Set([
 function tokenizeHostname(hostname) {
   return hostname.split('.')
     .filter(token => (token &&
-                      !TLDs[token] &&
+                      !tlds.TLDs[token] &&
                       !TOKEN_BLACKLIST.has(token)));
 }
 
@@ -94,7 +94,7 @@ class FuzzyIndex {
     this.tokenizer(key, (token) => {
       if (TOKEN_BLACKLIST.has(token)) {
         commonTokens.push(token);
-      } else if (TLDs[token]) {
+      } else if (tlds.TLDs[token]) {
         tldTokens.push(token);
       } else {
         goodTokens.push(token);

@@ -11,8 +11,15 @@ if (process.argv[2] === "install") {
   if (os.platform().indexOf('win') == 0) {
     command += ".cmd"
   }
+
+  // Install npm packages
   const npmInstall = childProcess.spawn(command, ['install'], { stdio: [0,1,2] });
-  npmInstall.on('exit', function () { fern() });
+  npmInstall.on('exit', function () {
+    const publicSuffixListUpdate = childProcess.spawn(command, ['run', 'tldjs-update-rules'], { stdio: [0,1,2] });
+    publicSuffixListUpdate.on('exit', function () {
+      fern();
+    });
+  });
 } else {
   fern();
 }

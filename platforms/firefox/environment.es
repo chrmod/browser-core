@@ -155,15 +155,6 @@ var CLIQZEnvironment = {
         var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
         gClipboardHelper.copyString(val);
     },
-    tldExtractor: function(host){
-        var eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"]
-                            .getService(Ci.nsIEffectiveTLDService),
-            idnService = Cc["@mozilla.org/network/idn-service;1"]
-                            .getService(Ci.nsIIDNService),
-            utf8str = idnService.convertACEtoUTF8(encodeURIComponent(host));
-
-        return decodeURIComponent(eTLDService.getPublicSuffixFromHost(utf8str));
-    },
     isPrivate: function(win) {
         // try to get the current active window
         if(!win) win = CLIQZEnvironment.getWindow();

@@ -31,7 +31,9 @@ export default describeModule("core/utils",
         default: {}
       },
       './tlds': {
-        TLDs: {}
+        default: {
+          getPublicSuffix() {},
+        },
       },
       './http': {
         httpHandler: {},

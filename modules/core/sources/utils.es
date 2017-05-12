@@ -3,7 +3,7 @@ import console from "./console";
 import prefs from "./prefs";
 import Storage from "./storage";
 import CliqzEvents from './events';
-import { TLDs } from "./tlds";
+import tlds from "./tlds";
 import { httpHandler, promiseHttpHandler } from './http';
 import gzip from './gzip';
 import CliqzLanguage from './language';
@@ -282,22 +282,7 @@ var CliqzUtils = {
 
     return url;
   },
-  genericTldExtractor: function (host) {
-    var v = host.toLowerCase().split('.'),
-        tld = '';
-
-    var first_level = TLDs[v[v.length - 1]];
-    tld = v[v.length - 1];
-
-    if ((v.length > 2) && (first_level == 'cc')) {
-      // check if we also have to remove the second level, only if 3 or more
-      //  levels and the first_level was a country code
-      if (TLDs[v[v.length - 2]]) {
-        tld = v[v.length - 2] + '.' + tld;
-      }
-    }
-    return tld;
-  },
+  genericTldExtractor: tlds.getPublicSuffix,
   getDetailsFromUrl: function(originalUrl){
     var [action, originalUrl] = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
