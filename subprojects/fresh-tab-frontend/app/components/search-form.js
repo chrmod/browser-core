@@ -12,6 +12,7 @@ export default Ember.Component.extend({
   modelObserver: function() {
     Ember.run.debounce(() => {
       this.set('model', this.get('modelProxy'));
+      this.actions.sendTelemetry.call(this);
     }, this.get('debounce'));
   }.observes('modelProxy'),
 
