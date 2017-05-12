@@ -78,13 +78,15 @@ export default Ember.Component.extend({
       } else {
         cliqz.openUrl(url, true);
       }
-
-      this.get('cliqz').sendTelemetry({
-        type: 'history',
-        view: 'sections',
-        action: 'click',
-        target: this.get('logoclass') === 'big' ? 'header' : 'site'
-      });
+      if(!this.get('isOtherTelemetrySignalSent')) { // To not sending duplicate signals
+        this.get('cliqz').sendTelemetry({
+          type: 'history',
+          view: 'sections',
+          action: 'click',
+          target: this.get('logoclass') === 'big' ? 'header' : 'site'
+        });
+      }
+      this.set('isOtherTelemetrySignalSent', false);
     },
     deleteVisit() {
       const model = this.get('model');
@@ -106,6 +108,7 @@ export default Ember.Component.extend({
         target: this.get('logoclass') === 'big' ? 'header' : 'site',
         element: name
       });
+      this.set('isOtherTelemetrySignalSent', true);
     }
   }
 });
