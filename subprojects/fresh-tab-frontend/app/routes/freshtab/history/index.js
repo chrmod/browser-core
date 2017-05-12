@@ -91,13 +91,13 @@ export default Ember.Route.extend({
   },
   actions: {
     delete() {
-      this.get('cliqz').showHistoryDeletionPopup();
       this.get('cliqz').sendTelemetry({
         type: 'history',
         view: 'sections',
         action: 'click',
         target: 'clear_recent'
       });
+      this.get('cliqz').showHistoryDeletionPopup();
     },
     sendTelemetry(name) {
       switch(name) {
