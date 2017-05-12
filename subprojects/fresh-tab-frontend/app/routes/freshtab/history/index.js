@@ -28,18 +28,20 @@ const VisitsProxy = Ember.ArrayProxy.extend({
 
     return history.search(query, from, to).then(({sessions, history}) => {
       this.get('content').addObjects(sessions);
-      this.set('sectionCount', this.get('sectionCount') + sessions.length);
       this.setProperties({
         hasMoreResults: history.totalUrlCount !== 0,
         isLoading: false,
         currentFrom: history.frameStartsAt,
       });
-      this.get('cliqz').sendTelemetry({
-        type: 'history',
-        action: 'update',
-        section_count: this.get('sectionCount'),
-        load_duration: Date.now() - this.startLoadingAt
-      });
+      if (sessions.length > 0) {
+        this.set('sectionCount', this.get('sectionCount') + sessions.length);
+        this.get('cliqz').sendTelemetry({
+          type: 'history',
+          action: 'update',
+          section_count: this.get('sectionCount'),
+          load_duration: Date.now() - this.startLoadingAt
+        });
+      }
     });
   },
 });
