@@ -161,7 +161,7 @@ Promise.all([
             CLIQZ.UI.selectResultByIndex(toIndex);
         });
 
-    var isUrlbarFocused = false;
+    var isUrlbarFocused = true;  // count as focused by default
     chrome.cliqzSearchPrivate.onOmniboxFocusChanged.addListener(
         (winId, focused) => {
           if (winId === currWinId) {
@@ -170,6 +170,7 @@ Promise.all([
               urlbarEvent('blur');
               // Close settings section.
               settingsContainer.classList.remove("open");
+              isUrlbarFocused = false;
             }
             else { //focus
               CliqzAutocomplete.lastFocusTime = Date.now();
