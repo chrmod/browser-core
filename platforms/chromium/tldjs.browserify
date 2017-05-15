@@ -1,7 +1,7 @@
 System.register([], function (_export) {
   "use strict";
 
-  _export('default', require('tldjs/index'));
+  _export('default', require('tldjs'));
 
   return {
     setters: [],

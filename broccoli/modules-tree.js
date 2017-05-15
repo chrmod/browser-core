@@ -40,7 +40,7 @@ const eslintOptions = {
 
 function getPlatformFunnel() {
   return new Funnel(new WatchedDir('platforms/'), {
-    exclude: ['**/tests/**/*'],
+    exclude: ['**/tests/**/*', '**/*.browserify'],
   });
 }
 
@@ -232,6 +232,8 @@ function getBundlesTree(modulesTree) {
 
 function getBrowserifyTree() {
   const browserifyTrees = [];
+
+  // Browserify modules
   cliqzConfig.modules.forEach((name) => {
     const modulePath = path.join('modules', name);
     walk(modulePath, p => p.endsWith('.browserify'))
@@ -252,6 +254,27 @@ function getBrowserifyTree() {
       }));
     });
   });
+
+  // Browserify platform
+  const platformPath = path.join('platforms/', cliqzConfig.platform);
+  walk(platformPath, p => p.endsWith('.browserify'))
+  .forEach((p) => {
+    const rel = path.relative(platformPath, p);
+    const options = {
+      browserify: {
+        entries: [rel],
+        debug: true,
+      },
+      outputFile: rel.replace(/\.browserify$/, '.js'),
+      cache: true,
+    };
+    browserifyTrees.push(new Funnel(watchify(platformPath, options), {
+      getDestinationPath(p) {
+        return `platform/${p}`;
+      },
+    }));
+  });
+
   return new MergeTrees(browserifyTrees);
 }
 

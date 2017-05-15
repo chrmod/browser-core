@@ -1,5 +1,5 @@
-import tlds from './lib/tldjs';
-import ipaddr from './lib/ipaddr';
+import tlds from '../platform/tldjs';
+import ipaddr from '../platform/ipaddr';
 
 // Re-export symbols from `ipaddr`
 const isIpv4Address = ipaddr.IPv4.isIPv4.bind(ipaddr.IPv4);
