@@ -185,17 +185,22 @@ Promise.all([
             return;
           const details = {
               action: "result_enter",
-              autocompleted: autocompleted,
               urlbar_time: CliqzAutocomplete.lastFocusTime ?
                   (new Date()).getTime() - CliqzAutocomplete.lastFocusTime :
                   null,
-              position_type: [isSearch ? 'inbar_query' : 'inbar_url'],
-              source: CLIQZ.UI.getResultKind(CLIQZ.UI.getResultSelection()),
               current_position: position,
               new_tab: false // TODO: Pass whether it's opened in a new tab.
             };
+          if (position >= 0) {
+            details.position_type = CLIQZ.UI.getResultKind(CLIQZ.UI.getResultSelection());
+          }
+          else {
+            details.position_type = [isSearch ? 'inbar_query' : 'inbar_url'];
+          }
           if (autocompleted) {
+            details.autocompleted = autocompleted;
             details.autocompleted_length = destURL.length;
+            details.source = CLIQZ.UI.getResultKind(CLIQZ.UI.getResultSelection());
           }
           const element = (position >= 0) ?
               CLIQZ.UI.keyboardSelection : {url: destURL};
