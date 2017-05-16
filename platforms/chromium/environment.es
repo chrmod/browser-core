@@ -141,35 +141,6 @@ const CLIQZEnvironment = {
   isPrivate: function() { return chrome.extension.inIncognitoContext; },
   isOnPrivateTab: function(win) { return CE.isPrivate(); },
   getWindow: function(){ return { document: { getElementById() {} } } },
-
-  historySearch: function(q, callback, searchParam) {
-    function matchTypeToStyle(type) {
-    if (!type)
-      return 'favicon';
-    type = type.toLowerCase();
-    if (type.startsWith('history'))
-      return 'favicon'
-    return type;
-  }
-
-    chrome.cliqzSearchPrivate.queryHistory(q, (query, matches, finished) => {
-      var res = matches.map(function(match) {
-          return {
-              value:   match.url,
-              comment: match.description,
-              style: matchTypeToStyle(match.provider_type),
-              image:   '',
-              label:   ''
-          };
-      });
-      callback({
-        query: query,
-        results: res,
-        ready: true
-      });
-    });
-  },
-
   openLink: function(win, url, newTab) {
     chrome.cliqzSearchPrivate.navigate(url, !!newTab);
   },

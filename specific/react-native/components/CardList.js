@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, View, Text, Dimensions, ViewPagerAndroid } from 'react-native';
-import Carousel from 'react-native-snap-carousel';
 import Card from './Card';
 import { widthPercentage, cardsGap } from '../styles/CardStyle';
 

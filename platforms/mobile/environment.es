@@ -121,36 +121,6 @@ var CLIQZEnvironment = {
 
     return false;
   },
-  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
-  processHistory: function(data) {
-    try {
-      var items = data.results;
-      var res = [];
-      for (var i in items) {
-        var item = items[i];
-        res.push({
-          style:   'favicon',
-          value:   item.url,
-          image:   '',
-          comment: (typeof(item.title) !== 'undefined' ? item.title : 'no comment'),
-          label:   ''
-        });
-      }
-      return {results: res, query:data.query, ready:true};
-    } catch (e) {
-      console.log('Error: ' + e, 'CLIQZEnvironment.processHistory');
-    }
-  },
-  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
-  displayHistory: function(data){
-    console.log(this, 'bbb');
-    CLIQZEnvironment.searchHistoryCallback(CLIQZEnvironment.processHistory(data));
-  },
-  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
-  historySearch: function(q, callback){
-    CLIQZEnvironment.searchHistoryCallback = callback;
-    window.osAPI.searchHistory(q, 'CLIQZEnvironment.displayHistory');
-  },
   //TODO: remove this dependency
   getSearchEngines: function(){
     return []

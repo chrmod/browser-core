@@ -1066,7 +1066,6 @@ var CliqzUtils = {
   isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser,
   setDefaultSearchEngine: CLIQZEnvironment.setDefaultSearchEngine,
   isUnknownTemplate: CLIQZEnvironment.isUnknownTemplate,
-  historySearch: CLIQZEnvironment.historySearch,
   getEngineByName: CLIQZEnvironment.getEngineByName,
   addEngineWithDetails: CLIQZEnvironment.addEngineWithDetails,
   getEngineByAlias: CLIQZEnvironment.getEngineByAlias,

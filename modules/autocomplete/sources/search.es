@@ -9,6 +9,7 @@ import Mixer from "./mixer";
 import SpellCheck from "./spell-check";
 import console from "../core/console";
 import { handleQuerySuggestions } from '../platform/query-suggestions';
+import historySearch from '../platform/history/search';
 
 class TimeoutError extends Error {}
 
@@ -234,7 +235,7 @@ export default class Search {
       this.historyTimer = utils.setTimeout(this.historyTimeoutCallback, this.HISTORY_TIMEOUT, this.searchString);
       this.historyTimeout = false;
       // trigger history search
-      utils.historySearch(searchString, this.onHistoryDone.bind(this));
+      historySearch(searchString, this.onHistoryDone.bind(this));
 
       var hist_search_type = utils.getPref('hist_search_type', 0);
       if (hist_search_type != 0) {
