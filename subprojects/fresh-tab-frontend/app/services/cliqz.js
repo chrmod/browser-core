@@ -81,7 +81,7 @@ export default Ember.Service.extend({
       }
 
       if(message.action === "clearNotification") {
-        this.get('notifications').clearNotification(message.message.domain);
+        this.get('notifications').clearNotification(message.message.domain, message.message.count);
       }
 
       if(message.action === "inaccessibleNotification") {
@@ -90,10 +90,6 @@ export default Ember.Service.extend({
 
       if(message.action === "accessibleNotification") {
         this.get('notifications').accessibleNotification(message.message.domain, message.message.count, message.message.hasUnread);
-      }
-
-      if(message.action === "updateMailCount") {
-        this.get('notifications').updateMailCount(message.message.domain, message.message.count, message.message.hasUnread);
       }
 
       if(message.action === "updateHistoryUrls") {

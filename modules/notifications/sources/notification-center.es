@@ -160,12 +160,7 @@ export default Evented(class {
          error: null,
          unread: newCount > oldCount
        });
-
-      if(newCount > oldCount) {
-        this.updateUnreadStatus(domain, newCount);
-      } else {
-        this.updateUnreadCount(domain, newCount);
-      }
+      this.updateUnreadStatus(domain, newCount);
     }
 
     if(oldData && oldData.status === 'inaccessible') {

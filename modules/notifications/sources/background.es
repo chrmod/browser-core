@@ -16,12 +16,6 @@ export default background({
       'new-notification'
     );
 
-    this.onCountUpdate = events.proxyEvent(
-      'notifications:update-mail-count',
-      this.notificationCenter,
-      'update-mail-count'
-    );
-
     this.onNotificationsCleared = events.proxyEvent(
       'notifications:notifications-cleared',
       this.notificationCenter,
@@ -158,23 +152,18 @@ export default background({
         count
       });
     },
-    'notifications:update-mail-count': function onCountUpdate(domain, count) {
-      this.broadcastMessage('updateMailCount', {
+    'notifications:notifications-cleared': function onNotificationsCleared(domain, count) {
+      this.broadcastMessage('clearNotification', {
         domain,
         count
       });
     },
-    'notifications:notifications-cleared': function onClearNotification(domain) {
-      this.broadcastMessage('clearNotification', {
-        domain
-      });
-    },
-    'notifications:notifications-inaccessible': function onInaccessibleNotification(domain) {
+    'notifications:notifications-inaccessible': function onNotificationsInaccessible(domain) {
       this.broadcastMessage('inaccessibleNotification', {
         domain
       });
     },
-    'notifications:notifications-accessible': function onAccessibleNotification(domain, count, hasUnread) {
+    'notifications:notifications-accessible': function onNotificationsAccessible(domain, count, hasUnread) {
       this.broadcastMessage('accessibleNotification', {
         domain,
         count,
