@@ -646,7 +646,7 @@ var CliqzUtils = {
         query: q
       });
     }
-    
+
     CliqzUtils._sessionSeq++;
 
     // if the user sees the results more than 500ms we consider that he starts a new query
@@ -656,10 +656,10 @@ var CliqzUtils = {
     CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
     CliqzUtils._queryLastLength = q.length;
     const url = CliqzUtils.RESULTS_PROVIDER + CliqzUtils.getResultsProviderQueryString(q);
-    
+
     const fetch = fetchFactory();
     return fetch(url)
-      .then(res => res.json()) 
+      .then(res => res.json())
       .then(response => ({
         response,
         query: q
@@ -864,6 +864,11 @@ var CliqzUtils = {
       }
     );
     CliqzUtils.setResultOrder('');
+  },
+  sendUserFeedback(data) {
+    data._type = 'user_feedback';
+    // Params: method, url, resolve, reject, timeout, data
+    httpHandler('POST', CLIQZEnvironment.LOG, null, null, 10000, JSON.stringify(data));
   },
   _resultOrder: '',
   setResultOrder: function(resultOrder) {

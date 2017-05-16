@@ -216,6 +216,10 @@ export default background({
     showHistoryDeletionPopup() {
       return this.history.showHistoryDeletionPopup(utils.getWindow());
     },
+
+    sendUserFeedback(data) {
+      return utils.sendUserFeedback(data);
+    },
     /*
      * returns undefined if value not is cache
      */

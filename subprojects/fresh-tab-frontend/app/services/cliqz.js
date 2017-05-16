@@ -57,6 +57,7 @@ export default Ember.Service.extend({
     this.deleteVisit = historyProxy.deleteVisit;
     this.deleteVisits = historyProxy.deleteVisits;
     this.showHistoryDeletionPopup = historyProxy.showHistoryDeletionPopup;
+    this.sendUserFeedback = historyProxy.sendUserFeedback;
 
     this.callbacks = Object.create(null);
 
