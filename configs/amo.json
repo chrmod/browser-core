@@ -62,6 +62,7 @@
     "message-center",
     "offboarding",
     "notifications",
+    "anolysis",
     "new-tab-button"
   ],
   "subprojects": [
