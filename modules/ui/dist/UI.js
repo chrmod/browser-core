@@ -1859,15 +1859,20 @@ function onEnter(ev, item){
     CLIQZ.Core.triggerLastQ = true;
 
     var customQuery = CliqzAutocomplete.CliqzResultProviders.customizeQuery(input);
-    if(customQuery){
-        urlbar.value = customQuery.queryURI;
+    var submisionForQuery, engine;
+    if (customQuery){
+        submisionForQuery = customQuery.queryURI;
+    } else {
+      engine = CliqzUtils.getDefaultSearchEngine();
+      submisionForQuery = engine.getSubmissionForQuery(input);
     }
 
-    if (input.endsWith('.')) {
-      var engine = CliqzUtils.getDefaultSearchEngine();
-      urlbar.value = engine.getSubmissionForQuery(input);
+    if (newTab) {
+      urlbar.value = ""
     }
-    return false;
+
+    CliqzUtils.openLink(window, submisionForQuery, newTab, false, false);
+    return true;
   }
   // Typed
   else if (!getResultSelection()){
