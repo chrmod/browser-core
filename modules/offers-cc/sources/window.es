@@ -5,6 +5,7 @@ import { addStylesheet } from '../core/helpers/stylesheet';
 import Panel from '../core/ui/panel';
 import console from '../core/console';
 import background from './background';
+import UITour from '../platform/ui-tour';
 
 
 function toPx(pixels) {
@@ -17,6 +18,8 @@ const firstRunPref = 'cliqz-offers-cc-initialized';
 const BTN_LABEL = '';
 const TOOLTIP_LABEL = 'CLIQZ';
 const OSE_NEW_OFFER = 'new-offer-added';
+
+const offersHubTrigger = utils.getPref('offersHubTrigger', 'off');
 
 export default class {
   constructor(settings) {
@@ -52,6 +55,7 @@ export default class {
   }
 
   onPopupHiding() {
+    UITour.hideInfo(this.window);
     // check if we need to update the state of all the offers as old
     if (this.panel.shownDurationTime <= 2000) {
       // nothing to do
@@ -276,8 +280,28 @@ export default class {
 
       if (eventID === OSE_NEW_OFFER) {
         // Auto open the panel
-        this.openPanel();
         this.badge.setAttribute('state', 'new-offers');
+
+        if (offersHubTrigger === 'tooltip') {
+          UITour.targets.set('cliqz-offers', { query: '#cliqz-offers-cc-btn', widgetName: 'cliqz-offers-cc-btn', allowAdd: true });
+          const promise = UITour.getTarget(this.window, 'cliqz-offers');
+          const win = this.window;
+          const myOptions = {
+            closeButtonCallback: () => {
+              const data = {
+                signal_type: 'action',
+                element_id: 'offer-tooltip-close-btn',
+              };
+              this.sendTelemetry(data);
+            }
+          };
+
+          promise.then((target) => {
+            UITour.showInfo(win, target, '', 'Neues Angebot', '', '', myOptions);
+          });
+        } else {
+          this.openPanel();
+        }
       }
     }).catch((err) => {
       console.log('======= event: error: ', err);
@@ -289,6 +313,7 @@ export default class {
   }
 
   closePanel() {
+    UITour.hideInfo(this.window);
     this.panel.hide();
   }
 

@@ -71,7 +71,7 @@ export class UIOfferProcessor {
 
     // we will use this flag here to identify if we should use the storage or not
     // still we will build it
-    this.shouldUseStorage = utils.getPref('offersHubEnableSwitch', false);
+    this.shouldUseStorage = utils.getPref('offersHubTrigger', 'off') !== 'off';
 
     // create the offers storage module
     this.offersStorage = new OffersStorage(this.offersHistory, this.sigHandler, this.offersDB);
@@ -191,7 +191,6 @@ export class UIOfferProcessor {
                                       offerInfoCpy.offer_id,
                                       originID,
                                       TrackSignalID.TSIG_OFFER_DISPLAYED);
-
     if (this.shouldUseStorage) {
       this._processOfferStorage(offerInfoCpy.offer_id, offerInfoCpy, OffersConfigs.OFFERS_STORAGE_DEFAULT_TTS_SECS);
     }

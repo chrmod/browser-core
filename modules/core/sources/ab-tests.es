@@ -378,12 +378,6 @@ var CliqzABTests = {
             case "1099_B":
                 CliqzUtils.setPref("attrackCookieTrustReferers", true);
                 break;
-            case "1100_A":
-                CliqzUtils.setPref('offersHubEnableSwitch', false);
-                break;
-            case "1100_B":
-                CliqzUtils.setPref('offersHubEnableSwitch', true);
-                break;
             case "1101_A":
                 CliqzUtils.setPref("modules.history.enabled", false);
                 break;
@@ -414,6 +408,16 @@ var CliqzABTests = {
             case "1103_C":
                CliqzUtils.setPref("offersDropdownAdPosition", 'right');
                break;
+            case "1104_A":
+               CliqzUtils.setPref("offersHubTrigger", 'off');
+               break;
+            case "1104_B":
+               CliqzUtils.setPref("offersHubTrigger", 'auto');
+               break;
+            case "1104_C":
+               CliqzUtils.setPref("offersHubTrigger", 'tooltip');
+               break;
+
             default:
                 rule_executed = false;
         }
@@ -668,6 +672,11 @@ var CliqzABTests = {
             case "1103_B":
             case "1103_C":
                 CliqzUtils.clearPref("offersDropdownAdPosition");
+                break;
+            case "1104_A":
+            case "1104_B":
+            case "1104_C":
+                CliqzUtils.clearPref("offersHubTrigger");
                 break;
             default:
                 rule_executed = false;

@@ -179,7 +179,12 @@ $(document).ready(() => {
       $('#cliqz-offers-cc').removeClass('feedback');
       offerElm.css('display', 'none');
       if (offerElm.parents('ul').find('li:visible').length === 0) {
-        document.getElementById('cqz-vouchers-wrapper').classList.add('no-vouchers');
+        // Check do we have collapsed offer when we delete offer. If we then we expand
+        if ($('.cqz-show-all-offers:visible').length === 0) {
+          document.getElementById('cqz-vouchers-wrapper').classList.add('no-vouchers');
+        } else {
+          $('.cqz-show-all-offers').click();
+        }
       }
       resize();
     }
