@@ -75,6 +75,7 @@
     "memdown": "1.2.2",
     "mocha": "2.5.3",
     "moment": "2.15.1",
+    "moment-range": "3.0.3",
     "node-notifier": "4.6.1",
     "pouchdb": "6.1.2",
     "rimraf": "2.5.4",

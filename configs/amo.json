@@ -63,7 +63,8 @@
     "offboarding",
     "notifications",
     "anolysis",
-    "new-tab-button"
+    "new-tab-button",
+    "abtests"
   ],
   "subprojects": [
     "fresh-tab-frontend"

@@ -96,7 +96,8 @@
     "p2p",
     "proxyPeer",
     "pairing",
-    "antitracking-blocker"
+    "antitracking-blocker",
+    "abtests"
   ],
   "subprojects": [
     "fresh-tab-frontend"
