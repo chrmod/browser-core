@@ -332,7 +332,7 @@ export default class CliqzPairing {
     }
   }
 
-  setPaired(masterID, devices) {
+  setPaired(masterID, devices, noTrigger) {
     this.status = CliqzPairing.STATUS_PAIRED;
     this.masterID = masterID;
     this.devices = devices;
@@ -355,7 +355,7 @@ export default class CliqzPairing {
       }
     };
     this.peer.onmessage = this.onPairedMessage.bind(this);
-    if (this.onpaired) {
+    if (this.onpaired && !noTrigger) {
       this.onpaired(masterID, devices);
     }
   }
@@ -537,7 +537,7 @@ export default class CliqzPairing {
       .then(() => this.initPeer())
       .then(() => {
         if (this.masterID) {
-          this.setPaired(this.masterID, this.devices);
+          this.setPaired(this.masterID, this.devices, true);
           this.checkMasterConnection();
         } else {
           this.setUnpaired(true);
