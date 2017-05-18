@@ -658,10 +658,8 @@ var CliqzUtils = {
 
               // we only set the prefered backend once at first start
               if (CliqzUtils.getPref('backend_country', '') === '') {
-                // waiting a bit to be sure first initialization is complete
-                CliqzUtils.setTimeout(function(){
-                  CliqzUtils.setDefaultIndexCountry(CliqzUtils.getPref('config_location', 'de'), true);
-                }, 2000);
+                // we fallback to german results if we did not decode the location
+                CliqzUtils.setDefaultIndexCountry(CliqzUtils.getPref('config_location', 'de'));
               }
             } catch(e){
               CliqzUtils.log(e);
@@ -674,25 +672,35 @@ var CliqzUtils = {
       );
     });
   },
-  setDefaultIndexCountry: function(country, restart) {
-    CliqzUtils.setPref('backend_country', country);
-    CliqzUtils._country = country;
+  setDefaultIndexCountry: function(country) {
+    var supportedCountries = JSON.parse(CliqzUtils.getPref("config_backends", '["de"]'));
+    if(supportedCountries.indexOf(country) !== -1){
+      // supported country
+      CliqzUtils.setPref('backend_country', country);
+    } else {
+      // unsupported country - fallback to
+      //    'de' for german speaking users
+      //    'en' for everybody else
+      if(CliqzUtils.currLocale === 'de'){
+        CliqzUtils.setPref('backend_country', 'de');
+      } else {
+        CliqzUtils.setPref('backend_country', 'us')
+      }
+    }
 
-    if(country !== 'de'){
+    if(CliqzUtils.getPref('backend_country', 'de') !== 'de'){
       // simple UI for outside germany
       CliqzUtils.setPref('dropDownStyle', 'simple');
     } else {
       CliqzUtils.clearPref('dropDownStyle');
     }
 
-    if(restart){
-      CliqzUtils.setPref('modules.ui.enabled', false);
-
-      // we need to avoid the throttle on prefs
-      CliqzUtils.setTimeout(function() {
-        CliqzUtils.setPref('modules.ui.enabled', true);
-      }, 0);
-    }
+    // restart UI module
+    CliqzUtils.setPref('modules.ui.enabled', false);
+    // we need to avoid the throttle on prefs
+    CliqzUtils.setTimeout(function() {
+      CliqzUtils.setPref('modules.ui.enabled', true);
+    }, 0);
   },
   encodeLocale: function(locale) {
     var preferred = (CliqzUtils.PREFERRED_LANGUAGE || "");
@@ -704,8 +712,7 @@ var CliqzUtils = {
     return '&locale='+ preferred;
   },
   encodeCountry: function() {
-    //international results not supported
-    return '&country=' + CliqzUtils._country;
+    return '&country=' + CliqzUtils.getPref('backend_country', 'de');
   },
   disableWikiDedup: function() {
     // disable wikipedia deduplication on the backend side
@@ -773,7 +780,6 @@ var CliqzUtils = {
   // number of queries in search session
   _queryCount: null,
   setSearchSession: function(rand){
-    CliqzUtils._country = CliqzUtils.getPref('backend_country');
     CliqzUtils._searchSession = rand;
     CliqzUtils._sessionSeq = 0;
     CliqzUtils._queryCount = 0;

@@ -647,18 +647,6 @@
     "cliqz_stock_pe_ratio": {
         "message": "P/E ratio(ttm)"
     },
-    "OutOfCoverageWarning": {
-       "message": "CLIQZ’s results for your country are not so \"gut\" yet. We are working hard to become better in your country."
-    },
-    "keep-cliqz": {
-      "message": "OK"
-    },
-    "disable-cliqz": {
-      "message": "Disable CLIQZ search"
-    },
-    "btnActivateCliqz": {
-      "message": "Activate CLIQZ search"
-    },
     "btnFreshTab": {
       "message": "Enable CLIQZ Tab"
     },
@@ -1372,9 +1360,6 @@
     },
     "control-center-quicksearch": {
       "message": "Safe Quick-Search"
-    },
-    "control-center-enable-search": {
-      "message": "Enable Cliqz Search"
     },
     "control-center-location": {
       "message": "Share location"

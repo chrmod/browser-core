@@ -68,28 +68,11 @@ export default background({
     }
   },
   events: {
-    'autocomplete:disable-search': function({urlbar}){
-      utils.setPref('cliqzBackendProvider.enabled', false);
-      if (environment.disableCliqzResults) {
-        environment.disableCliqzResults(urlbar);
-      }
-    },
-    'autocomplete:enable-search': function({urlbar}){
-      utils.setPref('cliqzBackendProvider.enabled', true);
-      if (environment.enableCliqzResults) {
-        environment.enableCliqzResults(urlbar);
-        utils.telemetry({
-          type: 'setting',
-          setting: 'international',
-          value: 'activate',
-        });
-      }
-    },
     'control-center:setDefault-search': function setDefaultSearchEngine(engine) {
       this.autocomplete.CliqzResultProviders.setCurrentSearchEngine(engine);
     },
     'control-center:setDefault-indexCountry': function setDefaultIndexCountry(country) {
-      utils.setDefaultIndexCountry(country, true);
+      utils.setDefaultIndexCountry(country);
     },
     'core:urlbar_focus': function onUrlBarFocus() {
       if (isFirefox) {

@@ -10,9 +10,7 @@ export default class {
   }
 
   init() {
-    utils.log('-- INITIALIAZING WINDOW ---', 'DEBUG');
     AutocompleteWindow.init(this.window);
-    utils.log('-- INITIALIAZED WINDOW ---', 'DEBUG');
   }
 
   unload() {

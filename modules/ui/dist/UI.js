@@ -1175,12 +1175,7 @@ function enhanceResults(res){
         //Keep original ranking of the result for telemetry purposes
         document.getElementById('ad-container').setAttribute('idx', adIndex);
       }
-    } else if (notSupported()) {
-      updateMessage('bottom', {
-          "footer-message": getNotSupported()
-       });
-    }
-    else if (CliqzAutocomplete.spellCheck &&
+    } else if (CliqzAutocomplete.spellCheck &&
       (spellCheckMessage = CliqzAutocomplete.spellCheck.getCurrentMessage(urlbar.mInputField.value))){
       updateMessage('bottom', {
         "footer-message": {
@@ -1222,41 +1217,6 @@ function enhanceResults(res){
 // 1: for minutes 0-9, 2: for minutes 10-19, etc.
 function getRandomForCurrentTime(range) {
   return 1 + Math.floor( (new Date()).getMinutes() * range / 60 );
-}
-
-function notSupported(r){
-    // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
-    // or he is in germany
-    var supportedIndexCountries = JSON.parse(CliqzUtils.getPref("config_backends", '["de"]'))
-    if(CliqzUtils.getPref("ignored_location_warning", false) ||
-        supportedIndexCountries.indexOf(CliqzUtils.getPref("backend_country", "de")) > -1 ||
-        // in case location is unknown do not show the message
-        CliqzUtils.getPref("backend_country", "de") == '') return false
-
-    //if he is not in germany he might still be  speaking the language
-    // of one of the supported countries
-    // doesn't work for countries where the country iso
-    // doesnt match the language one
-    var lang = navigator.language.toLowerCase();
-    return supportedIndexCountries.indexOf(lang) < 0  && supportedIndexCountries.indexOf(lang.split('-')[0]) < 0;
-}
-
-function getNotSupported(){
-  return {
-    simple_message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
-    telemetry: 'international',
-    type: 'cqz-message-alert',
-    options: [{
-        text: CliqzUtils.getLocalizedString('keep-cliqz'),
-        action: 'keep-cliqz',
-        state: 'success'
-      }, {
-        text: CliqzUtils.getLocalizedString('disable-cliqz'),
-        action: 'disable-cliqz',
-        state: 'error'
-      }
-    ]
-  }
 }
 
  /*
@@ -1361,19 +1321,6 @@ function urlIndexInHistory(url, urlList) {
                 var state = ev.target.getAttribute("state");
 
                 switch (state) {
-                    //not supported country
-                    case 'disable-cliqz':
-                        clearMessage('bottom');
-                        CliqzEvents.pub('autocomplete:disable-search', {
-                          urlbar: urlbar
-                        });
-                        break;
-                    case 'keep-cliqz':
-                        clearMessage('bottom');
-                        // Lets us know that the user has ignored the warning
-                        CliqzUtils.setPref('ignored_location_warning', true);
-                        break;
-
                     case 'spellcorrect-revert':
                         var revertedInput = CliqzAutocomplete.spellCheck.revert(urlbar.value);
                         urlbar.mInputField.setUserInput(revertedInput);
@@ -1400,9 +1347,7 @@ function urlIndexInHistory(url, urlList) {
                     case 'adult-showOnce':
                     case 'adult-liberal':
                         //Adult state can be conservative, moderate, liberal
-                        var state = state.split('-')[1],
-                            ignored_location_warning = CliqzUtils.getPref("ignored_location_warning"),
-                            user_location = CliqzUtils.getPref("config_location");
+                        var state = state.split('-')[1];
 
                         if (state === 'showOnce') {
                             // Old Logic telemetry, that is why is hardcoded not to break the results
@@ -1414,10 +1359,6 @@ function urlIndexInHistory(url, urlList) {
                         }
                         clearMessage('bottom');
                         UI.render();
-                        if (notSupported())
-                            updateMessage('bottom', {
-                                "footer-message": getNotSupported()
-                            });
 
                         // force a cache reset
                         CliqzEvents.pub('core:reset_cache');

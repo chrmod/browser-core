@@ -647,18 +647,6 @@
     "cliqz_stock_pe_ratio": {
         "message": "KGV (ttm)"
     },
-    "OutOfCoverageWarning": {
-       "message": "CLIQZ’s Ergebnisse sind noch nicht so gut in Deinem Land.  Wir arbeiten hart um in Deinem Land bald besser zu werden."
-    },
-    "keep-cliqz": {
-      "message": "OK"
-    },
-    "disable-cliqz": {
-      "message": "CLIQZ Suche deaktivieren"
-    },
-    "btnActivateCliqz": {
-      "message": "CLIQZ Suche aktivieren"
-    },
     "btnFreshTab": {
       "message": "CLIQZ Tab aktivieren"
     },
@@ -1372,9 +1360,6 @@
     },
     "control-center-quicksearch": {
       "message": "Sichere Schnell-Suche"
-    },
-    "control-center-enable-search": {
-      "message": "Cliqz Suche aktivieren"
     },
     "control-center-location": {
       "message": "Standort teilen"

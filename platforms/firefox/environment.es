@@ -299,7 +299,7 @@ var CLIQZEnvironment = {
       return searchEngines.filter(function (se) { return se.default; })[0];
     },
     getSearchEngines: function(blackListed = []) {
-      const SEARCH_ENGINES = CLIQZEnvironment._isSearchServiceInitialized ? 
+      const SEARCH_ENGINES = CLIQZEnvironment._isSearchServiceInitialized ?
         {
           defaultEngine: Services.search.defaultEngine,
           engines: Services.search.getEngines()
@@ -370,26 +370,6 @@ var CLIQZEnvironment = {
         uri = null
       }
       return uri;
-    },
-
-    disableCliqzResults: function (urlbar) {
-      CLIQZEnvironment.app.extensionRestart(() => {
-        prefs.set("cliqz_core_disabled", true);
-      });
-
-      // blur the urlbar so it picks up the default AutoComplete provider
-      utils.autocomplete.isPopupOpen = false;
-      setTimeout(() => {
-        urlbar.focus();
-        urlbar.blur();
-      }, 0);
-    },
-    enableCliqzResults: function (urlbar) {
-      prefs.set("cliqz_core_disabled", false);
-      CLIQZEnvironment.app.extensionRestart();
-
-      // blur the urlbar so it picks up the new CLIQZ Autocomplete provider
-      urlbar.blur();
     },
     getNoResults: function(q, dropDownStyle) {
       var se = [// default

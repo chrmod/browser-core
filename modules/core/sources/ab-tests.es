@@ -305,10 +305,6 @@ var CliqzABTests = {
             case "1088_B":
                 CliqzUtils.setPref('offers2FeatureEnabled', true);
                 break;
-            case "1091_A":
-                CliqzUtils.clearPref('dropDownABCGroup');
-                CliqzUtils.setDefaultIndexCountry(CliqzUtils.getPref('backend_country', 'de'), false);
-                break;
             case "1092_A":
                 CliqzUtils.setPref("extOnboardVideoDownloader", false);
                 break;

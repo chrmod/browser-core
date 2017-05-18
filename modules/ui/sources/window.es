@@ -216,9 +216,6 @@ export default class {
   * @method init
   */
   init() {
-    // do not initialize the UI if the user decided to turn off search
-    if(utils.getPref("cliqz_core_disabled", false)) return;
-
     // do not initialize the UI if locationbar is invisible in this window
     if(!this.window.locationbar.visible) return;
 
