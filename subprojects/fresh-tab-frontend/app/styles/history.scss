@@ -437,72 +437,6 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
               }
             }
 
-            & > div {
-              height: 22px;
-              span {
-                line-height: 22px;
-              }
-            }
-
-            .domain {
-              font-size: 11px;
-              font-weight: 500;
-              color: #8E8E8E;
-              float: left;
-            }
-
-            span {
-              color: $color-black;
-              font-size: 15px;
-            }
-
-            .logo {
-              float: left;
-              margin-right: 10px;
-
-              height: 22px;
-              width: 22px;
-              margin-left: 22px;
-              font-size: 12px;
-
-              &.big {
-                margin-left: 0px;
-                height: 44px;
-                width: 44px;
-                font-size: 24px;
-              }
-            }
-
-            .keyword {
-              box-sizing: content-box;
-              float: left;
-              border: 1px solid #D4D4D4;
-              margin-right: 5px;
-              font-weight: bold;
-              line-height: 20px;
-              display: inline-block;
-              height: 20px;
-              padding: 0px 5px;
-
-              img {
-                display: inline-block;
-                margin-top: 3px;
-                height: 15px;
-                float: left;
-                width: 15px;
-                margin-right: 5px;
-              }
-            }
-
-            .title {
-              float: left;
-              width: 25vw;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              overflow: hidden;
-              margin-right: 2vw;
-            }
-
             em {
               color: $color-black;
               border-radius: 3px;
@@ -556,6 +490,8 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
               display: inline-block;
               height: 20px;
               padding: 0px 5px;
+              max-width: calc(100% - 12px);
+              overflow-x: hidden;
 
               img {
                 display: inline-block;
@@ -573,7 +509,7 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
 
               .title {
                 float: left;
-                max-width: 25vw;
+                width: 25vw;
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 overflow: hidden;
