@@ -71,6 +71,7 @@ export default describeModule('adblocker/filters-loader',
         state() { return []; },
       },
     },
+    'platform/url': {},
     'platform/resource-loader-storage': {
       default: class {
         load() { return Promise.reject('load should not be called'); }

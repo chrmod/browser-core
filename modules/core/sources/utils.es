@@ -7,7 +7,7 @@ import tlds from "./tlds";
 import { httpHandler, promiseHttpHandler } from './http';
 import gzip from './gzip';
 import CliqzLanguage from './language';
-import { isUrl } from './url';
+import { isUrl, isIpv4Address, isIpv6Address } from './url';
 import random from './crypto/random';
 import { fetchFactory } from '../platform/fetch';
 
@@ -24,10 +24,7 @@ var VERTICAL_ENCODINGS = {
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
     LOGOS = ['wikipedia', 'google', 'facebook', 'youtube', 'duckduckgo', 'sternefresser', 'zalando', 'bild', 'web', 'ebay', 'gmx', 'amazon', 't-online', 'wiwo', 'wwe', 'weightwatchers', 'rp-online', 'wmagazine', 'chip', 'spiegel', 'yahoo', 'paypal', 'imdb', 'wikia', 'msn', 'autobild', 'dailymotion', 'hm', 'hotmail', 'zeit', 'bahn', 'softonic', 'handelsblatt', 'stern', 'cnn', 'mobile', 'aetv', 'postbank', 'dkb', 'bing', 'adobe', 'bbc', 'nike', 'starbucks', 'techcrunch', 'vevo', 'time', 'twitter', 'weatherunderground', 'xing', 'yelp', 'yandex', 'weather', 'flickr'],
-    BRANDS_DATABASE = { domains: {}, palette: ["999"] },
-    ipv4_part = "0*([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])", // numbers 0 - 255
-    ipv4_regex = new RegExp("^" + ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "([:]([0-9])+)?$"), // port number
-    ipv6_regex = new RegExp("^\\[?(([0-9]|[a-f]|[A-F])*[:.]+([0-9]|[a-f]|[A-F])+[:.]*)+[\\]]?([:][0-9]+)?$");
+    BRANDS_DATABASE = { domains: {}, palette: ["999"] };
 const schemeRE = /^(\S+?):(\/\/)?(.*)$/i;
 
 var CliqzUtils = {
@@ -317,9 +314,8 @@ var CliqzUtils = {
     // Parse Port number
     var port = "";
 
-    var isIPv4 = ipv4_regex.test(host);
-    var isIPv6 = ipv6_regex.test(host);
-
+    var isIPv4 = isIpv4Address(host);
+    var isIPv6 = isIpv6Address(host);
 
     var indexOfColon = host.indexOf(":");
     if ((!isIPv6 || isIPv4) && indexOfColon >= 0) {
@@ -360,8 +356,8 @@ var CliqzUtils = {
     if(fragment)
       extra += "#" + fragment;
 
-    isIPv4 = ipv4_regex.test(host);
-    isIPv6 = ipv6_regex.test(host);
+    isIPv4 = isIpv4Address(host);
+    isIPv6 = isIpv6Address(host);
     var isLocalhost = CliqzUtils.isLocalhost(host, isIPv4, isIPv6);
 
     // find parts of hostname
@@ -433,31 +429,9 @@ var CliqzUtils = {
     return str;
   },
   isUrl,
-  // Chechks if the given string is a valid IPv4 addres
-  isIPv4: function(input) {
-    var ipv4_part = "0*([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])"; // numbers 0 - 255
-    var ipv4_regex = new RegExp("^" + ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part
-    + "([:]([0-9])+)?$"); // port number
-    return ipv4_regex.test(input);
-  },
-
-  isIPv6: function(input) {
-
-    // Currently using a simple regex for "what looks like an IPv6 address" for readability
-    var ipv6_regex = new RegExp("^\\[?(([0-9]|[a-f]|[A-F])*[:.]+([0-9]|[a-f]|[A-F])+[:.]*)+[\\]]?([:][0-9]+)?$")
-    return ipv6_regex.test(input);
-
-    /* A better (more precise) regex to validate IPV6 addresses from StackOverflow:
-    link: http://stackoverflow.com/questions/53497/regular-expression-that-matches-valid-ipv6-addresses
-
-    var ipv6_regex = new RegExp("(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:)"
-    + "{1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,"
-    + "4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a"
-    + "-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}"
-    + "|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
-    + "|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))");
-    */
-  },
+  // Checks if the given string is a valid IPv4 addres
+  isIPv4: isIpv4Address,
+  isIPv6: isIpv6Address,
 
   isLocalhost: function(host, isIPv4, isIPv6) {
     if (host == "localhost") return true;

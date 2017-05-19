@@ -5,7 +5,11 @@
 
 export default describeModule('core/tlds',
   () => ({
-
+    'platform/url': {
+      isURI() { return false; },
+      default: {
+      },
+    },
   }),
   () => {
     let tlds;

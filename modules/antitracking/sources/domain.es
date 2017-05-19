@@ -1,4 +1,5 @@
 import psl from '../core/tlds';
+import * as url from '../core/url';
 // Functions for manipulating domain names
 
 
@@ -13,4 +14,4 @@ export function sameGeneralDomain(dom1, dom2) {
 
 
 export const getGeneralDomain = psl.getGeneralDomain;
-export const isIpv4Address = psl.isIpv4Address;
+export const isIpv4Address = url.isIpv4Address;

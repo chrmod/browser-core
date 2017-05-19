@@ -45,6 +45,7 @@ export default describeModule('adblocker/filters-engine',
         // console.log(message);
       },
     },
+    'platform/url': {},
     'core/utils': {
       default: {
       },
