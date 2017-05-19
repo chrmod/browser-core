@@ -285,31 +285,44 @@ var CLIQZEnvironment = {
         }
       }
     })(),
+    _isSearchServiceInitialized: (() => {
+      if (Services.search.init) {
+        Services.search.init(() => {
+          CLIQZEnvironment._isSearchServiceInitialized = true;
+        });
+        return false;
+      }
+      return true;
+    })(),
     getDefaultSearchEngine() {
       var searchEngines = CLIQZEnvironment.getSearchEngines();
       return searchEngines.filter(function (se) { return se.default; })[0];
     },
-    //TODO: cache this
-    getSearchEngines: function(blackListed = []){
-        var defEngineName = Services.search.defaultEngine.name;
-        return Services.search.getEngines()
-                .filter(function(e){
-                    return !e.hidden && e.iconURI != null && blackListed.indexOf(e.name) < 0;
-                })
-                .map(function(e){
-                    var r = {
-                        name: e.name,
-                        alias: e.alias,
-                        default: e.name == defEngineName,
-                        icon: e.iconURI.spec,
-                        base_url: e.searchForm,
-                        getSubmissionForQuery: function(q){
-                            //TODO: create the correct search URL
-                            return e.getSubmission(q).uri.spec;
-                        }
-                    }
-                    return r;
-                });
+    getSearchEngines: function(blackListed = []) {
+      const SEARCH_ENGINES = CLIQZEnvironment._isSearchServiceInitialized ? 
+        {
+          defaultEngine: Services.search.defaultEngine,
+          engines: Services.search.getEngines()
+        } : {
+          defaultEngine: null,
+          engines: []
+        };
+
+      return SEARCH_ENGINES.engines
+        .filter((e) => !e.hidden && e.iconURI != null && blackListed.indexOf(e.name) < 0)
+        .map((e) => {
+          return {
+            name: e.name,
+            alias: e.alias,
+            default: e === SEARCH_ENGINES.defaultEngine,
+            icon: e.iconURI.spec,
+            base_url: e.searchForm,
+            getSubmissionForQuery: function(q){
+              //TODO: create the correct search URL
+              return e.getSubmission(q).uri.spec;
+            }
+          };
+        });
     },
     blackListedEngines: function(scope) {
       const engines = {
