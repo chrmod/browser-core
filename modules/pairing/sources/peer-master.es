@@ -576,6 +576,9 @@ export default class PeerMaster {
 
   addPairingDevice(deviceID, data) {
     if (!has(this.pairingDevices, deviceID)) {
+      if (has(this.slavesById, deviceID)) {
+        this._removePeer(deviceID);
+      }
       this.pairingDevices[deviceID] = data;
       this.enableMasterPeerIfNeeded();
       this.masterPeer.addTrustedPeer(deviceID);
