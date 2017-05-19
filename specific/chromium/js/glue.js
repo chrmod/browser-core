@@ -478,6 +478,11 @@ function handleSettings() {
     CliqzUtils.setPref("adultContentFilter", ev.target.value);
   });
 
+  const indexSelector = document.getElementById('searchIndex');
+  indexSelector.addEventListener("change", function(ev) {
+    CliqzUtils.setDefaultIndexCountry(ev.target.value);
+  });
+
   CliqzEvents.sub('prefchange', function(pref){
     // recreate the settings menu if relevant prefs change
     var relevantPrefs = [
@@ -511,4 +516,8 @@ function updatePrefControls() {
   createOptionEntries(
       document.getElementById('location'),
       CliqzUtils.getLocationPermState());
+
+  createOptionEntries(
+      document.getElementById('searchIndex'),
+      CliqzUtils.autocomplete.CliqzSearchCountryProviders.getProviders());
 }

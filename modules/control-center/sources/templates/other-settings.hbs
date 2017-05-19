@@ -143,8 +143,8 @@
                 class="custom-dropdown"
                 data-target="search-index-country">
           {{#each module.autocomplete.supportedIndexCountries}}
-            <option {{#if selected }}selected{{/if}} value="{{ iso }}">
-               {{ local  label_key }}
+            <option {{#if selected }}selected{{/if}} value="{{ @key }}">
+               {{ name }}
             </option>
           {{/each}}
         </select>
