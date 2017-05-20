@@ -27,21 +27,26 @@ function observableFromSql(sql, columns) {
       PlacesUtils.withConnectionWrapper('CLIQZ', (conn) => {
         // cancel already disposed subscribtion
         if (doNothing) {
-          return;
+          return Promise.resolve();
         }
         // access raw connection to create statements that can be canceled
         const connection = conn._connectionData._dbConn;
         const statement = connection.createAsyncStatement(sql);
 
-        pendingStatement = statement.executeAsync({
-          handleResult(rowSet) {
-            for (let row = rowSet.getNextRow(); row; row = rowSet.getNextRow()) {
-              const result = rowToResults(row);
-              handleResult(result);
-            }
-          },
-          handleCompletion,
-          handleError,
+        return new Promise((resolve) => {
+          pendingStatement = statement.executeAsync({
+            handleResult(rowSet) {
+              for (let row = rowSet.getNextRow(); row; row = rowSet.getNextRow()) {
+                const result = rowToResults(row);
+                handleResult(result);
+              }
+            },
+            handleCompletion(...args) {
+              handleCompletion(...args);
+              resolve();
+            },
+            handleError,
+          });
         });
       });
 
@@ -245,6 +250,7 @@ export default class {
       .getService(Components.interfaces.nsIBrowserGlue).sanitize(window);
   }
 
+  // TODO: introduce command method to separate read from write
   static query({ limit, frameStartsAt, frameEndsAt, domain, query }) {
     const sessionsQuery = sessionIds => `
       ${visitSessionStatement}
