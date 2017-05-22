@@ -12,7 +12,6 @@
 				{{/unless}}
 			{{/if}}
 			idx='{{ @index }}'
-			hasimage='{{ hasimage image }}'
 			>
 			{{partial vertical}}
 		</div>

@@ -296,14 +296,6 @@ function registerHelpers(){
         return new Handlebars.SafeString(CliqzHandlebars.tplCache.emphasis(out));
     });
 
-    Handlebars.registerHelper('hasimage', function(image) {
-        if(image && image.src &&
-            !(image.src.indexOf('xing') !== -1 && image.src.indexOf('nobody_') !==-1))
-            return true;
-        else
-            return false
-    });
-
     Handlebars.registerHelper('date', function(_date) {
         var d = new Date(_date);
         var date = d.getDate();

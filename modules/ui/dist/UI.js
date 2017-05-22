@@ -1420,7 +1420,6 @@ function logUIEvent(el, historyLogType, extraData, query) {
     position_type: getResultKind(el),
     extra: extraData['extra'] || el.getAttribute('extra'),
     search: CliqzUtils.isSearch(url),
-    has_image: el.getAttribute('hasimage') || false,
     clustering_override: !!(lr && lr._results[0] && lr._results[0].override),
     reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
     display_time: CliqzAutocomplete.lastDisplayTime ?

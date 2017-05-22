@@ -8,7 +8,6 @@
 				arrow="false"
 			{{/if}}
 			idx='{{ @index }}'
-			hasimage='{{ hasimage image }}'
 			local-source='{{data.localSource}}'
 			>
 			{{partial 'simple-ui/result'}}
