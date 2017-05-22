@@ -317,12 +317,6 @@ var CliqzABTests = {
             case "1094_B":
               CliqzUtils.setPref("ff-experiment", true);
               break;
-            case "1095_A":
-              CliqzUtils.setPref("connect", false);
-              break;
-            case "1095_B":
-              CliqzUtils.setPref("connect", true);
-              break;
             case "1096_A":
               CliqzUtils.setPref("extOnboardCliqzConnect", false);
               break;
