@@ -7,24 +7,10 @@ export default (function() {
     if(hist === null) { //lazy
       // history autocomplete provider is removed
       // https://hg.mozilla.org/mozilla-central/rev/44a989cf6c16
-      if (CLIQZEnvironment.AB_1076_ACTIVE) {
-        console.log('AB - 1076: Initialize custom provider');
-        // If AB 1076 is not in B or firefox version less than 49 it will fall back to firefox history
-        var provider = Cc["@mozilla.org/autocomplete/search;1?name=cliqz-history-results"] ||
-                        Cc["@mozilla.org/autocomplete/search;1?name=history"] ||
-                        Cc["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];
-        hist = provider.getService(Ci["nsIAutoCompleteSearch"]);
-      } else {
-        var provider = Cc["@mozilla.org/autocomplete/search;1?name=history"] ||
-                        Cc["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];
-        hist = provider.getService(Ci["nsIAutoCompleteSearch"]);
-      }
+      var provider = Cc["@mozilla.org/autocomplete/search;1?name=history"] ||
+                      Cc["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];
+      hist = provider.getService(Ci["nsIAutoCompleteSearch"]);
     }
-    // special case: user has deleted text from urlbar
-    if(q.length != 0 && urlbar().value.length == 0) {
-      return;
-    }
-
     hist.startSearch(q, 'enable-actions', null, {
       onSearchResult: function(ctx, result) {
         var res = [];

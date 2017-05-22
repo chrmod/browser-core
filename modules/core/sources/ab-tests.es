@@ -254,12 +254,6 @@ var CliqzABTests = {
             case "1074_B":
                 CliqzUtils.setPref("cliqz-adb-abtest", true);
                 break;
-            case "1076_A":
-                CliqzUtils.setPref("history.timeouts", false);
-                break;
-            case "1076_B":
-                CliqzUtils.setPref("history.timeouts", true);
-                break;
             case "1077_A":
                 CliqzUtils.setPref("languageDedup", false);
                 break;
