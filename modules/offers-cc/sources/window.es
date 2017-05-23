@@ -297,8 +297,16 @@ export default class {
           };
 
           promise.then((target) => {
-            UITour.showInfo(win, target, '', 'Neues Angebot', '', '', myOptions);
-          });
+            UITour.showInfo(win, target, '', 'Neues Angebot', '', '', myOptions)
+            win.document.querySelector('#UITourTooltip[targetName=cliqz-offers]').addEventListener('click', (e)  =>  {
+              UITour.hideInfo(this.window);
+              if (e.target.matches('#UITourTooltipClose')) {
+                return
+              }
+                this.openPanel();
+            });
+
+         });
         } else {
           this.openPanel();
         }
