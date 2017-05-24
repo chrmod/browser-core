@@ -20,6 +20,10 @@ export default class {
     return this.rootElement.querySelector('#cliqz-dropdown');
   }
 
+  get selectedResult() {
+    return this.results.get(this.selectedIndex);
+  }
+
   nextResult() {
     if (this.selectedIndex === (this.results.length - 1)) {
       this.selectedIndex = 0;
@@ -52,9 +56,8 @@ export default class {
 
   updateSelection() {
     this.clearSelection();
-    const selectedResult = this.results.get(this.selectedIndex);
-    this.selectResult(selectedResult);
-    return selectedResult;
+    this.selectResult(this.selectedResult);
+    return this.selectedResult;
   }
 
   renderResults(results) {

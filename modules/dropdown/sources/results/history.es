@@ -2,7 +2,7 @@ import { equals } from '../../core/url';
 import BaseResult from './base';
 
 class HistoryResult extends BaseResult {
-
+  get isHistory() { return true; }
 }
 
 export default class HistoryCluster extends BaseResult {

@@ -221,14 +221,25 @@ var CliqzHistoryManager = {
       return promiseMock;
     }
   },
-  removeFromHistory: function(uri) {
-    browserHistory.removePage(uri);
+  removeFromHistory: function(url) {
+    try {
+      const uri = CliqzHistoryManager.makeURI(url);
+      browserHistory.removePage(uri);
+    } catch(e) {
+      utils.log(e.message, 'Error removing entry from history');
+    }
   },
-  removeFromBookmarks: function(uri) {
-    var itemId = PlacesUtils.getBookmarksForURI(uri);
-    bookmarkService.removeItem(itemId[0]);
+  removeFromBookmarks: function(url) {
+    try {
+      const uri = CliqzHistoryManager.makeURI(url);
+      var itemId = PlacesUtils.getBookmarksForURI(uri);
+      bookmarkService.removeItem(itemId[0]);
+    } catch(e) {
+      utils.log(e.message, "Error removing entry from bookmarks");
+    }
   },
-  isBookmarked: function(uri) {
+  isBookmarked: function(url) {
+    const uri = CliqzHistoryManager.makeURI(url);
     return bookmarkService.isBookmarked(uri);
   }
 };

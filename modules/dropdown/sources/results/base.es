@@ -227,6 +227,11 @@ export default class BaseResult {
     return this.kind[0] === 'H';
   }
 
+  get isDeletable() {
+    return this.isHistory;
+  }
+
+
   click(window, href, ev) {
     events.pub('ui:click-on-url', {
       url: href,

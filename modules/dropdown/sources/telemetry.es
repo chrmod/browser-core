@@ -75,3 +75,13 @@ export function clickSignal({ extra, coordinates, results, result, url, newTab }
   utils.telemetry(signal);
 }
 
+
+export function removeFromHistorySignal({ withBookmarks = false }) {
+  const signal = {
+    type: 'activity',
+    v: 3.0,
+    action: withBookmarks ? 'remove_from_history_and_bookmarks' : 'remove_from_history'
+  };
+
+  utils.telemetry(signal);
+}

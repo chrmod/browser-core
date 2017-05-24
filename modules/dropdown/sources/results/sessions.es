@@ -34,6 +34,10 @@ export default class extends BaseResult {
     return true;
   }
 
+  get isDeletable() {
+    return false;
+  }
+
   didRender(dropdownElement) {
     this.countPromise.then((count) => {
       const el = dropdownElement.querySelector(`#${this.elementId}`);

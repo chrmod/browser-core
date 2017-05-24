@@ -3,14 +3,16 @@ import Results from './results';
 import Popup from './popup';
 import inject from '../core/kord/inject';
 import SupplementarySearchResult from './results/supplementary-search';
+import HistoryManager from '../core/history-manager';
 import NavigateToResult from './results/navigate-to';
 import { isUrl } from '../core/url';
-import { enterSignal } from './telemetry';
+import { enterSignal, removeFromHistorySignal } from './telemetry';
 
 export default class {
 
   constructor(window, { getSessionCount }) {
     this.ui = inject.module('ui');
+    this.core = inject.module('core');
     this.handleResults = this.handleResults.bind(this);
     this.window = window;
     this.getSessionCount = getSessionCount;
@@ -103,11 +105,34 @@ export default class {
         preventDefault = false;
         break;
       }
+      case 'Delete':
+      case 'Backspace':
+        if (ev.metaKey || (ev.altKey && ev.ctrlKey)) {
+          break;
+        }
+        if (ev.code === 'Delete' ||                       // [Shift] + [Ctrl|Alt] + Del (Windows style)
+          (ev.code === 'Backspace' && ev.shiftKey)) {     // Shift + Backspace (OSX style)
+          const selectedResult = this.dropdown.selectedResult;
+          if (!selectedResult.isDeletable) {
+            break;
+          }
+
+          const url = selectedResult.url;
+          HistoryManager.removeFromHistory(url);
+          if (selectedResult.isBookmark) {
+            HistoryManager.removeFromBookmarks(url);
+            removeFromHistorySignal({ withBookmarks: true });
+          } else {
+            removeFromHistorySignal({});
+          }
+          this.core.action('queryCliqz', this.dropdown.results.query);
+          preventDefault = true;
+        }
+        break;
       default: {
         preventDefault = false;
       }
     }
-
     return preventDefault;
   }
 

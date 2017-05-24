@@ -2,7 +2,7 @@ import BaseResult from './results/base';
 import CalculatorResult from './results/calculator';
 import CurrencyResult from './results/currency';
 import WeatherResult from './results/weather';
-import HistoryResult from './results/history';
+import HistoryCluster from './results/history';
 import SessionsResult from './results/sessions';
 import { equals } from '../core/url';
 import console from '../core/console';
@@ -31,7 +31,7 @@ class ResultFactory {
     }
 
     if (rawResult.data.urls) {
-      Constructor = HistoryResult;
+      Constructor = HistoryCluster;
     }
 
     if (rawResult.type === 'cliqz-pattern' && !rawResult.data.urls) {

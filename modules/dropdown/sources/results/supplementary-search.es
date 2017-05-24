@@ -12,6 +12,10 @@ export default class SupplementarySearchResult extends BaseResult {
     return true;
   }
 
+  get isDeletable() {
+    return false;
+  }
+
   get kind() {
     const engine = this.getEngineByQuery();
     return [

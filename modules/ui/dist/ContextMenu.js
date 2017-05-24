@@ -90,7 +90,6 @@
   function removeEntry(e) {
     var item,
         url = e.target.getAttribute('data-url'),
-        uri = CliqzUtils.makeUri(url, '', null),
         chrome = CliqzUtils.getWindow();
 
     isTabOpen(url, function() {
@@ -103,16 +102,14 @@
       });
     })
 
-    if(CliqzHistoryManager.isBookmarked(uri)){
-      removeFromBookmarks(uri);
-      //TODO remove from history only if history is enabled
-      removeFromHistory(url, uri);
+    CliqzHistoryManager.removeFromHistory(url);
+    if(CliqzHistoryManager.isBookmarked(url)){
+      CliqzHistoryManager.removeFromBookmarks(url);
       telemetry('remove_from_history_and_bookmarks');
     } else {
-      removeFromHistory(url, uri);
       telemetry('remove_from_history');
     }
-
+    triggerQuery();
   }
 
   function triggerQuery() {
@@ -123,25 +120,6 @@
       urlbar.mInputField.setUserInput('');
       urlbar.mInputField.setUserInput(query);
     }, 50);
-  }
-
-  function removeFromHistory(url, uri) {
-    try {
-      CliqzHistoryManager.removeFromHistory(uri);
-      triggerQuery();
-
-    } catch(e) {
-      CliqzUtils.log(e.message, 'Error removing entry from history');
-    }
-  }
-
-  function removeFromBookmarks(uri) {
-    try {
-      CliqzHistoryManager.removeFromBookmarks(uri);
-      triggerQuery();
-    } catch(e) {
-      CliqzUtils.log(e.message, "Error removing entry from bookmarks");
-    }
   }
 
   function replaceRemoveEntry(items, withItem) {
