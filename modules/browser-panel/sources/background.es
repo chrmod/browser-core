@@ -155,6 +155,10 @@ export default background({
     // from the message-center, we will do this in a second step after
     // we add the proper functionality on other commit
     'offers-send-ch': function onOfferMessage(msg) {
+      if (!this.displayMngr) {
+        // skip this message since it is not enabled
+        return;
+      }
       if (!msg || (msg.dest && msg.dest.length && !('browser-panel' in msg.dest))) {
         linfo('offers-send-ch: skipping event, not for us or wrong format?');
         return;
