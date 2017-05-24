@@ -114,6 +114,17 @@ try {
       );
 
       global.clearRunloop();
-    }
+    },
+    _perf: function(key, time) {
+      var data = exports.CLIQZ._perfData[key] = (exports.CLIQZ._perfData[key] || {
+        total: 0,
+        max: 0,
+        n: 0,
+      });
+      data.total += time;
+      data.max = Math.max(data.max, time);
+      data.n += 1;
+    },
+    _perfData: {},
   };
 })(this);

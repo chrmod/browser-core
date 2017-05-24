@@ -32,6 +32,9 @@ var babelOptions = {
   blacklist: ['regenerator'],
 };
 
+if (cliqzConfig.instrumentFunctions) {
+  babelOptions.plugins = (babelOptions.plugins || []).concat(Instrument);
+}
 
 const eslintOptions = {
   configFile: process.cwd() + '/.eslintrc',
@@ -295,10 +298,6 @@ function getSourceTree() {
     }
   });
 
-  if (cliqzConfig.instrumentFunctions !== undefined) {
-    let threshold = parseInt(cliqzConfig.instrumentFunctions)||0;
-    sources = new Instrument(sources, {threshold:threshold});
-  }
   const transpiledSources = Babel(
     sources,
     babelOptions

@@ -92,6 +92,7 @@
     "proxyPeer",
     "antispy",
     "pairing",
+    "perf",
     "abtests"
   ],
   "subprojects": [
