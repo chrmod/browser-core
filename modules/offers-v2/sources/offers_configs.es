@@ -18,20 +18,6 @@ var OffersConfigs = {
   // and click on "more info"
   OFFER_INFORMATION_URL: 'https://cliqz.com/products/cliqz-for-desktop/cliqz-angebote',
 
-
-  //////////////////////////////////////////////////////////////////////////////
-  // UI CONFIGS
-  //
-  UI_IFRAME_WIDTH_DEF: '100%',
-  UI_IFRAME_HEIGHT_DEF: '200px',
-  UI_IFRAME_ELEM_ID: 'cqz-of-iframe',
-  UI_IFRAME_SRC_DEF: 'chrome://cliqz/content/offers-v2/index.html',
-
-  // load/save offers history persistent data (offers shown, etc)
-  LOAD_OFFERS_HISTORY_DATA: true,
-  // this will clear the current saved that
-  CLEAR_OFFERS_HISTORY_DATA: false,
-  OFFERS_HISTORY_DATA: isChromium ? undefined : 'chrome://cliqz/content/offers-v2/offers_history.json',
   // the time we want to track the signals after they were created
   OFFERS_HISTORY_LIVE_TIME_SECS: 60 * 60 * 24 * 60,
 

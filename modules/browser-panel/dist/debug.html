@@ -25,7 +25,7 @@
 
     <script>
 
-        //chrome://cliqz/content/offers-v2/debug.html
+        //chrome://cliqz/content/browser-panel/debug.html
         var iframeHolder = document.getElementById("iframe-holder");
 
         var mockOffer = [
@@ -180,7 +180,7 @@
 
             setTimeout(function () {
                 iframeElm.contentWindow.postMessage(JSON.stringify({
-                    target: "cliqz-offers",
+                    target: "cqz-browser-panel-re",
                     origin: "window",
                     message: {
                         action: "render_template",

@@ -77,7 +77,7 @@ function cqzOfferBtnClicked(ev) {
   const sigType = ev.target.getAttribute('data-cqz-of-btn-action-type') || 'button_pressed';
 
 
-  if (data === 'close-offer') {
+  if (data === 'remove-offer') {
     const feedbackElm = $(ev.target).parents('.cqz-remove-feedback').find('input[name=remove_feedback]:checked');
     const offersFeedback = feedbackElm.val() || 'feedback-no';
     // If you don't close the hub we have to reset the choice

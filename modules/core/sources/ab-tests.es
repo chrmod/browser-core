@@ -401,7 +401,12 @@ var CliqzABTests = {
             case "1104_C":
                CliqzUtils.setPref("offersHubTrigger", 'tooltip');
                break;
-
+             case "1105_A":
+                CliqzUtils.setPref('offersBrowserPanelEnableSwitch', false);
+                break;
+            case "1105_B":
+                CliqzUtils.setPref('offersBrowserPanelEnableSwitch', true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -661,6 +666,10 @@ var CliqzABTests = {
             case "1104_B":
             case "1104_C":
                 CliqzUtils.clearPref("offersHubTrigger");
+                break;
+            case "1105_A":
+            case "1105_B":
+                CliqzUtils.clearPref('offersBrowserPanelEnableSwitch');
                 break;
             default:
                 rule_executed = false;

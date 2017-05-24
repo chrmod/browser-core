@@ -246,10 +246,6 @@ modules/offers-v2/tests/unit/rules/rule-test.es
 modules/offers-v2/tests/unit/trigger_machine.test.es
 modules/offers-v2/trigger_cache.es
 modules/offers-v2/trigger_machine.es
-modules/offers-v2/ui/ui_display_manager.es
-modules/offers-v2/ui/ui_filter_rules_evaluator.es
-modules/offers-v2/ui/ui_offer_processor.es
-modules/offers-v2/ui/ui_offers_history.es
 modules/offers-v2/utils.es
 modules/offers-v2/window.es
 modules/offers/background.es

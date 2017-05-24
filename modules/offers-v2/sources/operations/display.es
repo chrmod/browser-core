@@ -25,11 +25,11 @@ function show_offer(args, eventLoop) {
 
     var env = eventLoop.environment;
 
-    if(!env.hasOffer(offerInfo.offer_id)) {
+    if(!env.isOfferActive(offerInfo.offer_id)) {
       env.addOffer(offerInfo);
     }
     else {
-      env.addRuleInfoForOffer(offerInfo.offer_id, offerInfo.rule_info);
+      env.displayOffer(offerInfo.offer_id, offerInfo.rule_info);
     }
 
     resolve();
@@ -154,11 +154,10 @@ function show_ab_offer(args, eventLoop) {
     selectedOffer.rule_info["url"] = [url];
 
 
-    if(!env.hasOffer(selectedOffer.offer_id)) {
+    if(!env.isOfferActive(selectedOffer.offer_id)) {
       env.addOffer(selectedOffer);
-    }
-    else {
-      env.addRuleInfoForOffer(selectedOffer.offer_id, selectedOffer.rule_info);
+    } else {
+      env.displayOffer(selectedOffer.offer_id, selectedOffer.rule_info);
     }
     resolve();
   });
