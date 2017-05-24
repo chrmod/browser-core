@@ -314,7 +314,7 @@ export default class CliqzPeerConnection {
       this.status = 'nosuchroute';
       this.close('nosuchroute');
     } else {
-      this.logError('Discarding no such route error', id, this.id);
+      this.logDebug('Discarding no such route error', id, this.id);
     }
   }
 
