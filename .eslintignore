@@ -311,12 +311,6 @@ modules/type-filter/window.es
 modules/ui/background.es
 modules/ui/search-history.es
 modules/ui/tests/unit/background-test.es
-modules/ui/views/currency.es
-modules/ui/views/entity-generic.es
-modules/ui/views/generic.es
-modules/ui/views/liveTicker.es
-modules/ui/views/local-data-sc.es
-modules/ui/views/partials/location/missing_location_1.es
 modules/ui/window.es
 modules/unblock/background.es
 modules/unblock/main.es

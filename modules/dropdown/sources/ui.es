@@ -166,6 +166,7 @@ export default class {
       firstResult.isAutocompleted = didAutocomplete;
     }
 
+    // TODO move these to mixer (EX-4497: Old dropdown cleanup)
     if (!didAutocomplete) {
       if (queryIsUrl) {
         results.prepend(
@@ -177,7 +178,6 @@ export default class {
         );
       }
     }
-
     this.dropdown.renderResults(results);
   }
 }

@@ -26,58 +26,9 @@ var CLIQZEnvironment = {
     OS_VERSION: Services.sysinfo.getProperty("version"),
     RERANKERS: [],
     RESULTS_TIMEOUT: 1000, // 1 second
-    TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
-      'generic': 1, 'main': 1, 'results': 1, 'text': 1, 'series': 1,
-      'spellcheck': 1,
-      'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
-      'pattern-hm': 1,
-      'topsites': 3,
-      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-      'flightStatusEZ-2': 2, 'weatherEZ': 2,
-      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 2,
-      'ligaEZ1Game': 2,
-      'ligaEZTable': 3,
-      'recipeRD': 3,
-      'rd-h3-w-rating': 1,
-      'movie': 3,
-      'vod': 3,
-      'movie-vod': 3,
-      'liveTicker': 3,
-      'simple-ui/result': 1,
-      'simple-ui/results': 1,
-      'simple-ui/main': 1
-    },
-    MESSAGE_TEMPLATES: [
-      'footer-message',
-      'footer-ad',
-      'onboarding-callout',
-      'onboarding-callout-extended',
-      'slow_connection',
-      'partials/location/missing_location_2',
-      'partials/location/no-locale-data'
-    ],
-    PARTIALS: [
-        'url',
-        'logo',
-        'EZ-category',
-        'partials/ez-title',
-        'partials/ez-url',
-        'partials/ez-history',
-        'partials/ez-description',
-        'partials/ez-generic-buttons',
-        'EZ-history',
-        'rd-h3-w-rating',
-        'pcgame_movie_side_snippet',
-        'partials/location/local-data',
-        'partials/location/missing_location_1',
-        'partials/timetable-cinema',
-        'partials/timetable-movie',
-        'partials/bottom-data-sc',
-        'partials/download',
-        'partials/streaming',
-        'partials/lyrics',
-        'simple-ui/logo'
-    ],
+    TEMPLATES: {},
+    MESSAGE_TEMPLATES: [],
+    PARTIALS: [],
     CLIQZ_ONBOARDING: "about:onboarding",
     CLIQZ_ONBOARDING_URL: "chrome://cliqz/content/onboarding-v2/index.html",
     BASE_CONTENT_URL: "chrome://cliqz/content/",
@@ -371,61 +322,19 @@ var CLIQZEnvironment = {
       }
       return uri;
     },
-    getNoResults: function(q, dropDownStyle) {
-      var se = [// default
-              {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
-              {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
-              {"name": "Google", "base_url": "https://www.google.de"},
-              {"name": "Google Images", "base_url": "https://images.google.de/"},
-              {"name": "Google Maps", "base_url": "https://maps.google.de/"}
-          ],
-          chosen = new Array(),
-          isUrl = utils.isUrl(q);
-
-      var engines = CLIQZEnvironment.CliqzResultProviders.getSearchEngines(),
-          defaultName = engines[0].name;
-
-      se.forEach(function(def){
-        engines.forEach(function(e){
-          if(def.name == e.name){
-              var url = def.base_url || e.base_url;
-
-              def.code = e.code;
-              def.style = CLIQZEnvironment.getLogoDetails(CLIQZEnvironment.getDetailsFromUrl(url)).style;
-              def.text = e.alias ? e.alias.slice(1) : '';
-
-              chosen.push(def)
-          }
-          if(e.default) defaultName = e.name;
-        })
-      })
-
-
+    getNoResults: function(q) {
+    
 
       var res = CLIQZEnvironment.Result.cliqz(
         {
           template:'noResult',
-          snippet:
-          {
-            text_line1: CLIQZEnvironment.getLocalizedString(isUrl ? 'noResultUrlNavigate' : 'noResultTitle'),
-                      // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
-                      // we should take care of this specific case differently on alternative platforms
-            text_line2: isUrl ? CLIQZEnvironment.getLocalizedString('noResultUrlSearch') : CLIQZEnvironment.getLocalizedString('noResultMessage', defaultName),
-            "search_engines": chosen,
-            //use local image in case of no internet connection
-            "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg",
-          },
+          snippet: {},
           type: 'rh',
           subType: {empty:true}
         },
         q
       );
-      if(dropDownStyle && dropDownStyle !== 'cliqzilla'){
-        const engine = this.getDefaultSearchEngine();
-        res.val = engine.getSubmissionForQuery(q);
-        res.label = CLIQZEnvironment.getLocalizedString('searchOn', engine.name);
-        res.text = res.comment = q;
-      }
+
       return res;
     }
 }

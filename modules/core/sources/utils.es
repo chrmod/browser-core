@@ -688,13 +688,6 @@ var CliqzUtils = {
       }
     }
 
-    if(CliqzUtils.getPref('backend_country', 'de') !== 'de'){
-      // simple UI for outside germany
-      CliqzUtils.setPref('dropDownStyle', 'simple');
-    } else {
-      CliqzUtils.clearPref('dropDownStyle');
-    }
-
     // restart UI module
     CliqzUtils.setPref('modules.ui.enabled', false);
     // we need to avoid the throttle on prefs

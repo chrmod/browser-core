@@ -589,12 +589,6 @@ export default class Search {
   cliqzResultFetcher(res, attemptsSoFar) {
       var json = res.response,
           q = res.query || res.q; // query will be called q if RH is down
-      if (['simple'].indexOf(utils.dropDownStyle) > -1) {
-        // Remove query-triggered RH results (smart cliqz) in simple UI && FF UI
-        json.results = json.results.filter((r) => {
-          return !(r.type === 'rh' && r.trigger_method === 'query');
-        });
-      }
       // be sure this is not a delayed result
       if(q != this.searchString) {
           this.discardedResults += 1; // count results discarded from backend because they were out of date

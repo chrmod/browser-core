@@ -6,9 +6,9 @@ import CliqzUtils from "./utils";
 import Handlebars from "handlebars";
 var CliqzHandlebars = Handlebars;
 
-var TEMPLATES = CliqzUtils.TEMPLATES,
+var TEMPLATES = CliqzUtils.TEMPLATES || [],
     MESSAGE_TEMPLATES = CliqzUtils.MESSAGE_TEMPLATES || [],
-    PARTIALS = CliqzUtils.PARTIALS,
+    PARTIALS = CliqzUtils.PARTIALS || [],
     AGO_CEILINGS = [
         [0            , '',1],
         [120          , 'ago1Minute' , 1],
