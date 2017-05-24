@@ -61,6 +61,7 @@ export default class {
       return null;
     }
 
+    this.badge.setAttribute('state', '');
     // else we will change the state of all offers
     const self = this;
     return this.offersV2.action('getStoredOffers').then((recentData) => {
@@ -68,7 +69,6 @@ export default class {
       recentData.forEach((elem) => {
         if (elem && elem.offer_id) {
           offersIDs.push(elem.offer_id);
-          self.badge.setAttribute('state', '');
         }
       });
 
@@ -336,6 +336,8 @@ export default class {
                 if (e.target.matches('#UITourTooltipClose')) {
                   return;
                 }
+
+                this.badge.setAttribute('state', '');
                 this.openPanel();
               });
             });
