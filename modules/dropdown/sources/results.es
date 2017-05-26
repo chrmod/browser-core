@@ -4,6 +4,7 @@ import CurrencyResult from './results/currency';
 import WeatherResult from './results/weather';
 import HistoryCluster from './results/history';
 import SessionsResult from './results/sessions';
+import AdultQuestionResult from './results/adult-question';
 import { equals } from '../core/url';
 import console from '../core/console';
 
@@ -59,7 +60,6 @@ class ResultFactory {
         resultList.push(result);
       }
 
-
       return {
         resultList,
         allResultsFlat,
@@ -72,10 +72,23 @@ class ResultFactory {
 
 export default class Results {
 
-  constructor({ query, rawResults, queriedAt, sessionCountPromise }) {
+  constructor({ query, rawResults, queriedAt, sessionCountPromise, queryCliqz, adultAssistant }) {
     this.query = query;
     this.queriedAt = queriedAt;
     this.results = ResultFactory.createAll(rawResults);
+
+    if (this.hasAdultResults) {
+      if (adultAssistant.isBlockingAdult) {
+        this.results = this.results.filter(result => !result.isAdult);
+      }
+
+      if (adultAssistant.isAskingForAdult) {
+        this.addAdultQuestionResult({
+          onButtonClick: queryCliqz.bind(null, this.query),
+          adultAssistant,
+        });
+      }
+    }
 
     if (this.hasHistory && sessionCountPromise) {
       this.addSessionsResult(sessionCountPromise);
@@ -153,7 +166,21 @@ export default class Results {
     );
   }
 
+  addAdultQuestionResult({ onButtonClick, adultAssistant }) {
+    this.prepend(
+      new AdultQuestionResult({
+        text: this.query,
+        onButtonClick,
+        adultAssistant,
+      })
+    );
+  }
+
   get hasHistory() {
     return this.results.some(r => r.isHistory);
+  }
+
+  get hasAdultResults() {
+    return this.results.some(r => r.isAdult);
   }
 }

@@ -1769,6 +1769,44 @@ body {
                     "type": "cliqz-extra",
                     "text": "miley",
                     "maxNumberOfSlots": 3
+                },
+            ]
+        },
+        "adult-question": {
+            query: "xvideos",
+            results: [
+                {
+                   "title":"Free Porn Videos",
+                   "url":"http://www.xvideos.com/",
+                   "description":"XVIDEOS Free Porn Videos free",
+                   "originalUrl":"http://www.xvideos.com/",
+                   "type":"cliqz-results sources-m",
+                   "text":"xvideos",
+                   "data":{
+                      "description":"XVIDEOS Free Porn Videos free",
+                      "extra":{
+                         "adult":true,
+                         "alternatives":[
+
+                         ],
+                         "language":{
+                            "en":1
+                         }
+                      },
+                      "title":"Free Porn Videos",
+                      "subType":{
+                         "i":0,
+                         "cs":0
+                      },
+                      "template":"generic",
+                      "kind":[
+                         "m|{\"i\":0,\"cs\":0}"
+                      ],
+                      "deepResults":[
+
+                      ]
+                   },
+                   "maxNumberOfSlots":3
                 }
             ]
         }
@@ -1777,6 +1815,8 @@ body {
     const System = CLIQZ.System;
     const Dropdown = System.get('dropdown/dropdown').default;
     const Results = System.get('dropdown/results').default;
+    const AdultAssistant = System.get('dropdown/adult-content-assistant').default;
+    const NavigateToResult = System.get('dropdown/results/navigate-to').default;
     const stylesheet = document.createElement('link');
     stylesheet.setAttribute('rel', 'stylesheet');
     stylesheet.setAttribute('href', 'chrome://cliqz/content/dropdown/styles/styles.css?r='+Date.now())
@@ -1803,7 +1843,12 @@ body {
                 resolve(count);
             }, 3000);
         });
-        const results = new Results({ query, rawResults, sessionCountPromise });
+        const queryCliqz = function () {};
+        let adultAssistant = new AdultAssistant();
+        const results = new Results({ query, rawResults, sessionCountPromise, queryCliqz, adultAssistant });
+        results.prepend(
+          new NavigateToResult({ text: "https://cliqz.com" })
+        );
         dropdown.renderResults(results);
     }
 

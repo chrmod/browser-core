@@ -585,10 +585,10 @@
       "message":"Besuchte Seiten"
     },
     "adultInfo": {
-        "message": "Nicht-jugendfreie Inhalte wurden automatisch blockiert. Weiterhin blockieren?"
+        "message": "Websites mit nicht-jugendfreien Inhalten wurden automatisch geblockt. Weiterhin blockieren?"
     },
     "show_once": {
-      "message":"Jetzt anzeigen"
+      "message":"Diesmal anzeigen"
     },
     "yes": {
         "message": "Ja"
@@ -600,7 +600,7 @@
         "message": "Nein"
     },
     "never": {
-        "message": "Niemals"
+        "message": "Nie"
     },
     "options": {
         "message": "Suchergebnisfilter"

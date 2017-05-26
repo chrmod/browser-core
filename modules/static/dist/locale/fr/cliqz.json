@@ -585,7 +585,7 @@
       "message":"Mes sites les plus visités"
     },
     "adultInfo": {
-        "message": "Du contenu à caractère pornographique a été bloqué automatiquement. Continuer de le bloquer ?"
+        "message": "Certains résultats à caractère pornographique ont été automatiquement bloqués. Souhaitez-vous maintenir le bloquage ?"
     },
     "show_once": {
       "message":"Montrer une fois"

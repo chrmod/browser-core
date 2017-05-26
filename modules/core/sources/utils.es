@@ -248,7 +248,7 @@ var CliqzUtils = {
   hash: function(s){
     return s.split('').reduce(function(a,b){ return (((a<<4)-a)+b.charCodeAt(0)) & 0xEFFFFFF}, 0)
   },
-  cleanMozillaActions: function(url){
+  cleanMozillaActions: function(url = ''){
     if(url.indexOf("moz-action:") == 0) {
         var [, action, url] = url.match(/^moz-action:([^,]+),(.*)$/);
         try {
@@ -982,8 +982,11 @@ var CliqzUtils = {
           selected: false
       }
     };
-
-    data[CliqzUtils.getPref('adultContentFilter', 'moderate')].selected = true;
+    let state = CliqzUtils.getPref('adultContentFilter', 'moderate');
+    if (state === 'showOnce') {
+      state = 'moderate';
+    }
+    data[state].selected = true;
 
     return data;
   },

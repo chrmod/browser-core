@@ -50,7 +50,6 @@ export default class {
       };
       return rawResult;
     });
-
     return {
       query: this.query,
       queriedAt: autocomplete.lastQueryTime,

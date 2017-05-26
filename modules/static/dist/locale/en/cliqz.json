@@ -585,7 +585,7 @@
       "message":"My Top Hits"
     },
     "adultInfo": {
-        "message": "Explicit content has been blocked automatically. Continue blocking?"
+        "message": "Websites with explicit content have been blocked automatically. Continue blocking?"
     },
     "show_once": {
       "message":"Show once"

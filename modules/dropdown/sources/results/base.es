@@ -108,6 +108,12 @@ export default class BaseResult {
     return this.localSource.indexOf('bookmark') !== -1;
   }
 
+  get isAdult() {
+    const data = this.rawResult.data || {};
+    const extra = data.extra || {};
+    return extra.adult;
+  }
+
   get icon() {
     let icon;
 

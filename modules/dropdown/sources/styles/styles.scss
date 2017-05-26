@@ -440,6 +440,48 @@ $light-gray: #f5f5f5;
         }
     }
 
+    .result.adult-question {
+        color: #8D2CB1;
+
+        & > p {
+            padding-bottom: 0.6em;
+        }
+
+        .buttons {
+            .result.btn {
+                color: #8D2CB1;
+                border-color: #EAD5F1;
+
+                &:hover,
+                &.selected {
+                    background-color: #8D2CB1;
+                    border-color: #8D2CB1;
+                }
+
+                &.adult-allow-once {
+                    background-image: url("resource://cliqz/dropdown/images/adult-icon.svg");
+                    background-repeat: no-repeat;
+                    background-position: 5px center;
+                    padding-left: 28px;
+                    padding-right: 5px;
+
+                    &:hover,
+                    &.selected {
+                        background-image: url("resource://cliqz/dropdown/images/adult-icon-hover.svg");
+                    }
+
+                    .spinner {
+                        display: inline-block;
+                        background-image: url("resource://cliqz/dropdown/images/small-spinner_square.gif");
+                        background-repeat: no-repeat;
+                        width: 20px;
+                        height: 6px;
+                    }
+                }
+            }
+        }
+    }
+
     .news {
         p {
             width: 0px;

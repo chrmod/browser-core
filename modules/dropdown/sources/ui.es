@@ -7,6 +7,7 @@ import HistoryManager from '../core/history-manager';
 import NavigateToResult from './results/navigate-to';
 import { isUrl } from '../core/url';
 import { enterSignal, removeFromHistorySignal } from './telemetry';
+import AdultAssistant from './adult-content-assistant';
 
 export default class {
 
@@ -16,6 +17,7 @@ export default class {
     this.handleResults = this.handleResults.bind(this);
     this.window = window;
     this.getSessionCount = getSessionCount;
+    this.adultAssistant = new AdultAssistant();
   }
 
   init() {
@@ -28,7 +30,8 @@ export default class {
   }
 
   sessionEnd() {
-    this.dropdown.selectionIndex = -1;
+    this.dropdown.selectedIndex = -1;
+    this.adultAssistant.resetAllowOnce();
   }
 
   keyDown(ev) {
@@ -96,7 +99,7 @@ export default class {
         }
 
         if (this.dropdown.selectedIndex > 0) {
-          const selectedResult = this.dropdown.results.get(this.dropdown.selectionIndex);
+          const selectedResult = this.dropdown.results.get(this.dropdown.selectedIndex);
           selectedResult.click(this.window, selectedResult.url, ev);
           preventDefault = true;
           break;
@@ -153,6 +156,8 @@ export default class {
       queriedAt,
       rawResults,
       sessionCountPromise: this.getSessionCount(query),
+      queryCliqz: this.core.action.bind(this.core, 'queryCliqz'),
+      adultAssistant: this.adultAssistant,
     });
     const queryIsUrl = isUrl(results.query);
     const firstResult = results.firstResult;
