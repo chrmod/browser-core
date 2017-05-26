@@ -74,7 +74,12 @@ export default Ember.Service.extend({
         this.get('messageCenter').remove(message.messageId);
       }
       if(message.action === "addMessage") {
-        this.get('messageCenter').addMessages({ [message.message.id]: message.message });
+        const msgAlreadyExists = this.get('messageCenter').messages.content.some((elem) => {
+          return elem.id === message.message.id;
+        });
+        if(!msgAlreadyExists) {
+          this.get('messageCenter').addMessages({ [message.message.id]: message.message });
+        }
       }
 
       if(message.action === "newNotification") {
