@@ -5,6 +5,7 @@ import WeatherResult from './results/weather';
 import HistoryCluster from './results/history';
 import SessionsResult from './results/sessions';
 import AdultQuestionResult from './results/adult-question';
+import LottoResult from './results/lotto';
 import { equals } from '../core/url';
 import console from '../core/console';
 
@@ -29,6 +30,10 @@ class ResultFactory {
 
     if (rawResult.data.template === 'weatherEZ' || rawResult.data.template === 'weatherAlert') {
       Constructor = WeatherResult;
+    }
+
+    if (rawResult.data.template === 'lotto') {
+      Constructor = LottoResult;
     }
 
     if (rawResult.data.urls) {
