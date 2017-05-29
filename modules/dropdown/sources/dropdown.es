@@ -1,6 +1,7 @@
 import { equals } from '../core/url';
 import templates from './templates';
 import { clickSignal } from './telemetry';
+import ContextMenu from './context-menu';
 
 export default class {
   constructor(element, window) {
@@ -14,6 +15,7 @@ export default class {
     this.rootElement.innerHTML = templates.main();
     this.dropdownElement.addEventListener('mouseup', this.onMouseUp);
     this.dropdownElement.addEventListener('mousemove', this.onMouseMove);
+    this.contextMenu = new ContextMenu(this.window, this.dropdownElement);
   }
 
   get dropdownElement() {
@@ -104,16 +106,22 @@ export default class {
     ];
     const result = this.results.find(href);
 
-    result.click(this.window, href, ev);
+    if (ev.button === 2) {
+      // using href instead of result.url because for every link in HistoryCluster
+      // result.url contains the same url (topmost history domain)
+      this.contextMenu.show(href, result, { x: ev.screenX, y: ev.screenY });
+    } else {
+      result.click(this.window, href, ev);
 
-    clickSignal({
-      extra,
-      coordinates,
-      results: this.results,
-      result,
-      url: href,
-      newTab: ev.ctrlKey || ev.metaKey,
-    });
+      clickSignal({
+        extra,
+        coordinates,
+        results: this.results,
+        result,
+        url: href,
+        newTab: ev.ctrlKey || ev.metaKey,
+      });
+    }
   }
 
   onMouseMove(ev) {

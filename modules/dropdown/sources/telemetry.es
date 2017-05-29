@@ -75,6 +75,17 @@ export function clickSignal({ extra, coordinates, results, result, url, newTab }
   utils.telemetry(signal);
 }
 
+export function dropdownContextMenuSignal({ action = 'click', context = 'dropdown', target }) {
+  const signal = {
+    action,
+    context,
+    target,
+    type: 'context_menu',
+  };
+
+  utils.telemetry(signal);
+}
+
 
 export function removeFromHistorySignal({ withBookmarks = false }) {
   const signal = {
