@@ -211,25 +211,17 @@ export default background({
   onUrlChange(urlObj, url) {
     if(url) {
       this.env.emitUrlChange(url, urlObj);
-
-      LoggingHandler.LOG_ENABLED &&
-      LoggingHandler.info(MODULE_NAME, JSON.stringify(urlObj));
     }
   },
 
   onHttpRequest(reqObj) {
     if(reqObj && reqObj.req_obj && reqObj.req_obj.url) {
       this.env.emitUrlChange(reqObj.req_obj.url);
-
-      LoggingHandler.LOG_ENABLED &&
-      LoggingHandler.info(MODULE_NAME, JSON.stringify(reqObj.req_obj.url));
     }
   },
 
   //////////////////////////////////////////////////////////////////////////////
   events: {
-    'content:location-change': function onLocationChange({ url }) {
-    },
   },
 
   actions: {
