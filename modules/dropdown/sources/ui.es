@@ -69,7 +69,8 @@ export default class {
         preventDefault = true;
         break;
       }
-      case 'Enter': {
+      case 'Enter':
+      case 'NumpadEnter': {
         enterSignal({
           dropdown: this.dropdown,
           newTab: ev.altKey || ev.metaKey,
