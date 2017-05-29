@@ -43,6 +43,7 @@ export default class FilterRulesEvaluator {
       not_created_last_secs: this._notCreatedLastSecs.bind(this),
       not_timedout_mt: this._notTimedoutMt.bind(this),
       not_diplayed_mt: this._notDisplayedMt.bind(this),
+      not_removed_last_secs: this._notRemovedLastSecs.bind(this)
     };
   }
 
@@ -175,6 +176,33 @@ export default class FilterRulesEvaluator {
       if (lastTimeShownSecs < notCreatedLastSecs) {
         linfo(`_notCreatedLastSecs: the offer was shown ${lastTimeShownSecs}` +
               ` seconds ago and the rule specifies: ${notCreatedLastSecs}`);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks when the offer was removed from a RE (like the Hub)
+   * for the last time (if it was at all), and decides whether it should be shown again.
+   * @param  {[type]} offerID  [description]
+   * @param  {[type]} offerDisplayID  [description]
+   * @param  {integer} notRemovedLastSecs  how much time (in sec) should pass before
+   *                                       showing an offer again after being removed.
+   * @return {boolean} true on success (show it) | false otherwise
+   */
+  _notRemovedLastSecs(offerID, offerDisplayID, notRemovedLastSecs) {
+    const lastTimeRemoved = this.offersDB.getOfferActionMeta(offerID,
+      ActionID.AID_OFFER_REMOVED);
+    if (!lastTimeRemoved) {
+      return true;
+    }
+    if (lastTimeRemoved.l_u_ts) {
+      // calculate the time diff
+      const lastTimeRemovedSecs = (Date.now() - lastTimeRemoved.l_u_ts) / 1000;
+      if (lastTimeRemovedSecs < notRemovedLastSecs) {
+        linfo(`_notRemovedLastSecs: the offer was removed ${lastTimeRemovedSecs}` +
+          ` seconds ago and the rule specifies: ${notRemovedLastSecs}`);
         return false;
       }
     }

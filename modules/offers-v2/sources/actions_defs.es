@@ -36,7 +36,7 @@ const ActionID = {
   // whenever we create the offer for the first time or it is activated. Note that
   // this is not as before (that has the meaning of "created"), now is more "activated".
   AID_OFFER_ADDED: 'offer_added',
-  // whenever an offer that is currently active gets unactive, for example if
+  // whenever an offer that is currently active gets inactive, for example if
   // an offer is closed or timed out or removed (while being active) then it will
   // be deactivated.
   AID_OFFER_DEACTIVATED: 'offer_deactivated',
