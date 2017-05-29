@@ -41,6 +41,7 @@ export default class FilterRulesEvaluator {
       not_closed_mt: this._notClosedMt.bind(this),
       not_added_mt: this._notAddedMt.bind(this),
       not_created_last_secs: this._notCreatedLastSecs.bind(this),
+      not_clicked_last_secs: this._notClickedLastSecs.bind(this),
       not_timedout_mt: this._notTimedoutMt.bind(this),
       not_diplayed_mt: this._notDisplayedMt.bind(this),
       not_removed_last_secs: this._notRemovedLastSecs.bind(this)
@@ -163,6 +164,33 @@ export default class FilterRulesEvaluator {
     return true;
   }
 
+  /**
+   * Checks when the offer was used (clicked) for the last time (if it was at all),
+   * and decides whether it should be shown again.
+   * @param  {[type]} offerID  [description]
+   * @param  {[type]} offerDisplayID  [description]
+   * @param  {integer} notClickedLastSecs  how much time (in sec) should pass before
+   *                                       showing an offer again after being clicked.
+   * @return {boolean} true on success (show it) | false otherwise
+   */
+  _notClickedLastSecs(offerID, offerDisplayID, notClickedLastSecs) {
+    const lastTimeClicked = this.offersDB.getOfferActionMeta(offerID,
+                                                             ActionID.AID_OFFER_CALL_TO_ACTION);
+    if (!lastTimeClicked) {
+      return true;
+    }
+    if (lastTimeClicked.l_u_ts) {
+      // calculate the time diff
+      const lastTimeClickedSecs = (Date.now() - lastTimeClicked.l_u_ts) / 1000;
+      if (lastTimeClickedSecs < notClickedLastSecs) {
+        linfo(`_notClickedLastSecs: the offer was clicked ${lastTimeClickedSecs}` +
+              ` seconds ago and the rule specifies: ${notClickedLastSecs}`);
+        return false;
+      }
+    }
+    return true;
+  }
+
   _notCreatedLastSecs(offerID, offerDisplayID, notCreatedLastSecs) {
     const lastTimeAdded = this.offersDB.getOfferDisplayActionMeta(offerDisplayID,
                                                                   ActionID.AID_OFFER_ADDED);
@@ -193,7 +221,7 @@ export default class FilterRulesEvaluator {
    */
   _notRemovedLastSecs(offerID, offerDisplayID, notRemovedLastSecs) {
     const lastTimeRemoved = this.offersDB.getOfferActionMeta(offerID,
-      ActionID.AID_OFFER_REMOVED);
+                                                             ActionID.AID_OFFER_REMOVED);
     if (!lastTimeRemoved) {
       return true;
     }
