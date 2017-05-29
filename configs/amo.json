@@ -33,6 +33,7 @@
   },
   "priority": [
     "core",
+    "dropdown",
     "firefox-specific",
     "static",
     "autocomplete",
@@ -42,21 +43,21 @@
     "hpn"
   ],
   "modules": [
+    "core",
+    "dropdown",
     "firefox-specific",
     "static",
-    "core",
     "autocomplete",
+    "geolocation",
     "ui",
     "human-web",
     "anti-phishing",
     "context-menu",
-    "onboarding",
+    "freshtab",
     "telemetry-categories",
     "antitracking",
     "performance",
     "hpn",
-    "geolocation",
-    "freshtab",
     "control-center",
     "offers-v2",
     "browser-panel",
@@ -65,7 +66,9 @@
     "notifications",
     "anolysis",
     "new-tab-button",
-    "abtests"
+    "abtests",
+
+    "onboarding"
   ],
   "subprojects": [
     "fresh-tab-frontend"
