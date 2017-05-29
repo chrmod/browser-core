@@ -166,7 +166,7 @@ function ViewPager(elem, options) {
       }
 
       if(!position) {
-         //return;
+         return;
       }
 
       handleOnScroll(position);
