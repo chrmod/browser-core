@@ -42,7 +42,11 @@ export default background({
 
   events: {
     'autocomplete:search': function onSearch(query) {
-      return; // TEMP
+      /* eslint-disable */
+      if (true) {
+        return; // TEMP
+      }
+      /* eslint-enable */
       if (this.sessionCountSubscribtion) {
         this.sessionCountSubscribtion.dispose();
       }
