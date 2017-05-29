@@ -101,7 +101,7 @@
     "proxyPeer",
     "pairing",
     "antitracking-blocker",
-    "green-ads",
+    "green-ads"
   ],
   "subprojects": [
     "fresh-tab-frontend"
