@@ -171,9 +171,17 @@ export class EventHandler {
 
   //////////////////////////////////////////////////////////////////////////////
   onLocationChangeHandler(url, referrer) {
-    var u = utils.getDetailsFromUrl(url);
-    LoggingHandler.LOG_ENABLED &&
-    LoggingHandler.info(MODULE_NAME, 'location changed to ' + u.host);
+    // we will filter some urls here, we need to add them in the future we will
+    // https://cliqztix.atlassian.net/browse/EX-4570
+    // resource://
+    // about:
+    // file://
+    if (!url ||
+        !(url.startsWith('http://') || url.startsWith('https://'))) {
+      return;
+    }
+
+    const u = utils.getDetailsFromUrl(url);
 
     // now we add the referrer to the url
     if (referrer) {
