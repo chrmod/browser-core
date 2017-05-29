@@ -9,6 +9,7 @@ let ops = {};
  * @param  {string} url   the current url
  * @param  {object} offer  is the offer object itself
  * @return {void} nothing
+ * @version 1.0
  */
 function show_offer(args, eventLoop) {
   return new Promise((resolve, reject) => {
@@ -43,6 +44,7 @@ function show_offer(args, eventLoop) {
  * @param  {integer} secs The number of seconds
  * @return {boolean} true if the offer was "added" in the last secs seconds or false
  *                   otherwise
+ * @version 1.0
  */
 function offer_added(args, eventLoop) {
   return new Promise((resolve, reject) => {
@@ -81,6 +83,7 @@ function offer_added(args, eventLoop) {
  *  4) After selecting that offer we show it as usual.
  * @param {string} url is the url that we want to
  * @param {list} offerList is the list of offers with their given percentage
+ * @version 1.0
  */
 function show_ab_offer(args, eventLoop) {
   return new Promise((resolve, reject) => {

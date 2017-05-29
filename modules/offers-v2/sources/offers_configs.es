@@ -24,6 +24,8 @@ var OffersConfigs = {
   // trigger specific browser history
   LOAD_TRIGGER_HISTORY_DATA: true,
   TRIGGER_HISTORY_DATA: isChromium ? undefined : 'chrome://cliqz/content/offers-v2/trigger_history.json',
+  // the current trigger engine version
+  TRIGGER_ENGINE_VERSION: '1',
 
   // offer storage
   LOAD_OFFERS_STORAGE_DATA: true,

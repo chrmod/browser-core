@@ -21,6 +21,9 @@ export default class ExtensionEnvironment extends EmptyEnvironment {
 
     return new Promise((resolve, reject) => {
       var pairs = [];
+
+      // we will always set the engine version as argument
+      params.t_eng_ver = OffersConfigs.TRIGGER_ENGINE_VERSION;
       for(var prop in params) {
         pairs.push(prop + '=' + encodeURIComponent(params[prop]));
       }
