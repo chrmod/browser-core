@@ -42,6 +42,7 @@ export default background({
 
   events: {
     'autocomplete:search': function onSearch(query) {
+      return; // TEMP
       if (this.sessionCountSubscribtion) {
         this.sessionCountSubscribtion.dispose();
       }

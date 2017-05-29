@@ -91,7 +91,7 @@ export default class Results {
     }
 
     if (this.hasHistory && sessionCountPromise) {
-      this.addSessionsResult(sessionCountPromise);
+      // TEMP: this.addSessionsResult(sessionCountPromise);
     }
 
     this.displayedAt = Date.now();
