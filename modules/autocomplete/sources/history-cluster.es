@@ -526,17 +526,13 @@ var CliqzHistoryCluster = {
   createInstantResult: function(res, searchString, callback, customResults) {
     var instant_results = [];
     var results = res.filteredResults();
-    var promises = [];
 
     if (results.length === 0 && !res.urls) {
       // no results, so do nothing
-
     } else if (res.urls) {
       // Rule-based clustering has already been performed, just take the entry as it is
       var instant = Result.generic('cliqz-pattern', res.url, res.urls[0].favicon, res.title, null, searchString, res);
       instant.data.debug ='(history rules cluster)!';
-      // override with any titles we have saved
-      //promises.push(CliqzHistoryCluster._getTitle(instant));
 
       instant.data.template = 'pattern-h2';
       instant.data.cluster = true; // a history cluster based on a destination bet
@@ -565,13 +561,6 @@ var CliqzHistoryCluster = {
       }
       instant.data.localSource = results[0].style;
       instant.data.title = title;
-      // override with any titles we have saved
-      //promises.push(CliqzHistoryCluster._getTitle(instant));
-
-      // get description in case we need it
-      //(if this cluster is converted back to simple history)
-      //promises.push(CliqzHistoryCluster._getDescription(instant));
-
       instant.data.url = results[0].url;
       instant.data.debug = '(history domain cluster)!';
       instant.data.template = 'pattern-h2';
@@ -592,7 +581,6 @@ var CliqzHistoryCluster = {
         instant.data.debug = '(history generic)!';
         instant.data.kind = ['H'];
         instant.data.localSource = results[i].style;
-        //promises.push(CliqzHistoryCluster._getDescription(instant));
         instant_results.push(instant);
       }
     } else {
@@ -607,14 +595,7 @@ var CliqzHistoryCluster = {
       instant_results.push(instant);
     }
 
-    if (typeof(Promise) === 'undefined') {
-      // Firefox versions < 29
-      callback(instant_results, 'cliqz-prod');
-    } else {
-      Promise.all(promises).then(function(data) {
-        callback(instant_results, 'cliqz-prod');
-      });
-    }
+    callback(instant_results, 'cliqz-prod');
   },
   // Creates one (or potentially more) instant results based on history
   simpleCreateInstantResult: function(res, cont, searchString, callback) {
