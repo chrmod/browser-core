@@ -494,7 +494,6 @@ const urlbarEventHandlers = {
 
     autocomplete.lastFocusTime = Date.now();
     SearchHistory.hideLastQuery(this.window);
-    this.triggerLastQ = false;
     utils.setSearchSession(utils.rand(32));
     this.urlbarEvent('focus');
 
@@ -523,8 +522,7 @@ const urlbarEventHandlers = {
     // reset this flag as it can block the dropdown from opening
     autocomplete.isPopupOpen = false;
 
-    if(this.window.CLIQZ.Core.triggerLastQ)
-        SearchHistory.lastQuery(this.window);
+    SearchHistory.lastQuery(this.window);
 
     this.urlbarEvent('blur');
 

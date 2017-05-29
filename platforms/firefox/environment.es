@@ -82,7 +82,6 @@ var CLIQZEnvironment = {
                 historyService.markPageAsTyped(urlObject);
         } catch(e) { }
 
-        win.CLIQZ.Core.triggerLastQ = true;
         if(newTab) {
           const tab = win.gBrowser.addTab(url);
           if (focus) {
@@ -323,7 +322,7 @@ var CLIQZEnvironment = {
       return uri;
     },
     getNoResults: function(q) {
-    
+
 
       var res = CLIQZEnvironment.Result.cliqz(
         {
