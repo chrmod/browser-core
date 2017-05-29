@@ -100,7 +100,8 @@
     "p2p",
     "proxyPeer",
     "pairing",
-    "antitracking-blocker"
+    "antitracking-blocker",
+    "green-ads",
   ],
   "subprojects": [
     "fresh-tab-frontend"

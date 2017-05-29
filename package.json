@@ -16,6 +16,8 @@
   },
   "author": "Cliqz GmbH",
   "dependencies": {
+    "cron": "^1.2.1",
+    "cron-parser": "^2.4.0",
     "deep-equal": "1.0.1",
     "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox-3",
     "jsep": "0.3.0",

@@ -13,7 +13,7 @@ function get(url) {
   return new Promise((resolve, reject) => {
     utils.httpGet(url, (res) => {
       resolve(res.response);
-    }, reject, 10 * ONE_SECOND);
+    }, reject, 300 * ONE_SECOND);
   });
 }
 

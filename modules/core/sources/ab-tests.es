@@ -407,6 +407,15 @@ var CliqzABTests = {
             case "1105_B":
                 CliqzUtils.setPref('offersBrowserPanelEnableSwitch', true);
                 break;
+            case "1106_A":
+               CliqzUtils.setPref("greenads", 'green');
+               break;
+            case "1106_B":
+               CliqzUtils.setPref("greenads", 'collect');
+               break;
+            case "1106_C":
+               CliqzUtils.setPref("greenads", 'disabled');
+               break;
             default:
                 rule_executed = false;
         }
@@ -671,6 +680,11 @@ var CliqzABTests = {
             case "1105_B":
                 CliqzUtils.clearPref('offersBrowserPanelEnableSwitch');
                 break;
+            case "1106_A":
+            case "1106_B":
+            case "1106_C":
+               CliqzUtils.clearPref("greenads");
+               break;
             default:
                 rule_executed = false;
         }
