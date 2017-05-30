@@ -133,6 +133,7 @@ export default background({
     };
     this.env.offerProcessor = this.offerProc;
     this.env.signalHandler = this.signalsHandler;
+    this.env.offersDB = this.offersDB;
 
     // to be checked on unload
     this.initialized = true;

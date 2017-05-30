@@ -97,6 +97,13 @@ export default class ExtensionEnvironment extends EmptyEnvironment {
     }
   }
 
+  isOfferPresent(offerID) {
+    if (!this.offersDB) {
+      return false;
+    }
+    return this.offersDB.isOfferPresent(offerID);
+  }
+
   getOfferLastUpdate(offerId, signal) {
     var offerProc = this.offerProcessor;
 
@@ -120,17 +127,14 @@ export default class ExtensionEnvironment extends EmptyEnvironment {
   }
 
 
-  sendSignal(campaignId, offerId, key) {
-    function addOrCreate(d, field, value) {
-      const elem = d[field];
-      if (elem) {
-        d[field] = elem + value;
-      } else {
-        d[field] = value;
-      }
+  sendSignal(offerId, key) {
+    if (!offerId || !key || !this.offersDB) {
+      return;
     }
 
-    if (!campaignId || !offerId || !key) {
+    // get the campaign id for this offer if we have one.
+    const campaignId = this.offersDB.getCampaignID(offerId);
+    if (!campaignId) {
       return;
     }
 
