@@ -21,6 +21,7 @@ export default class ContextMenu {
   show(url, result, { x, y }) {
     const contextMenu = this.createMenu(url, result);
     utils.openPopup(contextMenu, {}, x, y);
+    dropdownContextMenuSignal({ action: 'open' });
   }
 
   getLocalizedStrings() {

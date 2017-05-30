@@ -79,9 +79,12 @@ export function dropdownContextMenuSignal({ action = 'click', context = 'dropdow
   const signal = {
     action,
     context,
-    target,
     type: 'context_menu',
   };
+
+  if (target) {
+    signal.target = target;
+  }
 
   utils.telemetry(signal);
 }
