@@ -1272,7 +1272,7 @@
       "message": "Tracking Unternehmen auf dieser Seite"
     },
     "control-center-info-trackers": {
-      "message": "Auf fast allen Websites zeichnen integrierte Tracker deine Aktivitäten im Web auf. CLIQZ unterbindet die Daten, anhand derer du identifiziert werden könntest, bevor sie an die Tracking-Dienste gesendet werden. Wie viele einzelne Daten das sind, sagt dir die Zahl. Klick auf das Feld um nähere Details zu sehen."
+      "message": "Auf fast allen Websites zeichnen integrierte Tracker deine Aktivitäten im Web auf. Cliqz unterbindet die Daten, anhand derer du identifiziert werden könntest, bevor sie an die Tracking-Dienste gesendet werden. Wie viele einzelne Daten das sind, sagt dir die Zahl. Klick auf das Feld um nähere Details zu sehen."
     },
     "control-center-info-phishing-title": {
       "message": "Anti-Phishing"
@@ -1314,7 +1314,7 @@
       "message": "Human Web"
     },
     "control-center-info-hw": {
-      "message": "CLIQZ arbeitet mit anonymisierten Daten über Suchanfragen und Website-Besuchen, die von der Gemeinschaft der Nutzer geschaffen werden. Die Technologie, die diese Daten erhebt und daraus einen Web-Index aufbaut, nennen wir Human Web."
+      "message": "Cliqz arbeitet mit anonymisierten Daten über Suchanfragen und Website-Besuchen, die von der Gemeinschaft der Nutzer geschaffen werden. Die Technologie, die diese Daten erhebt und daraus einen Web-Index aufbaut, nennen wir Human Web."
     },
     "control-center-info-forget-mode-title": {
       "message": "Automatischer Vergessen Modus"
@@ -1326,7 +1326,7 @@
       "message": "Standort Teilen"
     },
     "control-center-info-share-location": {
-      "message": "CLIQZ kann jetzt auch nach Ergebnissen in deiner Nähe suchen. Genauere Suchergebnisse erhältst du, wenn du <strong>Immer</strong> Standort teilen auswählst. Deine Standort-Information dient nur der automatischen Verbesserung deiner Suchergebnisse und wird niemals weitergegeben oder anderweitig verwendet."
+      "message": "Cliqz kann jetzt auch nach Ergebnissen in deiner Nähe suchen. Genauere Suchergebnisse erhältst du, wenn du <strong>Immer</strong> Standort teilen auswählst. Deine Standort-Information dient nur der automatischen Verbesserung deiner Suchergebnisse und wird niemals weitergegeben oder anderweitig verwendet."
     },
     "control-center-info-share-location-link": {
       "message": "Mehr erfahren"

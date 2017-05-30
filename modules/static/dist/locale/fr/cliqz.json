@@ -1272,7 +1272,7 @@
       "message": "Entreprises traqueuses de cette page"
     },
     "control-center-info-trackers": {
-      "message": "Il est courant que des sites Web placent des traqueurs pour enregistrer les activités des utilisateurs. CLIQZ bloque les données qui peuvent être utilisées afin de vous identifier avant que les traqueurs ne les obtiennent. La chiffre ici vous montre le nombre de données personnelles sécurisées par CLIQZ. Cliquez dessus pour plus de détails."
+      "message": "Il est courant que des sites Web placent des traqueurs pour enregistrer les activités des utilisateurs. Cliqz bloque les données qui peuvent être utilisées afin de vous identifier avant que les traqueurs ne les obtiennent. La chiffre ici vous montre le nombre de données personnelles sécurisées par CLIQZ. Cliquez dessus pour plus de détails."
     },
     "control-center-info-phishing-title": {
       "message": "Anti-Phishing"
@@ -1314,7 +1314,7 @@
       "message": "Human Web"
     },
     "control-center-info-hw": {
-      "message": "CLIQZ fonctionne grâce à des données anonymisées de requêtes et pages visitées par notre communauté d'utilisateurs. La technologie utilisée pour collecter ces données afin de construire nos index est appelée « Human Web »"
+      "message": "Cliqz fonctionne grâce à des données anonymisées de requêtes et pages visitées par notre communauté d'utilisateurs. La technologie utilisée pour collecter ces données afin de construire nos index est appelée « Human Web »"
     },
     "control-center-info-forget-mode-title": {
       "message": "Mode « Oubli » Automatique"
