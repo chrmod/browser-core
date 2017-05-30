@@ -10,7 +10,7 @@ function getRandomInt(min, max) {
 }
 
 
-export default describeModule('proxyPeer/message-queue',
+export default describeModule('core/message-queue',
   () => ({
     'core/console': {
       default: {

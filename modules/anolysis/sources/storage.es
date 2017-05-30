@@ -62,17 +62,24 @@ export default class {
   }
 
   put(doc) {
-    const type = this.getDocType(doc);
-    const timestamp = getSynchronizedDate().format(DATE_FORMAT);
-    const docHash = md5(JSON.stringify(doc));
-    const decoratedDoc = Object.assign({
-      ts: doc.ts || timestamp,
-      _id: doc._id || `${doc.ts || Date.now()}/${type}/${docHash}`,
-    }, doc);
+    const decoratedDoc = doc;
 
+    // Add a timestamp
+    if (decoratedDoc.ts === undefined) {
+      decoratedDoc.ts = getSynchronizedDate().format(DATE_FORMAT);
+    }
+
+    // Add an _id
+    if (decoratedDoc._id === undefined) {
+      const type = this.getDocType(doc);
+      const docHash = md5(JSON.stringify(doc));
+      decoratedDoc._id = `${doc.ts || Date.now()}/${type}/${docHash}`;
+    }
+
+    // Insert/Update document
     return this.database.put(decoratedDoc)
-      .then(() => decoratedDoc)
-      .catch((ex) => { logger.error(`put exception ${ex} ${JSON.stringify(decoratedDoc)}`); });
+      .catch((ex) => { logger.error(`put exception ${ex} ${JSON.stringify(decoratedDoc)}`); })
+      .then(() => decoratedDoc);
   }
 
   getN(n) {
@@ -129,8 +136,12 @@ export default class {
   deleteByTimespan(timespan) {
     return this.getByTimespan(timespan)
       .then((documents) => {
-        logger.debug(`remove ${documents.length} with timespan ${JSON.stringify(timespan)}`);
-        return Promise.all(documents.map(doc => this.database.remove(doc)));
-      });
+        logger.error(`remove ${documents.length} with timespan ${JSON.stringify(timespan)}`);
+        // Delete documents in bulk
+        return this.database.bulkDocs(
+          // Add a _deleted: true to each document to make sure they are deleted
+          documents.map(doc => Object.assign(doc, { _deleted: true }))
+        );
+      }).catch(err => logger.error(`could not deleteByTimespan ${err} ${err.stack}`));
   }
 }

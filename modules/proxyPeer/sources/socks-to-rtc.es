@@ -1,5 +1,6 @@
 import { utils } from '../core/cliqz';
 import { fromUTF8 } from '../core/encoding';
+import MessageQueue from '../core/message-queue';
 
 import logger from './logger';
 import { AUTH_METHOD
@@ -10,7 +11,6 @@ import { wrapOnionRequest
        , decryptResponseFromExitNode
        , ERROR_CODE } from './rtc-onion';
 import { generateAESKey, wrapAESKey } from '../core/crypto/utils';
-import MessageQueue from './message-queue';
 
 
 // From:  http://stackoverflow.com/a/6274381

@@ -1,4 +1,4 @@
-import logger from './logger';
+import console from './console';
 
 
 /**
@@ -48,8 +48,12 @@ export default function (name, callback) {
    */
   const registerCallbackOnData = () => {
     getNextData()
-      .then(([data, resolvePush]) => Promise.resolve(callback(data)).then(resolvePush))
-      .catch(ex => logger.error(`MessageQueue ${name} :: error: ${ex}`))
+      .then(([data, resolvePush, rejectPush]) =>
+        Promise.resolve(callback(data))
+          .then(resolvePush)
+          .catch(rejectPush)
+      )
+      .catch(ex => console.error(`MessageQueue ${name} :: error: ${ex}`))
       .then(registerCallbackOnData);
   };
 
@@ -66,13 +70,15 @@ export default function (name, callback) {
       // next message.
       const resolve = globalResolve;
       globalResolve = null;
-      return new Promise(resolvePush => resolve([data, resolvePush]));
+      return new Promise(
+        (resolvePush, rejectPush) => resolve([data, resolvePush, rejectPush])
+      );
     }
 
     // If no `getNextData` is waiting, then push the message into the
     // queue for later processing.
-    return new Promise((resolve) => {
-      queue.push([data, resolve]);
+    return new Promise((resolve, reject) => {
+      queue.push([data, resolve, reject]);
     });
   };
 
