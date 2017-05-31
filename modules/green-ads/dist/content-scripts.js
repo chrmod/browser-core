@@ -3,11 +3,11 @@
  *
  */
 
-let selectedAds;
+var selectedAds;
 
 
 function greenAdsInjectScript(s, doc) {
-  const script = doc.createElement('script');
+  var script = doc.createElement('script');
   script.type = 'text/javascript';
   script.id = 'cliqz-adblocker-script';
   script.textContent = s;
@@ -16,7 +16,7 @@ function greenAdsInjectScript(s, doc) {
 
 
 function greenAdsBlockScript(filter, document) {
-  const fRegex = new RegExp(filter);
+  var fRegex = new RegExp(filter);
   document.addEventListener('beforescriptexecute', (ev) => {
     if (fRegex.test(ev.target.textContent)) {
       ev.preventDefault();
@@ -30,7 +30,7 @@ function greenAdsBlockScript(filter, document) {
  *                              WINDOW UTILS
  ****************************************************************************/
 
-const debug = false;
+var debug = false;
 function _dump(msg) {
   if (debug) dump(`GreenAds ${msg}`);
 }
@@ -46,7 +46,7 @@ function getWindowId(window) {
  * Iterate on elements of the DOM dedicated to ads.
  */
 function forEachAdPlacement(window, cb) {
-  const selectors = [
+  var selectors = [
     '[id^="contentad-"]'
     // '.Ad',
     // '.adsbygoogle',
@@ -55,12 +55,12 @@ function forEachAdPlacement(window, cb) {
   // Iterate async
   return new Promise((resolve) => {
     // Find ads placements
-    for (const selector of selectors) {
-      const adsElements = window.document.querySelectorAll(selector);
+    for (var selector of selectors) {
+      var adsElements = window.document.querySelectorAll(selector);
       _dump(`>>>>> CHIP found ads emplacements: ${adsElements.length} for ${selector}\n`);
-      for (const ad of adsElements) {
+      for (var ad of adsElements) {
         try {
-          const result = cb(ad);
+          var result = cb(ad);
           // If the callback returns `false`, we stop iterating on placements.
           if (result === false) {
             _dump('terminate early\n');
@@ -79,12 +79,12 @@ function forEachAdPlacement(window, cb) {
 
 
 function getWindowTreeInformation(window) {
-  let currentWindow = window;
+  var currentWindow = window;
 
   // Keep track of window IDs
-  let currentId = getWindowId(window);
-  const windowId = currentId;
-  let parentId;
+  var currentId = getWindowId(window);
+  var windowId = currentId;
+  var parentId;
 
   while (currentId !== getWindowId(currentWindow.parent)) {
     // Go up one level
@@ -102,9 +102,9 @@ function getWindowTreeInformation(window) {
 
 
 function getUrlsToTop(url, window) {
-  const parents = [url];
-  let currentUrl = url;
-  let currentWindow = window;
+  var parents = [url];
+  var currentUrl = url;
+  var currentWindow = window;
 
   while (currentUrl !== currentWindow.parent.document.documentURI) {
     // Go up one level
@@ -121,13 +121,13 @@ function getUrlsToTop(url, window) {
 
 
 function getAbsoluteInformation(url, window) {
-  const parents = [url];
-  let currentUrl = url;
-  let currentWindow = window;
+  var parents = [url];
+  var currentUrl = url;
+  var currentWindow = window;
 
   // Offset to the top
-  let offsetTop = 0;
-  let offsetLeft = 0;
+  var offsetTop = 0;
+  var offsetLeft = 0;
 
   while (currentUrl !== currentWindow.parent.document.documentURI) {
     try {
@@ -154,7 +154,7 @@ function getAbsoluteInformation(url, window) {
 
 function unhideDocument(window) {
   // Make document visible now
-  const css = window.document.querySelector('#cliqz-ads-css-rules');
+  var css = window.document.querySelector('#cliqz-ads-css-rules');
   if (css !== null) {
     css.parentElement.removeChild(css);
   }
@@ -163,8 +163,8 @@ function unhideDocument(window) {
 
 function injectCSS(window, id, content) {
   // Hide document until we injected the ads
-  const document = window.document;
-  const css = document.createElement('style');
+  var document = window.document;
+  var css = document.createElement('style');
   css.type = 'text/css';
   css.id = id;
   document.getElementsByTagName('head')[0].appendChild(css);
@@ -178,7 +178,7 @@ function hideDocument(window) {
 
 
 function greenAdsListenerOnAdDivs(args) {
-  const {
+  var {
     documentUrl
   , window
   , send
@@ -188,7 +188,7 @@ function greenAdsListenerOnAdDivs(args) {
 
   // Attach listener to all native ads
   forEachAdPlacement(window, (element) => {
-    const sendEvent = (action, extra) => {
+    var sendEvent = (action, extra) => {
       send({
         windowId,
         payload: {
@@ -205,18 +205,18 @@ function greenAdsListenerOnAdDivs(args) {
       });
     };
 
-    const onClick = () => sendEvent('adClicked', 'simple');
-    const onAuxClick = () => sendEvent('adClicked', 'aux');
-    const onMouseOver = throttle(() => sendEvent('adOver'), 250);
+    var onClick = () => sendEvent('adClicked', 'simple');
+    var onAuxClick = () => sendEvent('adClicked', 'aux');
+    var onMouseOver = throttle(() => sendEvent('adOver'), 250);
 
     // Collect iframes having a `src` attribute, and located in a div dedicated
     // to ads. TODO - make use of an exhaustive list of selectors.
-    const adFrames = [...element.querySelectorAll('iframe')].filter(f => f.src);
-    const queue = [...element.querySelectorAll('iframe')].filter(f => !f.src);
+    var adFrames = [...element.querySelectorAll('iframe')].filter(f => f.src);
+    var queue = [...element.querySelectorAll('iframe')].filter(f => !f.src);
 
     while (queue.length > 0) {
       // Explore iframe with no src
-      const frame = queue.pop();
+      var frame = queue.pop();
       frame.contentWindow.document.querySelectorAll('iframe').forEach((f) => {
         if (f.src) {
           adFrames.push(f);
@@ -239,7 +239,7 @@ function greenAdsListenerOnAdDivs(args) {
 
 
 function greenAdsCollectIframesRec(args) {
-  const {
+  var {
       url
     , window
     , send
@@ -251,14 +251,14 @@ function greenAdsCollectIframesRec(args) {
   //    Inspect iframes
   // ////////////////////////////////////////////////
 
-  const {
+  var {
     offsetTop,
     offsetLeft,
   } = getAbsoluteInformation(url, window);
 
   // Get geometry information about the window
-  const bbMain = window.document.body.getBoundingClientRect();
-  const mainFrame = {
+  var bbMain = window.document.body.getBoundingClientRect();
+  var mainFrame = {
     x: offsetLeft,
     y: offsetTop,
     width: bbMain.width,
@@ -266,19 +266,19 @@ function greenAdsCollectIframesRec(args) {
   };
 
   // Inspect frames contained in this window
-  const iframes = [];
+  var iframes = [];
 
   // Inspect iframes
   window.document.querySelectorAll('iframe').forEach((iframe) => {
     _dump(`GREENADS newFrame iframe state ${iframe.contentDocument.readyState}\n`);
     if (iframe.contentDocument.body !== null) {
-      const bb = iframe.contentDocument.body.getBoundingClientRect();
-      const {
+      var bb = iframe.contentDocument.body.getBoundingClientRect();
+      var {
         offsetTop: iframeOffsetTop,
         offsetLeft: iframeOffsetLeft,
       } = getAbsoluteInformation(iframe.src, iframe.contentWindow);
 
-      const newFrame = {
+      var newFrame = {
         x: iframeOffsetLeft,
         y: iframeOffsetTop,
         name: iframe.name,
@@ -316,12 +316,12 @@ function greenAdsCollectIframesRec(args) {
  *                           INVENTORY MANAGEMENT
  ****************************************************************************/
 
-const SPECIAL_SYMBOL_RE = /[.\/,:!()[\];\"\'@?<>_#{}+&%$=-]/g;
-const NUMBER_RE = /[0-9]{4}/g;
+var SPECIAL_SYMBOL_RE = /[.\/,:!()[\];\"\'@?<>_#{}+&%$=-]/g;
+var NUMBER_RE = /[0-9]{4}/g;
 
 function processStr(str, replaceChar) {
   // Need to strip of any character like :,-; from the token with a space.
-  let cleanStr = str;
+  var cleanStr = str;
   try {
     cleanStr = decodeURIComponent(str);
   } catch (e) { /* ignore */ }
@@ -334,18 +334,18 @@ function processStr(str, replaceChar) {
 
 // This will parse the page body to get the tokens to match relevant ads.
 function getTokens(document, url, documentUrl, inventory) {
-  const adsToShow = {};
+  var adsToShow = {};
 
   _dump('>>>>> Starting parsing >>>>\n');
-  const text = [];
-  // let tokenFrequency = {};
+  var text = [];
+  // var tokenFrequency = {};
 
   try {
-    const descriptionTag = document.querySelector('meta[name="description"]').content;
-    const cleanTag = processStr(descriptionTag, ' ');
+    var descriptionTag = document.querySelector('meta[name="description"]').content;
+    var cleanTag = processStr(descriptionTag, ' ');
     cleanTag.split(' ').forEach( eachToken => {
       // Check length of each token and it's not already present in text.
-      let cleanToken = processStr(eachToken, '');
+      var cleanToken = processStr(eachToken, '');
       // if (!tokenFrequency.hasOwnProperty(cleanToken)) tokenFrequency[cleanToken] = 0;
       // tokenFrequency[cleanToken] += 1;
       if(cleanToken.length >= 4 && inventory.tokens[cleanToken]) {
@@ -356,11 +356,11 @@ function getTokens(document, url, documentUrl, inventory) {
   } catch(ee) {}
 
   try {
-    let newsKeywords  = document.querySelector('meta[name="news_keywords"]').content;
-    let cleanNewsKeywords = processStr(newsKeywords,' ');
+    var newsKeywords  = document.querySelector('meta[name="news_keywords"]').content;
+    var cleanNewsKeywords = processStr(newsKeywords,' ');
     cleanNewsKeywords.split(',').forEach( eachToken => {
       // Check length of each token and it's not already present in text.
-      let cleanToken = processStr(eachToken, '');
+      var cleanToken = processStr(eachToken, '');
       // if (!tokenFrequency.hasOwnProperty(eachToken)) tokenFrequency[eachToken] = 0;
       // tokenFrequency[cleanToken] += 1;
       if(cleanToken.length >= 4 && inventory.tokens[cleanToken]) {
@@ -373,14 +373,14 @@ function getTokens(document, url, documentUrl, inventory) {
   // Let's get the headings.
 
   try {
-    let paras  = Array.prototype.slice.call(document.querySelectorAll('p'));
+    var paras  = Array.prototype.slice.call(document.querySelectorAll('p'));
     paras.forEach( eachPara => {
-      let paraContent = eachPara.textContent;
+      var paraContent = eachPara.textContent;
       if (paraContent) {
-        let cleanParaContent = processStr(paraContent, ' ');
+        var cleanParaContent = processStr(paraContent, ' ');
         cleanParaContent.split(' ').forEach( para => {
           // Check length of each token and it's not already present in text.
-          let paraToken = processStr(para, '');
+          var paraToken = processStr(para, '');
           // if (!tokenFrequency.hasOwnProperty(paraToken)) tokenFrequency[paraToken] = 0;
           // tokenFrequency[paraToken] += 1;
           if( (paraToken.length >= 4 && inventory.tokens[paraToken])) {
@@ -396,12 +396,12 @@ function getTokens(document, url, documentUrl, inventory) {
 
   // Let's get all the alt tags from images.
   ['h1','h2','h3'].forEach( e => {
-    let headings = Array.prototype.slice.call(document.querySelectorAll(e));
+    var headings = Array.prototype.slice.call(document.querySelectorAll(e));
     if (headings) {
       headings.forEach( y => {
-        let cleanContent = processStr(y.textContent, ' ');
+        var cleanContent = processStr(y.textContent, ' ');
         cleanContent.split(' ').forEach( token => {
-          let cleanToken = processStr(token, '');
+          var cleanToken = processStr(token, '');
           if( (cleanToken.length >= 4 && inventory.tokens[cleanToken])) {
             text.push(cleanToken);
           }
@@ -411,14 +411,14 @@ function getTokens(document, url, documentUrl, inventory) {
   });
 
   try {
-    let imgTags  = Array.prototype.slice.call(document.querySelectorAll('img'));
+    var imgTags  = Array.prototype.slice.call(document.querySelectorAll('img'));
     imgTags.forEach( imgTag => {
-      let altContent = imgTag.getAttribute('alt');
+      var altContent = imgTag.getAttribute('alt');
       if (altContent) {
-        let cleanAltContent = processStr(altContent, ' ');
+        var cleanAltContent = processStr(altContent, ' ');
         cleanAltContent.split(' ').forEach( alt => {
           // Check length of each token and it's not already present in text.
-          let altToken = processStr(alt, '');
+          var altToken = processStr(alt, '');
           // if (!tokenFrequency.hasOwnProperty(altToken)) tokenFrequency[altToken] = 0;
           // tokenFrequency[altToken] += 1;
           if( (altToken.length >= 4 && inventory.tokens[altToken])) {
@@ -435,13 +435,13 @@ function getTokens(document, url, documentUrl, inventory) {
   // Let's go through all the <span> tags and get the titles.
   try {
     if(text.length < 1000) {
-      let spanTags = Array.prototype.slice.call(document.querySelectorAll('span'));
+      var spanTags = Array.prototype.slice.call(document.querySelectorAll('span'));
       spanTags.forEach( eachSpan => {
-        let spanContent  = eachSpan.textContent;
+        var spanContent  = eachSpan.textContent;
         if (spanContent) {
-          let cleanSpanContent = processStr(spanContent, ' ');
+          var cleanSpanContent = processStr(spanContent, ' ');
           cleanSpanContent.split(' ').forEach( eachToken => {
-            let cleanToken = processStr(eachToken, '');
+            var cleanToken = processStr(eachToken, '');
             // if (!tokenFrequency.hasOwnProperty(cleanToken)) tokenFrequency[cleanToken] = 0;
             // tokenFrequency[cleanToken] += 1;
             if ( cleanToken.length > 4 && inventory.tokens[cleanToken] ) { // tokenFrequency[cleanToken] >=2 )) {
@@ -456,8 +456,8 @@ function getTokens(document, url, documentUrl, inventory) {
   if (url === documentUrl && url.indexOf('chip.de') > -1) {
     selectedAds = {top_banner: [], normal: [], skyscraper: []};
 
-    let filteredAds = [];
-    let filteredTokens = [];
+    var filteredAds = [];
+    var filteredTokens = [];
     inventory.index['top_banner'] = 0;
     inventory.index['normal'] = 0;
     inventory.index['skyscraper'] = 0;
@@ -480,8 +480,8 @@ function getTokens(document, url, documentUrl, inventory) {
  ****************************************************************************/
 
 function calMagnitude(map) {
-  let total = 0;
-  for (let token in map) {
+  var total = 0;
+  for (var token in map) {
     total += map[token] * map[token];
   }
 
@@ -491,12 +491,12 @@ function calMagnitude(map) {
 function similarityMatching(a, b){
 
   // We preprocess the inventory selectors.
-  const tokenFrequencySelectors = {};
-  const tokenFrequencyPage = {};
-  let productAB = 0;
-  const allTokens = {};
-  const intersection = new Set();
-  let simScore = 0;
+  var tokenFrequencySelectors = {};
+  var tokenFrequencyPage = {};
+  var productAB = 0;
+  var allTokens = {};
+  var intersection = new Set();
+  var simScore = 0;
 
   // a => Selectors from the ad.
   // b => processed string from the page.
@@ -511,7 +511,7 @@ function similarityMatching(a, b){
     allTokens[e] = 1;
   });
 
-  for (let token in allTokens) {
+  for (var token in allTokens) {
     if (tokenFrequencySelectors.hasOwnProperty(token) && tokenFrequencyPage.hasOwnProperty(token)) {
       productAB += tokenFrequencySelectors[token] * tokenFrequencyPage[token];
       intersection.add(token);
@@ -525,44 +525,44 @@ function similarityMatching(a, b){
 }
 
 function similarity(a, b) {
-  const a1 = a.slice();
-  const b1 = b.slice();
+  var a1 = a.slice();
+  var b1 = b.slice();
   return similarityMatching(a1, b1);
 }
 
 
 function matchAds(text, ads, adsToShow) {
   _dump(`>>> AD MATCHING STARTED >>>\n`);
-  let tmpAds = {top_banner: [] , normal: [], skyscraper: []};
+  var tmpAds = {top_banner: [] , normal: [], skyscraper: []};
   ads.forEach((e) => {
-    const result = similarity(e.processedSelectors, text);
+    var result = similarity(e.processedSelectors, text);
     if (true) {
       e['reason'] = JSON.stringify(result.i);
       e['score'] = [];
 
-      let keyname = `${result.s}:${e.id}`;
+      var keyname = `${result.s}:${e.id}`;
       selectedAds[e.format][keyname] = e;
     }
   });
   _dump(`>>> AD MATCHING finished >>>\n`);
 
-  let _topBannerKeys = Object.keys(selectedAds['top_banner']).sort((a,b) => {return b.split(':')[0] - a.split(':')[0]});
-  let topBannerKeys = _topBannerKeys.slice(0,4); // shuffle(_topBannerKeys.slice(0,5));
+  var _topBannerKeys = Object.keys(selectedAds['top_banner']).sort((a,b) => {return b.split(':')[0] - a.split(':')[0]});
+  var topBannerKeys = _topBannerKeys.slice(0,4); // shuffle(_topBannerKeys.slice(0,5));
 
   topBannerKeys.forEach( e => {
     adsToShow['top_banner'].push(selectedAds['top_banner'][e]);
   });
 
-  let _normal = Object.keys(selectedAds['normal']).sort((a,b) => {return b.split(':')[0] - a.split(':')[0]});
-  let normal = _normal.slice(0,4); // shuffle(_normal.slice(0,5));
+  var _normal = Object.keys(selectedAds['normal']).sort((a,b) => {return b.split(':')[0] - a.split(':')[0]});
+  var normal = _normal.slice(0,4); // shuffle(_normal.slice(0,5));
 
 
   normal.forEach( e => {
     adsToShow['normal'].push(selectedAds['normal'][e]);
   });
 
-  let _skyScraperKeys = Object.keys(selectedAds['skyscraper']).sort((a,b) => {return b.split(':')[0] - a.split(':')[0]});
-  let skyScraperKeys = _skyScraperKeys.slice(0,4); // shuffle(_skyScraperKeys.slice(0,8));
+  var _skyScraperKeys = Object.keys(selectedAds['skyscraper']).sort((a,b) => {return b.split(':')[0] - a.split(':')[0]});
+  var skyScraperKeys = _skyScraperKeys.slice(0,4); // shuffle(_skyScraperKeys.slice(0,8));
 
   skyScraperKeys.forEach( e => {
     adsToShow['skyscraper'].push(selectedAds['skyscraper'][e]);
@@ -574,7 +574,7 @@ function getNextAd(id, adsToShow) {
   // Needs to be fixed, if any of the ad types is missing goes into an infinte loop.
   // If ADS is not available it stalls the page.
 
-  let format;
+  var format;
   _dump(` >>> LOOK FOR ADS ${id}\n`);
 
   if (id.indexOf('native-slot') !== -1) {
@@ -602,22 +602,22 @@ function getNextAd(id, adsToShow) {
     };
   }
 
-  let inspected = 0;
-  // let key = Object.keys(selectedAds[format]).sort(function(a, b){return b-a})[inventory.index[format]];
-  // let ad = adsToShow[format][inventory.index[format]];
-  let ad = adsToShow[format][Math.floor(Math.random(0, 1) * adsToShow[format].length)];
+  var inspected = 0;
+  // var key = Object.keys(selectedAds[format]).sort(function(a, b){return b-a})[inventory.index[format]];
+  // var ad = adsToShow[format][inventory.index[format]];
+  var ad = adsToShow[format][Math.floor(Math.random(0, 1) * adsToShow[format].length)];
 
   // inventory.index[ad.format] = (inventory.index[ad.format] + 1) % adsToShow[format].length;
 
-  let reason = [`${ad.reason} >>> ${ad.score}`];
+  var reason = [`${ad.reason} >>> ${ad.score}`];
   while (!(ad.format === format && reason.length > 0)) {
     // If we inspected all ads but none was found, we break the loop
     if (inspected >= adsToShow.length) {
       break;
     }
 
-    // let key = Object.keys(selectedAds[format]).sort(function(a, b){return b-a})[inventory.index[format]];
-    // let ad = adsToShow[format][inventory.index[format]];
+    // var key = Object.keys(selectedAds[format]).sort(function(a, b){return b-a})[inventory.index[format]];
+    // var ad = adsToShow[format][inventory.index[format]];
     ad = adsToShow[format][Math.floor(Math.random(0, 1) * adsToShow[format].length)];
     // Konark hack: not to be pushed to prod.
     // reason = selectorMatch(text, ad.selectors, ad.brand);
@@ -643,11 +643,11 @@ function getNextAd(id, adsToShow) {
 
 function greenAdsInsertChipAds({ url, window, send, windowId, windowTreeInformation, documentUrl, inventory, throttle }) {
   // Keep track of how many ads we displayed
-  let displayed = 0;
+  var displayed = 0;
 
   // Extract text from the page
   // Try getting description
-  const adsToShow = getTokens(window.document, url, documentUrl, inventory);
+  var adsToShow = getTokens(window.document, url, documentUrl, inventory);
 
   // Iterate on ad placements async
   return forEachAdPlacement(window, (ad) => {
@@ -664,20 +664,20 @@ function greenAdsInsertChipAds({ url, window, send, windowId, windowTreeInformat
         return false;
       }
 
-      const { ad: adToDisplay, reason } = getNextAd(ad.id, adsToShow);
+      var { ad: adToDisplay, reason } = getNextAd(ad.id, adsToShow);
       if (adToDisplay === null) {
         return true;
       }
 
       // Create a hyperlink to wrap the ad
-      const newAd = window.document.createElement('a');
+      var newAd = window.document.createElement('a');
       newAd.id = 'cliqz-chip-ad';
       newAd.className = adToDisplay.id;
       newAd.href = adToDisplay.url;
       newAd.target = '_blank';
       newAd.rel = 'noreferrer noopener';
 
-      const sendEvent = (action, extra) => {
+      var sendEvent = (action, extra) => {
         send({
           windowId,
           payload: {
@@ -696,15 +696,15 @@ function greenAdsInsertChipAds({ url, window, send, windowId, windowTreeInformat
       };
 
       // Add a listener on click on this Ad.
-      const onClick = () => sendEvent('adClicked', 'simple');
-      const onAuxClick = () => sendEvent('adClicked', 'aux');
-      const onMouseOver = throttle(() => sendEvent('adOver'), 250);
+      var onClick = () => sendEvent('adClicked', 'simple');
+      var onAuxClick = () => sendEvent('adClicked', 'aux');
+      var onMouseOver = throttle(() => sendEvent('adOver'), 250);
       newAd.addEventListener('click', onClick, false);
       newAd.addEventListener('auxclick', onAuxClick, false);
       newAd.addEventListener('mouseover', onMouseOver, false);
 
       // Img containing the ad itself
-      const img = window.document.createElement('img');
+      var img = window.document.createElement('img');
       img.id = 'cliqz-chip-ad';
       img.className = `icon-${adToDisplay.hash}`;
       img.src = adToDisplay.img;
@@ -758,11 +758,11 @@ var greenAdsOnMessageReceived = function ({ msg, window }) {
 
 
 var greenAdsOnDOMCreated = function ({ url, window, send, windowId, windowTreeInformation, mode }) {
-  const {
+  var {
     originWindowID,
     outerWindowID,
   } = windowTreeInformation;
-  const { documentUrl } = getUrlsToTop(url, window);
+  var { documentUrl } = getUrlsToTop(url, window);
 
   if (documentUrl.indexOf('chip.de') !== -1 && originWindowID === outerWindowID) {
     send({
@@ -787,7 +787,7 @@ var greenAdsOnDOMCreated = function ({ url, window, send, windowId, windowTreeIn
 
 
 var greenAdsOnDOMLoaded = function (args) {
-  const {
+  var {
     url,
     window,
     send,
@@ -797,11 +797,11 @@ var greenAdsOnDOMLoaded = function (args) {
     inventory,
     throttle } = args;
 
-  const {
+  var {
     originWindowID,
     outerWindowID,
   } = windowTreeInformation;
-  const { documentUrl } = getUrlsToTop(url, window);
+  var { documentUrl } = getUrlsToTop(url, window);
 
   if (documentUrl.indexOf('chip.de') !== -1 && originWindowID === outerWindowID) {
     send({
@@ -854,7 +854,7 @@ var greenAdsOnFullLoad = function (args) {
     return;
   }
 
-  const {
+  var {
     url,
     window,
     send,
@@ -862,13 +862,13 @@ var greenAdsOnFullLoad = function (args) {
     windowTreeInformation,
     throttle } = args;
 
-  const {
+  var {
     originWindowID,
     outerWindowID,
   } = windowTreeInformation;
 
   // Get parent URL (Document URL)
-  const { documentUrl } = getUrlsToTop(url, window);
+  var { documentUrl } = getUrlsToTop(url, window);
 
   // Only proceed when we are on a chip.de page
   if (!documentUrl || documentUrl.indexOf('chip.de') === -1) {
@@ -908,4 +908,3 @@ var greenAdsOnFullLoad = function (args) {
     documentUrl,
   });
 };
-

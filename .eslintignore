@@ -410,3 +410,14 @@ modules/hpn/worker/index.es
 modules/hpn/worker/pkcs-conversion.es
 modules/hpn/worker/user-pk.es
 modules/hpn/worker/utils.es
+modules/dropdown/debug/fixtures/adult-question.es
+modules/dropdown/debug/fixtures/calculator.es
+modules/dropdown/debug/fixtures/celebrities.es
+modules/dropdown/debug/fixtures/history-and-news.es
+modules/dropdown/debug/fixtures/location-sharing.es
+modules/dropdown/debug/fixtures/lotto.es
+modules/dropdown/debug/fixtures/simple.es
+modules/dropdown/debug/fixtures/ui-cut-off.es
+modules/dropdown/debug/fixtures/weather.es
+modules/dropdown/debug/fixtures/youtube.es
+modules/dropdown/debug/index.es
