@@ -45,7 +45,7 @@ export default class {
     let preventDefault = false;
 
     // no popup, so no interactions
-    if (!this.popup.isOpen) {
+    if (this.popupClosed) {
       return false;
     }
 

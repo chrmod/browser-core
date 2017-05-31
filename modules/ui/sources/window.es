@@ -613,7 +613,10 @@ const popupEventHandlers = {
   /**
   * @event popupOpen
   */
-  popupOpen: function(){
+  popupOpen: function(e){
+    if (e.composedTarget !== this.popup) {
+      return;
+    }
     autocomplete.isPopupOpen = true;
     this.popupEvent(true);
     this.window.CLIQZ.UI.popupClosed = false;
@@ -624,6 +627,9 @@ const popupEventHandlers = {
   * @param e
   */
   popupClose: function(e){
+    if (e.composedTarget !== this.popup) {
+      return;
+    }
     autocomplete.isPopupOpen = false;
     autocomplete.markResultsDone(null);
     this.popupEvent(false);

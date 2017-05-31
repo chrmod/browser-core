@@ -28,10 +28,6 @@ export default class {
     return urlbar.mInputField.value;
   }
 
-  get isOpen() {
-    return this.element.mPopupOpen;
-  }
-
   results() {
     const ctrl = this.element.mInput.controller;
     const resultCount = this.element._matchCount;
