@@ -78,42 +78,38 @@ export default class {
       }
       case 'Enter':
       case 'NumpadEnter': {
+        const isNewTab = ev.altKey || ev.metaKey;
+        preventDefault = true;
         enterSignal({
           dropdown: this.dropdown,
-          newTab: ev.altKey || ev.metaKey,
+          newTab: isNewTab,
         });
 
-        if (this.popup.query !== this.dropdown.results.query) {
-          preventDefault = false;
-          break;
+        if (this.popup.query === this.dropdown.results.query) {
+          const urlbarValue = this.popup.urlbarValue;
+          const urlbarVisibleValue = this.popup.urlbarVisibleValue;
+          const firstResult = this.dropdown.results.firstResult;
+          if ((urlbarValue !== urlbarVisibleValue)
+            && (this.popup.query === urlbarValue)
+            && firstResult.isAutocompleted) {
+            this.dropdown.results.firstResult.click(this.window, firstResult.url, ev);
+            break;
+          }
+
+          const result = this.dropdown.results.findSelectable(this.popup.urlbarVisibleValue);
+          if (result) {
+            result.click(this.window, result.url, ev);
+            break;
+          }
+
+          if (this.dropdown.selectedIndex > 0) {
+            const selectedResult = this.dropdown.results.get(this.dropdown.selectedIndex);
+            selectedResult.click(this.window, selectedResult.url, ev);
+            break;
+          }
         }
 
-        const urlbarValue = this.popup.urlbarValue;
-        const urlbarVisibleValue = this.popup.urlbarVisibleValue;
-        const firstResult = this.dropdown.results.firstResult;
-        if ((urlbarValue !== urlbarVisibleValue)
-          && (this.popup.query === urlbarValue)
-          && firstResult.isAutocompleted) {
-          this.dropdown.results.firstResult.click(this.window, firstResult.url, ev);
-          preventDefault = true;
-          break;
-        }
-
-        const result = this.dropdown.results.findSelectable(this.popup.urlbarVisibleValue);
-        if (result) {
-          result.click(this.window, result.url, ev);
-          preventDefault = true;
-          break;
-        }
-
-        if (this.dropdown.selectedIndex > 0) {
-          const selectedResult = this.dropdown.results.get(this.dropdown.selectedIndex);
-          selectedResult.click(this.window, selectedResult.url, ev);
-          preventDefault = true;
-          break;
-        }
-
-        preventDefault = false;
+        this.popup.execBrowserCommandHandler(ev, isNewTab ? 'tab' : 'current');
         break;
       }
       case 'Delete':

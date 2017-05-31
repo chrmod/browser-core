@@ -583,11 +583,6 @@ const urlbarEventHandlers = {
     if (cancel) {
       ev.preventDefault();
       ev.stopImmediatePropagation();
-    } else {
-      // make sure whatever users sees will be handled by the browser
-      if (ev.code === 'Enter') {
-        this.urlbar.value = this.urlbar.mInputField.value;
-      }
     }
   },
   /**

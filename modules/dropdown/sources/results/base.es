@@ -305,7 +305,8 @@ export default class BaseResult {
       /* eslint-disable */
       window.CLIQZ.Core.urlbar.value = href;
       /* eslint-enable */
-      window.CLIQZ.Core.urlbar.handleCommand(ev);
+      const where = ev.altKey || ev.metaKey ? 'tab' : 'current';
+      window.CLIQZ.Core.urlbar.handleCommand(ev, where);
     } else {
       const result = this.allResults.find(r => equals(r.url, href));
       result.click(window, href, ev);

@@ -52,4 +52,10 @@ export default class {
       rawResults,
     };
   }
+
+  execBrowserCommandHandler(...args) {
+    const urlbar = this.element.mInput;
+    urlbar.value = urlbar.mInputField.value;
+    this.element.mInput.handleCommand(...args);
+  }
 }
