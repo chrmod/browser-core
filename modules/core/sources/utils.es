@@ -92,7 +92,11 @@ var CliqzUtils = {
     CLIQZEnvironment.app = CliqzUtils.app;
     CliqzUtils.log('Initialized', 'CliqzUtils');
 
-    CliqzUtils.setLang(options.lang);
+    try {
+      CliqzUtils.setLang(options.lang);
+    } catch(e) {
+      // TODO: fix for ghostery
+    }
 
     CliqzUtils.tldExtractor = CLIQZEnvironment.tldExtractor || CliqzUtils.genericTldExtractor;
   },

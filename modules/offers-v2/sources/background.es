@@ -7,7 +7,7 @@ import EventLoop from './event_loop';
 import { EventHandler } from './event_handler';
 import OfferProcessor from './offer_processor';
 import {SignalHandler} from './signals_handler';
-import jsep from './lib/jsep';
+import jsep from '../platform/lib/jsep';
 import Database from '../core/database';
 import OfferDB from './offers_db';
 
