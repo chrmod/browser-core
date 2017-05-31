@@ -169,6 +169,7 @@ export default class {
       locationAssistant: this.locationAssistant,
     });
     const queryIsUrl = isUrl(results.query);
+    const queryIsNotEmpty = query.trim() !== '';
     const firstResult = results.firstResult;
     let didAutocomplete;
 
@@ -186,7 +187,7 @@ export default class {
         results.prepend(
           new NavigateToResult({ text: results.query })
         );
-      } else {
+      } else if (queryIsNotEmpty) {
         results.prepend(
           new SupplementarySearchResult({ text: results.query })
         );
