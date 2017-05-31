@@ -1697,5 +1697,38 @@
     "show-map": {
       "message": "Montrer la carte"
     },
+    "lotto-gewinnzahlen": {
+      "message": "Gewinnzahlen"
+    },
+    "lotto-superzahl": {
+      "message": "Superzahl"
+    },
+    "lotto-5aus50": {
+      "message": "5 aus 50"
+    },
+    "lotto-2aus8": {
+      "message": "2 aus 10"
+    },
+    "lotto-gewinnklasse7": {
+      "message": "Gewinnklasse 7"
+    },
+    "lotto-klasse": {
+      "message": "Klasse"
+    },
+    "lotto-gewinne": {
+      "message": "Gewinne"
+    },
+    "lotto-quoten": {
+      "message": "Quoten"
+    },
+    "lotto-rente": {
+      "message": "Rente"
+    },
+    "lotto-expand": {
+      "message": "Mehr zeigen"
+    },
+    "lotto-euro": {
+      "message": "€"
+    },
     "TEST": "OK"
 }

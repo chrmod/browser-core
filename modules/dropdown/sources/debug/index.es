@@ -19,7 +19,7 @@ const tests = {
   ...AdultQuestion,
   ...LocationSharing,
   ...UiCutOff,
-  ...Lotto
+  ...Lotto,
 };
 Components.utils.import('chrome://cliqzmodules/content/CLIQZ.jsm');
 const System = CLIQZ.System;

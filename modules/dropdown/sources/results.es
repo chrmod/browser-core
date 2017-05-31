@@ -32,7 +32,7 @@ class ResultFactory {
       Constructor = WeatherResult;
     }
 
-    if (rawResult.data.template === 'lotto') {
+    if (rawResult.data.extra && rawResult.data.extra.template === 'lotto') {
       Constructor = LottoResult;
     }
 
@@ -91,6 +91,7 @@ export default class Results {
     this.rerender = rerender;
     this.query = query;
     this.queriedAt = queriedAt;
+
     const actions = {
       locationAssistant,
       adultAssistant,

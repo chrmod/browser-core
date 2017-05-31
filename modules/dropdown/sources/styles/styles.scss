@@ -11,6 +11,7 @@ $basic-line-height: (16 / 15) + 0em;
 #cliqz-dropdown {
 
     @import 'results/sessions';
+    @import 'results/lotto';
 
     font-size: $basic-font-size;
     line-height: $basic-line-height;
