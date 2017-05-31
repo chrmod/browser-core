@@ -1,3 +1,7 @@
+import utils from '../../core/utils';
+import console from '../../core/console';
+import { Components } from '../globals';
+
 /* eslint-disable */
 // callback called multiple times
 export default (function() {
@@ -7,9 +11,9 @@ export default (function() {
     if(hist === null) { //lazy
       // history autocomplete provider is removed
       // https://hg.mozilla.org/mozilla-central/rev/44a989cf6c16
-      var provider = Cc["@mozilla.org/autocomplete/search;1?name=history"] ||
-                      Cc["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];
-      hist = provider.getService(Ci["nsIAutoCompleteSearch"]);
+      var provider = Components.classes["@mozilla.org/autocomplete/search;1?name=history"] ||
+                      Components.classes["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];
+      hist = provider.getService(Components.interfaces["nsIAutoCompleteSearch"]);
     }
     hist.startSearch(q, 'enable-actions', null, {
       onSearchResult: function(ctx, result) {
@@ -40,7 +44,9 @@ export default (function() {
                 // https://bugzilla.mozilla.org/show_bug.cgi?id=419324
                 uri = makeURI(action.params.url);
                 label = losslessDecodeURI(uri);
-              } catch (e) {}
+              } catch (e) {
+                console.log('history result error', e);
+              }
 
               res.push({
                 style:   result.getStyleAt(i),
@@ -50,6 +56,7 @@ export default (function() {
                 label:   label || cleanURL
               });
             } catch(e){
+              console.log('history result error', e);
               // bummer! This was unexpected
             }
           }
