@@ -201,6 +201,9 @@ $light-gray: #f5f5f5;
                     float: left;
                     margin-right: 5px;
                     max-width: 500px;
+
+                    /* temporary override to avoid cutting of some letters */
+                    line-height: 1.15em;
                 }
 
                 .divider {
