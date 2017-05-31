@@ -100,9 +100,7 @@ export default class Mixer {
         UrlCompare.sameUrls(first[0].data.urls[0].href, second[0].val))
     {
       // Case 1: History pattern
-      first[0].data.urls.shift();
-      first = [second.shift()];
-      second = first.concat(second);
+      second.shift();
     }
     else if (first.length > 0 && first[0].style === 'favicon' &&
                second.length > 0 && second[0].style === 'cliqz-extra' &&
@@ -341,7 +339,7 @@ export default class Mixer {
     if(results.length === 0 && !only_history) {
       utils.getNoResults && results.push(utils.getNoResults(q));
     }
-    
+
     return results;
   }
 }
