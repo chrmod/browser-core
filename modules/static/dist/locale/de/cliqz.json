@@ -590,6 +590,9 @@
     "show_once": {
       "message":"Diesmal anzeigen"
     },
+    "show_local_result": {
+        "message": "Show local result"
+    },
     "yes": {
         "message": "Ja"
     },
@@ -1684,6 +1687,15 @@
     },
     "calculator-thousands-separator": {
       "message": "."
+    },
+    "show-location-and-contact": {
+      "message": "Ort & Kontakt jetzt anzeigen"
+    },
+    "always-show-location": {
+      "message": "Immer anzeigen"
+    },
+    "show-map": {
+      "message": "Karte zeigen"
     },
     "TEST": "OK"
 }

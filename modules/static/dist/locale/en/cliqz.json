@@ -590,6 +590,9 @@
     "show_once": {
       "message":"Show once"
     },
+    "show_local_result": {
+        "message": "Show local result"
+    },
     "yes": {
         "message": "Yes"
     },
@@ -1684,6 +1687,15 @@
     },
     "calculator-thousands-separator": {
       "message": ","
+    },
+    "show-location-and-contact": {
+      "message": "Show location & contact now"
+    },
+    "always-show-location": {
+      "message": "Always show"
+    },
+    "show-map": {
+      "message": "Show map"
     },
     "TEST": "OK"
 }

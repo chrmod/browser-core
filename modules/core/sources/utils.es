@@ -788,10 +788,11 @@ var CliqzUtils = {
   },
 
   encodeLocation: function(specifySource, lat, lng) {
-    var qs = [
-     '&loc_pref=',
-     CliqzUtils.getPref('share_location','ask')
-    ].join('')
+    let locationPref = CliqzUtils.getPref('share_location', 'ask');
+    if (locationPref === 'showOnce') {
+      locationPref = 'ask';
+    }
+    let qs = `&loc_pref=${locationPref}`;
 
     if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG || lat && lng) {
       qs += [

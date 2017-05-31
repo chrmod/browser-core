@@ -8,16 +8,22 @@ import NavigateToResult from './results/navigate-to';
 import { isUrl } from '../core/url';
 import { enterSignal, removeFromHistorySignal } from './telemetry';
 import AdultAssistant from './adult-content-assistant';
+import LocationAssistant from './location-sharing-assistant';
 
 export default class {
 
   constructor(window, { getSessionCount }) {
     this.ui = inject.module('ui');
     this.core = inject.module('core');
+    this.geolocation = inject.module('geolocation');
     this.handleResults = this.handleResults.bind(this);
     this.window = window;
     this.getSessionCount = getSessionCount;
     this.adultAssistant = new AdultAssistant();
+    this.locationAssistant = new LocationAssistant({
+      updateGeoLocation: this.geolocation.action.bind(this.geolocation, 'updateGeoLocation'),
+      resetGeoLocation: this.geolocation.action.bind(this.geolocation, 'resetGeoLocation'),
+    });
   }
 
   init() {
@@ -32,6 +38,7 @@ export default class {
   sessionEnd() {
     this.dropdown.selectedIndex = -1;
     this.adultAssistant.resetAllowOnce();
+    this.locationAssistant.resetAllowOnce();
   }
 
   keyDown(ev) {
@@ -159,6 +166,7 @@ export default class {
       sessionCountPromise: this.getSessionCount(query),
       queryCliqz: this.core.action.bind(this.core, 'queryCliqz'),
       adultAssistant: this.adultAssistant,
+      locationAssistant: this.locationAssistant,
     });
     const queryIsUrl = isUrl(results.query);
     const firstResult = results.firstResult;

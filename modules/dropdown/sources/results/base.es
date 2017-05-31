@@ -150,6 +150,9 @@ export default class BaseResult {
 
   // cannot limit here - inheriting results may like to have filtering
   get internalResults() {
+    if (this.isAskingForLocation) { // Hide these buttons when asking for location sharing
+      return [];
+    }
     const deepLinks = getDeepResults(this.rawResult, 'buttons');
     return deepLinks.map(({ url, title }) => new InternalResult({
       url,
@@ -192,6 +195,58 @@ export default class BaseResult {
     }));
   }
 
+  /**
+   * To be used with the `with` statement in the template
+   */
+  get shareLocationButtonsWrapper() {
+    return {
+      internalResults: this.shareLocationButtons,
+      internalResultsLimit: 3,
+      logo: null
+    };
+  }
+
+  get isAskingForLocation() {
+    const extra = this.rawResult.data.extra || {};
+    return extra.no_location && this.rawResult.locationAssistant.isAskingForLocation;
+  }
+
+
+  get shareLocationButtons() {
+    if (!this.isAskingForLocation) {
+      return [];
+    }
+    const locationAssistant = this.rawResult.locationAssistant;
+    return locationAssistant.actions.map((action) => {
+      let additionalClassName = '';
+      if (action.actionName === 'allowOnce') {
+        additionalClassName = 'location-allow-once';
+      }
+
+      return new ShareLocationButton({
+        title: action.title,
+        url: `cliqz-actions,${JSON.stringify({ type: 'location', actionName: action.actionName })}`,
+        text: this.rawResult.text,
+        className: additionalClassName,
+        locationAssistant,
+        onButtonClick: this.rawResult.redoQuery,
+      });
+    });
+  }
+
+  get localResult() {
+    const extra = this.rawResult.data.extra || {};
+    if (!extra.address && !extra.phonenummber) {
+      return null;
+    }
+    return new LocalResult({
+      address: extra.address,
+      phoneNumber: extra.phonenumber,
+      mapUrl: extra.mu,
+      mapImg: extra.map_img
+    });
+  }
+
   get videoResults() {
     return [];
     // const deepLinks = getDeepResults(this.rawResult, 'videos');
@@ -207,9 +262,11 @@ export default class BaseResult {
   get selectableResults() {
     return [
       ...(this.url ? [this] : []),
+      ...(this.shareLocationButtons),
       ...(this.newsResults).slice(0, 3),
       ...(this.videoResults).slice(0, 3),
       ...this.internalResults.slice(0, this.internalResultsLimit),
+      ...(this.localResult ? this.localResult.internalResults : []),
     ];
   }
 
@@ -239,15 +296,20 @@ export default class BaseResult {
 
 
   click(window, href, ev) {
-    events.pub('ui:click-on-url', {
-      url: href,
-      query: this.query,
-    });
-    // TODO: do not use global
-    /* eslint-disable */
-    window.CLIQZ.Core.urlbar.value = href;
-    /* eslint-enable */
-    window.CLIQZ.Core.urlbar.handleCommand(ev);
+    if (equals(href, this.url)) {
+      events.pub('ui:click-on-url', {
+        url: href,
+        query: this.query,
+      });
+      // TODO: do not use global
+      /* eslint-disable */
+      window.CLIQZ.Core.urlbar.value = href;
+      /* eslint-enable */
+      window.CLIQZ.Core.urlbar.handleCommand(ev);
+    } else {
+      const result = this.allResults.find(r => equals(r.url, href));
+      result.click(window, href, ev);
+    }
   }
 
   /*
@@ -278,7 +340,6 @@ class ThumbnailBlock extends BaseResult {
     //   return super.friendlyUrl;
     // }
   }
-
 }
 
 
@@ -316,5 +377,63 @@ class ImageResult extends BaseResult {
 class InternalResult extends BaseResult {
 }
 
+class LocalInfoResult extends BaseResult {
+  get mapImg() {
+    return this.rawResult.mapImg;
+  }
+}
+
 class AnchorResult extends BaseResult {
+}
+
+class LocalResult extends BaseResult {
+  get address() {
+    return this.rawResult.address || {};
+  }
+
+  get phoneNumber() {
+    return this.rawResult.phoneNumber || {};
+  }
+
+  get mapImg() {
+    return this.rawResult.mapImg || {};
+  }
+
+  get mapUrl() {
+    return this.rawResult.mapUrl || {};
+  }
+
+  get internalResults() {
+    if (!this.mapUrl || !this.mapImg) {
+      return [];
+    }
+    return [new LocalInfoResult({
+      url: this.mapUrl,
+      title: 'show-map',
+      text: this.query,
+      mapImg: this.mapImg,
+    })];
+  }
+}
+
+class ShareLocationButton extends BaseResult {
+  get displayUrl() {
+    return this.rawResult.text;
+  }
+
+  get className() {
+    return this.rawResult.className;
+  }
+
+  click(window, href) {
+    const action = JSON.parse(href.split('cliqz-actions,')[1]);
+    const locationAssistant = this.rawResult.locationAssistant;
+    const actionName = action.actionName;
+    if (!locationAssistant.hasAction(actionName)) {
+      return;
+    }
+    locationAssistant[actionName]().then(() => {
+      this.rawResult.onButtonClick();
+    });
+  }
 }

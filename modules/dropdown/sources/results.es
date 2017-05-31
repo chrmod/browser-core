@@ -9,7 +9,7 @@ import { equals } from '../core/url';
 import console from '../core/console';
 
 class ResultFactory {
-  static create(rawResult, allResultsFlat) {
+  static create(rawResult, allResultsFlat, options) {
     let Constructor = BaseResult;
 
     if (['custom', 'noResult'].indexOf(rawResult.data.template) >= 0) {
@@ -39,15 +39,15 @@ class ResultFactory {
       throw new Error('ignore');
     }
 
-    return new Constructor(rawResult, allResultsFlat);
+    return new Constructor(Object.assign({}, rawResult, options), allResultsFlat);
   }
 
-  static createAll(rawResults) {
+  static createAll(rawResults, options) {
     const all = rawResults.reduce(({ resultList, allResultsFlat }, rawResult) => {
       let result;
 
       try {
-        result = ResultFactory.create(rawResult, allResultsFlat);
+        result = ResultFactory.create(rawResult, allResultsFlat, options);
       } catch (e) {
         if (['duplicate', 'ignore'].indexOf(e.message) >= 0) {
           // it is expected to have duplicates
@@ -72,10 +72,13 @@ class ResultFactory {
 
 export default class Results {
 
-  constructor({ query, rawResults, queriedAt, sessionCountPromise, queryCliqz, adultAssistant }) {
+  constructor({ query, rawResults, queriedAt, sessionCountPromise, queryCliqz, adultAssistant, locationAssistant }) {
     this.query = query;
     this.queriedAt = queriedAt;
-    this.results = ResultFactory.createAll(rawResults);
+    this.results = ResultFactory.createAll(rawResults,
+      { redoQuery: queryCliqz.bind(null, this.query),
+        locationAssistant
+      });
 
     if (this.hasAdultResults) {
       if (adultAssistant.isBlockingAdult) {

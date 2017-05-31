@@ -1,0 +1,19 @@
+{{#with localResult}}
+    <div class="padded">
+      <div class="local-result-wrapper clearfix">
+        {{#if internalResults}}
+          {{#each (take internalResults 1)}}
+              <a href="{{ url }}" class="result local-map"><img src="{{ mapImg }}" /></a>
+          {{/each}}
+        {{/if}}
+        {{#if address}}
+          <img class="local-icon" src="resource://cliqz/dropdown/images/s-grey-location.svg" />
+          <p class="local-address">{{ address }}</p>
+        {{/if}}
+        {{#if phoneNumber}}
+          <img class="local-icon phone" src="resource://cliqz/dropdown/images/s-grey-phone.svg" />
+          <p class="local-phone">{{ phoneNumber }}</p>
+        {{/if}}
+      </div>
+    </div>
+{{/with}}
