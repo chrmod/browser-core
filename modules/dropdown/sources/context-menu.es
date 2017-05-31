@@ -76,7 +76,7 @@ export default class ContextMenu {
       }] : []),
       {
         label: labels.FEEDBACK,
-        command: this.openFeedback.bind(this, url),
+        command: this.openFeedback.bind(this, result.kind),
         class: 'menuitem-iconic',
         icon: `url(${utils.SKIN_PATH}cliqz.png)`,
       }];
@@ -137,8 +137,8 @@ export default class ContextMenu {
     this.core.action('queryCliqz', query);
   }
 
-  openFeedback(url) {
-    utils.openLink(this.gwindow, `${utils.FEEDBACK}?kind=${url}`, true);
+  openFeedback(kind) {
+    utils.openLink(this.window, `${utils.FEEDBACK}?kind=${kind}`, true);
     this.telemetry('open_feedback');
   }
 
