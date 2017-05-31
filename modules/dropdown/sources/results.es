@@ -72,7 +72,8 @@ class ResultFactory {
 
 export default class Results {
 
-  constructor({ query, rawResults, queriedAt, sessionCountPromise, queryCliqz, adultAssistant, locationAssistant }) {
+  constructor({ query, rawResults, queriedAt, sessionCountPromise, queryCliqz,
+    adultAssistant, locationAssistant }) {
     this.query = query;
     this.queriedAt = queriedAt;
     this.results = ResultFactory.createAll(rawResults,
