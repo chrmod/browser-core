@@ -1548,7 +1548,10 @@
       "message": "Connect Cliqz on your computer with Cliqz on your Android device. This will allow you to send websites or download YouTube videos from your desktop straight to your smartphone or tablet."
     },
     "pairing-android-app": {
-      "message": "<a id=\"playstore-btn\" target=\"_blank\" href=\"https://play.google.com/store/apps/details?hl=en&id=com.cliqz.browser\">Cliqz for Android</a>"
+      "message": "https://play.google.com/store/apps/details?hl=en&id=com.cliqz.browser"
+    },
+    "pairing-cliqz-for-android": {
+      "message": "Cliqz for Android"
     },
     "pairing-video-title": {
       "message": "Download videos"

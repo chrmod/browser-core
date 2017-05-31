@@ -147,6 +147,7 @@ export default class PairingUI {
 
       description: i18n('pairing-description'),
       androidApp: i18n('pairing-android-app'),
+      cliqzForAndroid: i18n('pairing-cliqz-for-android'),
       videoDownloaderTitle: i18n('pairing-video-title'),
       videoDownloaderTip: i18n('pairing-video-tip'),
       sendTabTitle: i18n('pairing-tab-title'),

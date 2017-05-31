@@ -1548,7 +1548,10 @@
       "message": "Connectez Cliqz de votre ordinateur à votre mobile. Ceci vous permettra de partager des sites web ou de télécharger des vidéos Youtube depuis votre ordinateur directement vers votre mobile ou tablette."
     },
     "pairing-android-app": {
-      "message": "<a id=\"playstore-btn\" target=\"_blank\" href=\"https://play.google.com/store/apps/details?hl=en&id=com.cliqz.browser\">Cliqz pour Android</a>"
+      "message": "https://play.google.com/store/apps/details?hl=fr&id=com.cliqz.browser"
+    },
+    "pairing-cliqz-for-android": {
+      "message": "Cliqz pour Android"
     },
     "pairing-video-title": {
       "message": "Télécharger des vidéos"

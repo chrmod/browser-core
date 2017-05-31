@@ -1548,7 +1548,10 @@
       "message": "Verbinde Cliqz auf deinem Computer mit Cliqz auf deinem mobilen Gerät. Dann kannst du Websites und YouTube Videos direkt an dein Smartphone oder Tablet schicken."
     },
     "pairing-android-app": {
-      "message": "<a id=\"playstore-btn\" target=\"_blank\" href=\"https://play.google.com/store/apps/details?hl=de&id=com.cliqz.browser\">Cliqz für Android</a>"
+      "message": "https://play.google.com/store/apps/details?hl=de&id=com.cliqz.browser"
+    },
+    "pairing-cliqz-for-android": {
+      "message": "Cliqz für Android"
     },
     "pairing-video-title": {
       "message": "Videos herunterladen"

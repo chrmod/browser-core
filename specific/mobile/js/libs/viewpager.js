@@ -165,7 +165,7 @@ function ViewPager(elem, options) {
         position = scroller.getCurrX();
       }
 
-      if(!position) {
+      if(isNaN(position)) {
          return;
       }
 
