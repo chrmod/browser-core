@@ -691,13 +691,6 @@ var CliqzUtils = {
         CliqzUtils.setPref('backend_country', 'us')
       }
     }
-
-    // restart UI module
-    CliqzUtils.setPref('modules.ui.enabled', false);
-    // we need to avoid the throttle on prefs
-    CliqzUtils.setTimeout(function() {
-      CliqzUtils.setPref('modules.ui.enabled', true);
-    }, 0);
   },
   encodeLocale: function(locale) {
     var preferred = (CliqzUtils.PREFERRED_LANGUAGE || "");
