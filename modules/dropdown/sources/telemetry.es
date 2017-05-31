@@ -26,6 +26,14 @@ function common({ results, result, clickedResult, url }) {
     );
   }
 
+  utils.resultTelemetry(
+    results.query,
+    clickedResult.isAutocompleted || false,
+    signal.current_position,
+    utils.isPrivateResultType(signal.position_type) ? '' : url,
+    results.kinds
+  );
+
   return signal;
 }
 
