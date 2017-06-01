@@ -9,6 +9,7 @@ import { isUrl } from '../core/url';
 import { enterSignal, removeFromHistorySignal } from './telemetry';
 import AdultAssistant from './adult-content-assistant';
 import LocationAssistant from './location-sharing-assistant';
+import { getTabsWithUrl, closeTab } from '../core/tabs';
 
 export default class {
 
@@ -129,7 +130,7 @@ export default class {
             break;
           }
 
-          const url = selectedResult.url;
+          const url = selectedResult.rawUrl;
           HistoryManager.removeFromHistory(url);
           if (selectedResult.isBookmark) {
             HistoryManager.removeFromBookmarks(url);
@@ -137,6 +138,9 @@ export default class {
           } else {
             removeFromHistorySignal({});
           }
+
+          getTabsWithUrl(this.window, url).forEach(tab => closeTab(this.window, tab));
+
           this.core.action('queryCliqz', this.dropdown.results.query);
           preventDefault = true;
         }

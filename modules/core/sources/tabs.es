@@ -21,10 +21,10 @@ export function queryActiveTabs(window) {
 }
 
 export function getTabsWithUrl(window, url) {
-  return queryActiveTabs(window).some(tab => tab.url === url && tab);
+  return Array.prototype.filter.call(window.gBrowser.tabs,
+    (tab => tab.linkedBrowser.currentURI.spec === url && tab));
 }
 
 export function closeTab(window, tab) {
-  const selectedBrowser = window.gBrowser.selectedBrowser;
-  selectedBrowser.removeTab(tab);
+  window.gBrowser.removeTab(tab);
 }
