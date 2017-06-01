@@ -15,11 +15,11 @@ export default class ContextMenu {
   }
 
   /**
-   * Create context menu for given search result/url and show it
+   * Create context menu for given search result and show it
    * @public
    */
-  show(url, result, { x, y }) {
-    const contextMenu = this.createMenu(url, result);
+  show(result, { x, y }) {
+    const contextMenu = this.createMenu(result);
     utils.openPopup(contextMenu, {}, x, y);
     dropdownContextMenuSignal({ action: 'open' });
   }
@@ -40,7 +40,8 @@ export default class ContextMenu {
     };
   }
 
-  createMenuItems(url, result) {
+  createMenuItems(result) {
+    const url = result.url;
     const labels = this.labels;
     const isBookmarked = HistoryManager.isBookmarked(url);
     const openedTabs = getTabsWithUrl(this.window, url);
@@ -84,14 +85,14 @@ export default class ContextMenu {
     return menuItems;
   }
 
-  createMenu(url, result) {
+  createMenu(result) {
     const doc = this.window.document;
     const contextMenu = doc.createElement('menupopup');
 
     this.rootElement.appendChild(contextMenu);
     contextMenu.setAttribute('id', 'dropdownContextMenu');
 
-    this.createMenuItems(url, result).forEach((item) => {
+    this.createMenuItems(result).forEach((item) => {
       const menuItem = doc.createElement('menuitem');
       menuItem.setAttribute('label', item.label);
       if (item.class) {

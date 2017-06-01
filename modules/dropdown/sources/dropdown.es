@@ -108,9 +108,8 @@ export default class {
     const result = this.results.find(href);
 
     if (ev.button === 2) {
-      // using href instead of result.url because for every link in HistoryCluster
-      // result.url contains the same url (topmost history domain)
-      this.contextMenu.show(href, result, { x: ev.screenX, y: ev.screenY });
+      const subresult = result.findResultByUrl(href) || result;
+      this.contextMenu.show(subresult, { x: ev.screenX, y: ev.screenY });
     } else {
       result.click(this.window, href, ev);
 

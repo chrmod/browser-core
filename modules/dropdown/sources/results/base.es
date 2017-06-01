@@ -298,28 +298,23 @@ export default class BaseResult {
     return this.isHistory;
   }
 
-
   click(window, href, ev) {
-    if (equals(href, this.url)) {
-      events.pub('ui:click-on-url', {
-        url: href,
-        query: this.query,
-      });
-      // TODO: do not use global
-      /* eslint-disable */
-      window.CLIQZ.Core.urlbar.value = href;
-      /* eslint-enable */
+    const result = equals(href, this.url) ? this : this.findResultByUrl(href);
+    events.pub('ui:click-on-url', {
+      url: href,
+      query: result.query,
+    });
+    // TODO: do not use global
+    /* eslint-disable */
+    window.CLIQZ.Core.urlbar.value = href;
+    /* eslint-enable */
 
-      const newTab = ev.altKey || ev.metaKey || ev.ctrlKey;
-      if (!newTab) {
-        // delegate to Firefox for full set of features like switch-to-tab
-        window.CLIQZ.Core.urlbar.handleCommand(ev, 'current');
-      } else {
-        utils.openLink(window, this.rawUrl, true, false, false, false);
-      }
+    const newTab = ev.altKey || ev.metaKey || ev.ctrlKey;
+    if (!newTab) {
+      // delegate to Firefox for full set of features like switch-to-tab
+      window.CLIQZ.Core.urlbar.handleCommand(ev, 'current');
     } else {
-      const result = this.allResults.find(r => equals(r.url, href));
-      result.click(window, href, ev);
+      utils.openLink(window, result.rawUrl, true, false, false, false);
     }
   }
 
