@@ -40,14 +40,6 @@ export default (function() {
                 continue;
               }
 
-              try {
-                // https://bugzilla.mozilla.org/show_bug.cgi?id=419324
-                uri = makeURI(action.params.url);
-                label = losslessDecodeURI(uri);
-              } catch (e) {
-                console.log('history result error', e);
-              }
-
               res.push({
                 style:   result.getStyleAt(i),
                 value:   cleanURL,
@@ -57,7 +49,6 @@ export default (function() {
               });
             } catch(e){
               console.log('history result error', e);
-              // bummer! This was unexpected
             }
           }
           else {
