@@ -50,6 +50,11 @@ export default class {
     }
 
     switch (ev.code) {
+      case 'ArrowRight':
+      case 'ArrowLeft': {
+        this.ui.windowAction(this.window, 'syncUrlbarValue');
+        break;
+      }
       case 'ArrowUp': {
         this.dropdown.results.firstResult.isAutocompleted = false;
         const result = this.dropdown.previousResult();

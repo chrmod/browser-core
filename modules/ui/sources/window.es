@@ -177,6 +177,9 @@ export default class {
         this.urlbar.value = value;
         this.urlbar.mInputField.value = visibleValue || value;
       },
+      syncUrlbarValue: () => {
+        this.urlbar.value = this.urlbar.mInputField.value;
+      },
       updatePopupStyle: () => {
         if (!this.popup) {
           return;
