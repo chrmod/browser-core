@@ -522,6 +522,9 @@ const urlbarEventHandlers = {
     // reset this flag as it can block the dropdown from opening
     autocomplete.isPopupOpen = false;
 
+    // force a dropdown close on urlbar blur
+    this.window.CLIQZ.Core.popup.hidePopup();
+
     SearchHistory.lastQuery(this.window);
 
     this.urlbarEvent('blur');
