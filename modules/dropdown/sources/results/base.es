@@ -299,7 +299,7 @@ export default class BaseResult {
   }
 
   click(window, href, ev) {
-    if(equals(href, this.url)){
+    if (equals(href, this.url)) {
       events.pub('ui:click-on-url', {
         url: href,
         query: this.query,
