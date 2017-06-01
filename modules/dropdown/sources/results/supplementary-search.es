@@ -66,9 +66,4 @@ export default class SupplementarySearchResult extends BaseResult {
   get displayUrl() {
     return this.rawResult.text;
   }
-
-  click(window, href, ev) {
-    // Let Firefox handle the urlbar value
-    super.click(window, this.rawResult.text, ev);
-  }
 }
