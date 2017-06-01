@@ -299,22 +299,25 @@ export default class BaseResult {
   }
 
   click(window, href, ev) {
-    const result = equals(href, this.url) ? this : this.findResultByUrl(href);
-    events.pub('ui:click-on-url', {
-      url: href,
-      query: result.query,
-    });
-    // TODO: do not use global
-    /* eslint-disable */
-    window.CLIQZ.Core.urlbar.value = href;
-    /* eslint-enable */
+    if(equals(href, this.url)){
+      events.pub('ui:click-on-url', {
+        url: href,
+        query: this.query,
+      });
+      // TODO: do not use global
+      /* eslint-disable */
+      window.CLIQZ.Core.urlbar.value = href;
+      /* eslint-enable */
 
-    const newTab = ev.altKey || ev.metaKey || ev.ctrlKey;
-    if (!newTab) {
-      // delegate to Firefox for full set of features like switch-to-tab
-      window.CLIQZ.Core.urlbar.handleCommand(ev, 'current');
+      const newTab = ev.altKey || ev.metaKey || ev.ctrlKey;
+      if (!newTab) {
+        // delegate to Firefox for full set of features like switch-to-tab
+        window.CLIQZ.Core.urlbar.handleCommand(ev, 'current');
+      } else {
+        utils.openLink(window, this.rawUrl, true, false, false, false);
+      }
     } else {
-      utils.openLink(window, result.rawUrl, true, false, false, false);
+      this.findResultByUrl(href).click(window, href, ev);
     }
   }
 
