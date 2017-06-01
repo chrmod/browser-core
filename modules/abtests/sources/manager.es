@@ -1,6 +1,6 @@
 /* eslint { "no-return-assign": "off" } */
 
-import anolysis from '../anolysis/background';
+import inject from '../core/kord/inject';
 import getSynchronizedDate from '../anolysis/synchronized-date';
 import logger from './logger';
 import moment from '../platform/moment';
@@ -34,6 +34,8 @@ export default class {
     this.sharedStorage = sharedStorage;
     this.runningTests = { };
     this.completedTests = { };
+
+    this.anolysis = inject.module('anolysis');
   }
 
   /*
@@ -185,18 +187,22 @@ export default class {
    * @returns {Object[]} - The list of tests to start.
    */
   getUpcomingTests(newTests) {
-    return Promise.all(newTests.map((test) => {
+    return Promise.all(newTests.map(test =>
       // (1) check locally
-      if (!this.shouldStartTest(test)) {
-        return { test, success: false };
-      }
-      // (2) check remote
-      const group = this.chooseTestGroup(test);
-      return this.client.enterTest(test.id, group)
-        .then(success => ({ test: { ...test, group }, success }))
-        // catch errors so that Promise.all does not stop
-        .catch(() => ({ test, success: false }));
-    }))
+      this.shouldStartTest(test)
+        .then((shouldStartTest) => {
+          if (!shouldStartTest) {
+            return { test, success: false };
+          }
+
+          // (2) check remote
+          const group = this.chooseTestGroup(test);
+          return this.client.enterTest(test.id, group)
+            .then(success => ({ test: { ...test, group }, success }))
+            // catch errors so that Promise.all does not stop
+            .catch(() => ({ test, success: false }));
+        })
+    ))
     .then(reports => reports
       .filter(report => report.success)
       .map(report => report.test));
@@ -223,15 +229,18 @@ export default class {
    */
   shouldStartTest(test) {
     if (!this.isTestActive(test)) {
-      return false;
+      return Promise.resolve(false);
     }
 
-    if (!this.isDemographicsMatch(test)) {
-      return false;
-    }
+    return this.isDemographicsMatch(test)
+      .then((isDemographicsMatch) => {
+        if (!isDemographicsMatch) {
+          return false;
+        }
 
-    const shouldStart = random() < test.probability;
-    return shouldStart;
+        const shouldStart = random() < test.probability;
+        return shouldStart;
+      });
   }
 
   /*
@@ -275,22 +284,23 @@ export default class {
    * @returns {Boolean} - True, if the test has matching demographics.
    */
   isDemographicsMatch(test) {
-    const userDemographics = JSON.parse(
-      anolysis.actions.getCurrentDemographics());
+    return this.anolysis.action('getCurrentDemographics')
+      .then(userDemographics => JSON.parse(userDemographics))
+      .then(userDemographics =>
+        Object.keys(test.demographic).every((factor) => {
+          const userValue = userDemographics[factor];
+          const testValue = test.demographic[factor];
 
-    return Object.keys(test.demographic).every((factor) => {
-      const userValue = userDemographics[factor];
-      const testValue = test.demographic[factor];
+          if (factor === 'install_date') {
+            const userDate = moment(userValue, DATE_FORMAT);
+            const [testFirstDate, testLastDate] =
+              testValue.split('-').map(date => moment(date));
+            const testDateRange = moment.range(testFirstDate, testLastDate || testFirstDate);
 
-      if (factor === 'install_date') {
-        const userDate = moment(userValue, DATE_FORMAT);
-        const [testFirstDate, testLastDate] =
-          testValue.split('-').map(date => moment(date));
-        const testDateRange = moment.range(testFirstDate, testLastDate || testFirstDate);
-
-        return testDateRange.contains(userDate);
-      }
-      return (userValue || '').startsWith(testValue);
-    });
+            return testDateRange.contains(userDate);
+          }
+          return (userValue || '').startsWith(testValue);
+        })
+      );
   }
 }
