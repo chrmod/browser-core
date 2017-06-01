@@ -42,6 +42,7 @@ export default class ContextMenu {
 
   createMenuItems(result) {
     const url = result.url;
+    const cleanUrl = utils.cleanMozillaActions(url)[1];
     const labels = this.labels;
     const isBookmarked = HistoryManager.isBookmarked(url);
     const openedTabs = getTabsWithUrl(this.window, url);
@@ -61,19 +62,19 @@ export default class ContextMenu {
     const menuItems = [
       {
         label: this.inPrivateWindow ? labels[`NEW_${PRIVATE_NAME}_TAB`] : labels.NEW_TAB,
-        command: this.openNewTab.bind(this, url),
+        command: this.openNewTab.bind(this, cleanUrl),
       },
       ...(this.inPrivateWindow ? [] : [{
         label: labels.NEW_WINDOW,
-        command: this.openNewWindow.bind(this, url),
+        command: this.openNewWindow.bind(this, cleanUrl),
       }]),
       {
         label: labels[`NEW_${PRIVATE_NAME}_WINDOW`],
-        command: this.openInPrivateWindow.bind(this, url),
+        command: this.openInPrivateWindow.bind(this, cleanUrl),
       },
       ...(result.isDeletable ? [{
         label: REMOVE_ENTRY_LABEL,
-        command: this.removeEntry.bind(this, url, result, openedTabs),
+        command: this.removeEntry.bind(this, cleanUrl, result, openedTabs),
       }] : []),
       {
         label: labels.FEEDBACK,

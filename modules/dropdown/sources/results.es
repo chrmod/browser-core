@@ -139,7 +139,7 @@ export default class Results {
   }
 
   findSelectable(href) {
-    return this.selectableResults.find(r => equals(r.url, href));
+    return this.selectableResults.find(r => equals(r.url, href) || equals(r.rawUrl, href));
   }
 
   indexOf(result) {

@@ -98,7 +98,7 @@ export default class {
     const resultElement = targetElement.closest('.result');
     const extraElement = targetElement.closest('[data-extra]');
     const extra = extraElement ? extraElement.dataset.extra : null;
-    const href = utils.cleanMozillaActions(resultElement.href)[1];
+    const href = resultElement.href;
     const coordinates = [
       ev.offsetX,
       ev.offsetY,

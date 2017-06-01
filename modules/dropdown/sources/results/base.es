@@ -283,11 +283,11 @@ export default class BaseResult {
   }
 
   findResultByUrl(href) {
-    return this.allResults.find(r => equals(r.url, href));
+    return this.allResults.find(r => equals(r.url, href) || equals(r.rawUrl, href));
   }
 
   hasUrl(href) {
-    return this.allResults.some(r => equals(r.url, href));
+    return Boolean(this.findResultByUrl(href));
   }
 
   get isHistory() {
