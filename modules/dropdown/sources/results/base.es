@@ -136,6 +136,10 @@ export default class BaseResult {
     return this.rawResult.url;
   }
 
+  get rawUrl() {
+    return this.rawResult.url;
+  }
+
   get displayUrl() {
     return this.rawResult.url;
   }
@@ -305,8 +309,14 @@ export default class BaseResult {
       /* eslint-disable */
       window.CLIQZ.Core.urlbar.value = href;
       /* eslint-enable */
-      const where = ev.altKey || ev.metaKey ? 'tab' : 'current';
-      window.CLIQZ.Core.urlbar.handleCommand(ev, where);
+
+      const newTab = ev.altKey || ev.metaKey
+      if(!newTab){
+        // delegate to Firefox for full set of features like switch-to-tab
+        window.CLIQZ.Core.urlbar.handleCommand(ev, 'current');
+      } else {
+        utils.openLink(window, this.rawUrl, true, false, false, false);
+      }
     } else {
       const result = this.allResults.find(r => equals(r.url, href));
       result.click(window, href, ev);
