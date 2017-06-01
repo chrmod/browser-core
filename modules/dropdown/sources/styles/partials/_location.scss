@@ -59,6 +59,15 @@
                     &.selected {
                         background-image: url("resource://cliqz/dropdown/images/location-icon-hover.svg");
                     }
+
+                    .spinner {
+                        display: inline-block;
+                        margin-left: 2px;
+                        background-image: url("resource://cliqz/dropdown/images/small-spinner_square.gif");
+                        background-repeat: no-repeat;
+                        width: 20px;
+                        height: 6px;
+                    }
                 }
             }
         }
