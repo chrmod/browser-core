@@ -142,6 +142,15 @@ var CliqzHistoryCluster = {
     return res;
   },
 
+  // find the best (https) common protocol for urls from patterns for the same domain
+  // if no https urls is found 'http' will be used
+  _findBestCommonProtocol(baseDomain, patterns) {
+    return patterns.find((pattern) => {
+      const details = utils.getDetailsFromUrl(pattern.url);
+      return baseDomain === details.domain && details.scheme === 'https';
+    }) && 'https' || 'http';
+  },
+
   // Calculates the _weighted_ share of the most common domain in given patterns
   _maxDomainShare: function(patterns) {
     var patternCount = patterns.length;
@@ -404,17 +413,21 @@ var CliqzHistoryCluster = {
 
       utils.log('Adding base domain to history cluster: ' + baseUrl, 'CliqzHistoryCluster');
 
-      // Add trailing slash if not there
       var urldetails = utils.getDetailsFromUrl(baseUrl);
+      // Add protocol if it is missing
+      if (!urldetails.scheme) {
+        baseUrl = this._findBestCommonProtocol(urldetails.domain, patterns) + '://' + baseUrl;
+      }
+      // Add trailing slash if not there
       if (urldetails.path === '')
         baseUrl = baseUrl + '/';
 
       patterns.unshift({
         title: title.charAt(0).toUpperCase() + title.split('.')[0].slice(1),
         url: baseUrl,
-        favicon: favicon
+        favicon: favicon,
+        autoAdd: true,
       });
-      patterns[0].autoAdd = true;
     }
   },
   // Autocomplete an urlbar value with the given patterns
