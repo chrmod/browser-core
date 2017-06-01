@@ -1,3 +1,4 @@
+import utils from '../../core/utils';
 import { equals } from '../core/url';
 import templates from './templates';
 import { clickSignal } from './telemetry';
@@ -97,7 +98,7 @@ export default class {
     const resultElement = targetElement.closest('.result');
     const extraElement = targetElement.closest('[data-extra]');
     const extra = extraElement ? extraElement.dataset.extra : null;
-    const href = resultElement.href;
+    const href = utils.cleanMozillaActions(resultElement.href)[1];
     const coordinates = [
       ev.offsetX,
       ev.offsetY,
