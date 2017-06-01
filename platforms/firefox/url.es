@@ -25,14 +25,14 @@ export default function equal(url1, url2) {
   try {
     uri1 = Services.io.newURI(url1, 'UTF-8', null);
   } catch (e) {
-    console.log(`"${url1}" is not URL`, e);
+    // console.log(`"${url1}" is not URL`, e);
     return false;
   }
 
   try {
     uri2 = Services.io.newURI(url2, 'UTF-8', null);
   } catch (e) {
-    console.log(`"${url2}" is not URL`, e);
+    // console.log(`"${url2}" is not URL`, e);
     return false;
   }
 
