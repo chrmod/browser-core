@@ -72,15 +72,17 @@ export function enterSignal({ dropdown, newTab }) {
 
 export function clickSignal({ extra, coordinates, results, result, url, newTab }) {
   const clickedResult = result.findResultByUrl(url);
-  const commonPart = common({ results, result, clickedResult, url });
-  const signal = Object.assign({}, commonPart, {
-    action: 'result_click',
-    extra,
-    mouse: coordinates,
-    new_tab: newTab,
-  });
+  if (clickedResult) {
+    const commonPart = common({ results, result, clickedResult, url });
+    const signal = Object.assign({}, commonPart, {
+      action: 'result_click',
+      extra,
+      mouse: coordinates,
+      new_tab: newTab,
+    });
 
-  utils.telemetry(signal);
+    utils.telemetry(signal);
+  }
 }
 
 export function dropdownContextMenuSignal({ action = 'click', context = 'dropdown', target }) {

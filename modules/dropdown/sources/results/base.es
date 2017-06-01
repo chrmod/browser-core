@@ -439,13 +439,13 @@ class ShareLocationButton extends BaseResult {
   }
 
   click(window, href, ev) {
-    if (this.elementClassName === 'location-allow-once') {
-      const el = ev.target;
-      const document = el.ownerDocument;
-      const loadingImg = document.createElement('div');
-      loadingImg.className = 'spinner';
-      el.appendChild(loadingImg);
-    }
+    // Add loading spinner on the button
+    const el = ev.target;
+    const document = el.ownerDocument;
+    const loadingImg = document.createElement('div');
+    loadingImg.className = 'spinner';
+    el.appendChild(loadingImg);
+
     const action = JSON.parse(href.split('cliqz-actions,')[1]);
     const locationAssistant = this.rawResult.locationAssistant;
     const actionName = action.actionName;
