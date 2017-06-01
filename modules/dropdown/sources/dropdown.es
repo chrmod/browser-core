@@ -1,4 +1,3 @@
-import utils from '../../core/utils';
 import { equals } from '../core/url';
 import templates from './templates';
 import { clickSignal } from './telemetry';
