@@ -119,7 +119,7 @@ export default class {
         results: this.results,
         result,
         url: href,
-        newTab: ev.ctrlKey || ev.metaKey,
+        newTab: ev.altKey || ev.metaKey || ev.ctrlKey,
       });
     }
   }

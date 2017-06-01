@@ -78,7 +78,7 @@ export default class {
       }
       case 'Enter':
       case 'NumpadEnter': {
-        const isNewTab = ev.altKey || ev.metaKey;
+        const isNewTab = ev.altKey || ev.metaKey || ev.ctrlKey;
         preventDefault = true;
         enterSignal({
           dropdown: this.dropdown,
