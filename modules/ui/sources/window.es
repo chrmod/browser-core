@@ -609,10 +609,10 @@ const popupEventHandlers = {
   * @event popupOpen
   */
   popupOpen: function(e){
+    autocomplete.isPopupOpen = true;
     if (e.composedTarget !== this.popup) {
       return;
     }
-    autocomplete.isPopupOpen = true;
     this.popupEvent(true);
     this.window.CLIQZ.UI.popupClosed = false;
   },
@@ -622,11 +622,11 @@ const popupEventHandlers = {
   * @param e
   */
   popupClose: function(e){
+    autocomplete.markResultsDone(null);
+    autocomplete.isPopupOpen = false;
     if (e.composedTarget !== this.popup) {
       return;
     }
-    autocomplete.isPopupOpen = false;
-    autocomplete.markResultsDone(null);
     this.popupEvent(false);
     this.window.CLIQZ.UI.popupClosed = true;
   }
