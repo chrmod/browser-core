@@ -416,6 +416,12 @@ var CliqzABTests = {
             case "1106_C":
                CliqzUtils.setPref("greenads", 'disabled');
                break;
+            case "1107_A":
+               CliqzUtils.setPref("MarketAnalysisEnabled", false);
+               break;
+            case "1107_B":
+               CliqzUtils.setPref("MarketAnalysisEnabled", true);
+               break;
             default:
                 rule_executed = false;
         }
@@ -684,6 +690,10 @@ var CliqzABTests = {
             case "1106_B":
             case "1106_C":
                CliqzUtils.clearPref("greenads");
+               break;
+            case "1107_A":
+            case "1107_B":
+               CliqzUtils.clearPref("MarketAnalysisEnabled");
                break;
             default:
                 rule_executed = false;
