@@ -313,7 +313,7 @@ export default class BaseResult {
       window.CLIQZ.Core.urlbar.value = href;
       /* eslint-enable */
 
-      const newTab = ev.altKey || ev.metaKey || ev.ctrlKey;
+      const newTab = ev.altKey || ev.metaKey || ev.ctrlKey || ev.button === 1;
       if (!newTab) {
         // delegate to Firefox for full set of features like switch-to-tab
         window.CLIQZ.Core.urlbar.handleCommand(ev, 'current');
