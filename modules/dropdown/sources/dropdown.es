@@ -112,14 +112,16 @@ export default class {
     } else {
       result.click(this.window, href, ev);
 
-      clickSignal({
-        extra,
-        coordinates,
-        results: this.results,
-        result,
-        url: href,
-        newTab: ev.altKey || ev.metaKey || ev.ctrlKey,
-      });
+      if (!result.isCliqzAction) {
+        clickSignal({
+          extra,
+          coordinates,
+          results: this.results,
+          result,
+          url: href,
+          newTab: ev.altKey || ev.metaKey || ev.ctrlKey,
+        });
+      }
     }
   }
 

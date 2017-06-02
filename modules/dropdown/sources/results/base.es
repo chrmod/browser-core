@@ -108,6 +108,10 @@ export default class BaseResult {
     return this.localSource.indexOf('bookmark') !== -1;
   }
 
+  get isCliqzAction() {
+    return !this.rawResult.url || this.rawResult.url.indexOf('cliqz-actions') === 0;
+  }
+
   get isAdult() {
     const data = this.rawResult.data || {};
     const extra = data.extra || {};

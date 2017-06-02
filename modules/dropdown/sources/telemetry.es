@@ -42,6 +42,9 @@ export function enterSignal({ dropdown, newTab }) {
   const index = dropdown.selectedIndex;
   const clickedResult = dropdown.results.get(index);
   const result = dropdown.results.find(clickedResult.url);
+
+  if (result.isCliqzAction) return;
+
   const isAutocompleted = result.isAutocompleted;
   const commonParts = common({ results, result, clickedResult, url: clickedResult.url });
   const enterSpecificParts = {
