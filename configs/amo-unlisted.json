@@ -8,6 +8,7 @@
     "name": "Cliqz",
     "channel": "FF01",
     "homepageURL": "http://cliqz.com/",
+    "updateURL": "https://s3.amazonaws.com/cdncliqz/update/firefox@cliqz.com/latest.rdf",
     "freshTabButton": true,
     "freshTabNews": true,
     "freshTabInitialState": false,
