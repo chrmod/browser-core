@@ -276,6 +276,7 @@ export default class {
       // Add search history dropdown
       }).then(() => {
         this.reloadUrlbar();
+        this.urlbar.focus();
         this.initialized = true;
         this.elems.push(SearchHistory.insertBeforeElement(this.window));
       });
