@@ -123,8 +123,7 @@ export default class {
         if (ev.metaKey || (ev.altKey && ev.ctrlKey)) {
           break;
         }
-        if (ev.code === 'Delete' ||                       // [Shift] + [Ctrl|Alt] + Del (Windows style)
-          (ev.code === 'Backspace' && ev.shiftKey)) {     // Shift + Backspace (OSX style)
+        if (ev.code === 'Delete' && ev.shiftKey) {
           const selectedResult = this.dropdown.selectedResult;
           if (!selectedResult.isDeletable) {
             break;
