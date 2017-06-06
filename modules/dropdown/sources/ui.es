@@ -102,7 +102,7 @@ export default class {
             break;
           }
 
-          const result = this.dropdown.results.findSelectable(this.popup.urlbarVisibleValue);
+          const result = this.dropdown.results.findSelectable(urlbarValue);
           if (result) {
             result.click(this.window, result.url, ev);
             break;
@@ -183,6 +183,13 @@ export default class {
         firstResult.title,
       );
       firstResult.isAutocompleted = didAutocomplete;
+    }
+
+    const switchTabResult = results.results.find(r => r.isActionSwitchTab);
+    if (switchTabResult) {
+      results.insertAt(new NavigateToResult({
+        text: switchTabResult.displayUrl
+      }), results.indexOf(switchTabResult));
     }
 
     // TODO move these to mixer (EX-4497: Old dropdown cleanup)

@@ -17,6 +17,10 @@ export default class NavigateToResult extends BaseResult {
     return false;
   }
 
+  get isActionSwitchTab() {
+    return false;
+  }
+
   get logo() {
     const query = this.rawResult.text;
     let url;
