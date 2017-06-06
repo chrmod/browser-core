@@ -102,12 +102,6 @@ export default class {
             break;
           }
 
-          const result = this.dropdown.results.findSelectable(this.popup.urlbarVisibleValue);
-          if (result) {
-            result.click(this.window, result.url, ev);
-            break;
-          }
-
           if (this.dropdown.selectedIndex > 0) {
             const selectedResult = this.dropdown.results.get(this.dropdown.selectedIndex);
             selectedResult.click(this.window, selectedResult.url, ev);

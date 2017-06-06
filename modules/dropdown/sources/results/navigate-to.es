@@ -42,6 +42,10 @@ export default class NavigateToResult extends BaseResult {
     return `moz-action:visiturl,${JSON.stringify({ url: query })}`;
   }
 
+  get rawUrl() {
+    return this.rawResult.text;
+  }
+
   get displayUrl() {
     return this.rawResult.text;
   }
