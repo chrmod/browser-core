@@ -2,6 +2,7 @@
 import events from '../../core/events';
 import utils from '../../core/utils';
 import { equals } from '../../core/url';
+import console from '../../core/console';
 
 export function getDeepResults(rawResult, type) {
   const deepResults = (rawResult.data && rawResult.data.deepResults) || [];
@@ -18,6 +19,7 @@ export default class BaseResult {
       ...{ data: {} },
       ...rawResult,
     };
+    this.actions = {};
 
     // throw if main result is duplicate
     // TODO: move deduplication to autocomplete module
@@ -78,7 +80,7 @@ export default class BaseResult {
   }
 
   get kind() {
-    return this.rawResult.data.kind || [];
+    return this.rawResult.data.kind || [''];
   }
 
   get title() {
@@ -216,12 +218,12 @@ export default class BaseResult {
 
   get isAskingForLocation() {
     const extra = this.rawResult.data.extra || {};
-    return extra.no_location && this.rawResult.locationAssistant.isAskingForLocation;
+    return (extra.no_location || false) && this.actions.locationAssistant.isAskingForLocation;
   }
 
 
   get shareLocationButtons() {
-    const locationAssistant = this.rawResult.locationAssistant;
+    const locationAssistant = this.actions.locationAssistant;
     if (!this._shareLocationButtons) {
       this._shareLocationButtons = !this.isAskingForLocation ? [] :
         locationAssistant.actions.map((action) => {
@@ -230,14 +232,31 @@ export default class BaseResult {
             additionalClassName = 'location-allow-once';
           }
 
-          return new ShareLocationButton({
+          const result = new ShareLocationButton({
             title: action.title,
             url: `cliqz-actions,${JSON.stringify({ type: 'location', actionName: action.actionName })}`,
             text: this.rawResult.text,
             className: additionalClassName,
             locationAssistant,
-            onButtonClick: this.rawResult.redoQuery,
+            onButtonClick: () => {
+              this.actions.getSnippet(this.query, this.rawResult)
+                .then((snippet) => {
+                  const newRawResult = Object.assign({}, this.rawResult);
+                  newRawResult.data.extra = Object.assign(
+                    {},
+                    newRawResult.data.extra,
+                    snippet.extra,
+                  );
+
+                  const newResult = new this.constructor(newRawResult);
+                  newResult.actions = this.actions;
+                  this.actions.replaceResult(this, newResult);
+                })
+                .catch(console.error);
+            }
           });
+          result.actions = this.actions;
+          return result;
         });
     }
     return this._shareLocationButtons;
@@ -463,13 +482,13 @@ class ShareLocationButton extends BaseResult {
     this.element.appendChild(this.spinner);
 
     const action = JSON.parse(href.split('cliqz-actions,')[1]);
-    const locationAssistant = this.rawResult.locationAssistant;
+    const locationAssistant = this.actions.locationAssistant;
     const actionName = action.actionName;
     if (!locationAssistant.hasAction(actionName)) {
       return;
     }
     locationAssistant[actionName]().then(() => {
       this.rawResult.onButtonClick();
-    });
+    }).catch(console.error);
   }
 }

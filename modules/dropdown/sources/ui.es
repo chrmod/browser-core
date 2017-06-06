@@ -14,12 +14,15 @@ import { getTabsWithUrl, closeTab } from '../core/tabs';
 export default class {
 
   constructor(window, { getSessionCount }) {
+    this.window = window;
+    this.getSessionCount = getSessionCount;
+    this.handleResults = this.handleResults.bind(this);
+
     this.ui = inject.module('ui');
     this.core = inject.module('core');
     this.geolocation = inject.module('geolocation');
-    this.handleResults = this.handleResults.bind(this);
-    this.window = window;
-    this.getSessionCount = getSessionCount;
+    this.autocomplete = inject.module('autocomplete');
+
     this.adultAssistant = new AdultAssistant();
     this.locationAssistant = new LocationAssistant({
       updateGeoLocation: this.geolocation.action.bind(this.geolocation, 'updateGeoLocation'),
@@ -165,6 +168,8 @@ export default class {
       queryCliqz: this.core.action.bind(this.core, 'queryCliqz'),
       adultAssistant: this.adultAssistant,
       locationAssistant: this.locationAssistant,
+      rerender: () => this.dropdown.renderResults(results),
+      getSnippet: this.autocomplete.action.bind(this.autocomplete, 'getSnippet'),
     });
     const queryIsUrl = isUrl(results.query);
     const queryIsNotEmpty = query.trim() !== '';
