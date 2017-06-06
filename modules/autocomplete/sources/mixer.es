@@ -111,6 +111,15 @@ export default class Mixer {
       first = [second.shift()].concat(first);
     }
 
+    // Remove map result from first if exists in second
+    if (first[0] && first[0].data.urls) {
+      first[0].data.urls = first[0].data.urls.filter((result) => {
+        return !second.some((secondResult) => {
+          const mapUrl = (secondResult.data || { extra: {} }).extra.mu;
+          return result.href === mapUrl;
+        });
+      });
+    }
 
     var duplicates = this._getDuplicates(first, second);
     // remove duplicates from second list

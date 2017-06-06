@@ -221,25 +221,26 @@ export default class BaseResult {
 
 
   get shareLocationButtons() {
-    if (!this.isAskingForLocation) {
-      return [];
-    }
     const locationAssistant = this.rawResult.locationAssistant;
-    return locationAssistant.actions.map((action) => {
-      let additionalClassName = '';
-      if (action.actionName === 'allowOnce') {
-        additionalClassName = 'location-allow-once';
-      }
+    if (!this._shareLocationButtons) {
+      this._shareLocationButtons = !this.isAskingForLocation ? [] :
+        locationAssistant.actions.map((action) => {
+          let additionalClassName = '';
+          if (action.actionName === 'allowOnce') {
+            additionalClassName = 'location-allow-once';
+          }
 
-      return new ShareLocationButton({
-        title: action.title,
-        url: `cliqz-actions,${JSON.stringify({ type: 'location', actionName: action.actionName })}`,
-        text: this.rawResult.text,
-        className: additionalClassName,
-        locationAssistant,
-        onButtonClick: this.rawResult.redoQuery,
-      });
-    });
+          return new ShareLocationButton({
+            title: action.title,
+            url: `cliqz-actions,${JSON.stringify({ type: 'location', actionName: action.actionName })}`,
+            text: this.rawResult.text,
+            className: additionalClassName,
+            locationAssistant,
+            onButtonClick: this.rawResult.redoQuery,
+          });
+        });
+    }
+    return this._shareLocationButtons;
   }
 
   get localResult() {
@@ -274,7 +275,6 @@ export default class BaseResult {
       ...(this.newsResults).slice(0, 3),
       ...(this.videoResults).slice(0, 3),
       ...this.internalResults.slice(0, this.internalResultsLimit),
-      ...(this.localResult ? this.localResult.internalResults : []),
     ];
   }
 
@@ -282,7 +282,8 @@ export default class BaseResult {
     return [
       ...this.selectableResults,
       ...this.imageResults,
-      ...this.anchorResults
+      ...this.anchorResults,
+      ...(this.localResult ? this.localResult.internalResults : []),
     ];
   }
 
@@ -328,8 +329,9 @@ export default class BaseResult {
   /*
    * Lifecycle hook
    */
-  didRender() {
-
+  didRender(...args) {
+    const allButThisResult = this.allResults.slice(1);
+    allButThisResult.forEach(result => result.didRender(...args));
   }
 }
 
@@ -430,6 +432,15 @@ class LocalResult extends BaseResult {
 }
 
 class ShareLocationButton extends BaseResult {
+
+  get elementId() {
+    if (!this._elementId) {
+      const id = Math.floor(Math.random() * 1000);
+      this._elementId = `result-share-location-${id}`;
+    }
+    return this._elementId;
+  }
+
   get displayUrl() {
     return this.rawResult.text;
   }
@@ -442,13 +453,14 @@ class ShareLocationButton extends BaseResult {
     return this.rawResult.className;
   }
 
+  didRender(dropdownElement) {
+    this.element = dropdownElement.querySelector(`#${this.elementId}`);
+    this.spinner = dropdownElement.ownerDocument.createElement('div');
+    this.spinner.className = 'spinner';
+  }
+
   click(window, href, ev) {
-    // Add loading spinner on the button
-    const el = ev.target;
-    const document = el.ownerDocument;
-    const loadingImg = document.createElement('div');
-    loadingImg.className = 'spinner';
-    el.appendChild(loadingImg);
+    this.element.appendChild(this.spinner);
 
     const action = JSON.parse(href.split('cliqz-actions,')[1]);
     const locationAssistant = this.rawResult.locationAssistant;
