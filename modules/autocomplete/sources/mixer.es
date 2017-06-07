@@ -112,17 +112,32 @@ export default class Mixer {
     }
 
     // Remove map result from first if exists in second
-    if (first[0] && first[0].data.urls) {
-      first[0].data.urls = first[0].data.urls.filter((result) => {
-        return !second.some((secondResult) => {
-          const data = secondResult.data;
-          if(data && data.extra && data.extra.mu) {
-            return result.href === data.extra.mu;
-          } else {
-            return false;
-          }
+    if (first && first[0]) {
+      if (first[0].data.urls) {
+        // cluster
+        first[0].data.urls = first[0].data.urls.filter((result) => {
+          return !second.some((secondResult) => {
+            const data = secondResult.data;
+            if(data && data.extra && data.extra.mu) {
+              return result.href === data.extra.mu;
+            } else {
+              return false;
+            }
+          });
         });
-      });
+      } else {
+        // simple history
+        first = first.filter((result) => {
+          return !second.some((secondResult) => {
+            const data = secondResult.data;
+            if(data && data.extra && data.extra.mu) {
+              return result.val === data.extra.mu;
+            } else {
+              return false;
+            }
+          });
+        });
+      }
     }
 
     var duplicates = this._getDuplicates(first, second);
