@@ -50,9 +50,8 @@
                               data-cqz-of-btn-id="copy-code"
                               data-cqz-offer-id="{{ offer_id }}"
                               data-cqz-of-btn-action-type="offer-action-signal"
-                        >
-                            {{ template_data.code  }}
-                        </span>
+                        >{{ template_data.code  }}</span>
+                        <!-- Do not put {{ template_data.code  }} otherwise will bring empty spaces in COPY selection-->
                     </div>
                     {{/if }}
 
