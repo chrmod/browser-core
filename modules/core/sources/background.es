@@ -302,8 +302,21 @@ export default background({
       utils.telemetry(msg);
       return Promise.resolve();
     },
+
+    refreshPopup(query = '') {
+      if (query.trim() !== '') {
+        return this.actions.queryCliqz(query);
+      }
+      const doc = utils.getWindow().document;
+      const urlBar = doc.getElementById("urlbar");
+      const dropmarker = doc.getAnonymousElementByAttribute(urlBar, "anonid", "historydropmarker");
+      setTimeout(() => {
+        dropmarker.click();
+      }, 0);
+    },
+
     queryCliqz(query) {
-      let urlBar = utils.getWindow().document.getElementById("urlbar")
+      let urlBar = utils.getWindow().document.getElementById("urlbar");
       urlBar.mInputField.setUserInput('');
       urlBar.focus();
       urlBar.mInputField.focus();

@@ -135,7 +135,7 @@ export default class ContextMenu {
     if (openedTabs.length) {
       openedTabs.forEach(tab => closeTab(this.window, tab));
     }
-    this.core.action('queryCliqz', query);
+    this.core.action('refreshPopup', query);
   }
 
   openFeedback(kind) {

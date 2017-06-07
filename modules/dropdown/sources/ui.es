@@ -102,7 +102,7 @@ export default class {
             break;
           }
 
-          const result = this.dropdown.results.findSelectable(urlbarValue);
+          const result = this.dropdown.results.findSelectable(this.popup.urlbarVisibleValue);
           if (result) {
             result.click(this.window, result.url, ev);
             break;
@@ -137,10 +137,8 @@ export default class {
           } else {
             removeFromHistorySignal({});
           }
-
           getTabsWithUrl(this.window, url).forEach(tab => closeTab(this.window, tab));
-
-          this.core.action('queryCliqz', this.dropdown.results.query);
+          this.core.action('refreshPopup', this.dropdown.results.query);
           preventDefault = true;
         }
         break;
@@ -183,13 +181,6 @@ export default class {
         firstResult.title,
       );
       firstResult.isAutocompleted = didAutocomplete;
-    }
-
-    const switchTabResult = results.results.find(r => r.isActionSwitchTab);
-    if (switchTabResult) {
-      results.insertAt(new NavigateToResult({
-        text: switchTabResult.displayUrl
-      }), results.indexOf(switchTabResult));
     }
 
     // TODO move these to mixer (EX-4497: Old dropdown cleanup)
