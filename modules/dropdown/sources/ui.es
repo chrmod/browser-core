@@ -131,7 +131,7 @@ export default class {
           } else {
             removeFromHistorySignal({});
           }
-          
+
           getTabsWithUrl(this.window, url).forEach(tab => closeTab(this.window, tab));
 
           this.core.action('refreshPopup', this.dropdown.results.query);

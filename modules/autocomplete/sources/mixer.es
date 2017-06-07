@@ -115,8 +115,12 @@ export default class Mixer {
     if (first[0] && first[0].data.urls) {
       first[0].data.urls = first[0].data.urls.filter((result) => {
         return !second.some((secondResult) => {
-          const mapUrl = (secondResult.data || { extra: {} }).extra.mu;
-          return result.href === mapUrl;
+          const data = secondResult.data;
+          if(data && data.extra && data.extra.mu) {
+            return result.href === data.extra.mu;
+          } else {
+            return false;
+          }
         });
       });
     }

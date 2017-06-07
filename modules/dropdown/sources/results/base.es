@@ -459,7 +459,7 @@ class ShareLocationButton extends BaseResult {
     this.spinner.className = 'spinner';
   }
 
-  click(window, href, ev) {
+  click(window, href) {
     this.element.appendChild(this.spinner);
 
     const action = JSON.parse(href.split('cliqz-actions,')[1]);
