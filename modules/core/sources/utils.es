@@ -367,14 +367,17 @@ var CliqzUtils = {
     // find parts of hostname
     if (!isIPv4 && !isIPv6 && !isLocalhost) {
       try {
+        let hostWithoutTld = host;
         tld = CliqzUtils.tldExtractor(host);
 
-        // Get the domain name w/o subdomains and w/o TLD
-        name = host.slice(0, -(tld.length+1)).split('.').pop(); // +1 for the '.'
+        if (tld) {
+          hostWithoutTld = host.slice(0, -(tld.length + 1)); // +1 for the '.'
+        }
 
         // Get subdomains
-        var name_tld = name + "." + tld;
-        subdomains = host.slice(0, -name_tld.length).split(".").slice(0, -1);
+        subdomains = hostWithoutTld.split('.');
+        // Get the domain name w/o subdomains and w/o TLD
+        name = subdomains.pop();
 
         //remove www if exists
         // TODO: I don't think this is the right place to do this.
