@@ -140,7 +140,10 @@ class OfferDB {
 
     // mark as dirty and update tables
     this._markOfferDirty(offerID);
-    this._removeIndexTablesForOffer(offerID);
+
+    // we should not remove this since we relay still on accessing the display_id
+    // information of the offer
+    // this._removeIndexTablesForOffer(offerID);
 
     // remove the data
     // delete container.offer_obj;
