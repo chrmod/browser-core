@@ -24,10 +24,12 @@ const bowerComponents = new UnwatchedDir('bower_components');
 const modulesTree = new WatchedDir('modules');
 const subprojectsTree = new UnwatchedDir('subprojects');
 
+const moduleFormat = cliqzConfig.format || 'system';
+
 var babelOptions = {
   sourceMaps: cliqzConfig.sourceMaps ? 'inline' : false,
   filterExtensions: ['es'],
-  modules: cliqzConfig.format || 'system',
+  modules: moduleFormat,
   compact: false,
   blacklist: ['regenerator'],
 };
@@ -48,10 +50,13 @@ function getPlatformFunnel() {
 }
 
 
-function getPlatformTree() {
+function getPlatformTree(format) {
+  if (!format) {
+    format = moduleFormat;
+  }
   let platform = getPlatformFunnel();
 
-  platform = Babel(platform, babelOptions);
+  platform = Babel(platform, Object.assign({}, babelOptions, { modules: format }));
 
   return new Funnel(platform, {
     srcDir: cliqzConfig.platform,
@@ -203,12 +208,37 @@ function getBundlesTree(modulesTree) {
       bundleName = replaceFileExtension(bundleName);
 
       return new SystemBuilder(modulesTree, '/', moduleName + '/system.config.js', function(builder) {
+        const packages = {};
+
+        cliqzConfig.modules.concat('platform').forEach(module => {
+          packages[module] = {
+            defaultJSExtensions: true,
+            format: 'system',
+          };
+        });
+
+        const paths = {
+          'specific/*': './specific/'+cliqzConfig.platform+'/*',
+          'bower_components/*': './bower_components/*',
+          'node_modules/*': './node_modules/*',
+        };
+
+        cliqzConfig.modules.concat('platform').forEach(module => {
+          paths[module] = module;
+          paths[module+'/*'] = module+'/*';
+        });
+
+        paths['*'] = './node_modules/*';
+
         builder.config({
-          defaultJSExtensions: true,
-          paths: {
-            'specific/*': './specific/'+cliqzConfig.platform+'/*',
-            'bower_components/*': './bower_components/*',
+          transpiler: false,
+          packageConfigPaths: [
+            'node_modules/*/package.json',
+          ],
+          map: {
+            'plugin-json': 'node_modules/systemjs-plugin-json/json.js',
           },
+          paths: paths,
           meta: {
             'specific/*': {
               format: 'global',
@@ -216,10 +246,11 @@ function getBundlesTree(modulesTree) {
             'bower_components/*': {
               format: 'global',
             },
-            "*": {
-              format: "system",
-            }
-          }
+            '*.json': {
+              loader: "plugin-json",
+            },
+          },
+          packages: packages,
         });
         const bundle = moduleName + '/' + bundleName;
         return builder.buildStatic(bundle, bundle, {
@@ -281,7 +312,10 @@ function getBrowserifyTree() {
   return new MergeTrees(browserifyTrees);
 }
 
-function getSourceTree() {
+function getSourceTree(format) {
+  if (!format) {
+    format = moduleFormat;
+  }
   let sources = getSourceFunnel();
   const config = writeFile('core/config.es', 'export default '+JSON.stringify(cliqzConfig, null, 2));
 
@@ -298,13 +332,15 @@ function getSourceTree() {
     }
   });
 
+  const babelOpts = Object.assign({}, babelOptions, { modules: format });
+
   const transpiledSources = Babel(
     sources,
-    babelOptions
+    babelOpts
   );
   let transpiledModuleTestsTree = Babel(
     new Funnel(moduleTestsTree, { destDir: 'tests' }),
-    babelOptions
+    babelOpts
   );
 
   let sourceTrees = [
@@ -431,11 +467,14 @@ function getHandlebarsTree() {
   return new MergeTrees(trees);
 }
 
-const esTree = new MergeTrees([
-  getPlatformTree(),
-  getSourceTree(),
-  getHandlebarsTree(),
-]);
+const getEsTree = (format) => {
+  return new MergeTrees([
+    getPlatformTree(format),
+    getSourceTree(format),
+    getHandlebarsTree(),
+  ]);
+}
+const esTree = getEsTree(moduleFormat);
 
 const staticTree = new MergeTrees([
   getDistTree(),
@@ -449,11 +488,17 @@ const bowerTree = new MergeTrees([
 const styleCheckTestsTree = cliqzConfig.environment === 'production' ?
   new MergeTrees([]) : getLintTestsTree();
 
+const bundlesTree = getBundlesTree(
+  new MergeTrees([
+    (moduleFormat === 'system') ? esTree : getEsTree('system'),
+    staticTree,
+  ])
+);
 
 module.exports = {
   static: staticTree,
   modules: esTree,
   bower: bowerTree,
-  bundles: getBundlesTree(new MergeTrees([esTree, staticTree])),
+  bundles: bundlesTree,
   styleTests: styleCheckTestsTree,
 };
