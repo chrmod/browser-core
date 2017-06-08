@@ -356,7 +356,6 @@ export default class {
   }
 
   openPanel() {
-
     if (utils.getWindow() !== this.window) {
       return;
     }
