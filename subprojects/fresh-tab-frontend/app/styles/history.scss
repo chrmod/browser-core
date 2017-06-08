@@ -147,7 +147,7 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
 
         .feedback-text {
           padding: 5px 5px 7px 7px;
-          font-size: 13.5px;
+          font-size: 12.5px;
           line-height: 18px;
           color: #fff;
           background-color: #35BBDA;
@@ -160,7 +160,7 @@ $color-highlight-shadow: rgba(0, 84, 101, 0.5);
         .feedback-textarea {
           border: 2px solid #eee;
           border-radius: 3px;
-          max-width: 100%;
+          width: 100%;
         }
 
         .feedback-textarea:focus {
