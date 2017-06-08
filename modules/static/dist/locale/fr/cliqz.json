@@ -782,6 +782,9 @@
     "cMenuOpenInPrivateWindow": {
       "message": "Ouvrir en mode $1"
     },
+    "cMenuCopyLinkLocation": {
+      "message": "Copier l'adresse"
+    },
     "private": {
       "message": "Privé"
     },

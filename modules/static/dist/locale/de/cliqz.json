@@ -782,6 +782,9 @@
     "cMenuOpenInPrivateWindow": {
       "message": "Link in neuem $1 Fenster öffnen"
     },
+    "cMenuCopyLinkLocation": {
+      "message": "Link-Adresse kopieren"
+    },
     "private": {
       "message": "Privatem"
     },
