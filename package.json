@@ -32,6 +32,7 @@
     "yuidoc-bootstrap-theme": "1.0.6"
   },
   "devDependencies": {
+    "querystring": "cliqz-oss/querystring",
     "amd-name-resolver": "0.0.2",
     "broccoli": "cliqz-oss/broccoli#serve-build-16",
     "broccoli-asset-rev": "2.5.0",
