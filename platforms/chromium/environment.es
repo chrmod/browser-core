@@ -1,4 +1,5 @@
 import console from "../core/console";
+import config from '../core/config';
 import prefs from "../core/prefs";
 import Storage from "../core/storage";
 import CliqzUtils from "../core/utils"
@@ -18,7 +19,7 @@ const CLIQZEnvironment = {
   RICH_HEADER: 'https://api.cliqz.com/api/v2/rich-header?path=/v2/map',
   LOG: 'https://stats.cliqz.com',
   TEMPLATES_PATH: 'modules/static/templates/',
-  LOCALE_PATH: 'modules/static/locale/',
+  LOCALE_PATH: config.baseURL+'static/locale/',
   RERANKERS: [],
   RESULTS_TIMEOUT: 1000, // 1 second
   TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
