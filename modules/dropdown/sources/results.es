@@ -32,7 +32,7 @@ class ResultFactory {
       Constructor = WeatherResult;
     }
 
-    if (rawResult.data.extra && rawResult.data.extra.template === 'lotto') {
+    if (rawResult.data.template === 'lotto') {
       Constructor = LottoResult;
     }
 
