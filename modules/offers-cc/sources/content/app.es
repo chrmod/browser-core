@@ -137,6 +137,27 @@ $(document).ready(() => {
     data: {}
   });
 
+  // open URL
+  $('#cliqz-offers-cc').on('click', '[openUrl]', (ev) => {
+    sendMessageToWindow({
+      action: 'openURL',
+      data: {
+        url: ev.currentTarget.getAttribute('openUrl'),
+        closePopup: ev.currentTarget.dataset.closepopup || true
+      }
+    });
+  });
+
+    // close panel
+  $('#cliqz-offers-cc').on('click', '.cqz-call-to-action .cqz-close-hub', () => {
+    sendMessageToWindow({
+      action: 'closePanel',
+      data: {
+        force: true
+      }
+    });
+  });
+
   // link the click function here to the buttons
   document.getElementById('cliqz-offers-cc').addEventListener('click', cqzOfferBtnClicked);
 

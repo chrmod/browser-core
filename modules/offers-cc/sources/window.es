@@ -37,7 +37,8 @@ export default class {
       getEmptyFrameAndData: this.getEmptyFrameAndData.bind(this),
       resize: this.resizePopup.bind(this),
       sendTelemetry: this.sendTelemetry.bind(this),
-      closePanel: this.closePanel.bind(this)
+      closePanel: this.closePanel.bind(this),
+      openURL: this.openURL.bind(this)
     };
     this.panel = new Panel(
       this.window,
@@ -363,9 +364,15 @@ export default class {
     this.panel.open(this.button);
   }
 
-  closePanel() {
+  closePanel(data = {}) {
     UITour.hideInfo(this.window);
-    this.panel.hide();
+    this.panel.hide({ force: data.force });
+  }
+
+  openURL(data) {
+    const tab = utils.openLink(this.window, data.url, true);
+    if (data.closePopup === true) this.panel.hide({ force: true });
+    this.window.gBrowser.selectedTab = tab;
   }
 
 }
