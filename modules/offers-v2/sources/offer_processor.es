@@ -421,12 +421,16 @@ export default class OfferProcessor {
     // for now for backward compatibility we will hardcode this part here.
     // in the future we should adapt the ui (ghostery) to this new interface.
     if (isChromium && type === MessageType.MT_NEW_OFFER_ACTIVE) {
-      const offerInfoCpy = data;
+      const offerInfoCpy = data.offer_data;
+      linfo(`_publishMessage: sending offer active for offerID: ${offerInfoCpy.display_id}`);
       events.pub('msg_center:show_message', {
         id: offerInfoCpy.display_id,
         Message: offerInfoCpy.ui_info.template_data.title,
         Link: offerInfoCpy.ui_info.template_data.call_to_action.text,
-        LinkText: offerInfoCpy.ui_info.template_data.call_to_action.url
+        LinkText: offerInfoCpy.ui_info.template_data.call_to_action.url,
+        offer_info: {
+          offer_id: data.offer_data.offer_id
+        }
       }, 'ghostery');
       return;
     }

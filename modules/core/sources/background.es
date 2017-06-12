@@ -240,6 +240,14 @@ export default background({
     recordCopy() {
       events.pub('core:copy', ...arguments);
     },
+    /**
+     * publish an event using events.pub
+     * @param  {String}    evtChannel channel name
+     * @param  {...[objects]} args       arguments to sent
+     */
+    publishEvent(evtChannel, ...args) {
+      events.pub(evtChannel, ...args);
+    },
     restart() {
       return utils.app.extensionRestart();
     },

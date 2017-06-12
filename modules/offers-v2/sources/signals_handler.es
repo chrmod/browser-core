@@ -83,6 +83,9 @@ export class SignalHandler {
     // the signal queue
     this.sigsToSend = {};
 
+    // dirty flag to save or not data
+    this.dbDirty = false;
+
     // load the persistent data
     this._removeOldSignals();
     this._loadPersistenceData();
@@ -90,6 +93,17 @@ export class SignalHandler {
     // set the interval timer method to send the signals
     this.sendIntervalTimer = null;
     this._startSendSignalsLoop(OffersConfigs.SIGNALS_OFFERS_FREQ_SECS);
+
+    // save signals in a frequent way
+    const self = this;
+    if (OffersConfigs.SIGNALS_LOAD_FROM_DB) {
+      this.saveInterval = utils.setInterval(() => {
+        if (self.dbDirty) {
+          self._savePersistenceData();
+        }
+      },
+      OffersConfigs.SIGNALS_AUTOSAVE_FREQ_SECS * 1000);
+    }
   }
 
   // destructor
@@ -101,6 +115,11 @@ export class SignalHandler {
     if (this.sendIntervalTimer) {
       utils.clearInterval(this.sendIntervalTimer);
       this.sendIntervalTimer = null;
+    }
+
+    if (this.saveInterval) {
+      utils.clearInterval(this.saveInterval);
+      delete this.saveInterval;
     }
   }
 
@@ -333,6 +352,9 @@ export class SignalHandler {
     // mark it as dirty
     sigInfo.be_sync = false;
 
+    // we mark the DB as dirty here
+    this.dbDirty = true;
+
     this._addSignalToBeSent(sigType, sigKey);
   }
 
@@ -508,14 +530,20 @@ export class SignalHandler {
   _savePersistenceData() {
     // for testing comment the following check
     if (!OffersConfigs.SIGNALS_LOAD_FROM_DB) {
-      linfo('_savePersistenceData: skipping the loading');
+      linfo('_savePersistenceData: skipping the saving');
       return;
     }
+    // is db dirty?
+    if (!this.dbDirty) {
+      return;
+    }
+
     this.db.saveDocData(STORAGE_DB_DOC_ID,
       {
         sig_map: this.sigMap
       }
     );
+    this.dbDirty = false;
   }
 
   // load persistence data
@@ -534,6 +562,9 @@ export class SignalHandler {
       }
       // set the data
       self.sigMap = docData.sig_map;
+
+      // db is not dirty anymore
+      self.dbDirty = false;
 
       // remove old signals and add all the keys that are not sync with the BE yet
       const currentTS = Date.now();
