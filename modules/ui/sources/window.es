@@ -169,6 +169,7 @@ export default class {
     this.settings = settings.settings;
     this.window = settings.window;
     this.urlbar = this.window.document.getElementById('urlbar');
+    this.urlbarGoClick = this.urlbarGoClick.bind(this);
     this.hidePopup = this.hidePopup.bind(this);
     this.initialized = false;
     this.window.CLIQZ.UI = {};
@@ -233,7 +234,12 @@ export default class {
 
       this.window.CLIQZ.UI.autocompleteQuery = this.autocompleteQuery.bind(this);
 
-      this.urlbar.setAttribute('pastetimeout', 0)
+      this.urlbar.setAttribute('pastetimeout', 0);
+
+      var urlBarGo = document.getElementById('urlbar-go-button');
+      this._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
+      //we somehow break default FF -> on goclick the autocomplete doesnt get considered
+      urlBarGo.setAttribute('onclick', "CLIQZ.Core.windowModules.ui.urlbarGoClick(); " + this._urlbarGoButtonClick);
 
       var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
       this.popup = popup;
@@ -398,6 +404,21 @@ export default class {
 
     urlbar.style.maxWidth = '100%';
     urlbar.style.margin = '0px 0px';
+  }
+
+  /**
+   * @method urlbarGoClick
+   */
+  urlbarGoClick (){
+    //we somehow break default FF -> on goclick the autocomplete doesnt get considered
+    this.urlbar.value = this.urlbar.mInputField.value;
+    var action = {
+      type: 'activity',
+      position_type: ['inbar_' + (utils.isUrl(this.urlbar.mInputField.value)? 'url': 'query')],
+      autocompleted: autocomplete.lastAutocompleteActive,
+      action: 'urlbar_go_click'
+    };
+    utils.telemetry(action);
   }
 
   popupEvent(open) {
