@@ -9,6 +9,8 @@ $basic-font-size: 15px;
 $basic-line-height: (16 / 15) + 0em;
 
 #cliqz-dropdown {
+    font-family: "-mac-system", "-apple-system", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: 300;
 
     @import 'results/sessions';
     @import 'results/lotto';
@@ -33,11 +35,6 @@ $basic-line-height: (16 / 15) + 0em;
 
     a {
         color: #2385e7;
-    }
-
-    @font-face {
-        font-family: "-mac-system", "-apple-system", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-        font-weight: 300;
     }
 
     & > div:first-child {
