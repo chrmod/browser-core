@@ -460,22 +460,8 @@ export class SignalHandler {
             return;
           }
 
-          // now we have the data in the proper structure to be sent over telemetry
-          // and hpn
-          var signal = {
-            type: 'offers',
-            v : OffersConfigs.SIGNALS_VERSION,
-            ex_v: config.EXTENSION_VERSION,
-            is_developer: isDeveloper,
-            sig_type: signalType,
-            sent_ts: self._getMinuteTimestamp(),
-            data: sigDataToSend
-          };
-          utils.telemetry(signal);
-          linfo('sendSignalsToBE: telemetry: ' + JSON.stringify(signal));
+          // now we have the data in the proper structure to be sent over hpn
 
-          // #GR-294: sending also to the hpn proxy, we need to remove the telemetry
-          //          on the future once this is stable
           const hpnSignal = {
               action: OffersConfigs.SIGNALS_HPN_BE_ACTION,
               signal_id: sigID,
