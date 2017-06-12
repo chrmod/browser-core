@@ -428,8 +428,12 @@ export default class OfferProcessor {
         Message: offerInfoCpy.ui_info.template_data.title,
         Link: offerInfoCpy.ui_info.template_data.call_to_action.text,
         LinkText: offerInfoCpy.ui_info.template_data.call_to_action.url,
-        offer_info: {
-          offer_id: data.offer_data.offer_id
+        type: 'offers',
+        origin: 'cliqz',
+        data: {
+          offer_info: {
+            offer_id: data.offer_data.offer_id
+          }
         }
       }, 'ghostery');
       return;
