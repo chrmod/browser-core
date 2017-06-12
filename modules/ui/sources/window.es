@@ -389,6 +389,15 @@ export default class {
       el.parentNode.insertBefore(el, el.nextSibling);
       el.value = oldVal;
     }
+
+    this.applyAdditionalThemeStyles();
+  }
+
+  applyAdditionalThemeStyles() {
+    const urlbar = this.urlbar;
+
+    urlbar.style.maxWidth = '100%';
+    urlbar.style.margin = '0px 0px';
   }
 
   popupEvent(open) {
