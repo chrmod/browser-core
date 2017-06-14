@@ -1193,63 +1193,6 @@
     "unblock_youtube_fail": {
       "message": "OK, wir haben es versucht. Leider können wir das Video im Moment nicht zugänglich machen"
     },
-    "cliqz-onboarding-title": {
-      "message": "Juhuuu! CLIQZ wurde erfolgreich installiert."
-    },
-    "cliqz-onboarding-hdr-privacy": {
-      "message": "Mit CLIQZ bist du sicher."
-    },
-    "cliqz-onboarding-txt-privacy1": {
-      "message": "Unsere innovativen"
-    },
-    "cliqz-onboarding-txt-privacy2": {
-      "message": "Anti-Tracking & Anti-Phishing"
-    },
-    "cliqz-onboarding-txt-privacy3": {
-      "message": "Funktionen schützen deine persönlichen Daten."
-    },
-    "cliqz-onboarding-cta1": {
-      "message": "Weiter"
-    },
-    "cliqz-onboarding-hdr-search": {
-      "message": "Schnell-Suche"
-    },
-    "cliqz-onboarding-txt-search1": {
-      "message": "Während du tippst, schlägt CLIQZ dir Websites vor. Klick einfach auf einen"
-    },
-    "cliqz-onboarding-txt-search2": {
-      "message": "Vorschlag"
-    },
-    "cliqz-onboarding-txt-search3": {
-      "message": "."
-    },
-    "cliqz-onboarding-cta2": {
-      "message": "Weiter..."
-    },
-    "cliqz-onboarding-hdr-homescreen": {
-      "message": "Deine top Websites und News"
-    },
-    "cliqz-onboarding-txt-homescreen1": {
-      "message": "Auf dem CLIQZ"
-    },
-    "cliqz-onboarding-txt-homescreen2": {
-      "message": "Homescreen"
-    },
-    "cliqz-onboarding-txt-homescreen3": {
-      "message": "siehst du Direktlinks zu deinen Lieblingsseiten und Nachrichten."
-    },
-    "cliqz-onboarding-cta3": {
-      "message": "Und los geht‘s!"
-    },
-    "cliqz-onboarding-learn-more": {
-      "message": "Mehr über CLIQZ erfahren"
-    },
-    "cliqz-onboarding-full-tour": {
-      "message": "Demo ansehen"
-    },
-    "cliqz-onboarding-or": {
-      "message": "oder"
-    },
     "context-menu-search-item": {
       "message": "CLIQZ-Suche nach \"$1\""
     },
@@ -1451,44 +1394,23 @@
     "settings": {
       "message": "Einstellungen"
     },
-    "onboarding-step-1-msg": {
-      "message": "Willkommen bei CLIQZ"
+    "onboarding-welcome": {
+      "message": "Willkommen!"
     },
-    "onboarding-step-1-btn": {
-      "message": "Aktiviere den Privatsphäre-Schutz"
+    "onboarding-text": {
+      "message": "Surfen ohne Kompromisse"
     },
-    "onboarding-step-1-tooltip": {
-      "message": "Hallo! Bereit für sicheres Surfen?"
+    "onboarding-start-btn": {
+      "message": "Start"
     },
-    "onboarding-step-2-msg": {
-      "message": "Dein Privatsphäre-Kontrollzentrum"
+    "onboarding-fast": {
+      "message": "Schnell"
     },
-    "onboarding-step-2-btn": {
-      "message": "Fang an zu surfen!"
+    "onboarding-private": {
+      "message": "Privat"
     },
-    "onboarding-step-2-tooltip": {
-      "message": "Hey, bist du bereit für den nächsten Schritt?"
-    },
-    "onboarding-step-3-msg": {
-      "message": "Es kann losgehen! Probiere die Cliqz Suche aus."
-    },
-    "onboarding-step-3-btn": {
-      "message": "Los geht's"
-    },
-    "onboarding-step-3-tooltip": {
-      "message": "Nutze die CLIQZ Schnell-Suche"
-    },
-    "onboarding-step-3-tooltip-query-text": {
-      "message": "Probiere es mit:"
-    },
-    "onboarding-search-query1": {
-      "message": "Wetter München"
-    },
-    "onboarding-search-query2": {
-      "message": "Lasagne kochen"
-    },
-    "onboarding-search-query3": {
-      "message": "TV Programm"
+    "onboarding-secure": {
+      "message": "Sicher"
     },
     "video-downloader-title": {
       "message": "Video herunterladen"

@@ -60,32 +60,6 @@ $(document).ready(function(resolvedPromises) {
   });
 });
 
-// actions
-
-$('body').on('click', function(ev) {
-  if(isOnboarding()) {
-    window.postMessage(JSON.stringify({
-      target: 'cliqz',
-      module: 'core',
-      action: 'sendTelemetry',
-      args: [{
-        type: 'onboarding',
-        version: '2.1',
-        action: 'click',
-        view: 'privacy',
-        target: 'dashboard',
-      }]
-    }), '*');
-
-    window.postMessage(JSON.stringify({
-      target: 'cliqz',
-      module: 'onboarding-v2',
-      action: 'shakeIt'
-    }), '*');
-
-  }
-})
-
 // open URL
 $('#control-center').on('click', '[openUrl]', function(ev){
   sendMessageToWindow({
