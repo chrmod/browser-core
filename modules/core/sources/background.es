@@ -439,5 +439,14 @@ export default background({
         }, 1000);
       });
     },
+
+    getPref(name, defVal) {
+      return prefs.get(name, defVal);
+    },
+
+    setPref(name, val) {
+      prefs.set(name, val);
+    },
+
   },
 });
