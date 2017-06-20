@@ -26,6 +26,7 @@ if (process.argv[2] === "install") {
 
 function fern() {
 const program = require('commander');
+const execa = require('execa');
 const spaws = require('cross-spawn');
 const fs = require('fs');
 const wrench = require('wrench');
@@ -54,10 +55,16 @@ colors.setTheme({
   error: 'red'
 });
 
-// Install git hooks:
-let hookInstaller = spaws('git-hooks/install-hooks.sh');
-hookInstaller.stderr.on('data', data => console.log(data.toString()));
-hookInstaller.stdout.on('data', data => console.log(data.toString()));
+// Try to install git hooks:
+try {
+  execa.sync(
+    path.join('git-hooks', 'install-hooks.sh'),
+    [],
+    { stdio: 'inherit' }
+  );
+} catch(e) {
+  console.error('Cound not install git-hook', e);
+}
 
 function setConfigPath(configPath, buildIntoSubdir) {
   configPath = configPath || process.env['CLIQZ_CONFIG_PATH'] || './configs/jenkins.json'
@@ -77,7 +84,7 @@ function setConfigPath(configPath, buildIntoSubdir) {
 function buildFreshtabFrontEnd() {
   const configPath = process.env['CLIQZ_CONFIG_PATH'];
   var app = 'fresh-tab-frontend',
-      appPath = 'subprojects/' + app,
+      appPath = path.join('subprojects', app),
       shouldBuild = function() {
         if(CONFIG.subprojects.indexOf('fresh-tab-frontend') === -1) {
           return false;
@@ -96,7 +103,11 @@ function buildFreshtabFrontEnd() {
 
   rimraf.sync(appPath + 'dist', []);
   console.log(`Building Ember app: ${app}`);
-  var spawed = spaws.sync('./node_modules/ember-cli/bin/ember', ['build', '--output-path=dist', '--environment=production'], { stdio: 'inherit', stderr: 'inherit', cwd: appPath});
+  var spawed = execa.sync(
+    'ember',
+    ['build', '--output-path=dist', '--environment=production'],
+    { stdio: 'inherit', cwd: appPath}
+  );
   if(spawed.status === 1) {
     console.log(chalk.red('*** RUN `./fern.js install` to install missing Freshtab ember dependencies'));
     process.exit(1);
