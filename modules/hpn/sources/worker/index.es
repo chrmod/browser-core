@@ -1,5 +1,7 @@
 import messageContext from './message-context';
 import { sha1 } from '../../core/crypto/utils';
+import md5 from 'md5';
+import randBigInt from 'bigint';
 import userPK from './user-pk';
 import { parseDSKey } from './blind-signature';
 import config from '../../core/config';
@@ -95,6 +97,20 @@ self.onmessage = function(e) {
         response.result = result;
         postMessage(response);
       });
+  }
+
+  if (msgType === 'test-md5' || msgType === 'hw-md5') {
+    let _hash = md5.md5(e.data.msg);
+    const response = {};
+    response.result = _hash;
+    postMessage(response);
+  }
+
+  if (msgType === 'test-bigint' || msgType === 'hw-bigint') {
+    let rnd = randBigInt.randBigInt(1024, 1);
+    const response = {};
+    response.result = rnd;
+    postMessage(response);
   }
 
   if (msgType === 'test-rsa-sign') {
