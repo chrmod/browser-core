@@ -536,14 +536,15 @@ export default class {
     return promise;
 
   }
-  query(){
+  query(queryProxyUrl) {
     let _this = this;
     let promise = new Promise(function(resolve, reject){
       _this.aesEncrypt().then( e => {
         return _this.signKey();
       }).then( e => {
         let data = {"mP":_this.getMP()};
-        return _http(CliqzSecureMessage.queryProxyIP)
+
+        return _http(queryProxyUrl)
             .post(JSON.stringify(data), "instant");
         }).then ( res => {
             // Got response, let's decrypt it.

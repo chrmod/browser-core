@@ -21,12 +21,12 @@ self.onmessage = function(e) {
     const response = {};
     CliqzSecureMessage.sourceMap = e.data.sourcemap;
     CliqzSecureMessage.uPK = e.data.upk;
-    CliqzSecureMessage.queryProxyIP = e.data.queryproxyip;
+    const queryProxyUrl = e.data.queryProxyUrl;
     CliqzSecureMessage.dsPK = e.data.dspk;
     CliqzSecureMessage.secureLogger = e.data.sspk;
 
     const mc = new messageContext(msg);
-    mc.query().then( result => {
+    mc.query(queryProxyUrl).then( result => {
       response.res = result;
       response.uid = uid;
       response.type = 'instant';
