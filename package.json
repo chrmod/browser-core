@@ -1,6 +1,6 @@
 {
   "name": "browser-core",
-  "version": "1.17.1",
+  "version": "7.17.1",
   "description": "",
   "main": "build/index.js",
   "scripts": {
@@ -15,6 +15,9 @@
     "deploy-testpilot": "deploy-txp"
   },
   "author": "Cliqz GmbH",
+  "files": [
+    "build/*"
+  ],
   "dependencies": {
     "cron": "^1.2.1",
     "cron-parser": "^2.4.0",
