@@ -430,8 +430,8 @@ export default class OfferProcessor {
       events.pub('msg_center:show_message', {
         id: offerInfoCpy.display_id,
         Message: offerInfoCpy.ui_info.template_data.title,
-        Link: offerInfoCpy.ui_info.template_data.call_to_action.text,
-        LinkText: offerInfoCpy.ui_info.template_data.call_to_action.url,
+        Link: offerInfoCpy.ui_info.template_data.call_to_action.url,
+        LinkText: offerInfoCpy.ui_info.template_data.call_to_action.text,
         type: 'offers',
         origin: 'cliqz',
         data: {
