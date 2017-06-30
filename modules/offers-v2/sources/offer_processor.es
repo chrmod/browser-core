@@ -423,16 +423,21 @@ export default class OfferProcessor {
     if (isChromium && type === MessageType.MT_NEW_OFFER_ACTIVE) {
       const offerInfoCpy = data.offer_data;
       linfo(`_publishMessage: sending offer active for offerID: ${offerInfoCpy.display_id}`);
+      let urlsToShow = null;
+      if (data.offer_data.rule_info && data.offer_data.rule_info.url) {
+        urlsToShow = data.offer_data.rule_info.url;
+      }
       events.pub('msg_center:show_message', {
         id: offerInfoCpy.display_id,
         Message: offerInfoCpy.ui_info.template_data.title,
-        Link: offerInfoCpy.ui_info.template_data.call_to_action.text,
-        LinkText: offerInfoCpy.ui_info.template_data.call_to_action.url,
+        Link: offerInfoCpy.ui_info.template_data.call_to_action.url,
+        LinkText: offerInfoCpy.ui_info.template_data.call_to_action.text,
         type: 'offers',
         origin: 'cliqz',
         data: {
           offer_info: {
-            offer_id: data.offer_data.offer_id
+            offer_id: data.offer_data.offer_id,
+            offer_urls: urlsToShow
           }
         }
       }, 'ghostery');
