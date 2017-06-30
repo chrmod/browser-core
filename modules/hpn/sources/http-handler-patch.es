@@ -31,7 +31,7 @@ export function overRideCliqzResults() {
         upk: CliqzSecureMessage.uPK,
         dspk: CliqzSecureMessage.dsPK,
         sspk: CliqzSecureMessage.secureLogger,
-        queryproxyip: CliqzSecureMessage.queryProxyIP,
+        queryProxyUrl: CliqzSecureMessage.queryProxyIP,
       });
       return null;
     } else if (url.startsWith(utils.RESULTS_PROVIDER_LOG)) {
@@ -51,7 +51,7 @@ export function overRideCliqzResults() {
         upk: CliqzSecureMessage.uPK,
         dspk: CliqzSecureMessage.dsPK,
         sspk: CliqzSecureMessage.secureLogger,
-        queryproxyip: CliqzSecureMessage.queryProxyIP,
+        queryProxyUrl: CliqzSecureMessage.queryProxyIP,
       });
       return null;
     } else if (url === utils.SAFE_BROWSING) {

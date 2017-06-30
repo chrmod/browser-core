@@ -120,7 +120,7 @@ export default background({
           upk: CliqzSecureMessage.uPK,
           dspk: CliqzSecureMessage.dsPK,
           sspk: CliqzSecureMessage.secureLogger,
-          queryproxyip: CliqzSecureMessage.queryProxyIP,
+          queryProxyUrl: CliqzSecureMessage.queryProxyIP,
         });
       });
     }
